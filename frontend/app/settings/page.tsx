@@ -27,7 +27,7 @@ export default function SettingsPage() {
         setPreferences(userManager.getPreferences());
       } catch (error) {
         console.error('Failed to load user:', error);
-        setMessage({ type: 'error', text: 'Failed to load user data' });
+        setMessage({ type: 'error', text: '加载用户数据失败' });
       } finally {
         setLoading(false);
       }
@@ -42,10 +42,10 @@ export default function SettingsPage() {
     try {
       const updated = await userManager.updatePreferences(updates);
       setPreferences(updated);
-      setMessage({ type: 'success', text: 'Preferences saved successfully' });
+      setMessage({ type: 'success', text: '偏好保存成功' });
     } catch (error) {
       console.error('Failed to save preferences:', error);
-      setMessage({ type: 'error', text: 'Failed to save preferences' });
+      setMessage({ type: 'error', text: '保存偏好失败' });
     } finally {
       setSaving(false);
     }
@@ -54,7 +54,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-muted-foreground">加载中...</div>
       </div>
     );
   }
@@ -62,9 +62,9 @@ export default function SettingsPage() {
   return (
     <div className="container max-w-2xl mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
+        <h1 className="text-3xl font-bold mb-2">设置</h1>
         <p className="text-muted-foreground">
-          Manage your travel preferences for personalized recommendations
+          管理您的旅行偏好，以获得个性化推荐
         </p>
       </div>
 

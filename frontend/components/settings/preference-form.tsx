@@ -29,14 +29,14 @@ interface PreferenceFormProps {
 }
 
 const INTEREST_OPTIONS = [
-  { value: 'history', label: 'History & Culture' },
-  { value: 'food', label: 'Food & Dining' },
-  { value: 'nature', label: 'Nature & Scenery' },
-  { value: 'shopping', label: 'Shopping' },
-  { value: 'art', label: 'Art & Museums' },
-  { value: 'entertainment', label: 'Entertainment' },
-  { value: 'sports', label: 'Outdoor Sports' },
-  { value: 'photography', label: 'Photography' },
+  { value: 'history', label: '历史文化' },
+  { value: 'food', label: '美食体验' },
+  { value: 'nature', label: '自然风光' },
+  { value: 'shopping', label: '购物' },
+  { value: 'art', label: '艺术展览' },
+  { value: 'entertainment', label: '娱乐休闲' },
+  { value: 'sports', label: '户外运动' },
+  { value: 'photography', label: '摄影打卡' },
 ];
 
 export default function PreferenceForm({ preferences, onSave, saving }: PreferenceFormProps) {
@@ -67,30 +67,30 @@ export default function PreferenceForm({ preferences, onSave, saving }: Preferen
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Budget */}
       <div className="space-y-3">
-        <Label htmlFor="budget">Budget Level</Label>
+        <Label htmlFor="budget">预算水平</Label>
         <Select value={budget} onValueChange={(v) => setBudget(v as any)}>
           <SelectTrigger id="budget">
-            <SelectValue placeholder="Select budget level" />
+            <SelectValue placeholder="选择预算水平" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="low">Budget (Hostels, Public Transport)</SelectItem>
-            <SelectItem value="medium">Comfortable (3-star Hotels, Mixed Transport)</SelectItem>
-            <SelectItem value="high">Luxury (5-star Hotels, Private Car)</SelectItem>
+            <SelectItem value="low">经济型（青年旅舍、公共交通）</SelectItem>
+            <SelectItem value="medium">舒适型（三星酒店、混合交通）</SelectItem>
+            <SelectItem value="high">豪华型（五星酒店、专车接送）</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Travel Style */}
       <div className="space-y-3">
-        <Label htmlFor="style">Travel Style</Label>
+        <Label htmlFor="style">旅行风格</Label>
         <Select value={style} onValueChange={(v) => setStyle(v as any)}>
           <SelectTrigger id="style">
-            <SelectValue placeholder="Select travel style" />
+            <SelectValue placeholder="选择旅行风格" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="relaxed">Relaxed (Fewer attractions, slow pace)</SelectItem>
-            <SelectItem value="compact">Compact (Many attractions, efficient)</SelectItem>
-            <SelectItem value="adventure">Adventure (New experiences, outdoor activities)</SelectItem>
+            <SelectItem value="relaxed">悠闲放松（少景点、慢节奏）</SelectItem>
+            <SelectItem value="compact">紧凑充实（多景点、高效率）</SelectItem>
+            <SelectItem value="adventure">探索冒险（新鲜体验、户外活动）</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -98,7 +98,7 @@ export default function PreferenceForm({ preferences, onSave, saving }: Preferen
       {/* Travelers */}
       <div className="space-y-3">
         <Label htmlFor="travelers">
-          Number of Travelers: {travelers}
+          出行人数：{travelers} 人
         </Label>
         <Slider
           id="travelers"
@@ -113,7 +113,7 @@ export default function PreferenceForm({ preferences, onSave, saving }: Preferen
 
       {/* Interests */}
       <div className="space-y-3">
-        <Label>Interests (Select all that apply)</Label>
+        <Label>兴趣偏好（可多选）</Label>
         <div className="grid grid-cols-2 gap-3">
           {INTEREST_OPTIONS.map(option => (
             <div key={option.value} className="flex items-center space-x-2">
@@ -136,7 +136,7 @@ export default function PreferenceForm({ preferences, onSave, saving }: Preferen
       {/* Submit */}
       <div className="flex justify-end">
         <Button type="submit" disabled={saving}>
-          {saving ? 'Saving...' : 'Save Preferences'}
+          {saving ? '保存中...' : '保存偏好'}
         </Button>
       </div>
     </form>
