@@ -218,6 +218,14 @@ class ItineraryAgent:
         This is a simplified implementation. For full function calling,
         we would use DashScope's function calling API directly.
         """
+        from uuid import uuid4
+
+        # Calculate dates
+        start = datetime.now() + timedelta(days=7)
+        end = start + timedelta(days=num_days - 1)
+        start_date = start.strftime("%Y-%m-%d")
+        end_date = end.strftime("%Y-%m-%d")
+
         # For now, use a multi-step approach:
         # 1. Get weather forecast for the destination
         # 2. Search for attractions
@@ -237,6 +245,7 @@ class ItineraryAgent:
             # Step 3: Build context for LLM
             context = f"""
 目的地：{destination}
+日期：{start_date} 至 {end_date}
 天气信息：{weather_info.get('summary', 'N/A')}
 推荐景点：{attractions_info.get('summary', 'N/A')}
 """
@@ -255,7 +264,12 @@ class ItineraryAgent:
                 full_response += chunk
 
             # Parse the response
-            itinerary = self._parse_itinerary_response(full_response, destination, num_days, weather_info)
+            itinerary = self._parse_itinerary_response(full_response, destination, num_days, weather_info, start_date, end_date)
+
+            # Add required fields for frontend
+            itinerary["id"] = str(uuid4())
+            itinerary["start_date"] = start_date
+            itinerary["end_date"] = end_date
 
             return itinerary
 
@@ -268,7 +282,9 @@ class ItineraryAgent:
         response: str,
         destination: str,
         num_days: int,
-        weather_info: dict
+        weather_info: dict,
+        start_date: str,
+        end_date: str
     ) -> dict:
         """Parse LLM response into structured itinerary.
 
@@ -277,6 +293,8 @@ class ItineraryAgent:
             destination: Destination name
             num_days: Number of days
             weather_info: Weather forecast data
+            start_date: Trip start date
+            end_date: Trip end date
 
         Returns:
             Structured itinerary dict
@@ -291,11 +309,12 @@ class ItineraryAgent:
                 # Handle different JSON formats
                 if "days" in parsed:
                     logger.info(f"[Agent] Successfully parsed JSON from code block, {len(parsed['days'])} days")
-                    return parsed
+                    # Normalize the data structure
+                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info)
                 elif "itinerary" in parsed:
                     # Convert LLM format to our format
                     logger.info(f"[Agent] Converting LLM itinerary format, {len(parsed['itinerary'])} days")
-                    return self._convert_llm_format(parsed, destination, num_days, weather_info)
+                    return self._convert_llm_format(parsed, destination, num_days, weather_info, start_date, end_date)
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(f"[Agent] Failed to parse JSON code block: {e}")
 
@@ -307,20 +326,103 @@ class ItineraryAgent:
                 parsed = json.loads(json_match.group())
                 if "days" in parsed:
                     logger.info(f"[Agent] Successfully parsed plain JSON, {len(parsed['days'])} days")
-                    return parsed
+                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info)
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(f"[Agent] Failed to parse plain JSON: {e}")
 
         # Fallback: Try to extract itinerary from natural language
         logger.info("[Agent] JSON parsing failed, attempting to extract from natural language...")
-        return self._extract_from_text(response, destination, num_days, weather_info)
+        return self._extract_from_text(response, destination, num_days, weather_info, start_date, end_date)
+
+    def _normalize_itinerary(
+        self,
+        parsed: dict,
+        destination: str,
+        start_date: str,
+        end_date: str,
+        weather_info: dict
+    ) -> dict:
+        """Normalize parsed itinerary to frontend-expected format.
+
+        Args:
+            parsed: Parsed JSON from LLM
+            destination: Destination name
+            start_date: Trip start date
+            end_date: Trip end date
+            weather_info: Weather forecast data
+
+        Returns:
+            Normalized itinerary dict
+        """
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        forecasts = []
+        if isinstance(weather_info, dict) and "forecasts" in weather_info:
+            forecasts = weather_info["forecasts"]
+
+        days = []
+        for i, day in enumerate(parsed.get("days", [])):
+            date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
+            weather = forecasts[i] if i < len(forecasts) else {}
+
+            # Normalize weather data - handle both Amap format and LLM format
+            weather_data = {}
+            if isinstance(weather, dict):
+                # Amap API format: temp_min, temp_max, day_weather
+                temp_max = weather.get("temp_max") or "25"
+                temp_min = weather.get("temp_min") or "15"
+                condition = weather.get("condition_day") or weather.get("day_weather") or weather.get("condition") or "晴"
+
+                weather_data = {
+                    "temp_max": str(temp_max),
+                    "temp_min": str(temp_min),
+                    "condition": str(condition)
+                }
+            else:
+                # Default weather
+                weather_data = {
+                    "temp_max": "25",
+                    "temp_min": "15",
+                    "condition": "晴"
+                }
+
+            # Normalize activities - ensure required fields
+            activities = day.get("activities", [])
+            if not isinstance(activities, list):
+                activities = []
+
+            # Ensure each activity has required fields
+            normalized_activities = []
+            for act in activities:
+                if isinstance(act, dict):
+                    normalized_activities.append({
+                        "time": act.get("time", "全天"),
+                        "activity": act.get("activity", ""),
+                        "location": act.get("location", ""),
+                        "description": act.get("description", ""),
+                        "duration": act.get("duration", "2-3小时"),
+                        "cost": act.get("cost", "待定")
+                    })
+
+            days.append({
+                "date": date,
+                "theme": day.get("theme", ""),
+                "weather": weather_data,
+                "activities": normalized_activities
+            })
+
+        return {
+            "destination": destination,
+            "days": days
+        }
 
     def _convert_llm_format(
         self,
         llm_data: dict,
         destination: str,
         num_days: int,
-        weather_info: dict
+        weather_info: dict,
+        start_date: str,
+        end_date: str
     ) -> dict:
         """Convert LLM JSON format to our expected format.
 
@@ -329,11 +431,13 @@ class ItineraryAgent:
             destination: Destination name
             num_days: Number of days
             weather_info: Weather forecast data
+            start_date: Trip start date
+            end_date: Trip end date
 
         Returns:
             Structured itinerary dict in our format
         """
-        start = datetime.now()
+        start = datetime.strptime(start_date, "%Y-%m-%d")
         forecasts = []
         if isinstance(weather_info, dict) and "forecasts" in weather_info:
             forecasts = weather_info["forecasts"]
@@ -344,6 +448,19 @@ class ItineraryAgent:
         for i, llm_day in enumerate(llm_itinerary[:num_days]):
             date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
             weather = forecasts[i] if i < len(forecasts) else {}
+
+            # Normalize weather data
+            weather_data = {}
+            if isinstance(weather, dict):
+                temp_max = weather.get("temp_max") or weather.get("temp_day") or "25"
+                temp_min = weather.get("temp_min") or weather.get("temp_night") or "15"
+                condition = weather.get("condition") or weather.get("day_weather") or "晴"
+
+                weather_data = {
+                    "temp_max": str(temp_max),
+                    "temp_min": str(temp_min),
+                    "condition": str(condition)
+                }
 
             # Extract activities from LLM format
             activities = []
@@ -371,11 +488,7 @@ class ItineraryAgent:
             days.append({
                 "date": date,
                 "theme": llm_day.get("theme", "探索之旅"),
-                "weather": {
-                    "temp_max": weather.get("temp_max") or weather.get("temp_range", "N/A"),
-                    "temp_min": weather.get("temp_min") or weather.get("temp_range", "N/A"),
-                    "condition": weather.get("condition_day") or weather.get("day_weather", "晴")
-                },
+                "weather": weather_data,
                 "activities": activities
             })
 
@@ -389,7 +502,9 @@ class ItineraryAgent:
         response: str,
         destination: str,
         num_days: int,
-        weather_info: dict
+        weather_info: dict,
+        start_date: str,
+        end_date: str
     ) -> dict:
         """Extract itinerary from natural language response.
 
@@ -398,12 +513,14 @@ class ItineraryAgent:
             destination: Destination name
             num_days: Number of days
             weather_info: Weather forecast data
+            start_date: Trip start date
+            end_date: Trip end date
 
         Returns:
             Structured itinerary dict
         """
         # Fallback: Generate structured itinerary from text
-        start = datetime.now()
+        start = datetime.strptime(start_date, "%Y-%m-%d")
         days = []
 
         forecasts = []
@@ -414,14 +531,23 @@ class ItineraryAgent:
             date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
             weather = forecasts[i] if i < len(forecasts) else {}
 
+            # Normalize weather data
+            weather_data = {}
+            if isinstance(weather, dict):
+                temp_max = weather.get("temp_max") or weather.get("temp_day") or "25"
+                temp_min = weather.get("temp_min") or weather.get("temp_night") or "15"
+                condition = weather.get("condition") or weather.get("day_weather") or "晴"
+
+                weather_data = {
+                    "temp_max": str(temp_max),
+                    "temp_min": str(temp_min),
+                    "condition": str(condition)
+                }
+
             days.append({
                 "date": date,
                 "theme": "探索之旅",
-                "weather": {
-                    "temp_max": weather.get("temp_max") or weather.get("temp_range", "N/A"),
-                    "temp_min": weather.get("temp_min") or weather.get("temp_range", "N/A"),
-                    "condition": weather.get("condition_day") or weather.get("day_weather", "晴")
-                },
+                "weather": weather_data,
                 "activities": [
                     {
                         "time": "上午",
@@ -504,8 +630,15 @@ class ItineraryAgent:
             full_response,
             existing['destination'],
             len(existing['days']),
-            {}
+            {},
+            existing['start_date'],
+            existing['end_date']
         )
+
+        # Add id to refined itinerary
+        refined["id"] = str(itinerary_id)
+        refined["start_date"] = existing['start_date']
+        refined["end_date"] = existing['end_date']
 
         # Update in database
         await self._save_refined_itinerary(itinerary_id, refined['days'])
