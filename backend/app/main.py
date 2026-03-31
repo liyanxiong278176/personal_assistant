@@ -9,6 +9,7 @@ References:
 import logging
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -76,8 +77,16 @@ app.include_router(users_router)
 # Health check endpoint
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "travel-assistant-backend"}
+    """Health check endpoint for Docker and load balancers.
+
+    Returns service status and basic metadata.
+    """
+    return {
+        "status": "ok",
+        "service": "travel-assistant-api",
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0"
+    }
 
 # Test endpoint to trigger API calls with logging
 @app.get("/test-apis")
