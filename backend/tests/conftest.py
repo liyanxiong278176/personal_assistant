@@ -4,8 +4,8 @@ import os
 import pytest
 
 # Set test environment variables
+# 只使用高德地图API（天气+地图+POI搜索共用一个key）
 os.environ.update({
-    "QWEATHER_API_KEY": "test_key_12345",
     "AMAP_API_KEY": "test_amap_key_12345",
     "DASHSCOPE_API_KEY": "test_dashscope_key_12345",
 })
@@ -13,33 +13,59 @@ os.environ.update({
 
 @pytest.fixture
 def mock_weather_response():
-    """Mock QWeather API response."""
+    """Mock 高德天气 API response."""
     return {
-        "code": "200",
-        "now": {
-            "temp": "25",
-            "feelsLike": "26",
-            "text": "晴",
-            "windDir": "东南风",
-            "windScale": "3",
+        "status": "1",
+        "lives": {
+            "province": "北京",
+            "city": "北京市",
+            "adcode": "110000",
+            "weather": "晴",
+            "temperature": "25",
+            "winddirection": "东南",
+            "windpower": "3",
             "humidity": "65",
-            "precip": "0.0",
-            "obsTime": "2026-03-30T12:00+08:00"
-        }
+            "reporttime": "2026-03-30 12:00:00"
+        },
+        "forecasts": [
+            {
+                "city": "北京市",
+                "adcode": "110000",
+                "province": "北京",
+                "reporttime": "2026-03-30 12:00:00",
+                "casts": [
+                    {
+                        "date": "2026-03-30",
+                        "week": "今日",
+                        "dayweather": "晴",
+                        "nightweather": "晴",
+                        "daytemp": "25",
+                        "nighttemp": "15",
+                        "daywind": "东南",
+                        "nightwind": "东南",
+                        "daypower": "3",
+                        "nightpower": "3"
+                    }
+                ]
+            }
+        ]
     }
 
 
 @pytest.fixture
 def mock_city_lookup_response():
-    """Mock QWeather city lookup response."""
+    """Mock 高德地图 city lookup response."""
     return {
-        "code": "200",
-        "location": [{
-            "id": "101010100",
-            "name": "北京",
-            "adm2": "北京",
-            "adm1": "北京",
-            "country": "中国"
+        "status": "1",
+        "info": "OK",
+        "infocode": "10000",
+        "count": "1",
+        "geocodes": [{
+            "formatted_address": "北京市",
+            "country": "中国",
+            "province": "北京",
+            "citycode": "010",
+            "adcode": "110000"
         }]
     }
 
