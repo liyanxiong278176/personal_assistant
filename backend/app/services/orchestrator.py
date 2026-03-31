@@ -141,7 +141,25 @@ class MasterOrchestrator:
                 pref_lines.append(f"出行人数: {preferences['travelers']}人")
 
             if pref_lines:
-                prompt += "\n\n## 用户偏好 (请在推荐中考虑)\n" + "\n".join(f"- {p}" for p in pref_lines)
+                # 强化偏好指令 - 确保LLM优先考虑偏好
+                prompt += """
+
+## 重要：用户个性化偏好
+
+你必须优先推荐符合以下偏好的内容：
+
+"""
+                prompt += "\n".join(f"- {p}" for p in pref_lines)
+                prompt += """
+
+请根据上述偏好进行推荐，例如：
+- 如果用户喜欢"历史文化"，优先推荐博物馆、古迹、文化街区
+- 如果用户偏好"悠闲放松"，避免推荐高强度徒步或紧凑行程
+- 如果用户预算"经济型"，优先免费景点和经济实惠的选择
+- 如果用户是多人出行，考虑适合团体的活动
+
+在回复开头明确说明你如何考虑了这些偏好。
+"""
 
         # Add conversation context (per AI-01)
         if context:
