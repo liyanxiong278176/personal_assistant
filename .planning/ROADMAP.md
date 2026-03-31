@@ -122,7 +122,16 @@
 3. Application handles concurrent users without performance degradation
 4. Error handling provides clear feedback to users
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+**Plan List**:
+- [x] 04-01-PLAN.md — PDF export functionality with Chinese font support
+- [x] 04-02-PLAN.md — Frontend Docker containerization
+- [x] 04-03-PLAN.md — Backend Docker containerization with Gunicorn
+- [ ] 04-04-PLAN.md — Nginx reverse proxy and Docker Compose
+- [ ] 04-05-PLAN.md — Cloud deployment script and documentation
+
+**Status**: 🔄 Planning
 
 **UI hint**: yes
 
@@ -134,8 +143,8 @@
 |-------|----------------|--------|-----------|
 | 1. Foundation & Core Chat | 4/4 | ✅ Complete | 01-01, 01-02, 01-03, 01-04 |
 | 2. Tool Integration & Itinerary Planning | 5/5 | ✅ Complete | 02-01, 02-02, 02-03, 02-04, 02-05 |
-| 3. Multi-Agent & Memory | 0/5 | 🔄 Planning | 03-01, 03-02, 03-03, 03-04, 03-05 |
-| 4. Polish & Production | 0/2 | Not started | - |
+| 3. Multi-Agent & Memory | 4/5 | 🔄 Executing | 03-01, 03-02, 03-03, 03-04 |
+| 4. Polish & Production | 0/5 | 🔄 Planning | 04-01, 04-02, 04-03, 04-04, 04-05 |
 
 ---
 

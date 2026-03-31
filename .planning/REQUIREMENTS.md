@@ -51,7 +51,7 @@
 - [x] **INFRA-02**: 后端使用FastAPI提供RESTful和WebSocket API
 - [x] **INFRA-03**: 集成国产大模型API（通义千问/文心一言）进行对话生成
 - [ ] **INFRA-04**: 使用向量数据库存储和检索用户偏好和历史记录
-- [ ] **INFRA-05**: 系统部署在云服务器上，可通过公网访问
+- [x] **INFRA-05**: 系统部署在云服务器上，可通过公网访问
 
 ---
 
@@ -107,7 +107,7 @@
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 3 | Pending |
-| INFRA-05 | Phase 4 | Pending |
+| INFRA-05 | Phase 4 | Complete |
 
 *Roadmap created: 2026-03-30*
 
