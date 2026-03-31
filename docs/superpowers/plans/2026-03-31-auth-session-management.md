@@ -602,13 +602,13 @@ __all__ = ["AuthService", "get_current_user", "get_optional_user", "auth_router"
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, EmailField
+from pydantic import BaseModel, Field, EmailStr
 
 
 # Register Request
 class RegisterRequest(BaseModel):
     """User registration request."""
-    email: EmailField
+    email: EmailStr
     password: str = Field(..., min_length=8, max_length=100)
     verification_code: str = Field(..., min_length=6, max_length=6)
 
@@ -624,7 +624,7 @@ class RegisterResponse(BaseModel):
 # Login Request
 class LoginRequest(BaseModel):
     """User login request."""
-    email: EmailField
+    email: EmailStr
     password: str = Field(..., min_length=1, max_length=100)
 
 
@@ -647,7 +647,7 @@ class TokenResponse(BaseModel):
 # Send Code Request
 class SendCodeRequest(BaseModel):
     """Send verification code request."""
-    email: EmailField
+    email: EmailStr
 
 
 class SendCodeResponse(BaseModel):
@@ -659,7 +659,7 @@ class SendCodeResponse(BaseModel):
 # Reset Password Request
 class ResetPasswordRequest(BaseModel):
     """Reset password request."""
-    email: EmailField
+    email: EmailStr
     new_password: str = Field(..., min_length=8, max_length=100)
     reset_token: str = Field(..., min_length=32, max_length=255)
 
@@ -931,7 +931,8 @@ class AuthService:
             "user_id": user_id,
             "email": email,
             "access_token": access_token,
-            "refresh_token_expires": refresh_expires,
+            "refresh_jti": refresh_jti,  # 返回jti用于设置cookie
+            "refresh_expires": refresh_expires,
             "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
         }
 
@@ -1194,14 +1195,15 @@ async def login(
             password=request_data.password
         )
 
-        # 创建refresh token并设置到cookie
-        _, refresh_jti, refresh_expires = AuthService.create_refresh_token(result["user_id"])
+        # 从login结果中获取refresh_jti
+        refresh_jti = result.get("refresh_jti")
+        refresh_expires = result.get("refresh_expires")
 
-        # 设置httpOnly cookie
+        # 设置httpOnly cookie（存储jti）
         max_age = 7 * 24 * 60 * 60  # 7天
         response.set_cookie(
             key="refresh_token",
-            value=refresh_jti,  # 存储jti而不是token本身
+            value=refresh_jti,
             max_age=max_age,
             path="/",
             samesite="lax",
@@ -1209,22 +1211,28 @@ async def login(
             secure=False  # 开发环境设为False，生产环境应为True
         )
 
-        # 存储refresh token到数据库
-        from app.auth.service import AuthService
-        from app.db.postgres import create_refresh_token
+        # 更新refresh token记录（添加user_agent和ip）
+        from app.db.postgres import Database
+        conn = await Database.get_connection()
+        try:
+            await conn.execute("""
+                UPDATE refresh_tokens
+                SET user_agent = $1, ip_address = $2
+                WHERE jti = $3
+            """, http_request.headers.get("user-agent"),
+               http_request.client.host if http_request.client else None,
+               refresh_jti)
+        finally:
+            await Database.release_connection(conn)
 
-        _, _, refresh_expires_at = AuthService.create_refresh_token(result["user_id"])
-        token_hash = AuthService.hash_token(refresh_jti)
-        await create_refresh_token(
-            result["user_id"],
-            token_hash,
-            refresh_jti,
-            refresh_expires_at,
-            user_agent=http_request.headers.get("user-agent"),
-            ip_address=http_request.client.host if http_request.client else None
-        )
-
-        return result
+        # 返回结果（不包含敏感的refresh_jti）
+        return {
+            "user_id": result["user_id"],
+            "email": result["email"],
+            "access_token": result["access_token"],
+            "refresh_token_expires": refresh_expires,
+            "expires_in": result["expires_in"]
+        }
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -1504,6 +1512,127 @@ git commit -m "test(auth): add authentication service tests
 - Test JWT token generation and validation
 - Test verification code generation and validation
 - Test error handling
+"
+```
+
+---
+
+### Task 2.8: 添加WebSocket认证支持
+
+**Files:**
+- Modify: `backend/app/api/chat.py` (or wherever the WebSocket endpoint is defined)
+- Modify: `backend/app/main.py`
+
+- [ ] **Step 1: 更新WebSocket路由以支持token验证**
+
+在`backend/app/api/chat.py`中找到WebSocket路由，添加token参数验证：
+
+```python
+from fastapi import WebSocket, WebSocketException, status, Query
+from app.auth.service import AuthService
+from app.auth.dependencies import get_current_user
+
+@app.websocket("/ws/chat")
+async def websocket_chat_endpoint(
+    websocket: WebSocket,
+    token: str = Query(..., description="Access token for authentication")
+):
+    """
+    WebSocket聊天端点，支持JWT token认证。
+
+    通过query参数传递token: ws://localhost:8000/ws/chat?token=xxx
+    """
+    # 验证token
+    try:
+        payload = AuthService.decode_token(token)
+
+        # 检查是否为access token
+        if payload.get("type") != "access":
+            await websocket.close(code=1008, reason="Invalid token type")
+            return
+
+        user_id = payload.get("user_id")
+        if not user_id:
+            await websocket.close(code=1008, reason="Invalid token payload")
+            return
+
+        # 获取用户信息
+        user = await AuthService.get_current_user_info(user_id)
+
+    except WebSocketException as e:
+        await websocket.close(code=1008, reason=str(e))
+        return
+    except Exception as e:
+        await websocket.close(code=1011, reason="Authentication failed")
+        return
+
+    # 接受连接并存储用户信息
+    await websocket.accept()
+    websocket.state.user = user
+    websocket.state.user_id = user_id
+
+    # 继续现有的聊天逻辑...
+```
+
+- [ ] **Step 2: 更新前端WebSocket连接以传递token**
+
+在`frontend/lib/store/chat-store.ts`或WebSocket连接逻辑中，添加token参数：
+
+```typescript
+// 获取token
+const token = localStorage.getItem('access_token');
+
+// 连接WebSocket时添加token参数
+const wsUrl = token
+  ? `ws://localhost:8000/ws/chat?token=${token}`
+  : `ws://localhost:8000/ws/chat`;
+
+const ws = new WebSocket(wsUrl);
+```
+
+- [ ] **Step 3: 处理token过期**
+
+添加WebSocket重新连接逻辑：
+
+```typescript
+ws.onclose = (event) => {
+  if (event.code === 1008) {
+    // Token无效，尝试刷新
+    refreshToken().then(() => {
+      // 重新连接
+      connect();
+    }).catch(() => {
+      // 刷新失败，需要重新登录
+      useAuthStore.getState().logout();
+    });
+  }
+};
+```
+
+- [ ] **Step 4: 测试WebSocket认证**
+
+```bash
+# 1. 登录获取token
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "password"}'
+
+# 2. 使用返回的token连接WebSocket
+# 在浏览器控制台或使用websocat
+websocat "ws://localhost:8000/ws/chat?token=YOUR_ACCESS_TOKEN"
+```
+
+- [ ] **Step 5: 提交**
+
+```bash
+git add backend/app/api/chat.py frontend/lib/store/chat-store.ts
+git commit -m "feat(auth): add JWT authentication to WebSocket
+
+- Add token parameter to WebSocket endpoint
+- Validate token before accepting connection
+- Store user info in websocket.state
+- Add frontend token parameter in WebSocket URL
+- Add reconnection logic on token expiry
 "
 ```
 
