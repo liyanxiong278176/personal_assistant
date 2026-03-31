@@ -2,7 +2,9 @@
 
 References:
 - AI-02: Multi-agent collaboration via tool delegation
+- AI-04: Tool calling error handling and retry
 - D-11: Structured message communication between agents
+- D-16, D-17: Retry with fallback
 - 03-RESEARCH.md: Subagents pattern with @tool decorators
 """
 
@@ -12,19 +14,38 @@ from typing import Literal, Optional
 
 from langchain_core.tools import tool
 
-from app.agents.weather_agent import WeatherAgent
-from app.agents.map_agent import MapAgent
-from app.agents.itinerary_agent import ItineraryAgent
+from app.utils.retry import with_retry_and_fallback
 
 logger = logging.getLogger(__name__)
 
-# Global agent instances
-weather_agent = WeatherAgent()
-map_agent = MapAgent()
-itinerary_agent = ItineraryAgent()
+# Try to import agent modules - they may not exist yet (Plan 03-03 pending)
+try:
+    from app.agents.weather_agent import WeatherAgent
+    weather_agent = WeatherAgent()
+except ImportError:
+    logger.warning("WeatherAgent not available - Plan 03-03 pending")
+    weather_agent = None
+
+try:
+    from app.agents.map_agent import MapAgent
+    map_agent = MapAgent()
+except ImportError:
+    logger.warning("MapAgent not available - Plan 03-03 pending")
+    map_agent = None
+
+try:
+    from app.agents.itinerary_agent import ItineraryAgent
+    itinerary_agent = ItineraryAgent()
+except ImportError:
+    logger.warning("ItineraryAgent not available - Plan 03-03 pending")
+    itinerary_agent = None
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "天气助手暂时无法响应", "weather": {"condition": "未知", "summary": "天气服务暂时不可用"}}',
+    max_attempts=3
+)
 async def delegate_to_weather_agent(
     task: Literal["获取实时天气", "获取天气预报", "interpret_for_travel"],
     city: str,
@@ -35,7 +56,7 @@ async def delegate_to_weather_agent(
     Per D-11: Structured communication through tool interface.
 
     Args:
-        task: 具���任务类型
+        task: 具体任务类型
             - "获取实时天气": 获取当前天气状况
             - "获取天气预报": 获取未来几天的天气预报
             - "interpret_for_travel": 为旅游规划解读天气
@@ -46,6 +67,14 @@ async def delegate_to_weather_agent(
         JSON格式的天气信息字符串
     """
     logger.info(f"[AgentTools] Delegating to WeatherAgent: task={task}, city={city}")
+
+    # Check if agent is available (Plan 03-03)
+    if weather_agent is None:
+        return json.dumps({
+            "error": "天气智能体暂未实现，请等待Plan 03-03完成",
+            "task": task,
+            "city": city
+        }, ensure_ascii=False)
 
     try:
         if task == "interpret_for_travel":
@@ -62,6 +91,10 @@ async def delegate_to_weather_agent(
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "地图助手暂时无法响应", "pois": {"summary": "地图服务暂时不可用"}}',
+    max_attempts=3
+)
 async def delegate_to_map_agent(
     task: Literal["搜索景点", "搜索POI", "规划路线", "推荐景点"],
     city: str,
@@ -91,6 +124,14 @@ async def delegate_to_map_agent(
     """
     logger.info(f"[AgentTools] Delegating to MapAgent: task={task}, city={city}")
 
+    # Check if agent is available (Plan 03-03)
+    if map_agent is None:
+        return json.dumps({
+            "error": "地图智能体暂未实现，请等待Plan 03-03完成",
+            "task": task,
+            "city": city
+        }, ensure_ascii=False)
+
     try:
         if task == "规划路线":
             if not origin or not destination:
@@ -112,6 +153,10 @@ async def delegate_to_map_agent(
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "行程助手暂时无法响应", "destination": "", "days": []}',
+    max_attempts=3
+)
 async def delegate_to_itinerary_agent(
     task: Literal["生成行程", "优化行程"],
     destination: str,
@@ -136,6 +181,15 @@ async def delegate_to_itinerary_agent(
         JSON格式的行程计划字符串
     """
     logger.info(f"[AgentTools] Delegating to ItineraryAgent: task={task}, destination={destination}")
+
+    # Check if agent is available (Plan 03-03)
+    if itinerary_agent is None:
+        return json.dumps({
+            "error": "行程智能体暂未实现，请等待Plan 03-03完成",
+            "task": task,
+            "destination": destination,
+            "days": days
+        }, ensure_ascii=False)
 
     try:
         if task == "生成行程":
