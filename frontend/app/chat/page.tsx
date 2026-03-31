@@ -4,8 +4,10 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
+import { AuthModal } from "@/components/auth/auth-modal";
 import { createChatTransport } from "@/lib/chat-transport";
 import { userManager } from "@/lib/user-manager";
+import { useAuthStore } from "@/lib/store/auth-store";
 import type { Message, Itinerary } from "@/lib/types";
 
 export default function ChatPage() {
@@ -15,9 +17,11 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
+  const { isAuthenticated, user } = useAuthStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -173,16 +177,47 @@ export default function ChatPage() {
             </button>
             <h1 className="font-semibold text-lg">AI Travel Assistant</h1>
           </div>
-          <a
-            href="/settings"
-            className="p-2 hover:bg-muted rounded flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="hidden sm:inline">设置</span>
-          </a>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-2">
+                {user.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.username || user.email}
+                    className="w-7 h-7 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xs font-medium text-primary">
+                      {(user.username || user.email)?.[0]?.toUpperCase() || "U"}
+                    </span>
+                  </div>
+                )}
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  {user.username || user.email.split("@")[0]}
+                </span>
+              </div>
+            ) : null}
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="p-2 hover:bg-muted rounded flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="hidden sm:inline">{isAuthenticated ? "账号" : "登录"}</span>
+            </button>
+            <a
+              href="/settings"
+              className="p-2 hover:bg-muted rounded flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="hidden sm:inline">设置</span>
+            </a>
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto">
@@ -199,6 +234,11 @@ export default function ChatPage() {
           />
         </div>
       </main>
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      )}
     </div>
   );
 }
