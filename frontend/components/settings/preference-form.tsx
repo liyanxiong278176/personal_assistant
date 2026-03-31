@@ -40,8 +40,8 @@ const INTEREST_OPTIONS = [
 ];
 
 export default function PreferenceForm({ preferences, onSave, saving }: PreferenceFormProps) {
-  const [budget, setBudget] = useState<UserPreferences['budget']>(preferences.budget || '');
-  const [style, setStyle] = useState<UserPreferences['style']>(preferences.style || '');
+  const [budget, setBudget] = useState<string>(preferences.budget || '');
+  const [style, setStyle] = useState<string>(preferences.style || '');
   const [travelers, setTravelers] = useState(preferences.travelers || 1);
   const [interests, setInterests] = useState<string[]>(preferences.interests || []);
 
@@ -55,8 +55,8 @@ export default function PreferenceForm({ preferences, onSave, saving }: Preferen
     e.preventDefault();
 
     const updates: Partial<UserPreferences> = {};
-    if (budget) updates.budget = budget;
-    if (style) updates.style = style as any;
+    if (budget) updates.budget = budget as 'low' | 'medium' | 'high';
+    if (style) updates.style = style as 'relaxed' | 'compact' | 'adventure';
     if (travelers !== 1) updates.travelers = travelers;
     if (interests.length > 0) updates.interests = interests;
 
