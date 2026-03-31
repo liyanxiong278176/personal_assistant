@@ -43,7 +43,7 @@
 - [ ] **AI-01**: 系统使用RAG技术实现长期记忆，跨会话记住用户偏好
 - [ ] **AI-02**: 展示多Agent协作架构，不同Agent负责不同功能模块
 - [ ] **AI-03**: Agent能够根据任务需求自主选择和调用合适的工具
-- [ ] **AI-04**: 系统能够处理工具调用的错误和重试逻辑
+- [x] **AI-04**: 系统能够处理工具调用的错误和重试逻辑
 
 ### INFRA - 基础设施
 
@@ -102,7 +102,7 @@
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
 | AI-03 | Phase 3 | Pending |
-| AI-04 | Phase 3 | Pending |
+| AI-04 | Phase 3 | Complete |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
