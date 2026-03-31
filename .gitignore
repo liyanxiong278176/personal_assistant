@@ -1,0 +1,24 @@
+.planning/
+
+# Environment files
+frontend/.env.local
+backend/.env
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Build outputs
+frontend/.next/
+frontend/.idea/
+.idea/
+
+# Debug & test files
+backend/debug_*.py
+backend/debug_*.txt
+backend/debug_*.json
+backend/test_*.py
+backend/run_server.py

@@ -1,0 +1,25 @@
+# Core FastAPI
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic>=2.11.2
+python-multipart==0.0.20
+
+# Database
+psycopg[binary]==3.2.3
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+
+# AI/LLM
+dashscope>=1.20.0
+
+# Utilities
+python-dotenv==1.0.1
+httpx==0.28.1
+websockets==14.1
+
+# AI/LLM Agent
+langchain-core>=0.3.0
+
+# Development
+pytest==8.3.4
+pytest-asyncio==0.24.0

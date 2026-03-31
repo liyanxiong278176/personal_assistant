@@ -1,0 +1,110 @@
+{
+  "destination": "广州",
+  "days": [
+    {
+      "date": "2026-03-30",
+      "theme": "老城烟火·西关风情",
+      "weather": {
+        "temp_max": "20~27°C",
+        "temp_min": "20~27°C",
+        "condition": "大雨"
+      },
+      "activities": [
+        {
+          "time": "上午",
+          "activity": "参观陈家祠（广东民间工艺博物馆）",
+          "location": "",
+          "description": "免费，需预约；建议使用语音导览了解三雕二塑一彩工艺",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "下午",
+          "activity": "永庆坊 & 荔枝湾涌文化漫步",
+          "location": "",
+          "description": "打卡粤剧艺术博物馆（免费）、李小龙祖居、钟书阁；乘水上花船听西关故事",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "晚上",
+          "activity": "恩宁路大排档夜宵",
+          "location": "",
+          "description": "肥姨妈牛杂或荔湾亭：萝卜牛杂、濑粉、凉茶",
+          "duration": "2-3小时",
+          "cost": "待定"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-31",
+      "theme": "广府文脉·城市记忆",
+      "weather": {
+        "temp_max": "19~26°C",
+        "temp_min": "19~26°C",
+        "condition": "大雨"
+      },
+      "activities": [
+        {
+          "time": "上午",
+          "activity": "南越王博物院（王墓展区）",
+          "location": "",
+          "description": "西汉南越国陵墓，丝缕玉衣为核心展品；建议预约讲解",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "下午",
+          "activity": "六榕寺 + 广州博物馆（镇海楼）",
+          "location": "",
+          "description": "六榕寺参拜；登越秀山镇海楼观展并俯瞰广州全景",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "晚上",
+          "activity": "北京路千年古道遗址漫步",
+          "location": "",
+          "description": "玻璃步道下11层历史路面，扫码听AR语音导览",
+          "duration": "2-3小时",
+          "cost": "待定"
+        }
+      ]
+    },
+    {
+      "date": "2026-04-01",
+      "theme": "水乡新韵·舌尖终章",
+      "weather": {
+        "temp_max": "19~27°C",
+        "temp_min": "19~27°C",
+        "condition": "多云"
+      },
+      "activities": [
+        {
+          "time": "上午",
+          "activity": "广东省博物馆",
+          "location": "",
+          "description": "免费，必约；重点参观‘潮起珠江’通史展、自然资源展及广绣/广彩临展",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "下午",
+          "activity": "沙湾古镇文化体验",
+          "location": "",
+          "description": "联票含留耕堂、三稔厅、飘色展馆；体验非遗姜埋奶制作、品尝猪仔橘",
+          "duration": "2-3小时",
+          "cost": "待定"
+        },
+        {
+          "time": "晚上",
+          "activity": "广式手信采购",
+          "location": "",
+          "description": "莲香楼老婆饼、皇上皇腊味、致美斋酱料组合",
+          "duration": "2-3小时",
+          "cost": "待定"
+        }
+      ]
+    }
+  ]
+}
