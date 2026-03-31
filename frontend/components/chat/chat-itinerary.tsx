@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, Clock, Users, MapPin, ChevronDown, ChevronUp, Sun, Cloud } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, ChevronDown, ChevronUp, Sun, Cloud, Download } from "lucide-react";
 import type { Itinerary } from "@/lib/types";
+import { exportItinerary } from "@/lib/pdf-generator";
 
 interface ChatItineraryProps {
   itinerary: Itinerary;
@@ -10,9 +11,22 @@ interface ChatItineraryProps {
 
 export function ChatItinerary({ itinerary }: ChatItineraryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const totalDays = itinerary.days?.length || 0;
   const startDate = itinerary.days?.[0]?.date;
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      await exportItinerary(itinerary);
+    } catch (error) {
+      console.error("Failed to export PDF:", error);
+      alert("导出PDF失败，请稍后重试");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const getWeatherIcon = (condition?: string) => {
     if (!condition) return <Sun className="w-4 h-4 text-amber-500" />;
@@ -26,10 +40,12 @@ export function ChatItinerary({ itinerary }: ChatItineraryProps) {
     <div className="mt-3 rounded-xl border border-border/50 bg-card overflow-hidden">
       {/* Header */}
       <div
-        className="px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white cursor-pointer flex items-center justify-between"
-        onClick={() => setIsExpanded(!isExpanded)}
+        className="px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white flex items-center justify-between"
       >
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 flex-1 cursor-pointer"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
           <MapPin className="w-5 h-5" />
           <div>
             <div className="font-semibold">{itinerary.destination}</div>
@@ -38,7 +54,28 @@ export function ChatItinerary({ itinerary }: ChatItineraryProps) {
             )}
           </div>
         </div>
-        {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleExportPDF();
+            }}
+            disabled={isExporting}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50"
+            title="导出PDF"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+          >
+            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Expanded Content */}

@@ -1,0 +1,71 @@
+# Travel Assistant - Docker Compose Orchestration
+# Backend: Docker (FastAPI + PostgreSQL)
+# Frontend: Static files served by nginx
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: travel-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-travel_assistant}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - travel-network
+    restart: unless-stopped
+
+  # Backend API (FastAPI + Gunicorn)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: travel-backend
+    environment:
+      # Database
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_assistant}
+      # Gunicorn workers (2 for student servers, override in .env)
+      WORKERS: ${WORKERS:-2}
+      # API Keys (from environment)
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      QWEATHER_API_KEY: ${QWEATHER_API_KEY}
+      AMAP_API_KEY: ${AMAP_API_KEY}
+      # Application
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - travel-network
+    restart: unless-stopped
+
+  # Nginx: serves frontend static files + proxies to backend
+  nginx:
+    image: nginx:alpine
+    container_name: travel-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/out:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - travel-network
+    restart: unless-stopped
+
+networks:
+  travel-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

@@ -13,8 +13,13 @@ backend/__pycache__/
 
 # Build outputs
 frontend/.next/
+frontend/out/
 frontend/.idea/
 .idea/
+frontend/tsconfig.tsbuildinfo
+
+# Data & cache
+backend/data/
 
 # Debug & test files
 backend/debug_*.py
