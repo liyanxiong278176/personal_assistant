@@ -722,3 +722,298 @@ async def get_preferences(user_id: str) -> Optional[dict]:
         return None
     finally:
         await Database.release_connection(conn)
+
+
+# ============================================================
+# User Credentials Operations
+# ============================================================
+
+async def create_user_credentials(
+    user_id: str,
+    email: Optional[str] = None,
+    phone: Optional[str] = None,
+    password: str = ""
+) -> str:
+    """Create user credentials record."""
+    import hashlib
+    credentials_id = str(uuid4())
+
+    # Hash password with bcrypt
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    password_hash = pwd_context.hash(password) if password else pwd_context.hash(str(uuid4()))
+
+    conn = await Database.get_connection()
+    try:
+        await conn.execute("""
+            INSERT INTO user_credentials (id, user_id, email, phone, password_hash)
+            VALUES ($1, $2, $3, $4, $5)
+        """, credentials_id, user_id, email, phone, password_hash)
+        print(f"[OK] Created credentials for user: {user_id}")
+        return credentials_id
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_user_credentials_by_email(email: str) -> Optional[dict]:
+    """Get user credentials by email."""
+    conn = await Database.get_connection()
+    try:
+        row = await conn.fetchrow(
+            "SELECT * FROM user_credentials WHERE email = $1",
+            email
+        )
+        return dict(row) if row else None
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_user_credentials_by_phone(phone: str) -> Optional[dict]:
+    """Get user credentials by phone."""
+    conn = await Database.get_connection()
+    try:
+        row = await conn.fetchrow(
+            "SELECT * FROM user_credentials WHERE phone = $1",
+            phone
+        )
+        return dict(row) if row else None
+    finally:
+        await Database.release_connection(conn)
+
+
+async def verify_user_email(user_id: str) -> bool:
+    """Mark user email as verified."""
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute("""
+            UPDATE user_credentials
+            SET email_verified = TRUE, verification_token = NULL
+            WHERE user_id = $1
+        """, user_id)
+        return result == "UPDATE 1"
+    finally:
+        await Database.release_connection(conn)
+
+
+# ============================================================
+# Refresh Token Operations
+# ============================================================
+
+async def create_refresh_token(
+    user_id: str,
+    token_hash: str,
+    jti: str,
+    expires_at: datetime,
+    user_agent: Optional[str] = None,
+    ip_address: Optional[str] = None
+) -> str:
+    """Create a refresh token record."""
+    token_id = str(uuid4())
+    conn = await Database.get_connection()
+    try:
+        await conn.execute("""
+            INSERT INTO refresh_tokens (id, user_id, token_hash, jti, user_agent, ip_address, expires_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """, token_id, user_id, token_hash, jti, user_agent, ip_address)
+        return token_id
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_refresh_token_by_jti(jti: str) -> Optional[dict]:
+    """Get refresh token by JWT ID."""
+    conn = await Database.get_connection()
+    try:
+        row = await conn.fetchrow(
+            """SELECT * FROM refresh_tokens
+               WHERE jti = $1 AND is_revoked = FALSE AND expires_at > NOW()""",
+            jti
+        )
+        return dict(row) if row else None
+    finally:
+        await Database.release_connection(conn)
+
+
+async def revoke_refresh_token(jti: str) -> bool:
+    """Revoke a refresh token."""
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute(
+            "UPDATE refresh_tokens SET is_revoked = TRUE WHERE jti = $1",
+            jti
+        )
+        return result == "UPDATE 1"
+    finally:
+        await Database.release_connection(conn)
+
+
+async def revoke_all_user_tokens(user_id: str) -> int:
+    """Revoke all refresh tokens for a user."""
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute(
+            "UPDATE refresh_tokens SET is_revoked = TRUE WHERE user_id = $1",
+            user_id
+        )
+        # result format: "UPDATE n"
+        return int(result.split()[-1]) if result else 0
+    finally:
+        await Database.release_connection(conn)
+
+
+# ============================================================
+# Conversation Management Operations
+# ============================================================
+
+async def update_conversation(
+    conv_id: UUID,
+    title: Optional[str] = None,
+    is_archived: Optional[bool] = None,
+    pinned: Optional[bool] = None,
+    sync_enabled: Optional[bool] = None
+) -> bool:
+    """Update conversation properties."""
+    updates = []
+    params = []
+    param_idx = 1
+
+    if title is not None:
+        updates.append(f"title = ${param_idx}")
+        params.append(title)
+        param_idx += 1
+    if is_archived is not None:
+        updates.append(f"is_archived = ${param_idx}")
+        params.append(is_archived)
+        param_idx += 1
+    if pinned is not None:
+        updates.append(f"pinned = ${param_idx}")
+        params.append(pinned)
+        param_idx += 1
+    if sync_enabled is not None:
+        updates.append(f"sync_enabled = ${param_idx}")
+        params.append(sync_enabled)
+        param_idx += 1
+
+    if not updates:
+        return False
+
+    params.append(str(conv_id))
+    query = f"UPDATE conversations SET {', '.join(updates)} WHERE id = ${param_idx}"
+
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute(query, *params)
+        return result == "UPDATE 1"
+    finally:
+        await Database.release_connection(conn)
+
+
+async def list_user_conversations(
+    user_id: str,
+    include_archived: bool = False,
+    limit: int = 50
+) -> list[dict]:
+    """List conversations for a user with pinned first."""
+    conn = await Database.get_connection()
+    try:
+        archived_filter = "" if include_archived else "AND c.is_archived = FALSE"
+        rows = await conn.fetch(f"""
+            SELECT c.*, COUNT(m.id) as message_count
+            FROM conversations c
+            LEFT JOIN messages m ON c.id = m.conversation_id
+            WHERE c.user_id = $1 {archived_filter}
+            GROUP BY c.id
+            ORDER BY c.pinned DESC, c.updated_at DESC
+            LIMIT $2
+        """, user_id, limit)
+        return [dict(row) for row in rows]
+    finally:
+        await Database.release_connection(conn)
+
+
+async def search_conversations(
+    user_id: str,
+    query: str,
+    limit: int = 20
+) -> list[dict]:
+    """Search conversations by title or message content."""
+    conn = await Database.get_connection()
+    try:
+        rows = await conn.fetch("""
+            SELECT DISTINCT c.*
+            FROM conversations c
+            LEFT JOIN messages m ON c.id = m.conversation_id
+            WHERE c.user_id = $1
+              AND (c.title ILIKE $2 OR m.content ILIKE $2)
+              AND c.is_archived = FALSE
+            ORDER BY c.updated_at DESC
+            LIMIT $3
+        """, user_id, f"%{query}%", limit)
+        return [dict(row) for row in rows]
+    finally:
+        await Database.release_connection(conn)
+
+
+# ============================================================
+# Conversation Tags Operations
+# ============================================================
+
+async def add_conversation_tag(
+    conversation_id: UUID,
+    tag_name: str,
+    color: str = "#6366f1"
+) -> str:
+    """Add a tag to a conversation."""
+    tag_id = str(uuid4())
+    conn = await Database.get_connection()
+    try:
+        await conn.execute("""
+            INSERT INTO conversation_tags (id, conversation_id, tag_name, color)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (conversation_id, tag_name) DO NOTHING
+        """, tag_id, conversation_id, tag_name, color)
+        return tag_id
+    finally:
+        await Database.release_connection(conn)
+
+
+async def remove_conversation_tag(conversation_id: UUID, tag_name: str) -> bool:
+    """Remove a tag from a conversation."""
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute("""
+            DELETE FROM conversation_tags
+            WHERE conversation_id = $1 AND tag_name = $2
+        """, conversation_id, tag_name)
+        return result == "DELETE 1"
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_conversation_tags(conversation_id: UUID) -> list[dict]:
+    """Get all tags for a conversation."""
+    conn = await Database.get_connection()
+    try:
+        rows = await conn.fetch(
+            "SELECT * FROM conversation_tags WHERE conversation_id = $1 ORDER BY tag_name",
+            conversation_id
+        )
+        return [dict(row) for row in rows]
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_all_user_tags(user_id: str) -> list[str]:
+    """Get all unique tag names for a user."""
+    conn = await Database.get_connection()
+    try:
+        rows = await conn.fetch("""
+            SELECT DISTINCT ct.tag_name
+            FROM conversation_tags ct
+            JOIN conversations c ON ct.conversation_id = c.id
+            WHERE c.user_id = $1
+            ORDER BY ct.tag_name
+        """, user_id)
+        return [row["tag_name"] for row in rows]
+    finally:
+        await Database.release_connection(conn)
