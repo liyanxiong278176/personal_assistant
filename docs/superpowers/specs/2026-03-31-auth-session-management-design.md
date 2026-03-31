@@ -65,8 +65,7 @@
 | Token认证 | JWT (HS256) | 无状态，易于扩展 |
 | 状态管理 | Zustand | 轻量简洁，TypeScript友好，适合React 19 |
 | 表单验证 | Zod + React Hook Form | 类型安全，开发体验好 |
-| 邮件服务 | 阿里云DirectMail | 国内稳定，有免费额度 |
-| 短信服务 | 腾讯云SMS | 备选方案，按需使用 |
+| 验证码发送 | 控制台日志模拟 | 无需第三方服务，适合面试展示项目 |
 | 速率限制 | Redis + 滑动窗口算法 | 高性能，支持分布式 |
 
 ---
@@ -134,12 +133,19 @@ POST   /api/auth/verify-reset-token - 验证重置Token
 GET    /api/auth/me                - 获取当前用户
 ```
 
-### 3.7 邮件/短信服务集成
+### 3.7 验证码发送方案
 
-**开发环境**: 使用控制台日志模拟发送
-**生产环境**:
-- 邮件: 阿里云DirectMail API
-- 短信: 腾讯云SMS API（按需启用）
+**开发/演示环境**: 使用控制台日志模拟发送
+
+```python
+async def send_verification_code(identifier: str, code: str) -> bool:
+    """发送验证码（开发环境：控制台输出）"""
+    print(f"[验证码] 发送到 {identifier}: {code}")
+    print(f"[验证码] 请在应用中输入此码完成验证")
+    return True
+```
+
+**注意**: 作为面试展示项目，使用控制台输出验证码即可，无需集成第三方邮件/短信服务。
 
 ### 3.8 游客到注册用户迁移流程
 
@@ -519,7 +525,6 @@ async def protected_endpoint(user: dict = Depends(get_current_user)):
 
 | 风险 | 影响 | 缓解措施 |
 |------|------|----------|
-| 邮箱发送服务不稳定 | 注册体验差 | 提供手机验证码作为备选；开发环境使用日志模拟 |
 | Token刷新失败频繁 | 用户频繁登出 | 实现Token刷新队列和重试机制；Refresh Token有效期延长 |
 | 会话数据迁移问题 | 现有数据丢失 | 充分测试迁移脚本，做好备份；user_id设为可NULL |
 | WebSocket认证复杂 | 流式响应中断 | 实现Token过期自动重连；连接前验证Token |
