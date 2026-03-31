@@ -121,16 +121,27 @@ class MasterOrchestrator:
                 budget_map = {'low': '经济型', 'medium': '舒适型', 'high': '豪华型'}
                 pref_lines.append(f"预算水平: {budget_map.get(preferences['budget'], preferences['budget'])}")
             if preferences.get('interests'):
-                pref_lines.append(f"兴趣偏好: {', '.join(preferences['interests'])}")
+                # Translate interest labels to Chinese
+                interest_map = {
+                    'history': '历史文化',
+                    'food': '美食体验',
+                    'nature': '自然风光',
+                    'shopping': '购物',
+                    'art': '艺术展览',
+                    'entertainment': '娱乐休闲',
+                    'sports': '户外运动',
+                    'photography': '摄影打卡'
+                }
+                translated_interests = [interest_map.get(i, i) for i in preferences['interests']]
+                pref_lines.append(f"兴趣偏好: {', '.join(translated_interests)}")
             if preferences.get('style'):
-                style_map = {'relaxed': '悠闲放松', 'compact': '紧凑充实', 'adventure': '探索冒险',
-                            '放松': '悠闲放松', '紧凑': '紧凑充实', '冒险': '探索冒险'}
+                style_map = {'relaxed': '悠闲放松', 'compact': '紧凑充实', 'adventure': '探索冒险'}
                 pref_lines.append(f"旅行风格: {style_map.get(preferences['style'], preferences['style'])}")
             if preferences.get('travelers', 1) > 1:
                 pref_lines.append(f"出行人数: {preferences['travelers']}人")
 
             if pref_lines:
-                prompt += "\n\n## User Preferences (Please consider in recommendations)\n" + "\n".join(f"- {p}" for p in pref_lines)
+                prompt += "\n\n## 用户偏好 (请在推荐中考虑)\n" + "\n".join(f"- {p}" for p in pref_lines)
 
         # Add conversation context (per AI-01)
         if context:
