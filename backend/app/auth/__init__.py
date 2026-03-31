@@ -15,6 +15,8 @@ from .models import (
     ErrorResponse,
 )
 from .service import AuthService, get_auth_service
+from .dependencies import get_current_user, require_auth, get_refresh_token_jti
+from .router import router as auth_router
 
 __all__ = [
     "RegisterRequest",
@@ -28,4 +30,8 @@ __all__ = [
     "ErrorResponse",
     "AuthService",
     "get_auth_service",
+    "get_current_user",
+    "require_auth",
+    "get_refresh_token_jti",
+    "auth_router",
 ]

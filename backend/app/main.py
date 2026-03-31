@@ -22,6 +22,7 @@ from app.api.itinerary import router as itinerary_router
 from app.api.routes import router as routes_router
 from app.api.memory import memory_router
 from app.api.users import users_router
+from app.auth import auth_router
 
 # Configure logging
 logging.basicConfig(
@@ -68,6 +69,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(router)
 app.include_router(itinerary_router)
 app.include_router(routes_router)
