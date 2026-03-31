@@ -45,14 +45,16 @@ class UserManager {
       const data = await response.json();
       userId = data.id;
 
-      // Store in localStorage
-      localStorage.setItem(USER_ID_KEY, userId);
+      if (userId) {
+        // Store in localStorage
+        localStorage.setItem(USER_ID_KEY, userId);
+      }
     }
 
     this.userId = userId;
     await this.loadPreferences();
 
-    return userId;
+    return userId ?? '';
   }
 
   /**

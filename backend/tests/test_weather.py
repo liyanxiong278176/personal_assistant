@@ -1,20 +1,20 @@
-"""Tests for QWeather service and tools."""
+"""Tests for Amap weather service and tools."""
 
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from app.services.weather_service import weather_service, QWeatherService
+from app.services.weather_service import weather_service, AmapWeatherService
 from app.tools.weather_tools import get_weather, get_weather_forecast
 
 
-class TestQWeatherService:
-    """Test QWeatherService class."""
+class TestAmapWeatherService:
+    """Test AmapWeatherService class."""
 
     @pytest.mark.asyncio
     async def test_get_realtime_weather_success(self, mock_city_lookup_response, mock_weather_response):
         """Test successful weather retrieval."""
         # Create fresh service instance for test isolation
-        service = QWeatherService()
+        service = AmapWeatherService()
         try:
             with patch("app.services.weather_service.httpx.AsyncClient") as mock_client_class:
                 # Setup mock client
@@ -81,7 +81,7 @@ class TestQWeatherService:
             ]
         }
 
-        service = QWeatherService()
+        service = AmapWeatherService()
         try:
             with patch("app.services.weather_service.httpx.AsyncClient") as mock_client_class:
                 mock_client = AsyncMock()
@@ -114,7 +114,7 @@ class TestQWeatherService:
             "location": []
         }
 
-        service = QWeatherService()
+        service = AmapWeatherService()
         try:
             with patch("app.services.weather_service.httpx.AsyncClient") as mock_client_class:
                 mock_client = AsyncMock()
@@ -136,7 +136,7 @@ class TestQWeatherService:
     @pytest.mark.asyncio
     async def test_cache_functionality(self, mock_city_lookup_response, mock_weather_response):
         """Test that caching works and prevents duplicate API calls."""
-        service = QWeatherService()
+        service = AmapWeatherService()
         try:
             with patch("app.services.weather_service.httpx.AsyncClient") as mock_client_class:
                 mock_client = AsyncMock()

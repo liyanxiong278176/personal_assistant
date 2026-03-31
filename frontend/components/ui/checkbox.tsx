@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-export interface CheckboxProps {
+export interface CheckboxProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'checked' | 'onChange'> {
   checked?: boolean
   onCheckedChange?: (checked: boolean) => void
   disabled?: boolean

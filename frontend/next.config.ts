@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Static export for nginx deployment
-  output: 'export',
   // Build output directory
   distDir: 'out',
   webpack: (config) => {

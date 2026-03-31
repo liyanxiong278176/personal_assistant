@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-export interface SliderProps {
+export interface SliderProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number[]
   onValueChange?: (value: number[]) => void
   min?: number
