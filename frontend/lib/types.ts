@@ -38,10 +38,11 @@ export interface ItineraryRequest {
 }
 
 export interface ItineraryActivity {
-  time: string; // "上午", "下午", "晚上"
+  time: string; // "08:00-11:00" or "上午"
+  period?: string; // "清晨", "上午", "中午", "下午", "傍晚", "晚上"
   activity: string;
   location: string;
-  description: string;
+  description: string; // 详细描述，包含推荐理由、交通、注意事项等
   duration: string;
   cost?: string;
 }
@@ -49,6 +50,8 @@ export interface ItineraryActivity {
 export interface ItineraryDay {
   date: string;
   theme?: string;
+  summary?: string; // 今日亮点
+  weather_note?: string; // 天气穿衣建议
   weather?: {
     temp_max?: string;
     temp_min?: string;
@@ -60,6 +63,8 @@ export interface ItineraryDay {
 export interface Itinerary {
   id: string;
   destination: string;
+  overview?: string; // 整体行程概述
+  tips?: string[]; // 实用提示
   start_date: string;
   end_date: string;
   preferences?: string;

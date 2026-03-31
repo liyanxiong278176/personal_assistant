@@ -204,20 +204,29 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                     if has_itinerary_intent:
                         try:
                             from app.services.agent_service import itinerary_agent
-                            from datetime import datetime, timedelta
-
-                            start = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-                            end = (datetime.now() + timedelta(days=9)).strftime("%Y-%m-%d")
+                            from app.services.orchestrator import parse_chinese_date, extract_trip_info
 
                             logger.info(f"[Chat] Generating itinerary for {msg.content[:20]}...")
-                            # 提取目的地
-                            destination = extract_destination(msg.content) or "北京"
-                            logger.info(f"[Chat] Destination: {destination}")
+
+                            # 解析行程信息（目的地、日期）
+                            trip_info = extract_trip_info(msg.content)
+                            destination = trip_info.get("destination") or extract_destination(msg.content) or "北京"
+                            start_date = trip_info.get("start_date")
+                            end_date = trip_info.get("end_date")
+                            num_days = trip_info.get("num_days", 3)
+
+                            # 如果没有解析到日期，使用默认值
+                            if not start_date or not end_date:
+                                from datetime import datetime, timedelta
+                                start_date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+                                end_date = (datetime.now() + timedelta(days=7 + num_days - 1)).strftime("%Y-%m-%d")
+
+                            logger.info(f"[Chat] Trip: {destination}, {start_date} to {end_date} ({num_days} days)")
 
                             itinerary = await itinerary_agent.generate_itinerary(
                                 destination=destination,
-                                start_date=start,
-                                end_date=end,
+                                start_date=start_date,
+                                end_date=end_date,
                                 preferences=msg.content,
                                 travelers=2,
                                 budget="medium",

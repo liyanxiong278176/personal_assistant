@@ -63,13 +63,18 @@ class LLMService:
         self,
         user_message: str,
         conversation_id: Optional[str],
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
+        custom_system_prompt: Optional[str] = None
     ) -> list:
         """Build message list with context and user preferences."""
         messages = []
 
-        # Build system prompt with user preferences
-        system_prompt = await self._build_system_prompt(user_id)
+        # Use custom system prompt if provided, otherwise build default
+        if custom_system_prompt:
+            system_prompt = custom_system_prompt
+        else:
+            # Build system prompt with user preferences
+            system_prompt = await self._build_system_prompt(user_id)
 
         messages.append({"role": "system", "content": system_prompt})
 
@@ -157,7 +162,8 @@ class LLMService:
         user_message: str,
         conversation_id: Optional[str] = None,
         on_stop: Optional[asyncio.Event] = None,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
+        system_prompt: Optional[str] = None
     ) -> AsyncGenerator[str, None]:
         """Stream chat response from LLM with true async interrupt support.
 
@@ -166,6 +172,7 @@ class LLMService:
             conversation_id: Conversation ID for context
             on_stop: Event for user interruption
             user_id: User ID for personalization
+            system_prompt: Optional custom system prompt (overrides default)
 
         Yields:
             Response content chunks
@@ -177,7 +184,7 @@ class LLMService:
             raise ValueError("DASHSCOPE_API_KEY not configured")
 
         # Build messages with context and user preferences
-        messages = await self._build_messages(user_message, conversation_id, user_id)
+        messages = await self._build_messages(user_message, conversation_id, user_id, system_prompt)
 
         # Check cache first
         cached = await self._check_question_cache(user_message, messages)

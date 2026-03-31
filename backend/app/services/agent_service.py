@@ -145,7 +145,7 @@ class ItineraryAgent:
         messages.append({"role": "user", "content": user_message})
 
         # Use function calling with DashScope
-        response = await self._call_with_tools(messages, destination, num_days)
+        response = await self._call_with_tools(messages, destination, num_days, start_date, end_date)
 
         return response
 
@@ -160,35 +160,50 @@ class ItineraryAgent:
         """Build system prompt for itinerary generation."""
         prompt = f"""你是一位专业的旅游规划助手。请为用户生成一份详细的{num_days}天{destination}旅游行程。
 
-【重要】输出要求：
-1. 先用自然语言给出详细的行程建议（包含景点、美食、交通等实用信息）
-2. 在回复的最后，必须以```json```代码块格式输出结构化的行程数据
+【核心要求】
+请以**JSON格式**输出行程，description字段要包含详细的推荐理由、交通方式、注意事项、菜品建议等丰富信息。
 
 行程要求：
-1. 每天上午、下午、晚上的活动安排要具体
-2. 推荐当地特色景点和美食
-3. 考虑天气因素和路线合理性
-4. 符合用户预算和偏好
+1. **必须生成完整的{num_days}天行程，JSON中days数组必须恰好包含{num_days}个元素！**
+2. **请仔细检查：days数组的长度必须是{num_days}，不能多也不能少！**
+3. 每天安排3-5个活动，时间段要具体（如"08:00-11:00"）
+4. description字段必须详细：包含推荐理由、交通、注意事项、预约提醒等
+5. 推荐具体餐厅名称、菜品建议、人均消费
+6. 考虑实时天气、路线合理性
+7. 每天设定一个主题
 
-输出格式示例（必须在回复最后输出）：
+输出格式：
 ```json
 {{
   "destination": "{destination}",
+  "overview": "整体行程概述：1-2句话介绍行程亮点和风格",
+  "tips": ["预约提醒", "交通建议", "注意事项"],
   "days": [
     {{
       "date": "2026-03-30",
-      "theme": "老广味道·岭南风情",
-      "weather": "晴 18~25°C",
+      "theme": "今日主题",
+      "summary": "今日亮点和特色介绍",
       "activities": [
-        {{"time": "上午", "activity": "游览陈家祠", "location": "陈家祠", "description": "岭南建筑瑰宝", "duration": "3小时", "cost": "免费"}},
-        {{"time": "中午", "activity": "品尝广式早茶", "location": "泮溪酒家", "description": "正宗广式早茶", "duration": "2小时", "cost": "约80元/人"}},
-        {{"time": "下午", "activity": "漫步永庆坊", "location": "永庆坊", "description": "骑楼建筑、非遗小店", "duration": "3小时", "cost": "免费"}},
-        {{"time": "晚上", "activity": "荔枝湾涌夜游", "location": "荔枝湾涌", "description": "水乡夜景", "duration": "1.5小时", "cost": "约50元/人"}}
+        {{
+          "time": "08:00-11:00",
+          "period": "清晨",
+          "activity": "观看升旗仪式",
+          "location": "天安门广场",
+          "description": "推荐理由：感受庄严时刻。交通：地铁1号线。注意事项：需提前安检，禁带大件行李。",
+          "duration": "2小时",
+          "cost": "免费"
+        }}
       ]
     }}
   ]
 }}
 ```
+
+**重要**：
+1. days数组必须恰好包含{num_days}个元素！
+2. description要详细丰富，包含推荐理由、交通、注意事项等！
+3. 必须包含overview字段（整体行程概述）和tips数组（3-5个实用提示）！
+4. 直接输出JSON，用```json...```包裹即可。
 """
 
         if preferences:
@@ -211,55 +226,114 @@ class ItineraryAgent:
         self,
         messages: list,
         destination: str,
-        num_days: int
+        num_days: int,
+        start_date: str,
+        end_date: str
     ) -> dict:
         """Call LLM with tool calling support.
 
         This is a simplified implementation. For full function calling,
         we would use DashScope's function calling API directly.
+
+        Args:
+            messages: Conversation messages
+            destination: Travel destination
+            num_days: Number of travel days
+            start_date: Trip start date (YYYY-MM-DD)
+            end_date: Trip end date (YYYY-MM-DD)
         """
         from uuid import uuid4
 
-        # Calculate dates
-        start = datetime.now() + timedelta(days=7)
-        end = start + timedelta(days=num_days - 1)
-        start_date = start.strftime("%Y-%m-%d")
-        end_date = end.strftime("%Y-%m-%d")
+        # Parse the input dates
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+
+        # Check if dates are too far in the future for weather forecast
+        days_until_trip = (start - datetime.now()).days
+        max_forecast_days = 7  # Most weather APIs support up to 7-15 days
+
+        weather_unavailable = False
+        if days_until_trip > max_forecast_days:
+            weather_unavailable = True
+            logger.warning(f"Trip is {days_until_trip} days away, beyond weather forecast range")
 
         # For now, use a multi-step approach:
-        # 1. Get weather forecast for the destination
+        # 1. Get weather forecast for the destination (if available)
         # 2. Search for attractions
         # 3. Generate itinerary with this context
 
         try:
-            # Step 1: Get weather forecast
-            logger.info(f"Fetching weather for {destination}")
-            weather_result = await get_weather_forecast.ainvoke({"city": destination, "days": min(num_days, 7)})
-            weather_info = json.loads(weather_result) if isinstance(weather_result, str) else weather_result
+            # Step 1: Get weather forecast (only if dates are within range)
+            weather_info = {}
+            if not weather_unavailable:
+                logger.info(f"Fetching weather for {destination}")
+                try:
+                    weather_result = await get_weather_forecast.ainvoke({"city": destination, "days": min(num_days, max_forecast_days)})
+                    weather_info = json.loads(weather_result) if isinstance(weather_result, str) else weather_result
+                except Exception as e:
+                    logger.warning(f"Weather fetch failed: {e}")
+                    weather_unavailable = True
 
             # Step 2: Search for attractions
             logger.info(f"Searching attractions in {destination}")
             attractions_result = await search_attraction.ainvoke({"city": destination, "attraction_type": "景点"})
             attractions_info = json.loads(attractions_result) if isinstance(attractions_result, str) else attractions_result
+            logger.info(f"[ItineraryAgent] Attractions found: {attractions_info.get('count', 0)}")
+            if 'attractions' in attractions_info and attractions_info['attractions']:
+                top_3 = [a['name'] for a in attractions_info['attractions'][:3]]
+                logger.info(f"[ItineraryAgent] Top 3 attractions: {top_3}")
 
             # Step 3: Build context for LLM
+            weather_note = ""
+            if weather_unavailable:
+                weather_note = f"\n⚠️ 注意：行程日期（{start_date}）超出天气预报范围（{max_forecast_days}天），建议出发前1-3天再次查询准确天气。"
+
             context = f"""
 目的地：{destination}
-日期：{start_date} 至 {end_date}
-天气信息：{weather_info.get('summary', 'N/A')}
+日期：{start_date} 至 {end_date}（共{num_days}天）{weather_note}
+天气信息：{weather_info.get('summary', 'N/A（日期较远，暂无数据）') if not weather_unavailable else '日期较远，暂无天气预报数据'}
 推荐景点：{attractions_info.get('summary', 'N/A')}
+
+【重要】请生成恰好{num_days}天的行程，JSON中days数组必须有{num_days}个元素！
 """
 
-            # Update system message with tool results
+            # Debug logging
+            logger.info(f"[ItineraryAgent] Full context being passed to LLM:\n{context}")
+            logger.info(f"[ItineraryAgent] System prompt length before context: {len(messages[0]['content'])} chars")
             for msg in messages:
                 if msg["role"] == "system":
                     msg["content"] += f"\n\n## 实时信息\n{context}"
 
             # Step 4: Generate itinerary using LLM
+            # Add JSON format requirements at the END (most recent instruction)
+            system_prompt = messages[0]["content"]
+            user_msg = messages[-1]["content"]
+
+            # Add format requirements to user message (most prominent position)
+            format_requirements = f"""
+
+## 输出格式要求
+请直接以JSON格式输出行程，必须包含以下字段：
+- overview: 整体行程概述（1-2句话）
+- tips: 实用提示数组（3-5条）
+- days数组：每天包含theme（主题）、summary（亮点）、activities列表
+
+示例格式：
+{{
+  "destination": "{destination}",
+  "overview": "行程概述",
+  "tips": ["提示1", "提示2"],
+  "days": [{{"date": "2026-10-01", "theme": "主题", "summary": "亮点", "activities": [{{"time": "08:00-11:00", "activity": "活动", "location": "地点", "description": "详细说明", "duration": "时长", "cost": "费用"}}]}}]
+}}
+
+重要：直接输出JSON，用```json包裹，不要其他文字！
+"""
+
             full_response = ""
             async for chunk in llm_service.stream_chat(
-                user_message=messages[-1]["content"],
-                conversation_id=None  # Don't use context here to avoid duplication
+                user_message=user_msg + format_requirements,
+                conversation_id=None,
+                system_prompt=system_prompt
             ):
                 full_response += chunk
 
@@ -291,13 +365,13 @@ class ItineraryAgent:
         Args:
             response: LLM response text
             destination: Destination name
-            num_days: Number of days
+            num_days: Expected number of days (validates and pads if needed)
             weather_info: Weather forecast data
             start_date: Trip start date
             end_date: Trip end date
 
         Returns:
-            Structured itinerary dict
+            Structured itinerary dict with exactly num_days entries
         """
         # Try to extract JSON from ```json``` code block
         try:
@@ -308,12 +382,14 @@ class ItineraryAgent:
                 parsed = json.loads(json_str)
                 # Handle different JSON formats
                 if "days" in parsed:
-                    logger.info(f"[Agent] Successfully parsed JSON from code block, {len(parsed['days'])} days")
-                    # Normalize the data structure
-                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info)
+                    actual_days = len(parsed.get("days", []))
+                    logger.info(f"[Agent] Successfully parsed JSON from code block, {actual_days} days (expected {num_days})")
+                    # Normalize the data structure (will validate and pad)
+                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info, num_days)
                 elif "itinerary" in parsed:
                     # Convert LLM format to our format
-                    logger.info(f"[Agent] Converting LLM itinerary format, {len(parsed['itinerary'])} days")
+                    actual_days = len(parsed.get("itinerary", []))
+                    logger.info(f"[Agent] Converting LLM itinerary format, {actual_days} days (expected {num_days})")
                     return self._convert_llm_format(parsed, destination, num_days, weather_info, start_date, end_date)
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(f"[Agent] Failed to parse JSON code block: {e}")
@@ -325,8 +401,9 @@ class ItineraryAgent:
             if json_match:
                 parsed = json.loads(json_match.group())
                 if "days" in parsed:
-                    logger.info(f"[Agent] Successfully parsed plain JSON, {len(parsed['days'])} days")
-                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info)
+                    actual_days = len(parsed.get("days", []))
+                    logger.info(f"[Agent] Successfully parsed plain JSON, {actual_days} days (expected {num_days})")
+                    return self._normalize_itinerary(parsed, destination, start_date, end_date, weather_info, num_days)
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(f"[Agent] Failed to parse plain JSON: {e}")
 
@@ -340,7 +417,8 @@ class ItineraryAgent:
         destination: str,
         start_date: str,
         end_date: str,
-        weather_info: dict
+        weather_info: dict,
+        num_days: int = None
     ) -> dict:
         """Normalize parsed itinerary to frontend-expected format.
 
@@ -349,24 +427,46 @@ class ItineraryAgent:
             destination: Destination name
             start_date: Trip start date
             end_date: Trip end date
-            weather_info: Weather forecast data
+            weather_info: Weather forecast data (may be empty if dates too far)
+            num_days: Expected number of days (validates and pads if needed)
 
         Returns:
-            Normalized itinerary dict
+            Normalized itinerary dict with exactly num_days entries
         """
         start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+
+        # Calculate expected days if not provided
+        if num_days is None:
+            num_days = (end - start).days + 1
+
         forecasts = []
+        has_weather = False
         if isinstance(weather_info, dict) and "forecasts" in weather_info:
             forecasts = weather_info["forecasts"]
+            if forecasts and len(forecasts) > 0:
+                has_weather = True
+
+        parsed_days = parsed.get("days", [])
+        actual_days = len(parsed_days)
+
+        # Log warning if day count mismatch
+        if actual_days < num_days:
+            logger.warning(f"[Agent] LLM returned {actual_days} days, expected {num_days}. Padding with fallback days.")
+        elif actual_days > num_days:
+            logger.warning(f"[Agent] LLM returned {actual_days} days, expected {num_days}. Truncating to {num_days}.")
 
         days = []
-        for i, day in enumerate(parsed.get("days", [])):
+        for i in range(num_days):
             date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
             weather = forecasts[i] if i < len(forecasts) else {}
 
+            # Get day data from parsed response or use fallback
+            day = parsed_days[i] if i < actual_days else None
+
             # Normalize weather data - handle both Amap format and LLM format
             weather_data = {}
-            if isinstance(weather, dict):
+            if has_weather and isinstance(weather, dict) and weather:
                 # Amap API format: temp_min, temp_max, day_weather
                 temp_max = weather.get("temp_max") or "25"
                 temp_min = weather.get("temp_min") or "15"
@@ -378,15 +478,28 @@ class ItineraryAgent:
                     "condition": str(condition)
                 }
             else:
-                # Default weather
+                # Weather not available - show placeholder
                 weather_data = {
-                    "temp_max": "25",
-                    "temp_min": "15",
-                    "condition": "晴"
+                    "temp_max": "--",
+                    "temp_min": "--",
+                    "condition": "暂无预报"
                 }
 
             # Normalize activities - ensure required fields
-            activities = day.get("activities", [])
+            if day:
+                activities = day.get("activities", [])
+                theme = day.get("theme", "")
+                summary = day.get("summary", "")
+            else:
+                # Fallback day
+                activities = [
+                    {"time": "上午", "activity": f"探索{destination}", "location": "市区", "description": "游览当地著名景点", "duration": "3小时", "cost": "待定"},
+                    {"time": "下午", "activity": "品尝当地美食", "location": "特色餐厅", "description": "体验当地特色菜肴", "duration": "2小时", "cost": "约100元/人"},
+                    {"time": "晚上", "activity": "夜游城市", "location": "商业区", "description": "欣赏城市夜景", "duration": "2小时", "cost": "待定"}
+                ]
+                theme = "自由探索"
+                summary = ""
+
             if not isinstance(activities, list):
                 activities = []
 
@@ -394,10 +507,21 @@ class ItineraryAgent:
             normalized_activities = []
             for act in activities:
                 if isinstance(act, dict):
+                    # Extract fields with fallbacks
+                    activity_name = act.get("activity", "").strip()
+                    location_name = act.get("location", "").strip()
+
+                    # If activity is empty but location exists, use location as activity
+                    if not activity_name and location_name:
+                        activity_name = location_name
+                    # If both are empty, use a default
+                    if not activity_name:
+                        activity_name = "自由活动"
+
                     normalized_activities.append({
                         "time": act.get("time", "全天"),
-                        "activity": act.get("activity", ""),
-                        "location": act.get("location", ""),
+                        "activity": activity_name,
+                        "location": location_name,
                         "description": act.get("description", ""),
                         "duration": act.get("duration", "2-3小时"),
                         "cost": act.get("cost", "待定")
@@ -405,13 +529,20 @@ class ItineraryAgent:
 
             days.append({
                 "date": date,
-                "theme": day.get("theme", ""),
+                "theme": theme,
+                "summary": summary,
                 "weather": weather_data,
                 "activities": normalized_activities
             })
 
         return {
             "destination": destination,
+            "overview": parsed.get("overview", f"为您精心规划的{num_days}天{destination}之旅，涵盖当地精华景点与特色体验。"),
+            "tips": parsed.get("tips", [
+                "建议提前预订热门景点门票",
+                "关注天气变化，合理安排行程",
+                "品尝当地特色美食，体验地道文化"
+            ]),
             "days": days
         }
 
@@ -429,29 +560,42 @@ class ItineraryAgent:
         Args:
             llm_data: LLM response JSON (with 'itinerary' key)
             destination: Destination name
-            num_days: Number of days
-            weather_info: Weather forecast data
+            num_days: Number of days (validates and pads if needed)
+            weather_info: Weather forecast data (may be empty if dates too far)
             start_date: Trip start date
             end_date: Trip end date
 
         Returns:
-            Structured itinerary dict in our format
+            Structured itinerary dict in our format with exactly num_days entries
         """
         start = datetime.strptime(start_date, "%Y-%m-%d")
         forecasts = []
+        has_weather = False
         if isinstance(weather_info, dict) and "forecasts" in weather_info:
             forecasts = weather_info["forecasts"]
+            if forecasts and len(forecasts) > 0:
+                has_weather = True
 
         days = []
         llm_itinerary = llm_data.get("itinerary", [])
+        actual_days = len(llm_itinerary)
 
-        for i, llm_day in enumerate(llm_itinerary[:num_days]):
+        # Log warning if day count mismatch
+        if actual_days < num_days:
+            logger.warning(f"[Agent] LLM format has {actual_days} days, expected {num_days}. Padding with fallback days.")
+        elif actual_days > num_days:
+            logger.warning(f"[Agent] LLM format has {actual_days} days, expected {num_days}. Truncating to {num_days}.")
+
+        for i in range(num_days):
             date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
             weather = forecasts[i] if i < len(forecasts) else {}
 
+            # Get day data from LLM response or use fallback
+            llm_day = llm_itinerary[i] if i < actual_days else None
+
             # Normalize weather data
             weather_data = {}
-            if isinstance(weather, dict):
+            if has_weather and isinstance(weather, dict) and weather:
                 temp_max = weather.get("temp_max") or weather.get("temp_day") or "25"
                 temp_min = weather.get("temp_min") or weather.get("temp_night") or "15"
                 condition = weather.get("condition") or weather.get("day_weather") or "晴"
@@ -461,23 +605,43 @@ class ItineraryAgent:
                     "temp_min": str(temp_min),
                     "condition": str(condition)
                 }
+            else:
+                # Weather not available
+                weather_data = {
+                    "temp_max": "--",
+                    "temp_min": "--",
+                    "condition": "暂无预报"
+                }
 
             # Extract activities from LLM format
             activities = []
-            for time_key, time_name in [("morning", "上午"), ("afternoon", "下午"), ("evening", "晚上")]:
-                if time_key in llm_day:
-                    time_data = llm_day[time_key]
-                    if isinstance(time_data, dict):
-                        activities.append({
-                            "time": time_name,
-                            "activity": time_data.get("activity", ""),
-                            "location": time_data.get("location", ""),
-                            "description": time_data.get("details", ""),
-                            "duration": time_data.get("duration", "2-3小时"),
-                            "cost": time_data.get("cost", "待定")
-                        })
+            theme = "探索之旅"
 
-            # If no activities found, add defaults
+            if llm_day:
+                theme = llm_day.get("theme", "探索之旅")
+                for time_key, time_name in [("morning", "上午"), ("afternoon", "下午"), ("evening", "晚上")]:
+                    if time_key in llm_day:
+                        time_data = llm_day[time_key]
+                        if isinstance(time_data, dict):
+                            activity_name = time_data.get("activity", "").strip()
+                            location_name = time_data.get("location", "").strip()
+
+                            # Fallback: if activity is empty, use location
+                            if not activity_name and location_name:
+                                activity_name = location_name
+                            if not activity_name:
+                                activity_name = f"{time_name}活动"
+
+                            activities.append({
+                                "time": time_name,
+                                "activity": activity_name,
+                                "location": location_name,
+                                "description": time_data.get("details", ""),
+                                "duration": time_data.get("duration", "2-3小时"),
+                                "cost": time_data.get("cost", "待定")
+                            })
+
+            # If no activities found (or fallback day), add defaults
             if not activities:
                 activities = [
                     {"time": "上午", "activity": f"探索{destination}", "location": "市区", "description": "游览当地景点", "duration": "3小时", "cost": "待定"},
@@ -487,13 +651,19 @@ class ItineraryAgent:
 
             days.append({
                 "date": date,
-                "theme": llm_day.get("theme", "探索之旅"),
+                "theme": theme,
                 "weather": weather_data,
                 "activities": activities
             })
 
         return {
             "destination": destination,
+            "overview": llm_data.get("overview", f"为您精心规划的{num_days}天{destination}之旅，涵盖当地精华景点与特色体验。"),
+            "tips": llm_data.get("tips", [
+                "建议提前预订热门景点门票",
+                "关注天气变化，合理安排行程",
+                "品尝当地特色美食，体验地道文化"
+            ]),
             "days": days
         }
 
@@ -512,7 +682,7 @@ class ItineraryAgent:
             response: LLM response text (natural language)
             destination: Destination name
             num_days: Number of days
-            weather_info: Weather forecast data
+            weather_info: Weather forecast data (may be empty if dates too far)
             start_date: Trip start date
             end_date: Trip end date
 
@@ -524,8 +694,11 @@ class ItineraryAgent:
         days = []
 
         forecasts = []
+        has_weather = False
         if isinstance(weather_info, dict) and "forecasts" in weather_info:
             forecasts = weather_info["forecasts"]
+            if forecasts and len(forecasts) > 0:
+                has_weather = True
 
         for i in range(num_days):
             date = (start + timedelta(days=i)).strftime("%Y-%m-%d")
@@ -533,7 +706,7 @@ class ItineraryAgent:
 
             # Normalize weather data
             weather_data = {}
-            if isinstance(weather, dict):
+            if has_weather and isinstance(weather, dict) and weather:
                 temp_max = weather.get("temp_max") or weather.get("temp_day") or "25"
                 temp_min = weather.get("temp_min") or weather.get("temp_night") or "15"
                 condition = weather.get("condition") or weather.get("day_weather") or "晴"
@@ -542,6 +715,13 @@ class ItineraryAgent:
                     "temp_max": str(temp_max),
                     "temp_min": str(temp_min),
                     "condition": str(condition)
+                }
+            else:
+                # Weather not available
+                weather_data = {
+                    "temp_max": "--",
+                    "temp_min": "--",
+                    "condition": "暂无预报"
                 }
 
             days.append({
@@ -578,6 +758,12 @@ class ItineraryAgent:
 
         return {
             "destination": destination,
+            "overview": f"为您精心规划的{num_days}天{destination}之旅，涵盖当地精华景点与特色体验。",
+            "tips": [
+                "建议提前预订热门景点门票",
+                "关注天气变化，合理安排行程",
+                "品尝当地特色美食，体验地道文化"
+            ],
             "days": days,
             "raw_response": response  # Include raw response for reference
         }
