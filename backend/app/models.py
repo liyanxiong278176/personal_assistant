@@ -18,6 +18,7 @@ class WSMessage(BaseModel):
     type: str = Field(..., description="Message type: 'message' or 'control'")
     session_id: str = Field(..., description="Session identifier (UUID)")
     conversation_id: Optional[str] = Field(None, description="Conversation identifier")
+    user_id: Optional[str] = Field(None, description="User identifier for personalization")
     content: Optional[str] = Field(None, description="User message content")
     control: Optional[str] = Field(None, description="Control command: 'stop', 'ping'")
 

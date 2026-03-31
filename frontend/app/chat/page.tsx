@@ -5,6 +5,7 @@ import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { createChatTransport } from "@/lib/chat-transport";
+import { userManager } from "@/lib/user-manager";
 import type { Message, Itinerary } from "@/lib/types";
 
 export default function ChatPage() {
@@ -13,9 +14,24 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
+
+  // Initialize user manager on mount
+  useEffect(() => {
+    async function initUser() {
+      try {
+        const id = await userManager.initialize();
+        setUserId(id);
+        console.log('[Chat] User initialized:', id);
+      } catch (error) {
+        console.error('[Chat] Failed to initialize user:', error);
+      }
+    }
+    initUser();
+  }, []);
 
   // Initialize transport on mount
   useEffect(() => {

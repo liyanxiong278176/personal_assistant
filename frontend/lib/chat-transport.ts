@@ -19,19 +19,22 @@ interface TransportOptions {
   onDone?: (messageId: string) => void;
   onError?: (error: string) => void;
   onItinerary?: (itinerary: any) => void;
+  userId?: string;
 }
 
 export class ChatWebSocketTransport {
   private ws: WebSocket | null = null;
   private sessionId: string;
+  private userId: string | null = null;
   private conversationId: string | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private messageQueue: WSMessage[] = [];
   private isConnected = false;
 
-  constructor(sessionId?: string) {
+  constructor(sessionId?: string, userId?: string) {
     this.sessionId = sessionId || this.generateSessionId();
+    this.userId = userId || null;
   }
 
   private generateSessionId(): string {
@@ -93,6 +96,7 @@ export class ChatWebSocketTransport {
       ...message,
       session_id: message.session_id || this.sessionId,
       conversation_id: message.conversation_id || this.conversationId || undefined,
+      user_id: message.user_id || this.userId || undefined,
     };
 
     console.log("[ChatTransport] send() called, isConnected:", this.isConnected, "readyState:", this.ws?.readyState);
@@ -198,11 +202,19 @@ export class ChatWebSocketTransport {
   getSessionId(): string {
     return this.sessionId;
   }
+
+  setUserId(userId: string): void {
+    this.userId = userId;
+  }
+
+  getUserId(): string | null {
+    return this.userId;
+  }
 }
 
 // Factory function for creating transport instances
-export function createChatTransport(sessionId?: string): ChatWebSocketTransport {
-  const transport = new ChatWebSocketTransport(sessionId);
+export function createChatTransport(sessionId?: string, userId?: string): ChatWebSocketTransport {
+  const transport = new ChatWebSocketTransport(sessionId, userId);
   transport.connect().catch(console.error);
   return transport;
 }
