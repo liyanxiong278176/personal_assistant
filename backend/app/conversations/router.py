@@ -1,0 +1,473 @@
+"""API router for conversation management.
+
+Provides REST endpoints for conversation CRUD operations,
+search, filtering, and tag management.
+"""
+
+import logging
+from typing import Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
+
+from app.auth.dependencies import get_current_user, require_auth
+from app.auth.models import UserInfo
+from .models import (
+    ConversationUpdate,
+    ConversationResponse,
+    ConversationListResponse,
+    TagCreate,
+    TagResponse,
+    ConversationListItem,
+)
+from .service import ConversationService, get_conversation_service
+
+logger = logging.getLogger(__name__)
+
+# Create router
+router = APIRouter(
+    prefix="/api/conversations",
+    tags=["conversations"],
+)
+
+
+# ============================================================
+# List Conversations
+# ============================================================
+
+
+@router.get("", response_model=ConversationListResponse)
+async def list_conversations(
+    include_archived: bool = Query(False, description="Include archived conversations"),
+    archived_only: bool = Query(False, description="Only return archived conversations"),
+    limit: int = Query(50, ge=1, le=100, description="Maximum number of conversations"),
+    current_user: Optional[UserInfo] = Depends(get_current_user),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """List conversations for the current user.
+
+    Returns conversations sorted by pinned status (pinned first)
+    and then by update time (most recent first).
+
+    - **include_archived**: Include archived conversations in results
+    - **archived_only**: Only return archived conversations
+    - **limit**: Maximum number of conversations to return (1-100)
+    """
+    # For anonymous users, return empty list
+    if not current_user:
+        return ConversationListResponse(conversations=[], total=0, limit=limit)
+
+    conversations, total = await service.list_conversations(
+        user_id=current_user.user_id,
+        include_archived=include_archived,
+        archived_only=archived_only,
+        limit=limit,
+    )
+
+    return ConversationListResponse(
+        conversations=[
+            ConversationListItem(
+                id=conv["id"],
+                title=conv["title"],
+                created_at=conv["created_at"],
+                updated_at=conv["updated_at"],
+                message_count=conv.get("message_count", 0),
+                is_archived=conv.get("is_archived", False),
+                pinned=conv.get("pinned", False),
+                sync_enabled=conv.get("sync_enabled", True),
+                tags=conv.get("tags", []),
+            )
+            for conv in conversations
+        ],
+        total=total,
+        limit=limit,
+    )
+
+
+@router.get("/archived", response_model=ConversationListResponse)
+async def list_archived_conversations(
+    limit: int = Query(50, ge=1, le=100, description="Maximum number of conversations"),
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """List only archived conversations.
+
+    Requires authentication.
+    """
+    conversations, total = await service.list_conversations(
+        user_id=current_user.user_id,
+        archived_only=True,
+        limit=limit,
+    )
+
+    return ConversationListResponse(
+        conversations=[
+            ConversationListItem(
+                id=conv["id"],
+                title=conv["title"],
+                created_at=conv["created_at"],
+                updated_at=conv["updated_at"],
+                message_count=conv.get("message_count", 0),
+                is_archived=conv.get("is_archived", False),
+                pinned=conv.get("pinned", False),
+                sync_enabled=conv.get("sync_enabled", True),
+                tags=conv.get("tags", []),
+            )
+            for conv in conversations
+        ],
+        total=total,
+        limit=limit,
+    )
+
+
+# ============================================================
+# Search Conversations
+# ============================================================
+
+
+@router.get("/search", response_model=ConversationListResponse)
+async def search_conversations(
+    q: str = Query(..., min_length=1, description="Search query"),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of results"),
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Search conversations by title or message content.
+
+    Requires authentication. Searches through conversation titles
+    and message content for the given query string.
+
+    - **q**: Search query string
+    - **limit**: Maximum number of results (1-100)
+    """
+    conversations = await service.search_conversations(
+        user_id=current_user.user_id,
+        query=q,
+        limit=limit,
+    )
+
+    return ConversationListResponse(
+        conversations=[
+            ConversationListItem(
+                id=conv["id"],
+                title=conv["title"],
+                created_at=conv["created_at"],
+                updated_at=conv["updated_at"],
+                message_count=conv.get("message_count", 0),
+                is_archived=conv.get("is_archived", False),
+                pinned=conv.get("pinned", False),
+                sync_enabled=conv.get("sync_enabled", True),
+                tags=conv.get("tags", []),
+            )
+            for conv in conversations
+        ],
+        total=len(conversations),
+        limit=limit,
+    )
+
+
+# ============================================================
+# Get Single Conversation
+# ============================================================
+
+
+@router.get("/{conversation_id}", response_model=ConversationResponse)
+async def get_conversation(
+    conversation_id: UUID,
+    current_user: Optional[UserInfo] = Depends(get_current_user),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Get a single conversation by ID.
+
+    For authenticated users, only returns conversations they own.
+    For anonymous users, returns public conversations only.
+    """
+    # For anonymous users, check if conversation exists and is public
+    if not current_user:
+        conv = await service.get_conversation(conversation_id, user_id="")
+        if not conv or conv.get("user_id"):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+        return ConversationResponse(
+            id=conv["id"],
+            title=conv["title"],
+            created_at=conv["created_at"],
+            updated_at=conv["updated_at"],
+            message_count=conv.get("message_count", 0),
+            is_archived=conv.get("is_archived", False),
+            pinned=conv.get("pinned", False),
+            sync_enabled=conv.get("sync_enabled", True),
+            tags=conv.get("tags", []),
+            user_id=conv.get("user_id"),
+        )
+
+    try:
+        conv = await service.get_conversation(conversation_id, current_user.user_id)
+        if not conv:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+        return ConversationResponse(
+            id=conv["id"],
+            title=conv["title"],
+            created_at=conv["created_at"],
+            updated_at=conv["updated_at"],
+            message_count=conv.get("message_count", 0),
+            is_archived=conv.get("is_archived", False),
+            pinned=conv.get("pinned", False),
+            sync_enabled=conv.get("sync_enabled", True),
+            tags=conv.get("tags", []),
+            user_id=conv.get("user_id"),
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+# ============================================================
+# Update Conversation
+# ============================================================
+
+
+@router.put("/{conversation_id}", response_model=ConversationResponse)
+async def update_conversation(
+    conversation_id: UUID,
+    update: ConversationUpdate,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Update conversation properties.
+
+    Requires authentication and ownership of the conversation.
+    Supports partial updates - only include fields you want to change.
+    """
+    try:
+        conv = await service.update_conversation(
+            conversation_id=conversation_id,
+            user_id=current_user.user_id,
+            title=update.title,
+            is_archived=update.is_archived,
+            pinned=update.pinned,
+            sync_enabled=update.sync_enabled,
+        )
+        if not conv:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+        return ConversationResponse(
+            id=conv["id"],
+            title=conv["title"],
+            created_at=conv["created_at"],
+            updated_at=conv["updated_at"],
+            message_count=conv.get("message_count", 0),
+            is_archived=conv.get("is_archived", False),
+            pinned=conv.get("pinned", False),
+            sync_enabled=conv.get("sync_enabled", True),
+            tags=conv.get("tags", []),
+            user_id=conv.get("user_id"),
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+# ============================================================
+# Delete Conversation
+# ============================================================
+
+
+@router.delete("/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_conversation(
+    conversation_id: UUID,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Delete a conversation.
+
+    Requires authentication and ownership of the conversation.
+    This will cascade delete all associated messages.
+    """
+    try:
+        success = await service.delete_conversation(
+            conversation_id=conversation_id,
+            user_id=current_user.user_id,
+        )
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+# ============================================================
+# Pin Conversation
+# ============================================================
+
+
+@router.post("/{conversation_id}/pin", response_model=ConversationResponse)
+async def pin_conversation(
+    conversation_id: UUID,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Pin a conversation to the top of the list.
+
+    Requires authentication and ownership of the conversation.
+    """
+    try:
+        conv = await service.update_conversation(
+            conversation_id=conversation_id,
+            user_id=current_user.user_id,
+            pinned=True,
+        )
+        if not conv:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+        return ConversationResponse(
+            id=conv["id"],
+            title=conv["title"],
+            created_at=conv["created_at"],
+            updated_at=conv["updated_at"],
+            message_count=conv.get("message_count", 0),
+            is_archived=conv.get("is_archived", False),
+            pinned=conv.get("pinned", False),
+            sync_enabled=conv.get("sync_enabled", True),
+            tags=conv.get("tags", []),
+            user_id=conv.get("user_id"),
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+# ============================================================
+# Tag Management
+# ============================================================
+
+
+@router.get("/tags/list", response_model=list[str])
+async def get_all_tags(
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Get all unique tag names for the current user.
+
+    Requires authentication.
+    """
+    return await service.get_all_tags(current_user.user_id)
+
+
+@router.get("/{conversation_id}/tags", response_model=list[TagResponse])
+async def get_conversation_tags(
+    conversation_id: UUID,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Get all tags for a conversation.
+
+    Requires authentication and ownership of the conversation.
+    """
+    try:
+        tags = await service.get_tags(conversation_id, current_user.user_id)
+        return [
+            TagResponse(
+                id=tag["id"],
+                conversation_id=tag["conversation_id"],
+                tag_name=tag["tag_name"],
+                color=tag["color"],
+                created_at=tag["created_at"],
+            )
+            for tag in tags
+        ]
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+@router.post("/{conversation_id}/tags", response_model=TagResponse, status_code=status.HTTP_201_CREATED)
+async def add_tag(
+    conversation_id: UUID,
+    tag: TagCreate,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Add a tag to a conversation.
+
+    Requires authentication and ownership of the conversation.
+    If the tag already exists, this will have no effect.
+    """
+    try:
+        tag_data = await service.add_tag(
+            conversation_id=conversation_id,
+            user_id=current_user.user_id,
+            tag_name=tag.tag_name,
+            color=tag.color,
+        )
+        return TagResponse(
+            id=tag_data["id"],
+            conversation_id=UUID(tag_data["conversation_id"]),
+            tag_name=tag_data["tag_name"],
+            color=tag_data["color"],
+            created_at=None,  # Not returned from service
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
+
+
+@router.delete("/{conversation_id}/tags/{tag_name}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_tag(
+    conversation_id: UUID,
+    tag_name: str,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Remove a tag from a conversation.
+
+    Requires authentication and ownership of the conversation.
+    """
+    try:
+        success = await service.remove_tag(
+            conversation_id=conversation_id,
+            user_id=current_user.user_id,
+            tag_name=tag_name,
+        )
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tag not found",
+            )
+        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
