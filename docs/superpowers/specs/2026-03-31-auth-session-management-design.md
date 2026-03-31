@@ -399,18 +399,49 @@ CREATE INDEX idx_login_attempts_identifier ON login_attempts(identifier, attempt
 ### 7.6 数据迁移策略
 
 ```sql
--- 迁移脚本：为现有游客用户添加默认设置
--- 1. 确保所有现有conversations的user_id不为NULL
-UPDATE conversations SET user_id = (
-    SELECT COALESCE(
-        (SELECT user_id FROM conversation_metadata WHERE conversation_id = conversations.id LIMIT 1),
-        (SELECT id FROM users ORDER BY created_at LIMIT 1)
-    )
-) WHERE user_id IS NULL;
+-- ============================================================
+-- 数据迁移脚本：从游客模���升级到认证系统
+-- ============================================================
 
--- 2. ��没有user_credentials的现有users创建guest标识
--- （游客用户不需要user_credentials记录，系统通过user_credentials表是否存在判断用户类型）
+-- 步骤1: 扩展conversations表添加user_id列（如果尚未添加）
+-- 注意：user_id设为可NULL以保持向后兼容
+ALTER TABLE conversations ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+
+-- 步骤2: 为现有conversations分配user_id
+-- 策略：将所有现有conversations关联到第一个用户（通常是开发测试用户）
+DO $$
+DECLARE
+    first_user_id UUID;
+BEGIN
+    SELECT id INTO first_user_id FROM users ORDER BY created_at LIMIT 1;
+    IF first_user_id IS NOT NULL THEN
+        UPDATE conversations
+        SET user_id = first_user_id
+        WHERE user_id IS NULL;
+        RAISE NOTICE 'Assigned conversations to user %', first_user_id;
+    END IF;
+END $$;
+
+-- 步骤3: 验证迁移结果
+SELECT
+    COUNT(*) as total_conversations,
+    COUNT(user_id) as linked_conversations,
+    COUNT(*) - COUNT(user_id) as orphaned_conversations
+FROM conversations;
 ```
+
+**用户类型判断逻辑**:
+```python
+# 游客用户：存在于users表但不存在于user_credentials表
+# 认证用户：同时存在于users表和user_credentials表
+
+async def is_guest_user(user_id: str) -> bool:
+    """判断是否为游客用户"""
+    credentials = await get_user_credentials(user_id)
+    return credentials is None
+```
+
+**注意**: 现有的`users`表结构保持不变（仅有`id`、`created_at`、`updated_at`），认证信息存储在独立的`user_credentials`表中。
 
 ---
 
