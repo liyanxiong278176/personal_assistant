@@ -19,6 +19,7 @@ from app.db.postgres import Database
 from app.api.chat import websocket_chat_endpoint, router
 from app.api.itinerary import router as itinerary_router
 from app.api.routes import router as routes_router
+from app.api.memory import memory_router
 
 # Configure logging
 logging.basicConfig(
@@ -68,6 +69,7 @@ app.add_middleware(
 app.include_router(router)
 app.include_router(itinerary_router)
 app.include_router(routes_router)
+app.include_router(memory_router)
 
 # Health check endpoint
 @app.get("/health")
