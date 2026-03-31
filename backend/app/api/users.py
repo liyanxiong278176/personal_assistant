@@ -43,7 +43,7 @@ async def create_new_user() -> dict:
         user_id = await create_user()
         user = await get_user(user_id)
         return {
-            "id": user["id"],
+            "id": str(user["id"]),  # Convert UUID to string
             "created_at": user["created_at"],
             "updated_at": user["updated_at"]
         }
@@ -66,7 +66,7 @@ async def get_user_by_id(user_id: str) -> dict:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {
-        "id": user["id"],
+        "id": str(user["id"]),  # Convert UUID to string
         "created_at": user["created_at"],
         "updated_at": user["updated_at"]
     }
