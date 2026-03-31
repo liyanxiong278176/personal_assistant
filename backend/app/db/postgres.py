@@ -569,9 +569,10 @@ async def update_preferences(user_id: str, preferences: dict) -> bool:
     conn = await Database.get_connection()
     try:
         # PostgreSQL JSONB merge operator (||) for partial updates
+        # Use json.dumps and cast to JSONB type
         result = await conn.execute("""
             UPDATE user_preferences
-            SET preferences = preferences || $2,
+            SET preferences = preferences || $2::jsonb,
                 updated_at = NOW()
             WHERE user_id = $1
         """, user_id, json.dumps(preferences))
@@ -593,6 +594,7 @@ async def get_preferences(user_id: str) -> Optional[dict]:
     Returns:
         Preferences dict or None if not found
     """
+    import json
     conn = await Database.get_connection()
     try:
         row = await conn.fetchrow(
@@ -600,7 +602,10 @@ async def get_preferences(user_id: str) -> Optional[dict]:
             user_id
         )
         if row:
-            prefs = dict(row["preferences"])
+            prefs = row["preferences"]
+            # asyncpg returns JSONB as string, need to parse
+            if isinstance(prefs, str):
+                prefs = json.loads(prefs)
             prefs["updated_at"] = row["updated_at"].isoformat()
             return prefs
         return None
