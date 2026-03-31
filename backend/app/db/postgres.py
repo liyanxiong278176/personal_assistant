@@ -153,6 +153,37 @@ class Database:
                 ON itineraries(conversation_id)
             """)
 
+            # Create users table (per D-01)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id UUID PRIMARY KEY,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            # Create user_preferences table (per D-04, D-06)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_preferences (
+                    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            # GIN index for JSONB queries (per 03-RESEARCH.md Pitfall 4)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_user_preferences_gin
+                ON user_preferences USING GIN (preferences)
+            """)
+
+            # Partial index for budget queries
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_user_preferences_budget
+                ON user_preferences ((preferences->>'budget'))
+                WHERE preferences ? 'budget'
+            """)
+
             print("[OK] Database tables initialized")
         finally:
             await cls.release_connection(conn)
@@ -456,5 +487,122 @@ async def get_conversation_itineraries(
             }
             for row in rows
         ]
+
+
+# User and preference operations (per D-01, D-04, D-06)
+async def create_user() -> str:
+    """Create a new user with auto-generated UUID.
+
+    Per D-01: UUID as user identifier.
+    Per D-02: No password required.
+
+    Returns:
+        User ID (UUID string)
+    """
+    import json
+    user_id = str(uuid4())
+
+    conn = await Database.get_connection()
+    try:
+        # Create user record
+        await conn.execute(
+            """INSERT INTO users (id, created_at, updated_at)
+               VALUES ($1, $2, $2)""",
+            user_id, datetime.utcnow()
+        )
+
+        # Create default preferences (per D-05)
+        default_prefs = {
+            "budget": None,
+            "interests": [],
+            "style": None,
+            "travelers": 1
+        }
+        await conn.execute(
+            """INSERT INTO user_preferences (user_id, preferences, updated_at)
+               VALUES ($1, $2, $3)""",
+            user_id, json.dumps(default_prefs), datetime.utcnow()
+        )
+
+        print(f"[OK] Created user: {user_id}")
+        return user_id
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_user(user_id: str) -> Optional[dict]:
+    """Get a user by ID.
+
+    Args:
+        user_id: User UUID
+
+    Returns:
+        User dict or None if not found
+    """
+    conn = await Database.get_connection()
+    try:
+        row = await conn.fetchrow(
+            "SELECT * FROM users WHERE id = $1",
+            user_id
+        )
+        return dict(row) if row else None
+    finally:
+        await Database.release_connection(conn)
+
+
+async def update_preferences(user_id: str, preferences: dict) -> bool:
+    """Update user preferences (partial update supported).
+
+    Per D-06: JSONB field for flexible preference storage.
+    Per D-07: Supports merging with existing preferences.
+
+    Args:
+        user_id: User UUID
+        preferences: Preferences to update (merged with existing)
+
+    Returns:
+        True if updated, False if user not found
+    """
+    import json
+    conn = await Database.get_connection()
+    try:
+        # PostgreSQL JSONB merge operator (||) for partial updates
+        result = await conn.execute("""
+            UPDATE user_preferences
+            SET preferences = preferences || $2,
+                updated_at = NOW()
+            WHERE user_id = $1
+        """, user_id, json.dumps(preferences))
+
+        success = result == "UPDATE 1"
+        if success:
+            print(f"[OK] Updated preferences for user: {user_id}")
+        return success
+    finally:
+        await Database.release_connection(conn)
+
+
+async def get_preferences(user_id: str) -> Optional[dict]:
+    """Get user preferences.
+
+    Args:
+        user_id: User UUID
+
+    Returns:
+        Preferences dict or None if not found
+    """
+    conn = await Database.get_connection()
+    try:
+        row = await conn.fetchrow(
+            "SELECT preferences, updated_at FROM user_preferences WHERE user_id = $1",
+            user_id
+        )
+        if row:
+            prefs = dict(row["preferences"])
+            prefs["updated_at"] = row["updated_at"].isoformat()
+            return prefs
+        return None
+    finally:
+        await Database.release_connection(conn)
     finally:
         await Database.release_connection(conn)

@@ -120,3 +120,54 @@ class ItineraryResponse(BaseModel):
     days: list[ItineraryDay]
     created_at: datetime
     updated_at: datetime
+
+
+# User Models (per D-01: simplified user system with UUID)
+class UserCreate(BaseModel):
+    """User creation request (auto-generated UUID, no input needed)."""
+
+    pass  # UUID is auto-generated
+
+
+class UserResponse(BaseModel):
+    """User response."""
+
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+
+# User Preference Models (per D-04, D-05: JSONB preference storage)
+class UserPreferences(BaseModel):
+    """User preferences for travel planning."""
+
+    budget: Optional[str] = Field(None, description="Budget level: low, medium, high")
+    interests: list[str] = Field(default_factory=list, description="Interest tags: history, food, nature, etc.")
+    style: Optional[str] = Field(None, description="Travel style: relaxed, compact, adventure")
+    travelers: int = Field(1, ge=1, le=20, description="Preferred number of travelers")
+
+
+class PreferenceCreate(BaseModel):
+    """Preference creation request."""
+
+    budget: Optional[str] = Field(None, pattern="^(low|medium|high)$")
+    interests: list[str] = Field(default_factory=list, max_length=20)
+    style: Optional[str] = Field(None, pattern="^(放松|紧凑|冒险|relaxed|compact|adventure)$")
+    travelers: int = Field(1, ge=1, le=20)
+
+
+class PreferenceUpdate(BaseModel):
+    """Preference update request (partial update supported)."""
+
+    budget: Optional[str] = Field(None, pattern="^(low|medium|high)$")
+    interests: Optional[list[str]] = Field(None, max_length=20)
+    style: Optional[str] = Field(None, pattern="^(放松|紧凑|冒险|relaxed|compact|adventure)$")
+    travelers: Optional[int] = Field(None, ge=1, le=20)
+
+
+class PreferenceResponse(BaseModel):
+    """Preference response."""
+
+    user_id: str
+    preferences: UserPreferences
+    updated_at: datetime
