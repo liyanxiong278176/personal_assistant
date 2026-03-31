@@ -487,6 +487,8 @@ async def get_conversation_itineraries(
             }
             for row in rows
         ]
+    finally:
+        await Database.release_connection(conn)
 
 
 # User and preference operations (per D-01, D-04, D-06)
@@ -602,7 +604,5 @@ async def get_preferences(user_id: str) -> Optional[dict]:
             prefs["updated_at"] = row["updated_at"].isoformat()
             return prefs
         return None
-    finally:
-        await Database.release_connection(conn)
     finally:
         await Database.release_connection(conn)
