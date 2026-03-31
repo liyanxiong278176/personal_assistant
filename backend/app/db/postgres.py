@@ -184,6 +184,117 @@ class Database:
                 WHERE preferences ? 'budget'
             """)
 
+            # Create user_credentials table (per auth design spec)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_credentials (
+                    id UUID PRIMARY KEY,
+                    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                    email VARCHAR(255) UNIQUE,
+                    phone VARCHAR(20) UNIQUE,
+                    password_hash VARCHAR(255) NOT NULL,
+                    email_verified BOOLEAN DEFAULT FALSE,
+                    phone_verified BOOLEAN DEFAULT FALSE,
+                    verification_token VARCHAR(255),
+                    verification_expires TIMESTAMP WITH TIME ZONE,
+                    reset_token VARCHAR(255),
+                    reset_token_expires TIMESTAMP WITH TIME ZONE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_credentials_email ON user_credentials(email);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_credentials_phone ON user_credentials(phone);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_credentials_user_id ON user_credentials(user_id);
+            """)
+
+            # Ensure at least email or phone is provided (use DO block for IF NOT EXISTS)
+            await conn.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint
+                        WHERE conname = 'check_contact_method'
+                        AND conrelid = 'user_credentials'::regclass
+                    ) THEN
+                        ALTER TABLE user_credentials ADD CONSTRAINT check_contact_method
+                        CHECK (email IS NOT NULL OR phone IS NOT NULL);
+                    END IF;
+                END $$;
+            """)
+
+            # Create refresh_tokens table (avoid confusion with chat sessions)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS refresh_tokens (
+                    id UUID PRIMARY KEY,
+                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    token_hash VARCHAR(255) NOT NULL UNIQUE,
+                    jti VARCHAR(255) NOT NULL UNIQUE,
+                    user_agent TEXT,
+                    ip_address INET,
+                    is_revoked BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_refresh_tokens_jti ON refresh_tokens(jti);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_refresh_tokens_active ON refresh_tokens(user_id, is_revoked, expires_at);
+            """)
+
+            # Extend conversations table with auth-related fields
+            await conn.execute("""
+                ALTER TABLE conversations ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+            """)
+            await conn.execute("""
+                ALTER TABLE conversations ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT FALSE;
+            """)
+            await conn.execute("""
+                ALTER TABLE conversations ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE;
+            """)
+            await conn.execute("""
+                ALTER TABLE conversations ADD COLUMN IF NOT EXISTS sync_enabled BOOLEAN DEFAULT TRUE;
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_conversations_pinned ON conversations(user_id, pinned DESC, updated_at DESC);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_conversations_archived ON conversations(user_id, is_archived);
+            """)
+
+            # Create conversation_tags table
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS conversation_tags (
+                    id UUID PRIMARY KEY,
+                    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+                    tag_name VARCHAR(50) NOT NULL,
+                    color VARCHAR(7) DEFAULT '#6366f1' CHECK (color ~ '^#[0-9A-Fa-f]{6}$'),
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_tags_conversation ON conversation_tags(conversation_id);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_tags_name ON conversation_tags(tag_name);
+            """)
+
             print("[OK] Database tables initialized")
         finally:
             await cls.release_connection(conn)
