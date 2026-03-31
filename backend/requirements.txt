@@ -20,6 +20,10 @@ websockets==14.1
 # AI/LLM Agent
 langchain-core>=0.3.0
 
+# Vector Database
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
 # Development
 pytest==8.3.4
 pytest-asyncio==0.24.0
