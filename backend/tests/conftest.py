@@ -42,3 +42,17 @@ def mock_city_lookup_response():
             "country": "中国"
         }]
     }
+
+
+@pytest.fixture
+def mock_embeddings():
+    """Mock embeddings for testing (avoid loading models)."""
+    class MockEmbeddings:
+        def embed_documents(self, texts):
+            # Return deterministic mock embeddings
+            return [[0.1] * 384 for _ in texts]
+
+        def embed_query(self, text):
+            return [0.1] * 384
+
+    return MockEmbeddings()
