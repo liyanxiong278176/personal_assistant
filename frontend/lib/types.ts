@@ -79,3 +79,122 @@ export interface MapLocation {
   lat: number;
   description?: string;
 }
+
+// ============ Auth Types ============
+
+export interface User {
+  id: string;
+  email: string;
+  username?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface LoginRequest {
+  email: string;
+  code: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password?: string;
+  username?: string;
+}
+
+export interface SendCodeRequest {
+  email: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  user: User;
+}
+
+export interface RefreshTokenRequest {
+  refresh_token: string;
+}
+
+// ============ Conversation Types ============
+
+export interface ConversationTag {
+  id: string;
+  name: string;
+  color?: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Conversation {
+  id: string;
+  user_id: string;
+  title: string;
+  is_pinned: boolean;
+  tags: ConversationTag[];
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
+  last_message_at?: string;
+  preview?: string;
+}
+
+export interface ConversationUpdate {
+  title?: string;
+  is_pinned?: boolean;
+}
+
+export interface ConversationListResponse {
+  conversations: Conversation[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface CreateConversationRequest {
+  title?: string;
+  initial_message?: string;
+}
+
+export interface UpdateConversationRequest {
+  title?: string;
+  is_pinned?: boolean;
+}
+
+export interface SearchConversationsParams {
+  query?: string;
+  tags?: string[];
+  is_pinned?: boolean;
+  page?: number;
+  page_size?: number;
+}
+
+export interface TogglePinRequest {
+  is_pinned: boolean;
+}
+
+export interface AddTagRequest {
+  tag_id: string;
+}
+
+export interface RemoveTagRequest {
+  tag_id: string;
+}
+
+export interface CreateTagRequest {
+  name: string;
+  color?: string;
+}
+
+export interface MessageAction {
+  type: "copy" | "regenerate" | "delete";
+  messageId: string;
+}
