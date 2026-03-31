@@ -46,6 +46,103 @@ tests/
 
 ---
 
+## Pre-Task: 添加 LLMService 非流式方法
+
+**Files:**
+- Modify: `backend/app/services/llm_service.py`
+
+**Rationale:** Memory extraction requires non-streaming LLM calls. This task adds a `complete()` method to the existing LLMService.
+
+- [ ] **Step 1: 添加 complete 方法到 LLMService**
+
+在 `LLMService` 类中，`stream_chat` 方法之后添加：
+
+```python
+async def complete(
+    self,
+    prompt: str,
+    user_id: Optional[str] = None
+) -> str:
+    """Non-streaming completion for structured output.
+
+    Args:
+        prompt: Complete prompt including system message
+        user_id: Optional user ID for personalization
+
+    Returns:
+        Full LLM response as string
+
+    Raises:
+        Exception: If API call fails
+    """
+    if not DASHSCOPE_API_KEY:
+        raise ValueError("DASHSCOPE_API_KEY not configured")
+
+    messages = [{"role": "user", "content": prompt}]
+
+    logger.info(f"Calling DashScope API (complete): prompt_length={len(prompt)}")
+
+    try:
+        client = await self._get_client()
+
+        headers = {
+            "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": MODEL_NAME,
+            "messages": messages,
+            "stream": False,
+            "max_tokens": 2000  # Sufficient for extraction/promotion tasks
+        }
+
+        response = await client.post(
+            DASHSCOPE_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=30.0
+        )
+
+        if response.status_code != 200:
+            error_text = await response.aread()
+            logger.error(f"DashScope API error: {response.status_code} - {error_text}")
+            raise Exception(f"API调用失败: {response.status_code}")
+
+        result = response.json()
+
+        # Extract content from response
+        try:
+            content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            return content
+        except (KeyError, IndexError, TypeError) as e:
+            logger.error(f"Failed to extract content from response: {e}")
+            raise Exception("API返回格式错误")
+
+    except httpx.TimeoutException:
+        logger.error("LLM request timeout")
+        raise Exception("请求超时")
+    except Exception as e:
+        logger.error(f"LLM API error: {e}")
+        raise
+```
+
+- [ ] **Step 2: 验证语法**
+
+```bash
+cd D:/agent_learning/travel_assistant/backend
+python -m py_compile app/services/llm_service.py
+```
+
+- [ ] **Step 3: 提交**
+
+```bash
+git add backend/app/services/llm_service.py
+git commit -m "feat: add non-streaming complete method to LLMService"
+```
+
+---
+
 ## Task 1: 创建数据库表和迁移
 
 **Files:**
@@ -236,7 +333,7 @@ async def update_episodic_memory(
 
 
 # ============================================================
-# User Profile Operations
+# User Profile Operations (for Long-term Memory)
 # ============================================================
 
 async def get_user_profile(user_id: UUID) -> Optional[dict]:
