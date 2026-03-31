@@ -114,9 +114,23 @@ class MasterOrchestrator:
 请根据用户的问题，调用合适的专家助手来获取信息，然后给出综合回答。
 """
 
-        # Add user preferences (per PERS-02)
+        # Add user preferences prominently (per PERS-02)
         if preferences:
-            prompt += f"\n\n用户偏好：\n{json.dumps(preferences, ensure_ascii=False)}"
+            pref_lines = []
+            if preferences.get('budget'):
+                budget_map = {'low': '经济型', 'medium': '舒适型', 'high': '豪华型'}
+                pref_lines.append(f"预算水平: {budget_map.get(preferences['budget'], preferences['budget'])}")
+            if preferences.get('interests'):
+                pref_lines.append(f"兴趣偏好: {', '.join(preferences['interests'])}")
+            if preferences.get('style'):
+                style_map = {'relaxed': '悠闲放松', 'compact': '紧凑充实', 'adventure': '探索冒险',
+                            '放松': '悠闲放松', '紧凑': '紧凑充实', '冒险': '探索冒险'}
+                pref_lines.append(f"旅行风格: {style_map.get(preferences['style'], preferences['style'])}")
+            if preferences.get('travelers', 1) > 1:
+                pref_lines.append(f"出行人数: {preferences['travelers']}人")
+
+            if pref_lines:
+                prompt += "\n\n## User Preferences (Please consider in recommendations)\n" + "\n".join(f"- {p}" for p in pref_lines)
 
         # Add conversation context (per AI-01)
         if context:
