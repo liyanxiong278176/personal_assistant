@@ -12,6 +12,7 @@ export interface WSMessage {
   type: "message" | "control";
   session_id: string;
   conversation_id?: string;
+  user_id?: string;
   content?: string;
   control?: "stop" | "ping";
 }
