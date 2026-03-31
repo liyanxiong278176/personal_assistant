@@ -5,6 +5,8 @@ References:
 - TOOL-05: Agent autonomously calls map API for locations/routes
 - PERS-03: User can search destinations and activities
 - 02-RESEARCH.md: LangChain @tool decorator pattern
+- AI-04: Tool calling error handling and retry
+- D-16, D-17: Retry with fallback
 """
 
 import json
@@ -14,11 +16,16 @@ from typing import Literal
 from langchain_core.tools import tool
 
 from app.services.map_service import map_service
+from app.utils.retry import with_retry_and_fallback
 
 logger = logging.getLogger(__name__)
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "景点搜索服务暂时不可用", "pois": [], "summary": "暂时无法搜索景点信息"}',
+    max_attempts=3
+)
 async def search_attraction(
     city: str,
     attraction_type: str = "景点",
@@ -72,6 +79,10 @@ async def search_attraction(
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "地点搜索服务暂时不可用", "pois": [], "summary": "暂时无法搜索地点信息"}',
+    max_attempts=3
+)
 async def search_poi(
     city: str,
     keywords: str,
@@ -127,6 +138,10 @@ async def search_poi(
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "地理编码服务暂时不可用", "coordinates": null, "address": "", "lng": null, "lat": null}',
+    max_attempts=3
+)
 async def get_location_coords(address: str, city: str = "") -> str:
     """获取地址的经纬度坐标.
 
@@ -159,6 +174,10 @@ async def get_location_coords(address: str, city: str = "") -> str:
 
 
 @tool
+@with_retry_and_fallback(
+    fallback_value='{"error": "路线规划服务暂时不可用", "route": {}, "summary": "暂时无法规划路线"}',
+    max_attempts=3
+)
 async def plan_route(
     origin: str,
     destination: str,
