@@ -62,16 +62,15 @@ class LLMService:
     async def _build_messages(
         self,
         user_message: str,
-        conversation_id: Optional[str]
+        conversation_id: Optional[str],
+        user_id: Optional[str] = None
     ) -> list:
-        """Build message list with context."""
+        """Build message list with context and user preferences."""
         messages = []
 
-        # System prompt
-        system_prompt = (
-            "你是AI旅游助手，专门帮助用户规划旅行、推荐景点和提供旅游建议。"
-            "请用友好的语气回答，提供实用的旅行信息。"
-        )
+        # Build system prompt with user preferences
+        system_prompt = await self._build_system_prompt(user_id)
+
         messages.append({"role": "system", "content": system_prompt})
 
         # Add conversation context if available
@@ -90,6 +89,50 @@ class LLMService:
         messages.append({"role": "user", "content": user_message})
 
         return messages
+
+    async def _build_system_prompt(self, user_id: Optional[str]) -> str:
+        """Build system prompt with user preferences."""
+        base_prompt = (
+            "你是AI旅游助手，专门帮助用户规划旅行、推荐景点和提供旅游建议。"
+            "请用友好的语气回答，提供实用的旅行信息。"
+        )
+
+        # Add user preferences if user_id provided
+        if user_id:
+            try:
+                from app.db.postgres import get_preferences
+                prefs = await get_preferences(user_id)
+                if prefs:
+                    # Build preference section
+                    pref_parts = []
+                    if prefs.get('budget'):
+                        budget_map = {'low': '经济型', 'medium': '舒适型', 'high': '豪华型'}
+                        budget_label = budget_map.get(prefs['budget'], prefs['budget'])
+                        pref_parts.append(f"预算: {budget_label}")
+                    if prefs.get('interests'):
+                        interest_map = {
+                            'history': '历史文化', 'food': '美食体验',
+                            'nature': '自然风光', 'shopping': '购物',
+                            'art': '艺术展览', 'entertainment': '娱乐休闲',
+                            'sports': '户外运动', 'photography': '摄影打卡'
+                        }
+                        interests = [interest_map.get(i, i) for i in prefs['interests']]
+                        pref_parts.append(f"兴趣: {', '.join(interests)}")
+                    if prefs.get('style'):
+                        style_map = {'relaxed': '悠闲放松', 'compact': '紧凑充实', 'adventure': '探索冒险'}
+                        style_label = style_map.get(prefs['style'], prefs['style'])
+                        pref_parts.append(f"风格: {style_label}")
+                    if prefs.get('travelers', 1) > 1:
+                        pref_parts.append(f"人数: {prefs['travelers']}人")
+
+                    if pref_parts:
+                        base_prompt += "\n\n## 用户偏好 (请在推荐时优先考虑)\n"
+                        base_prompt += "\n".join(f"- {p}" for p in pref_parts)
+                        base_prompt += "\n\n请根据这些偏好给出个性化推荐。"
+            except Exception as e:
+                logger.warning(f"Failed to load user preferences: {e}")
+
+        return base_prompt
 
     async def _check_question_cache(
         self,
@@ -113,7 +156,8 @@ class LLMService:
         self,
         user_message: str,
         conversation_id: Optional[str] = None,
-        on_stop: Optional[asyncio.Event] = None
+        on_stop: Optional[asyncio.Event] = None,
+        user_id: Optional[str] = None
     ) -> AsyncGenerator[str, None]:
         """Stream chat response from LLM with true async interrupt support.
 
@@ -121,6 +165,7 @@ class LLMService:
             user_message: User's message
             conversation_id: Conversation ID for context
             on_stop: Event for user interruption
+            user_id: User ID for personalization
 
         Yields:
             Response content chunks
@@ -131,8 +176,8 @@ class LLMService:
         if not DASHSCOPE_API_KEY:
             raise ValueError("DASHSCOPE_API_KEY not configured")
 
-        # Build messages with context
-        messages = await self._build_messages(user_message, conversation_id)
+        # Build messages with context and user preferences
+        messages = await self._build_messages(user_message, conversation_id, user_id)
 
         # Check cache first
         cached = await self._check_question_cache(user_message, messages)

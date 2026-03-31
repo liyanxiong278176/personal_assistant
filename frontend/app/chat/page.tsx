@@ -43,6 +43,14 @@ export default function ChatPage() {
     };
   }, []);
 
+  // Set userId to transport when userId becomes available
+  useEffect(() => {
+    if (userId && transportRef.current) {
+      transportRef.current.setUserId(userId);
+      console.log('[Chat] User ID set to transport:', userId);
+    }
+  }, [userId]);
+
   // Handle sending message
   const handleSendMessage = useCallback(async () => {
     if (!input.trim() || isLoading) return;

@@ -185,11 +185,13 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 has_itinerary_intent = any(kw in msg.content for kw in itinerary_keywords)
 
                 try:
-                    # Stream LLM response
+                    # Stream LLM response with user preferences
+                    user_id = msg.user_id  # Get user_id for personalization
                     async for chunk in llm_service.stream_chat(
                         user_message=msg.content,
                         conversation_id=conversation_id,
-                        on_stop=stop_event
+                        on_stop=stop_event,
+                        user_id=user_id
                     ):
                         full_response += chunk
                         await manager.send_json(
