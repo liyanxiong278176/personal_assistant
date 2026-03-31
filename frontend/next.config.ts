@@ -2,11 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   webpack: (config) => {
     config.externals.push({ 'utf-8-validate': 'commonjs utf-8-validate' });
     return config;
   },
-  // API proxy to backend
+  // API proxy to backend (for development only)
   async rewrites() {
     return [
       {
