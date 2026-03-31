@@ -1,6 +1,9 @@
 # Core FastAPI
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
+
+# Process Manager for Production
+gunicorn==23.0.0
 pydantic>=2.11.2
 python-multipart==0.0.20
 
