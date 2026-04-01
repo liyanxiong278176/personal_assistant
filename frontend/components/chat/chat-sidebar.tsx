@@ -47,7 +47,10 @@ export function ChatSidebar({ onClose, onConversationSelect, onNewConversation }
           {/* Footer - New Chat Button */}
           <div className="p-2 border-t border-border">
             <button
-              onClick={onNewConversation}
+              onClick={() => {
+                // For non-authenticated users, just clear messages without creating a conversation
+                if (onNewConversation) onNewConversation();
+              }}
               className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition text-sm font-medium"
             >
               新建对话
