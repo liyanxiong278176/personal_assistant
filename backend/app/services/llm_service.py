@@ -311,6 +311,72 @@ class LLMService:
         except (KeyError, IndexError, TypeError):
             return ""
 
+    async def classify_intent(
+        self,
+        message: str,
+        timeout: float = 2.0
+    ) -> dict:
+        """Classify user intent using LLM.
+
+        Args:
+            message: User message content
+            timeout: Request timeout in seconds
+
+        Returns:
+            Dict with keys: intent, confidence, reasoning
+        """
+        if not DASHSCOPE_API_KEY:
+            return {"intent": "chat", "confidence": 0.0, "reasoning": "API not configured"}
+
+        from app.services.intent_prompts import build_classification_prompt
+
+        prompt = build_classification_prompt(message)
+
+        try:
+            client = await self._get_client()
+
+            headers = {
+                "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+                "Content-Type": "application/json"
+            }
+
+            payload = {
+                "model": MODEL_NAME,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+                "max_tokens": 200
+            }
+
+            response = await client.post(
+                DASHSCOPE_API_URL,
+                headers=headers,
+                json=payload,
+                timeout=timeout
+            )
+
+            if response.status_code != 200:
+                logger.error(f"[LLM] Intent classification failed: {response.status_code}")
+                return {"intent": "chat", "confidence": 0.0, "reasoning": "API error"}
+
+            data = response.json()
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+            # Parse JSON response
+            try:
+                result = json.loads(content)
+                return {
+                    "intent": result.get("intent", "chat"),
+                    "confidence": result.get("confidence", 0.5),
+                    "reasoning": result.get("reasoning", "")
+                }
+            except json.JSONDecodeError:
+                logger.warning(f"[LLM] Failed to parse intent response: {content}")
+                return {"intent": "chat", "confidence": 0.0, "reasoning": "Parse error"}
+
+        except Exception as e:
+            logger.error(f"[LLM] Intent classification error: {e}")
+            return {"intent": "chat", "confidence": 0.0, "reasoning": str(e)}
+
 
 # Global LLM service instance
 llm_service = LLMService()
