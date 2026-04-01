@@ -11,7 +11,7 @@ import { useAuthStore } from "@/lib/store/auth-store";
 
 const loginSchema = z.object({
   email: z.string().email("请输入有效的邮箱地址"),
-  code: z.string().min(6, "验证码至少6位").max(6, "验证码为6位"),
+  password: z.string().min(6, "密码至少6位"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -23,24 +23,19 @@ interface LoginFormProps {
 
 export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
-  const [resendDisabled, setResendDisabled] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const { login, sendCode, isLoading } = useAuthStore();
+  const { login, isLoading } = useAuthStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
-      code: "",
+      password: "",
     },
   });
-
-  const email = watch("email");
 
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
@@ -52,33 +47,6 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
     }
   };
 
-  const handleSendCode = async () => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("请先输入有效的邮箱地址");
-      return;
-    }
-
-    setError(null);
-    try {
-      await sendCode({ email });
-      setResendDisabled(true);
-      setCountdown(60);
-
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setResendDisabled(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "发送验证码失败，请重试");
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -87,6 +55,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           id="email"
           type="email"
           placeholder="your@email.com"
+          autoComplete="email"
           {...register("email")}
           disabled={isLoading}
         />
@@ -96,29 +65,17 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="code">验证码</Label>
-        <div className="flex gap-2">
-          <Input
-            id="code"
-            type="text"
-            placeholder="6位验证码"
-            maxLength={6}
-            {...register("code")}
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleSendCode}
-            disabled={resendDisabled || isLoading}
-            className="whitespace-nowrap"
-          >
-            {countdown > 0 ? `${countdown}秒后重发` : "发送验证码"}
-          </Button>
-        </div>
-        {errors.code && (
-          <p className="text-sm text-destructive">{errors.code.message}</p>
+        <Label htmlFor="password">密码</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="请输入密码"
+          autoComplete="current-password"
+          {...register("password")}
+          disabled={isLoading}
+        />
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
       </div>
 

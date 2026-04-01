@@ -106,7 +106,7 @@ export function ConversationItem({
     e.stopPropagation();
     setIsPending(true);
     try {
-      await onTogglePin(conversation.id, !conversation.is_pinned);
+      await onTogglePin(conversation.id, !conversation.pinned);
     } finally {
       setIsPending(false);
     }
@@ -147,7 +147,7 @@ export function ConversationItem({
         onDoubleClick={handleDoubleClick}
       >
         {/* Pin icon for pinned conversations */}
-        {conversation.is_pinned && (
+        {conversation.pinned && (
           <Pin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
         )}
 
@@ -195,7 +195,7 @@ export function ConversationItem({
               onClick={handleTogglePin}
               className="w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 transition-colors"
             >
-              {conversation.is_pinned ? (
+              {conversation.pinned ? (
                 <>
                   <PinOff className="w-4 h-4" />
                   取消置顶

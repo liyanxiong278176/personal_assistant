@@ -8,6 +8,7 @@ import { AuthModal } from "@/components/auth/auth-modal";
 import { createChatTransport } from "@/lib/chat-transport";
 import { userManager } from "@/lib/user-manager";
 import { useAuthStore } from "@/lib/store/auth-store";
+import { useConversationStore } from "@/lib/store/conversation-store";
 import type { Message, Itinerary } from "@/lib/types";
 
 export default function ChatPage() {
@@ -22,6 +23,7 @@ export default function ChatPage() {
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
   const { isAuthenticated, user } = useAuthStore();
+  const { setActiveConversation, createConversation } = useConversationStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -149,6 +151,42 @@ export default function ChatPage() {
     setSidebarOpen((prev) => !prev);
   };
 
+  // Handle new conversation creation
+  const handleNewConversation = useCallback(async () => {
+    if (!isAuthenticated) {
+      // For non-authenticated users, just clear messages
+      setMessages([]);
+      setCurrentConversationId(null);
+      if (transportRef.current) {
+        transportRef.current.setConversationId("");
+      }
+      return;
+    }
+
+    try {
+      const newConv = await createConversation();
+      setCurrentConversationId(newConv.id);
+      setActiveConversation(newConv.id);
+      setMessages([]);
+      if (transportRef.current) {
+        transportRef.current.setConversationId(newConv.id);
+      }
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+    }
+  }, [isAuthenticated, createConversation, setActiveConversation]);
+
+  // Handle conversation selection
+  const handleConversationSelect = useCallback(async (conversationId: string) => {
+    setCurrentConversationId(conversationId);
+    setActiveConversation(conversationId);
+    if (transportRef.current) {
+      transportRef.current.setConversationId(conversationId);
+    }
+    // TODO: Load conversation messages from backend
+    setMessages([]);
+  }, [setActiveConversation]);
+
   return (
     <div className="flex h-screen bg-background">
       <aside
@@ -161,7 +199,11 @@ export default function ChatPage() {
           lg:block hidden
         `}
       >
-        <ChatSidebar onClose={() => setSidebarOpen(false)} />
+        <ChatSidebar
+          onClose={() => setSidebarOpen(false)}
+          onNewConversation={handleNewConversation}
+          onConversationSelect={handleConversationSelect}
+        />
       </aside>
 
       <main className="flex-1 flex flex-col">

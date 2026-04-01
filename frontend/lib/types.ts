@@ -87,6 +87,9 @@ export interface User {
   email: string;
   username?: string;
   avatar_url?: string;
+  email_verified?: boolean;
+  phone?: string;
+  phone_verified?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -94,23 +97,20 @@ export interface User {
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
 
 export interface LoginRequest {
   email: string;
-  code: string;
+  password: string;
 }
 
 export interface RegisterRequest {
   email: string;
-  password?: string;
+  password: string;
   username?: string;
-}
-
-export interface SendCodeRequest {
-  email: string;
 }
 
 export interface AuthResponse {
@@ -136,20 +136,22 @@ export interface ConversationTag {
 
 export interface Conversation {
   id: string;
-  user_id: string;
+  user_id?: string;
   title: string;
-  is_pinned: boolean;
-  tags: ConversationTag[];
+  pinned: boolean;  // Changed from pinned to match backend
+  is_archived?: boolean;
+  tags: string[];  // Changed from ConversationTag[] to string[] to match backend
   created_at: string;
   updated_at: string;
   message_count?: number;
   last_message_at?: string;
   preview?: string;
+  sync_enabled?: boolean;
 }
 
 export interface ConversationUpdate {
   title?: string;
-  is_pinned?: boolean;
+  pinned?: boolean;
 }
 
 export interface ConversationListResponse {
@@ -166,19 +168,19 @@ export interface CreateConversationRequest {
 
 export interface UpdateConversationRequest {
   title?: string;
-  is_pinned?: boolean;
+  pinned?: boolean;
 }
 
 export interface SearchConversationsParams {
   query?: string;
   tags?: string[];
-  is_pinned?: boolean;
+  pinned?: boolean;
   page?: number;
   page_size?: number;
 }
 
 export interface TogglePinRequest {
-  is_pinned: boolean;
+  pinned: boolean;
 }
 
 export interface AddTagRequest {

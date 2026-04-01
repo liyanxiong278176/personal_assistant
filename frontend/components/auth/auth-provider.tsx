@@ -2,26 +2,32 @@
 
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { AuthModal } from "./auth-modal";
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { isAuthenticated, user, fetchCurrentUser } = useAuthStore();
+  const { initializeAuth } = useAuthStore();
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Initialize auth state on mount
     const initAuth = async () => {
-      await fetchCurrentUser();
+      await initializeAuth();
       setIsInitialized(true);
     };
     initAuth();
-  }, [fetchCurrentUser]);
+  }, [initializeAuth]);
 
-  // For now, we don't force the modal to be open
-  // The chat page will control when to show the auth modal
+  // Show loading state while initializing
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 }

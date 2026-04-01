@@ -45,12 +45,26 @@ interface ConversationStore {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-const getAuthHeaders = (): Record<string, string> => {
+// Helper function to get auth headers
+const getAuthHeaders = (): HeadersInit => {
   if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("auth-storage")
-    ? JSON.parse(localStorage.getItem("auth-storage")!).state.token
-    : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+
+  try {
+    const stored = localStorage.getItem("auth-storage");
+    if (!stored) return {};
+
+    const parsed = JSON.parse(stored);
+    const token = parsed.state?.token;
+
+    if (!token) return {};
+
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+  } catch {
+    return { "Content-Type": "application/json" };
+  }
 };
 
 export const useConversationStore = create<ConversationStore>((set, get) => ({
@@ -75,7 +89,7 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
       const queryParams = new URLSearchParams();
       if (params.query) queryParams.append("query", params.query);
       if (params.tags) params.tags.forEach((tag) => queryParams.append("tags", tag));
-      if (params.is_pinned !== undefined) queryParams.append("is_pinned", String(params.is_pinned));
+      if (params.pinned !== undefined) queryParams.append("pinned", String(params.pinned));
       queryParams.append("page", String(params.page || 1));
       queryParams.append("page_size", String(params.page_size || get().pageSize));
 
@@ -104,17 +118,19 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
   },
 
   createConversation: async (data = {}) => {
+    const headers = getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/v1/conversations`, {
       method: "POST",
       headers: {
+        ...headers,
         "Content-Type": "application/json",
-        ...getAuthHeaders(),
       },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to create conversation");
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to create conversation");
     }
 
     const conversation: Conversation = await response.json();
@@ -128,10 +144,7 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
   updateConversation: async (id, data) => {
     const response = await fetch(`${API_BASE}/api/v1/conversations/${id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -164,11 +177,8 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
   togglePin: async (id, isPinned) => {
     const response = await fetch(`${API_BASE}/api/v1/conversations/${id}/pin`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
-      body: JSON.stringify({ is_pinned: isPinned }),
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ pinned: isPinned }),
     });
 
     if (!response.ok) {
@@ -184,10 +194,7 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
   addTag: async (conversationId, tagId) => {
     const response = await fetch(`${API_BASE}/api/v1/conversations/${conversationId}/tags`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ tag_id: tagId }),
     });
 
@@ -236,10 +243,7 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
   createTag: async (data) => {
     const response = await fetch(`${API_BASE}/api/v1/conversations/tags`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(),
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -306,7 +310,7 @@ function getQueryParams(state: ConversationStore): SearchConversationsParams {
 
   if (state.searchQuery) params.query = state.searchQuery;
   if (state.selectedTags.length > 0) params.tags = state.selectedTags;
-  if (state.showPinnedOnly) params.is_pinned = true;
+  if (state.showPinnedOnly) params.pinned = true;
 
   return params;
 }
