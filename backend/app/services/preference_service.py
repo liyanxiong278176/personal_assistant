@@ -51,15 +51,16 @@ class PreferenceService:
 {current_context}
 
 请提取以下字段（如果对话中未提及，保持为null或空数组）：
-1. budget: 预算水平，值为 "low"（经济）、"medium"（中等）、"high"（豪华）
-2. interests: 兴趣标签数组，如 ["历史", "美食", "自然", "购物", "艺术"]
-3. style: 旅行风格，值为 "放松"（悠闲）、"紧凑"（充实）、"冒险"（探索）
-4. travelers: 出行人数（整数）
-5. confidence: 置信度（0-1的浮点数），表示你对提取结果的确定程度
+1. name: 用户姓名（如"张天"）
+2. budget: 预算水平，值为 "low"（经济）、"medium"（中等）、"high"（豪华）
+3. interests: 兴趣标签数组，如 ["历史", "美食", "自然", "购物", "艺术"]
+4. style: 旅行风格，值为 "放松"（悠闲）、"紧凑"（充实）、"冒险"（探索）
+5. travelers: 出行人数（整数）
+6. confidence: 置信度（0-1的浮点数），表示你对提取结果的确定程度
 
-请以JSON格式返回，必须包含以上5个字段。
+请以JSON格式返回，必须包含以上6个字段。
 示例格式：
-{{"budget": "medium", "interests": ["历史", "美食"], "style": "放松", "travelers": 2, "confidence": 0.8}}
+{{"name": "张天", "budget": "medium", "interests": ["历史", "美食"], "style": "放松", "travelers": 2, "confidence": 0.8}}
 """
 
         try:
@@ -101,12 +102,15 @@ class PreferenceService:
         json_match = re.search(r'\{[^{}]*"confidence"[^{}]*\}', response, re.DOTALL)
         if not json_match:
             json_match = re.search(r'\{[^{}]*"budget"[^{}]*\}', response, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'\{[^{}]*"name"[^{}]*\}', response, re.DOTALL)
 
         if json_match:
             try:
                 parsed = json.loads(json_match.group())
                 # Ensure required fields exist
                 return {
+                    "name": parsed.get("name"),
                     "budget": parsed.get("budget"),
                     "interests": parsed.get("interests", []),
                     "style": parsed.get("style"),
@@ -118,6 +122,7 @@ class PreferenceService:
 
         # Fallback
         return {
+            "name": None,
             "budget": None,
             "interests": [],
             "style": None,
@@ -184,7 +189,7 @@ class PreferenceService:
         # Get current preferences
         current = await get_preferences(user_id)
         if current is None:
-            current = {"budget": None, "interests": [], "style": None, "travelers": 1}
+            current = {"name": None, "budget": None, "interests": [], "style": None, "travelers": 1}
 
         # Extract from conversation if provided
         if conversation_text:

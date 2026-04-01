@@ -73,12 +73,12 @@ class LLMService:
         if custom_system_prompt:
             system_prompt = custom_system_prompt
         else:
-            # Build system prompt with user preferences
-            system_prompt = await self._build_system_prompt(user_id)
+            # Build system prompt with user preferences and cross-session memory
+            system_prompt = await self._build_system_prompt(user_id, user_message)
 
         messages.append({"role": "system", "content": system_prompt})
 
-        # Add conversation context if available
+        # Add conversation context if available (current session only)
         if conversation_id:
             try:
                 context = await get_context_window(
@@ -95,12 +95,43 @@ class LLMService:
 
         return messages
 
-    async def _build_system_prompt(self, user_id: Optional[str]) -> str:
-        """Build system prompt with user preferences."""
+    async def _build_system_prompt(
+        self,
+        user_id: Optional[str],
+        user_message: Optional[str] = None
+    ) -> str:
+        """Build system prompt with user preferences and cross-session memory.
+
+        Args:
+            user_id: User identifier for preferences
+            user_message: Current user message for memory retrieval
+        """
         base_prompt = (
             "你是AI旅游助手，专门帮助用户规划旅行、推荐景点和提供旅游建议。"
             "请用友好的语气回答，提供实用的旅行信息。"
         )
+
+        # Add cross-session memory if user_id and message provided
+        memory_context = ""
+        if user_id and user_message:
+            try:
+                from app.services.memory_service import memory_service
+                relevant_history = await memory_service.retrieve_relevant_history(
+                    user_id=user_id,
+                    query=user_message,
+                    k=3,
+                    score_threshold=0.02  # Very low threshold for L2 distance (similarity = 1/(1+distance))
+                )
+                if relevant_history:
+                    memory_lines = ["\n## 用户历史对话（供参考）"]
+                    for msg in relevant_history[:3]:  # Max 3 memories
+                        role = msg["metadata"].get("role", "user")
+                        role_name = "用户" if role == "user" else "助手"
+                        memory_lines.append(f"- {role_name}: {msg['content'][:100]}...")
+                    memory_context = "\n".join(memory_lines) + "\n"
+                    logger.info(f"[LLM] Retrieved {len(relevant_history)} cross-session memories")
+            except Exception as e:
+                logger.warning(f"Failed to retrieve memory: {e}")
 
         # Add user preferences if user_id provided
         if user_id:
@@ -130,12 +161,20 @@ class LLMService:
                     if prefs.get('travelers', 1) > 1:
                         pref_parts.append(f"人数: {prefs['travelers']}人")
 
+                    # Add user name if available
+                    if prefs.get('name'):
+                        pref_parts.insert(0, f"姓名: {prefs['name']}")
+
                     if pref_parts:
                         base_prompt += "\n\n## 用户偏好 (请在推荐时优先考虑)\n"
                         base_prompt += "\n".join(f"- {p}" for p in pref_parts)
                         base_prompt += "\n\n请根据这些偏好给出个性化推荐。"
             except Exception as e:
                 logger.warning(f"Failed to load user preferences: {e}")
+
+        # Add cross-session memory context at the end
+        if memory_context:
+            base_prompt += memory_context
 
         return base_prompt
 

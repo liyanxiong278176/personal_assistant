@@ -42,6 +42,7 @@ interface ConversationStore {
   resetFilters: () => void;
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
+  clear: () => void;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -310,6 +311,22 @@ export const useConversationStore = create<ConversationStore>()(
   refresh: async () => {
     const queryParams = getQueryParams(get());
     await get().fetchConversations({ ...queryParams, page: 1 });
+  },
+
+  clear: () => {
+    set({
+      conversations: [],
+      activeConversationId: null,
+      tags: [],
+      isLoading: false,
+      error: null,
+      searchQuery: "",
+      selectedTags: [],
+      showPinnedOnly: false,
+      page: 1,
+      total: 0,
+      hasMore: true,
+    });
   },
     }),
     {
