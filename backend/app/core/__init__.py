@@ -8,6 +8,7 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 - 意图路由（Slash 命令、Skill 触发）
 - 记忆管理
 - 上下文管理
+- Coordinator 和 Worker（多 Agent 协调）
 """
 
 from .errors import AgentError, DegradationLevel, DegradationStrategy
@@ -23,6 +24,13 @@ from .memory import (
     MemoryLevel,
     MemoryType,
     WorkingMemoryEntry,
+)
+from .coordinator import (
+    Coordinator,
+    Worker,
+    WorkerStatus,
+    WorkerResult,
+    create_worker,
 )
 
 __all__ = [
@@ -52,4 +60,9 @@ __all__ = [
     "MemoryLevel",
     "MemoryType",
     "WorkingMemoryEntry",
+    "Coordinator",
+    "Worker",
+    "WorkerStatus",
+    "WorkerResult",
+    "create_worker",
 ]
