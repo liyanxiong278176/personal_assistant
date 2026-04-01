@@ -30,8 +30,8 @@ interface ConversationStore {
   updateConversation: (id: string, data: UpdateConversationRequest) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
   togglePin: (id: string, isPinned: boolean) => Promise<void>;
-  addTag: (conversationId: string, tagId: string) => Promise<void>;
-  removeTag: (conversationId: string, tagId: string) => Promise<void>;
+  addTag: (conversationId: string, tagName: string) => Promise<void>;
+  removeTag: (conversationId: string, tagName: string) => Promise<void>;
   fetchTags: () => Promise<void>;
   createTag: (data: CreateTagRequest) => Promise<ConversationTag>;
   deleteTag: (tagId: string) => Promise<void>;
@@ -191,11 +191,11 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
     }));
   },
 
-  addTag: async (conversationId, tagId) => {
+  addTag: async (conversationId, tagName) => {
     const response = await fetch(`${API_BASE}/api/v1/conversations/${conversationId}/tags`, {
       method: "POST",
       headers: getAuthHeaders(),
-      body: JSON.stringify({ tag_id: tagId }),
+      body: JSON.stringify({ tag_name: tagName, color: "#6366f1" }),
     });
 
     if (!response.ok) {
@@ -208,9 +208,9 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
     }));
   },
 
-  removeTag: async (conversationId, tagId) => {
+  removeTag: async (conversationId, tagName) => {
     const response = await fetch(
-      `${API_BASE}/api/v1/conversations/${conversationId}/tags/${tagId}`,
+      `${API_BASE}/api/v1/conversations/${conversationId}/tags/${tagName}`,
       {
         method: "DELETE",
         headers: getAuthHeaders(),
@@ -221,9 +221,17 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
       throw new Error("Failed to remove tag");
     }
 
-    const updated: Conversation = await response.json();
+    // Remove tag from local state
     set((state) => ({
-      conversations: state.conversations.map((c) => (c.id === conversationId ? updated : c)),
+      conversations: state.conversations.map((c) => {
+        if (c.id === conversationId) {
+          return {
+            ...c,
+            tags: c.tags.filter((t) => t !== tagName),
+          };
+        }
+        return c;
+      }),
     }));
   },
 
