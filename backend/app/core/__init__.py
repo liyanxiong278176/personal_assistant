@@ -10,10 +10,16 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 
 from .errors import AgentError, DegradationLevel, DegradationStrategy
 from .llm import LLMClient
+from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
 
 __all__ = [
     "AgentError",
     "DegradationLevel",
     "DegradationStrategy",
     "LLMClient",
+    "Tool",
+    "ToolInput",
+    "ToolMetadata",
+    "ToolRegistry",
+    "global_registry",
 ]
