@@ -192,4 +192,21 @@ export const conversationsApi = {
     });
     return handleResponse<void>(response);
   },
+
+  /**
+   * Get messages for a conversation
+   */
+  async getMessages(conversationId: string, limit: number = 100): Promise<Message[]> {
+    const response = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+    const data = await handleResponse(response);
+    // Convert backend format to frontend format
+    return data.map((m: any) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      createdAt: new Date(m.created_at),
+    }));
+  },
 };

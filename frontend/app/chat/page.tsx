@@ -9,6 +9,7 @@ import { createChatTransport } from "@/lib/chat-transport";
 import { userManager } from "@/lib/user-manager";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useConversationStore } from "@/lib/store/conversation-store";
+import { conversationsApi } from "@/lib/api/conversations";
 import type { Message, Itinerary } from "@/lib/types";
 
 export default function ChatPage() {
@@ -183,8 +184,15 @@ export default function ChatPage() {
     if (transportRef.current) {
       transportRef.current.setConversationId(conversationId);
     }
-    // TODO: Load conversation messages from backend
-    setMessages([]);
+
+    // Load conversation messages from backend
+    try {
+      const history = await conversationsApi.getMessages(conversationId);
+      setMessages(history);
+    } catch (error) {
+      console.error("Failed to load conversation messages:", error);
+      setMessages([]);
+    }
   }, [setActiveConversation]);
 
   return (
