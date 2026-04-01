@@ -39,9 +39,13 @@ export function ConversationList({
     fetchConversations,
   } = useConversationStore();
 
-  // Load conversations on mount
+  // Load conversations on mount and when auth state changes
   useEffect(() => {
-    fetchConversations();
+    // Delay fetch to ensure auth headers are ready
+    const timer = setTimeout(() => {
+      fetchConversations();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [fetchConversations]);
 
   // Group conversations by time
@@ -99,7 +103,8 @@ export function ConversationList({
     try {
       const newConv = await createConversation();
       onConversationSelect?.(newConv.id);
-      onNewConversation?.();
+      // Don't call onNewConversation callback - it causes duplicate creation
+      // Parent should handle clearing messages if needed
     } catch (error) {
       console.error("Failed to create conversation:", error);
     }
