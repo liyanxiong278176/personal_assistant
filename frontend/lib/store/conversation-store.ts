@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type {
   Conversation,
   ConversationTag,
@@ -67,7 +68,9 @@ const getAuthHeaders = (): HeadersInit => {
   }
 };
 
-export const useConversationStore = create<ConversationStore>((set, get) => ({
+export const useConversationStore = create<ConversationStore>()(
+  persist(
+    (set, get) => ({
   conversations: [],
   activeConversationId: null,
   tags: [],
@@ -308,7 +311,15 @@ export const useConversationStore = create<ConversationStore>((set, get) => ({
     const queryParams = getQueryParams(get());
     await get().fetchConversations({ ...queryParams, page: 1 });
   },
-}));
+    }),
+    {
+      name: "conversation-storage",
+      partialize: (state) => ({
+        activeConversationId: state.activeConversationId,
+      }),
+    }
+  )
+);
 
 function getQueryParams(state: ConversationStore): SearchConversationsParams {
   const params: SearchConversationsParams = {
