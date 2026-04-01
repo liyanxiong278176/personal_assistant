@@ -16,10 +16,25 @@ from .commands import (
     set_slash_registry,
 )
 
+from .skills import (
+    SkillResult,
+    Skill,
+    SkillRegistry,
+    get_skill_registry,
+    set_skill_registry,
+)
+
 __all__ = [
+    # Slash Commands
     "CommandResult",
     "SlashCommand",
     "SlashCommandRegistry",
     "get_slash_registry",
     "set_slash_registry",
+    # Skills
+    "SkillResult",
+    "Skill",
+    "SkillRegistry",
+    "get_skill_registry",
+    "set_skill_registry",
 ]
