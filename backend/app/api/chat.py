@@ -29,6 +29,7 @@ from app.db.postgres import (
 )
 from app.services.llm_service import llm_service
 from app.services.memory_service import memory_service
+from app.services.intent_classifier import intent_classifier, IntentResult
 
 router = APIRouter(prefix="/api", tags=["conversations"])
 logger = logging.getLogger(__name__)
@@ -190,9 +191,19 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 message_id = str(uuid4())
                 full_response = ""
 
-                # Check for itinerary intent (simple keyword detection)
-                itinerary_keywords = ["规划", "行程", "旅游", "旅行", "几天", "日游"]
-                has_itinerary_intent = any(kw in msg.content for kw in itinerary_keywords)
+                # Intent classification
+                try:
+                    intent_result = await intent_classifier.classify(
+                        message=msg.content,
+                        has_image=getattr(msg, 'has_image', False)
+                    )
+                    logger.info(f"[Chat] Intent: {intent_result.intent} (confidence: {intent_result.confidence}, method: {intent_result.method})")
+                    has_itinerary_intent = (intent_result.intent == "itinerary")
+                except Exception as e:
+                    logger.error(f"[Chat] Intent classification failed: {e}")
+                    # Fallback to simple keyword check
+                    itinerary_keywords = ["规划", "行程", "旅游", "旅行", "几天", "日游"]
+                    has_itinerary_intent = any(kw in msg.content for kw in itinerary_keywords)
 
                 try:
                     # Stream LLM response with user preferences and cross-session memory
