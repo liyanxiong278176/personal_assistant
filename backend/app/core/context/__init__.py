@@ -11,9 +11,13 @@ from .tokenizer import (
     estimate_tokens,
     estimate_message_tokens,
 )
+from .compressor import ContextCompressor
+from .manager import ContextManager
 
 __all__ = [
     "TokenEstimator",
     "estimate_tokens",
     "estimate_message_tokens",
+    "ContextCompressor",
+    "ContextManager",
 ]
