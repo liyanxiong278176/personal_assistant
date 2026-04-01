@@ -24,7 +24,7 @@ export default function ChatPage() {
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
   const { isAuthenticated, user } = useAuthStore();
-  const { setActiveConversation, createConversation } = useConversationStore();
+  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId } = useConversationStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -57,6 +57,28 @@ export default function ChatPage() {
       console.log('[Chat] User ID set to transport:', userId);
     }
   }, [userId]);
+
+  // Load messages for active conversation from store (after refresh)
+  useEffect(() => {
+    if (storeActiveConversationId && storeActiveConversationId !== currentConversationId) {
+      // Store has active conversation but local state doesn't match
+      setCurrentConversationId(storeActiveConversationId);
+      loadConversationMessages(storeActiveConversationId);
+    }
+    // Only run when storeActiveConversationId changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeActiveConversationId]);
+
+  // Helper function to load conversation messages
+  const loadConversationMessages = useCallback(async (conversationId: string) => {
+    try {
+      const history = await conversationsApi.getMessages(conversationId);
+      setMessages(history);
+    } catch (error) {
+      console.error("Failed to load conversation messages:", error);
+      setMessages([]);
+    }
+  }, []);
 
   // Handle sending message
   const handleSendMessage = useCallback(async () => {
