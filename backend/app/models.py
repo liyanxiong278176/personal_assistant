@@ -21,6 +21,9 @@ class WSMessage(BaseModel):
     user_id: Optional[str] = Field(None, description="User identifier for personalization")
     content: Optional[str] = Field(None, description="User message content")
     control: Optional[str] = Field(None, description="Control command: 'stop', 'ping'")
+    # Image-related fields for multimodal support
+    has_image: bool = Field(False, description="Whether the message contains an image attachment")
+    image_data: Optional[str] = Field(None, description="Base64-encoded image data")
 
 
 class WSResponse(BaseModel):
