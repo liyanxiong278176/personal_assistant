@@ -16,6 +16,38 @@ from chromadb.config import Settings
 
 logger = logging.getLogger(__name__)
 
+# Global client instance for lazy initialization
+_chroma_client: Optional[chromadb.PersistentClient] = None
+
+
+async def get_chroma_client(
+    persist_directory: str = "./data/chroma_db"
+) -> chromadb.PersistentClient:
+    """Get or create the ChromaDB client singleton.
+
+    Args:
+        persist_directory: Directory for ChromaDB data persistence
+
+    Returns:
+        ChromaDB PersistentClient instance
+    """
+    global _chroma_client
+
+    if _chroma_client is None:
+        persist_path = Path(persist_directory)
+        persist_path.mkdir(parents=True, exist_ok=True)
+
+        _chroma_client = chromadb.PersistentClient(
+            path=str(persist_path),
+            settings=Settings(
+                anonymized_telemetry=False,
+                allow_reset=True
+            )
+        )
+        logger.info(f"[VectorStore] Created ChromaDB client: {persist_directory}")
+
+    return _chroma_client
+
 
 class ChineseEmbeddings:
     """Chinese text embeddings using sentence-transformers.
