@@ -24,7 +24,7 @@ export default function ChatPage() {
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
   const { isAuthenticated, user } = useAuthStore();
-  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId } = useConversationStore();
+  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations } = useConversationStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -39,6 +39,19 @@ export default function ChatPage() {
     }
     initUser();
   }, []);
+
+  // Clear all conversation data when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // User logged out - clear all conversation data
+      setMessages([]);
+      setCurrentConversationId(null);
+      clearConversations();
+      if (transportRef.current) {
+        transportRef.current.setConversationId("");
+      }
+    }
+  }, [isAuthenticated, clearConversations]);
 
   // Initialize transport on mount
   useEffect(() => {

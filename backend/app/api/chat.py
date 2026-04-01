@@ -28,6 +28,7 @@ from app.db.postgres import (
     create_message, get_messages, get_context_window
 )
 from app.services.llm_service import llm_service
+from app.services.memory_service import memory_service
 
 router = APIRouter(prefix="/api", tags=["conversations"])
 logger = logging.getLogger(__name__)
@@ -172,10 +173,19 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 if not conversation_id:
                     conversation_id = str(await create_conversation())
 
+                user_id = msg.user_id or "anonymous"  # Default user_id if not provided
+
                 try:
                     await create_message(UUID(conversation_id), "user", msg.content)
                 except Exception as e:
                     logger.error(f"Failed to save user message: {e}")
+
+                # Store user message in vector memory for cross-session retrieval
+                try:
+                    await memory_service.store_message(user_id, conversation_id, "user", msg.content)
+                    logger.debug(f"[Chat] Stored user message in vector memory")
+                except Exception as e:
+                    logger.warning(f"Failed to store user message in memory: {e}")
 
                 message_id = str(uuid4())
                 full_response = ""
@@ -185,8 +195,7 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 has_itinerary_intent = any(kw in msg.content for kw in itinerary_keywords)
 
                 try:
-                    # Stream LLM response with user preferences
-                    user_id = msg.user_id  # Get user_id for personalization
+                    # Stream LLM response with user preferences and cross-session memory
                     async for chunk in llm_service.stream_chat(
                         user_message=msg.content,
                         conversation_id=conversation_id,
@@ -247,6 +256,27 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                             await create_message(UUID(conversation_id), "assistant", full_response)
                         except Exception as e:
                             logger.error(f"Failed to save assistant message: {e}")
+
+                    # Store assistant response in vector memory
+                    try:
+                        await memory_service.store_message(user_id, conversation_id, "assistant", full_response)
+                        logger.debug(f"[Chat] Stored assistant response in vector memory")
+                    except Exception as e:
+                        logger.warning(f"Failed to store assistant response in memory: {e}")
+
+                    # Extract and update user preferences asynchronously (don't block response)
+                    async def extract_and_update_preferences():
+                        try:
+                            from app.services.preference_service import preference_service
+                            # Build conversation text for extraction
+                            conversation_text = f"用户: {msg.content}\n助手: {full_response[:200]}"
+                            await preference_service.get_or_extract(user_id, conversation_text)
+                            logger.debug(f"[Chat] Extracted preferences for user={user_id}")
+                        except Exception as e:
+                            logger.warning(f"Failed to extract preferences: {e}")
+
+                    # Schedule preference extraction without blocking
+                    asyncio.create_task(extract_and_update_preferences())
 
                     # Always send done message
                     await manager.send_json(
