@@ -82,10 +82,19 @@ async def _classify_by_llm(message: str) -> tuple[IntentType | None, float]:
     Returns:
         Tuple of (intent_type, confidence)
     """
-    # TODO: Task 4 will implement full LLM classification
-    # For now, return None as fallback
-    logger.warning("[IntentClassifier] LLM classification not yet implemented, using fallback")
-    return (None, 0.0)
+    from app.services.llm_service import llm_service
+
+    try:
+        result = await llm_service.classify_intent(message)
+        intent = result.get("intent")
+        confidence = result.get("confidence", 0.0)
+
+        if intent and confidence >= 0.5:
+            return (intent, confidence)
+        return (None, 0.0)
+    except Exception as e:
+        logger.error(f"[IntentClassifier] LLM classification failed: {e}")
+        return (None, 0.0)
 
 
 class IntentClassifier:
