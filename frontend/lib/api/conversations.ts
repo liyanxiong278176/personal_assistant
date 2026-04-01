@@ -30,7 +30,7 @@ function buildQueryParams(params: SearchConversationsParams): string {
   const query = new URLSearchParams();
   if (params.query) query.append("query", params.query);
   if (params.tags) params.tags.forEach((tag) => query.append("tags", tag));
-  if (params.is_pinned !== undefined) query.append("is_pinned", String(params.is_pinned));
+  if (params.pinned !== undefined) query.append("pinned", String(params.pinned));
   query.append("page", String(params.page || 1));
   query.append("page_size", String(params.page_size || 20));
   return query.toString();
@@ -116,7 +116,7 @@ export const conversationsApi = {
         "Content-Type": "application/json",
         ...getAuthHeaders(),
       },
-      body: JSON.stringify({ is_pinned: isPinned }),
+      body: JSON.stringify({ pinned: isPinned }),
     });
     return handleResponse<Conversation>(response);
   },

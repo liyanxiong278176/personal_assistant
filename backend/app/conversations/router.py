@@ -27,9 +27,51 @@ logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter(
-    prefix="/api/conversations",
+    prefix="/api/v1/conversations",
     tags=["conversations"],
 )
+
+
+# Request/Response models for create
+from pydantic import BaseModel
+
+
+class CreateConversationRequest(BaseModel):
+    title: Optional[str] = "新对话"
+    initial_message: Optional[str] = None
+
+
+# ============================================================
+# Create Conversation
+# ============================================================
+
+
+@router.post("", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED)
+async def create_conversation(
+    request: CreateConversationRequest,
+    current_user: UserInfo = Depends(require_auth),
+    service: ConversationService = Depends(get_conversation_service),
+):
+    """Create a new conversation.
+
+    Requires authentication. Creates a conversation for the current user.
+    """
+    conv = await service.create_conversation(
+        user_id=current_user.user_id,
+        title=request.title or "新对话",
+    )
+    return ConversationResponse(
+        id=conv["id"],
+        title=conv["title"],
+        created_at=conv["created_at"],
+        updated_at=conv["updated_at"],
+        message_count=0,
+        is_archived=conv.get("is_archived", False),
+        pinned=conv.get("pinned", False),
+        sync_enabled=conv.get("sync_enabled", True),
+        tags=[],
+        user_id=conv.get("user_id"),
+    )
 
 
 # ============================================================
@@ -39,9 +81,13 @@ router = APIRouter(
 
 @router.get("", response_model=ConversationListResponse)
 async def list_conversations(
+    query: Optional[str] = Query(None, description="Search query"),
+    tags: Optional[list[str]] = Query(None, description="Filter by tags"),
+    is_pinned: Optional[bool] = Query(None, description="Filter by pinned status"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Page size"),
     include_archived: bool = Query(False, description="Include archived conversations"),
     archived_only: bool = Query(False, description="Only return archived conversations"),
-    limit: int = Query(50, ge=1, le=100, description="Maximum number of conversations"),
     current_user: Optional[UserInfo] = Depends(get_current_user),
     service: ConversationService = Depends(get_conversation_service),
 ):
@@ -49,21 +95,29 @@ async def list_conversations(
 
     Returns conversations sorted by pinned status (pinned first)
     and then by update time (most recent first).
-
-    - **include_archived**: Include archived conversations in results
-    - **archived_only**: Only return archived conversations
-    - **limit**: Maximum number of conversations to return (1-100)
     """
     # For anonymous users, return empty list
     if not current_user:
-        return ConversationListResponse(conversations=[], total=0, limit=limit)
+        return ConversationListResponse(conversations=[], total=0, page=page, page_size=page_size)
 
-    conversations, total = await service.list_conversations(
-        user_id=current_user.user_id,
-        include_archived=include_archived,
-        archived_only=archived_only,
-        limit=limit,
-    )
+    # Calculate limit from page and page_size
+    limit = page_size
+
+    # Handle search query
+    if query:
+        conversations = await service.search_conversations(
+            user_id=current_user.user_id,
+            query=query,
+            limit=limit,
+        )
+        total = len(conversations)
+    else:
+        conversations, total = await service.list_conversations(
+            user_id=current_user.user_id,
+            include_archived=include_archived,
+            archived_only=archived_only,
+            limit=limit,
+        )
 
     return ConversationListResponse(
         conversations=[
@@ -81,7 +135,8 @@ async def list_conversations(
             for conv in conversations
         ],
         total=total,
-        limit=limit,
+        page=page,
+        page_size=page_size,
     )
 
 
@@ -235,7 +290,7 @@ async def get_conversation(
 # ============================================================
 
 
-@router.put("/{conversation_id}", response_model=ConversationResponse)
+@router.patch("/{conversation_id}", response_model=ConversationResponse)
 async def update_conversation(
     conversation_id: UUID,
     update: ConversationUpdate,
@@ -319,13 +374,18 @@ async def delete_conversation(
 # ============================================================
 
 
-@router.post("/{conversation_id}/pin", response_model=ConversationResponse)
-async def pin_conversation(
+class PinRequest(BaseModel):
+    is_pinned: bool
+
+
+@router.patch("/{conversation_id}/pin", response_model=ConversationResponse)
+async def toggle_pin_conversation(
     conversation_id: UUID,
+    request: PinRequest,
     current_user: UserInfo = Depends(require_auth),
     service: ConversationService = Depends(get_conversation_service),
 ):
-    """Pin a conversation to the top of the list.
+    """Toggle pin status for a conversation.
 
     Requires authentication and ownership of the conversation.
     """
@@ -333,7 +393,7 @@ async def pin_conversation(
         conv = await service.update_conversation(
             conversation_id=conversation_id,
             user_id=current_user.user_id,
-            pinned=True,
+            pinned=request.is_pinned,
         )
         if not conv:
             raise HTTPException(

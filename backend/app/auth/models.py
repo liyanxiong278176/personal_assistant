@@ -9,14 +9,14 @@ class RegisterRequest(BaseModel):
     """User registration request."""
 
     email: EmailStr = Field(..., description="User email address")
-    password: str = Field(..., min_length=8, max_length=100, description="Password (min 8 characters)")
-    verification_code: str = Field(..., min_length=6, max_length=6, description="Email verification code")
+    password: str = Field(..., min_length=6, max_length=100, description="Password (min 6 characters)")
+    username: Optional[str] = Field(None, min_length=2, max_length=50, description="Username (optional)")
 
 
 class LoginRequest(BaseModel):
     """User login request."""
 
-    identifier: str = Field(..., description="Email or phone number")
+    email: str = Field(..., description="Email address")
     password: str = Field(..., description="User password")
 
 
@@ -65,6 +65,7 @@ class UserInfo(BaseModel):
 
     user_id: str = Field(..., description="User unique identifier (UUID)")
     email: Optional[str] = Field(None, description="User email")
+    username: Optional[str] = Field(None, description="Username")
     email_verified: bool = Field(default=False, description="Email verification status")
     phone: Optional[str] = Field(None, description="User phone number")
     phone_verified: bool = Field(default=False, description="Phone verification status")

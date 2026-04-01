@@ -58,7 +58,7 @@ export function ConversationList({
     );
 
     for (const conversation of sortedConversations) {
-      if (conversation.is_pinned) {
+      if (conversation.pinned) {
         groups.pinned.push(conversation);
         continue;
       }

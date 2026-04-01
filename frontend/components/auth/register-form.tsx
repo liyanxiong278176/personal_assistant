@@ -11,13 +11,14 @@ import { useAuthStore } from "@/lib/store/auth-store";
 
 const registerSchema = z
   .object({
-    email: z.string().email("请输入有效的邮箱地址"),
+    email: z.string().email("请输入有效的邮箱地���"),
     username: z.string().min(2, "用户名至少2个字符").optional(),
-    code: z.string().min(6, "验证码至少6位").max(6, "验证码为6位"),
+    password: z.string().min(6, "密码至少6位"),
+    confirmPassword: z.string(),
   })
-  .refine((data) => data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email), {
-    message: "请输入有效的邮箱地址",
-    path: ["email"],
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "两次密码输入不一致",
+    path: ["confirmPassword"],
   });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -29,60 +30,30 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const [error, setError] = useState<string | null>(null);
-  const [resendDisabled, setResendDisabled] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const { register, sendCode, isLoading } = useAuthStore();
+  const { register, isLoading } = useAuthStore();
 
   const {
     register: registerField,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       username: "",
-      code: "",
+      password: "",
+      confirmPassword: "",
     },
   });
-
-  const email = watch("email");
 
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null);
     try {
-      await register(data);
+      const { confirmPassword, ...registerData } = data;
+      await register(registerData);
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "注册失败，请重试");
-    }
-  };
-
-  const handleSendCode = async () => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("请先输入有效的邮箱地址");
-      return;
-    }
-
-    setError(null);
-    try {
-      await sendCode({ email });
-      setResendDisabled(true);
-      setCountdown(60);
-
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setResendDisabled(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "发送验证码失败，请重试");
     }
   };
 
@@ -94,6 +65,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           id="reg-email"
           type="email"
           placeholder="your@email.com"
+          autoComplete="email"
           {...registerField("email")}
           disabled={isLoading}
         />
@@ -108,6 +80,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           id="username"
           type="text"
           placeholder="旅行者"
+          autoComplete="username"
           {...registerField("username")}
           disabled={isLoading}
         />
@@ -117,29 +90,32 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="reg-code">验证码</Label>
-        <div className="flex gap-2">
-          <Input
-            id="reg-code"
-            type="text"
-            placeholder="6位验证码"
-            maxLength={6}
-            {...registerField("code")}
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleSendCode}
-            disabled={resendDisabled || isLoading}
-            className="whitespace-nowrap"
-          >
-            {countdown > 0 ? `${countdown}秒后重发` : "发送验证码"}
-          </Button>
-        </div>
-        {errors.code && (
-          <p className="text-sm text-destructive">{errors.code.message}</p>
+        <Label htmlFor="password">密码</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="至少6位密码"
+          autoComplete="new-password"
+          {...registerField("password")}
+          disabled={isLoading}
+        />
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">确认密码</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          placeholder="再次输入密码"
+          autoComplete="new-password"
+          {...registerField("confirmPassword")}
+          disabled={isLoading}
+        />
+        {errors.confirmPassword && (
+          <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
         )}
       </div>
 

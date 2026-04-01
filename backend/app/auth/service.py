@@ -7,13 +7,17 @@ verification codes, and user authentication operations.
 import os
 import secrets
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from uuid import UUID, uuid4
 
 import jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr, ValidationError
+from dotenv import load_dotenv
+
+# Load .env file to ensure JWT_SECRET_KEY is available
+load_dotenv()
 
 from ..db.postgres import (
     Database,
@@ -97,17 +101,24 @@ class AuthService:
         Returns:
             Tuple of (token, expires_at)
         """
-        expires_at = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "type": "access",
-            "exp": expires_at,
-            "iat": datetime.utcnow(),
+            "exp": int(expires_at.timestamp()),
+            "iat": int(datetime.now(timezone.utc).timestamp()),
         }
 
         if additional_claims:
-            payload.update(additional_claims)
+            # Convert any non-JSON-serializable values
+            for key, value in additional_claims.items():
+                if isinstance(value, datetime):
+                    payload[key] = int(value.timestamp())
+                elif hasattr(value, "__str__"):
+                    payload[key] = str(value)
+                else:
+                    payload[key] = value
 
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
         return token, expires_at
@@ -129,14 +140,14 @@ class AuthService:
             Tuple of (token, expires_at, jti)
         """
         jti = str(uuid4())
-        expires_at = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
 
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "type": "refresh",
             "jti": jti,
-            "exp": expires_at,
-            "iat": datetime.utcnow(),
+            "exp": int(expires_at.timestamp()),
+            "iat": int(datetime.now(timezone.utc).timestamp()),
         }
 
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -200,7 +211,7 @@ class AuthService:
             Response with expiration time
         """
         code = self.generate_verification_code()
-        expires_at = datetime.utcnow() + timedelta(minutes=VERIFICATION_CODE_EXPIRE_MINUTES)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=VERIFICATION_CODE_EXPIRE_MINUTES)
 
         # Store code in memory (use Redis in production)
         _verification_codes[email] = (code, expires_at)
@@ -233,7 +244,7 @@ class AuthService:
         stored_code, expires_at = _verification_codes[email]
 
         # Check expiration
-        if datetime.utcnow() > expires_at:
+        if datetime.now(timezone.utc) > expires_at:
             # Remove expired code
             del _verification_codes[email]
             return False
@@ -250,14 +261,14 @@ class AuthService:
         self,
         email: str,
         password: str,
-        verification_code: str
+        username: Optional[str] = None
     ) -> LoginResponse:
         """Register a new user.
 
         Args:
             email: User email
             password: User password
-            verification_code: Email verification code
+            username: Optional username
 
         Returns:
             Login response with tokens
@@ -265,17 +276,26 @@ class AuthService:
         Raises:
             ValueError: If validation fails
         """
-        # Verify code
-        if not self.verify_code(email, verification_code):
-            raise ValueError("Invalid or expired verification code")
-
         # Check if email already exists
         existing = await get_user_credentials_by_email(email)
         if existing:
             raise ValueError("Email already registered")
 
-        # Create user
-        user_id = await create_user()
+        # Check if username is already taken (if provided)
+        if username:
+            conn = await Database.get_connection()
+            try:
+                existing_user = await conn.fetchrow(
+                    "SELECT id FROM users WHERE username = $1",
+                    username
+                )
+                if existing_user:
+                    raise ValueError("Username already taken")
+            finally:
+                await Database.release_connection(conn)
+
+        # Create user with username
+        user_id = await create_user(username=username if username else None)
 
         # Hash password
         password_hash = self.hash_password(password)
@@ -316,6 +336,7 @@ class AuthService:
             user=UserInfo(
                 user_id=user_id,
                 email=email,
+                username=username,
                 email_verified=True,
                 phone=None,
                 phone_verified=False,
@@ -326,13 +347,13 @@ class AuthService:
 
     async def login(
         self,
-        identifier: str,
+        email: str,
         password: str
     ) -> LoginResponse:
-        """Login a user with email/phone and password.
+        """Login a user with email and password.
 
         Args:
-            identifier: Email or phone number
+            email: Email address
             password: User password
 
         Returns:
@@ -341,11 +362,8 @@ class AuthService:
         Raises:
             ValueError: If credentials are invalid
         """
-        # Try email first, then phone
-        if "@" in identifier:
-            credentials = await get_user_credentials_by_email(identifier)
-        else:
-            credentials = await get_user_credentials_by_phone(identifier)
+        # Get credentials by email
+        credentials = await get_user_credentials_by_email(email)
 
         if not credentials:
             raise ValueError("Invalid credentials")
@@ -381,6 +399,7 @@ class AuthService:
             user=UserInfo(
                 user_id=user_id,
                 email=credentials.get("email"),
+                username=user.get("username"),
                 email_verified=credentials.get("email_verified", False),
                 phone=credentials.get("phone"),
                 phone_verified=credentials.get("phone_verified", False),
@@ -512,6 +531,7 @@ class AuthService:
         return UserInfo(
             user_id=user_id,
             email=credentials.get("email"),
+            username=user.get("username"),
             email_verified=credentials.get("email_verified", False),
             phone=credentials.get("phone"),
             phone_verified=credentials.get("phone_verified", False),

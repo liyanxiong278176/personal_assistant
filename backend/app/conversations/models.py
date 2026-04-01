@@ -49,7 +49,8 @@ class ConversationListResponse(BaseModel):
         default_factory=list, description="List of conversations"
     )
     total: int = Field(..., description="Total number of conversations matching the query")
-    limit: int = Field(..., description="Maximum number of conversations returned")
+    page: int = Field(..., description="Current page number")
+    page_size: int = Field(..., description="Number of conversations per page")
 
 
 class TagCreate(BaseModel):

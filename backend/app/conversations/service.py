@@ -10,6 +10,7 @@ from uuid import UUID
 
 from app.db.postgres import (
     Database,
+    create_conversation,
     get_conversation,
     update_conversation,
     list_user_conversations,
@@ -29,6 +30,35 @@ class ConversationService:
     Provides methods for CRUD operations, search, filtering,
     and tag management with proper permission checks.
     """
+
+    async def create_conversation(
+        self, user_id: str, title: str = "新对话"
+    ) -> dict:
+        """Create a new conversation for a user.
+
+        Args:
+            user_id: User ID
+            title: Conversation title (default: "新对话")
+
+        Returns:
+            Created conversation dict
+        """
+        conv_id = await create_conversation(title)
+
+        # Associate with user
+        conn = await Database.get_connection()
+        try:
+            await conn.execute(
+                "UPDATE conversations SET user_id = $1 WHERE id = $2",
+                user_id,
+                conv_id,
+            )
+        finally:
+            await Database.release_connection(conn)
+
+        # Return the conversation
+        conv = await get_conversation(conv_id)
+        return conv
 
     async def get_conversation(
         self, conversation_id: UUID, user_id: str

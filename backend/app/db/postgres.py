@@ -157,6 +157,7 @@ class Database:
             await conn.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id UUID PRIMARY KEY,
+                    username VARCHAR(100) UNIQUE,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                 )
@@ -603,11 +604,14 @@ async def get_conversation_itineraries(
 
 
 # User and preference operations (per D-01, D-04, D-06)
-async def create_user() -> str:
+async def create_user(username: Optional[str] = None) -> str:
     """Create a new user with auto-generated UUID.
 
     Per D-01: UUID as user identifier.
     Per D-02: No password required.
+
+    Args:
+        username: Optional username for the user
 
     Returns:
         User ID (UUID string)
@@ -617,12 +621,19 @@ async def create_user() -> str:
 
     conn = await Database.get_connection()
     try:
-        # Create user record
-        await conn.execute(
-            """INSERT INTO users (id, created_at, updated_at)
-               VALUES ($1, $2, $2)""",
-            user_id, datetime.utcnow()
-        )
+        # Create user record with username if provided
+        if username:
+            await conn.execute(
+                """INSERT INTO users (id, username, created_at, updated_at)
+                   VALUES ($1, $2, $3, $3)""",
+                user_id, username, datetime.utcnow()
+            )
+        else:
+            await conn.execute(
+                """INSERT INTO users (id, created_at, updated_at)
+                   VALUES ($1, $2, $2)""",
+                user_id, datetime.utcnow()
+            )
 
         # Create default preferences (per D-05)
         default_prefs = {
@@ -655,10 +666,17 @@ async def get_user(user_id: str) -> Optional[dict]:
     conn = await Database.get_connection()
     try:
         row = await conn.fetchrow(
-            "SELECT * FROM users WHERE id = $1",
+            "SELECT id, username, created_at, updated_at FROM users WHERE id = $1",
             user_id
         )
-        return dict(row) if row else None
+        if row:
+            return {
+                "id": str(row["id"]),
+                "username": row["username"],
+                "created_at": row["created_at"],
+                "updated_at": row["updated_at"],
+            }
+        return None
     finally:
         await Database.release_connection(conn)
 
@@ -760,10 +778,22 @@ async def get_user_credentials_by_email(email: str) -> Optional[dict]:
     conn = await Database.get_connection()
     try:
         row = await conn.fetchrow(
-            "SELECT * FROM user_credentials WHERE email = $1",
+            "SELECT id, user_id, email, phone, password_hash, email_verified, phone_verified, created_at, updated_at FROM user_credentials WHERE email = $1",
             email
         )
-        return dict(row) if row else None
+        if row:
+            return {
+                "id": str(row["id"]),
+                "user_id": str(row["user_id"]),
+                "email": row["email"],
+                "phone": row["phone"],
+                "password_hash": row["password_hash"],
+                "email_verified": row["email_verified"],
+                "phone_verified": row["phone_verified"],
+                "created_at": row["created_at"],
+                "updated_at": row["updated_at"]
+            }
+        return None
     finally:
         await Database.release_connection(conn)
 
@@ -814,7 +844,7 @@ async def create_refresh_token(
         await conn.execute("""
             INSERT INTO refresh_tokens (id, user_id, token_hash, jti, user_agent, ip_address, expires_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
-        """, token_id, user_id, token_hash, jti, user_agent, ip_address)
+        """, token_id, user_id, token_hash, jti, user_agent, ip_address, expires_at)
         return token_id
     finally:
         await Database.release_connection(conn)

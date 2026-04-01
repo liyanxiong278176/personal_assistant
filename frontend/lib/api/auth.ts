@@ -2,7 +2,6 @@ import type {
   User,
   LoginRequest,
   RegisterRequest,
-  SendCodeRequest,
   AuthResponse,
   RefreshTokenRequest,
 } from "../types";
@@ -19,19 +18,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const authApi = {
   /**
-   * Send verification code to email
-   */
-  async sendCode(request: SendCodeRequest): Promise<{ message: string }> {
-    const response = await fetch(`${API_BASE}/api/v1/auth/send-code`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
-    });
-    return handleResponse<{ message: string }>(response);
-  },
-
-  /**
-   * Login with email and verification code
+   * Login with email and password
    */
   async login(request: LoginRequest): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE}/api/v1/auth/login`, {

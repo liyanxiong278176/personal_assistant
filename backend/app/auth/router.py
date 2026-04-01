@@ -6,65 +6,76 @@ and user profile management.
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Body
 from fastapi.security import HTTPBearer
+from pydantic import BaseModel
 
 from .models import (
     LoginRequest,
     LoginResponse,
     TokenResponse,
-    SendCodeRequest,
-    SendCodeResponse,
-    ResetPasswordRequest,
+    RegisterRequest,
     ErrorResponse,
+    UserInfo,
 )
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 from .service import AuthService, get_auth_service
 from .dependencies import get_current_user, require_auth, get_refresh_token_jti
 
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 # Cookie configuration
 REFRESH_COOKIE_NAME = "refresh_jti"
 REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
 
 
-@router.post("/send-code", response_model=SendCodeResponse)
-async def send_verification_code(
-    request: SendCodeRequest,
-    auth_service: AuthService = Depends(get_auth_service),
-):
-    """Send a verification code to the user's email.
-
-    In development, the code is printed to console.
-    In production, integrate with an email service.
-    """
-    return await auth_service.send_verification_code(request.email)
-
-
 @router.post("/register", response_model=LoginResponse)
 async def register(
-    request: LoginRequest,
+    request: RegisterRequest,
+    response: Response,
     auth_service: AuthService = Depends(get_auth_service),
 ):
-    """Register a new user with email verification code.
+    """Register a new user with email and password.
 
-    Note: Uses LoginRequest schema which has identifier field.
-    For registration, identifier must be an email address.
+    Simple registration without email verification for development.
     """
-    # Validate that identifier is an email
-    if "@" not in request.identifier:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Registration requires email address",
+    try:
+        result = await auth_service.register(
+            email=request.email,
+            password=request.password,
+            username=request.username,
         )
 
-    # For now, we'll use a simplified approach - just login
-    # Full registration with verification code requires extending the request
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Use /login endpoint. Full registration with verification pending.",
-    )
+        # Set httpOnly cookie with refresh token JTI
+        import jwt
+        from .service import ALGORITHM, SECRET_KEY
+
+        payload = jwt.decode(
+            result.refresh_token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        jti = payload.get("jti")
+
+        response.set_cookie(
+            key=REFRESH_COOKIE_NAME,
+            value=jti,
+            max_age=REFRESH_COOKIE_MAX_AGE,
+            httponly=True,
+            secure=False,  # Set True in production with HTTPS
+            samesite="lax",
+        )
+
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -73,17 +84,15 @@ async def login(
     response: Response,
     auth_service: AuthService = Depends(get_auth_service),
 ):
-    """Login with email/phone and password.
+    """Login with email and password.
 
     Sets an httpOnly cookie with the refresh token JTI.
     """
     try:
-        result = await auth_service.login(request.identifier, request.password)
+        result = await auth_service.login(request.email, request.password)
 
         # Set httpOnly cookie with refresh token JTI
-        # We need to decode the refresh token to get JTI
         import jwt
-        import os
         from .service import ALGORITHM, SECRET_KEY
 
         payload = jwt.decode(
@@ -147,7 +156,7 @@ async def refresh_token(
 
 @router.post("/refresh-token", response_model=TokenResponse)
 async def refresh_token_with_body(
-    refresh_token: str,
+    request: RefreshTokenRequest,
     response: Response,
     auth_service: AuthService = Depends(get_auth_service),
 ):
@@ -156,7 +165,7 @@ async def refresh_token_with_body(
     Updates the httpOnly cookie with the new refresh token JTI.
     """
     try:
-        result = await auth_service.refresh_tokens(refresh_token)
+        result = await auth_service.refresh_tokens(request.refresh_token)
 
         # Extract JTI from new refresh token and update cookie
         import jwt
@@ -186,53 +195,65 @@ async def refresh_token_with_body(
         )
 
 
+class LogoutRequest(BaseModel):
+    refresh_token: str
+
+
 @router.post("/logout")
 async def logout(
-    response: Response,
+    request: Optional[LogoutRequest] = None,
+    response: Response = None,
     refresh_jti: Optional[str] = Cookie(None),
     auth_service: AuthService = Depends(get_auth_service),
 ):
-    """Logout user by clearing the refresh token cookie.
+    """Logout user by revoking the refresh token.
 
-    Also revokes the refresh token in the database.
+    Supports both cookie-based and request body refresh tokens.
     """
-    if refresh_jti:
-        # Revoke the refresh token
-        from ..db.postgres import revoke_refresh_token
-        await revoke_refresh_token(refresh_jti)
+    jti_to_revoke = None
 
-    # Clear the cookie
-    response.delete_cookie(
-        key=REFRESH_COOKIE_NAME,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-    )
+    # Try to get JTI from request body first
+    if request and request.refresh_token:
+        import jwt
+        from .service import ALGORITHM, SECRET_KEY
+
+        try:
+            payload = jwt.decode(
+                request.refresh_token,
+                SECRET_KEY,
+                algorithms=[ALGORITHM]
+            )
+            jti_to_revoke = payload.get("jti")
+        except Exception:
+            pass
+
+    # Fall back to cookie
+    if not jti_to_revoke and refresh_jti:
+        jti_to_revoke = refresh_jti
+
+    # Revoke the refresh token
+    if jti_to_revoke:
+        from ..db.postgres import revoke_refresh_token
+        await revoke_refresh_token(jti_to_revoke)
+
+    # Clear the cookie if response is provided
+    if response:
+        response.delete_cookie(
+            key=REFRESH_COOKIE_NAME,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+        )
 
     return {"message": "Logged out successfully"}
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserInfo)
 async def get_current_user_info(
-    current_user: dict = Depends(require_auth),
+    current_user: UserInfo = Depends(require_auth),
 ):
     """Get current authenticated user information.
 
     Requires valid authentication.
     """
     return current_user
-
-
-@router.post("/reset-password")
-async def reset_password(
-    request: ResetPasswordRequest,
-    auth_service: AuthService = Depends(get_auth_service),
-):
-    """Reset user password with verification code.
-
-    Not yet implemented - returns 501.
-    """
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Password reset not yet implemented",
-    )
