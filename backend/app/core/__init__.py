@@ -16,6 +16,14 @@ from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
 from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_PROMPT
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
 from .intent import CommandResult, SlashCommand, SlashCommandRegistry, get_slash_registry
+from .memory import (
+    MemoryHierarchy,
+    MemoryHierarchyFactory,
+    MemoryItem,
+    MemoryLevel,
+    MemoryType,
+    WorkingMemoryEntry,
+)
 
 __all__ = [
     "AgentError",
@@ -38,4 +46,10 @@ __all__ = [
     "SlashCommand",
     "SlashCommandRegistry",
     "get_slash_registry",
+    "MemoryHierarchy",
+    "MemoryHierarchyFactory",
+    "MemoryItem",
+    "MemoryLevel",
+    "MemoryType",
+    "WorkingMemoryEntry",
 ]
