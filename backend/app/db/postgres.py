@@ -296,6 +296,44 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_tags_name ON conversation_tags(tag_name);
             """)
 
+            # Create episodic_memories table for short-term memory
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS episodic_memories (
+                    id UUID PRIMARY KEY,
+                    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+                    memory_type VARCHAR(50) NOT NULL,
+                    content TEXT NOT NULL,
+                    structured_data JSONB DEFAULT '{}',
+                    confidence FLOAT DEFAULT 0.5,
+                    importance FLOAT DEFAULT 0.5,
+                    source_message_id UUID,
+                    is_promoted BOOLEAN DEFAULT FALSE,
+                    promoted_at TIMESTAMP WITH TIME ZONE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_episodic_conversation ON episodic_memories(conversation_id);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_episodic_type ON episodic_memories(memory_type);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_episodic_promoted ON episodic_memories(is_promoted, importance DESC);
+            """)
+
+            # Create user_profiles table for long-term memory
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_profiles (
+                    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    travel_preferences JSONB DEFAULT '{}',
+                    patterns JSONB DEFAULT '[]',
+                    stats JSONB DEFAULT '{}',
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
             print("[OK] Database tables initialized")
         finally:
             await cls.release_connection(conn)

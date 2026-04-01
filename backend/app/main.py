@@ -24,6 +24,7 @@ from app.api.memory import memory_router
 from app.api.users import users_router
 from app.auth import auth_router
 from app.conversations.router import router as conversations_router
+from app.memory.router import router as memory_router_v2
 
 # Configure logging
 logging.basicConfig(
@@ -77,6 +78,7 @@ app.include_router(routes_router)
 app.include_router(memory_router)
 app.include_router(users_router)
 app.include_router(conversations_router)
+app.include_router(memory_router_v2)
 
 # Health check endpoint
 @app.get("/health")
