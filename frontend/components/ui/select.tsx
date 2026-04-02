@@ -37,11 +37,11 @@ export function SelectTrigger({ className = "", children, ...props }: React.Butt
     <button
       type="button"
       onClick={() => setOpen(true)}
-      className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`flex h-10 w-full items-center justify-between rounded-xl border border-border/60 bg-card/60 px-4 py-2 text-sm ring-offset-background placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring/40 disabled:cursor-not-allowed disabled:opacity-50 transition-all ${className}`}
       {...props}
     >
       {children}
-      <svg className="h-4 w-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-4 w-4 opacity-50 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     </button>
@@ -51,7 +51,7 @@ export function SelectTrigger({ className = "", children, ...props }: React.Butt
 export function SelectValue({ placeholder = "" }: { placeholder?: string }) {
   const { value } = React.useContext(SelectContext)
 
-  return <span>{value || placeholder}</span>
+  return <span className={value ? "text-foreground" : "text-muted-foreground/50"}>{value || placeholder}</span>
 }
 
 export function SelectContent({ children }: { children: React.ReactNode }) {
@@ -79,9 +79,9 @@ export function SelectContent({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className="absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+      className="absolute z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/60 bg-card/95 backdrop-blur-md shadow-soft-lg mt-1 animate-scale-in"
     >
-      <div className="max-h-96 overflow-auto p-1">{children}</div>
+      <div className="max-h-72 overflow-auto scrollbar-elegant p-1">{children}</div>
     </div>
   )
 }
@@ -95,7 +95,7 @@ export function SelectItem({ value, children }: { value: string; children: React
         onValueChange(value)
         setOpen(false)
       }}
-      className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+      className="relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2.5 text-sm text-foreground/80 outline-none hover:bg-primary/8 hover:text-foreground transition-colors"
     >
       {children}
     </div>
