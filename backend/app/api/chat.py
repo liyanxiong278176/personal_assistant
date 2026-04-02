@@ -31,6 +31,7 @@ from app.services.llm_service import llm_service
 from app.services.memory_service import memory_service
 from app.services.intent_classifier import intent_classifier, IntentResult
 
+
 router = APIRouter(prefix="/api", tags=["conversations"])
 logger = logging.getLogger(__name__)
 
@@ -108,9 +109,19 @@ class ConnectionManager:
         self._stop_events.pop(conn_id, None)
         logger.info(f"WebSocket disconnected. Total connections: {len(self.active_connections)}")
 
-    async def send_json(self, websocket: WebSocket, response: WSResponse) -> None:
-        """Send JSON response to WebSocket client."""
-        await websocket.send_json(response.model_dump())
+    async def send_json(self, websocket: WebSocket, response: WSResponse) -> bool:
+        """Send JSON response to WebSocket client.
+
+        Returns:
+            True if sent successfully, False if client disconnected
+        """
+        try:
+            await websocket.send_json(response.model_dump())
+            return True
+        except (WebSocketDisconnect, ConnectionError, RuntimeError):
+            # Client disconnected, don't log as error
+            logger.debug("WebSocket client disconnected during send")
+            return False
 
     def get_stop_event(self, websocket: WebSocket) -> asyncio.Event:
         """Get stop event for user interruption (per D-20)."""
@@ -141,19 +152,22 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
             try:
                 msg = WSMessage(**data)
             except ValidationError as e:
-                await manager.send_json(
+                if not await manager.send_json(
                     websocket,
                     WSResponse(type="error", error=f"Invalid message: {e}")
-                )
+                ):
+                    # Client disconnected, break the loop
+                    break
                 continue
 
             # Handle control messages
             if msg.type == "control":
                 if msg.control == "ping":
-                    await manager.send_json(
+                    if not await manager.send_json(
                         websocket,
                         WSResponse(type="delta", content="pong")
-                    )
+                    ):
+                        break
                 elif msg.control == "stop":
                     # Signal streaming to stop (per D-20)
                     # Just set the event - stream_chat will detect it and send done
@@ -176,139 +190,226 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
 
                 user_id = msg.user_id or "anonymous"  # Default user_id if not provided
 
-                try:
-                    await create_message(UUID(conversation_id), "user", msg.content)
-                except Exception as e:
-                    logger.error(f"Failed to save user message: {e}")
-
-                # Store user message in vector memory for cross-session retrieval
-                try:
-                    await memory_service.store_message(user_id, conversation_id, "user", msg.content)
-                    logger.debug(f"[Chat] Stored user message in vector memory")
-                except Exception as e:
-                    logger.warning(f"Failed to store user message in memory: {e}")
-
                 message_id = str(uuid4())
                 full_response = ""
 
+                logger.info("=" * 60)
+                logger.info(">>> [聊天流程] 用户发送消息")
+                logger.info(f"    会话: {conversation_id}, 用户: {user_id}, 内容: {msg.content[:50]}...")
+                logger.info(">>> [聊天流程] Step 1: 存储消息到 PostgreSQL")
+                try:
+                    await create_message(UUID(conversation_id), "user", msg.content)
+                    logger.info(f"    ✓ 用户消息已存储 PostgreSQL (conversation={conversation_id})")
+                except Exception as e:
+                    logger.error(f"    ✗ 存储用户消息失败: {e}")
+
+                logger.info(">>> [聊天流程] Step 2: 存储到 ChromaDB（用于 RAG 检索）")
+                try:
+                    await memory_service.store_message(user_id, conversation_id, "user", msg.content)
+                    logger.info("    ✓ 用户消息已存储 ChromaDB")
+                except Exception as e:
+                    logger.warning(f"    ✗ ChromaDB 存储失败: {e}")
+
                 # Intent classification
+                logger.info(">>> [聊天流程] Step 3: 意图识别")
                 try:
                     intent_result = await intent_classifier.classify(
                         message=msg.content,
                         has_image=getattr(msg, 'has_image', False)
                     )
-                    logger.info(f"[Chat] Intent: {intent_result.intent} (confidence: {intent_result.confidence}, method: {intent_result.method})")
+                    logger.info(f"    意图识别: {intent_result.intent} (置信度: {intent_result.confidence}, 方法: {intent_result.method})")
                     has_itinerary_intent = (intent_result.intent == "itinerary")
                 except Exception as e:
-                    logger.error(f"[Chat] Intent classification failed: {e}")
-                    # Fallback to simple keyword check
+                    logger.error(f"    ✗ 意图识别失败: {e}")
                     itinerary_keywords = ["规划", "行程", "旅游", "旅行", "几天", "日游"]
                     has_itinerary_intent = any(kw in msg.content for kw in itinerary_keywords)
+                    logger.info(f"    降级为关键词匹配: has_itinerary_intent={has_itinerary_intent}")
 
+                # 行程规划：工具调用前置，让 LLM 基于工具结果流式输出
+                itinerary_context = ""
+                if has_itinerary_intent:
+                    logger.info(">>> [行程规划流程] 检测到行程规划请求，工具调用前置")
+                    logger.info(">>> [行程规划流程] Step 1: 提取目的地、日期信息")
+                    try:
+                        from app.services.agent_service import itinerary_agent
+                        from app.services.orchestrator import extract_trip_info
+                        import json
+
+                        # 解析行程信息
+                        trip_info = extract_trip_info(msg.content)
+                        destination = trip_info.get("destination") or extract_destination(msg.content) or "北京"
+                        start_date = trip_info.get("start_date")
+                        end_date = trip_info.get("end_date")
+                        num_days = trip_info.get("num_days", 3)
+
+                        # 默认日期
+                        if not start_date or not end_date:
+                            from datetime import datetime, timedelta
+                            start_date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+                            end_date = (datetime.now() + timedelta(days=7 + num_days - 1)).strftime("%Y-%m-%d")
+
+                        logger.info(f"    目的地: {destination}, 日期: {start_date} ~ {end_date}, 天数: {num_days}天")
+
+                        # 发送"正在查询"提示给用户
+                        thinking_msg = f"正在为您查询{destination}的天气和景点信息..."
+                        if not await manager.send_json(
+                            websocket,
+                            WSResponse(type="delta", content=thinking_msg, message_id=message_id)
+                        ):
+                            logger.info("    客户端已断开")
+                            break
+                        full_response += thinking_msg
+
+                        # 并行调用工具获取��息
+                        logger.info(">>> [行程规划流程] Step 2: 并行调用工具")
+                        logger.info(f"    ├─ 天气 API: 查询 {destination} 天气")
+                        logger.info(f"    ├─ 景点 API: 搜索 {destination} 热门景点")
+
+                        from app.tools.weather_tools import get_weather_forecast
+                        from app.tools.map_tools import search_attraction
+
+                        # 并行获取天气和景点信息
+                        weather_result = {}
+                        attractions_result = {}
+
+                        async def fetch_weather():
+                            nonlocal weather_result
+                            try:
+                                result = await get_weather_forecast.ainvoke({"city": destination, "days": min(num_days, 7)})
+                                weather_result = json.loads(result) if isinstance(result, str) else result
+                            except Exception as e:
+                                logger.warning(f"天气查询失败: {e}")
+
+                        async def fetch_attractions():
+                            nonlocal attractions_result
+                            try:
+                                result = await search_attraction.ainvoke({"city": destination, "attraction_type": "景点"})
+                                attractions_result = json.loads(result) if isinstance(result, str) else result
+                            except Exception as e:
+                                logger.warning(f"景点查询失败: {e}")
+
+                        await asyncio.gather(fetch_weather(), fetch_attractions())
+
+                        # 构建工具结果上下文
+                        weather_summary = weather_result.get("summary", "暂无天气预报") if weather_result else "暂无天气预报"
+                        attractions_summary = attractions_result.get("summary", "暂无景点信息") if attractions_result else "暂无景点信息"
+                        attractions_count = attractions_result.get("count", 0) if attractions_result else 0
+
+                        itinerary_context = f"""
+
+## 实时信息
+目的地：{destination}
+日期：{start_date} 至 {end_date}（共{num_days}天）
+天气预报：{weather_summary}
+推荐景点：{attractions_summary}（共{attractions_count}个）
+
+【输出要求】请基于以上实时信息，为用户生成详细的{num_days}天{destination}旅游行程。最后必须以```json```代码块格式输出结构化的行程数据。
+"""
+
+                        logger.info(f"    ✓ 工具调用完成，上下文已构建")
+
+                    except Exception as e:
+                        logger.error(f"    ✗ 工具调用失败: {e}")
+                        itinerary_context = f"\n\n（工具调用失败，将基于通用信息生成{msg.content}的行程建议）\n"
+
+                # 上下文构建
+                logger.info(">>> [聊天流程] Step 4: 上下文构建")
+                logger.info(f"    - 用户偏好: 从 PostgreSQL 加载")
+                logger.info(f"    - 相关历史: 从 ChromaDB RAG 检索")
+                logger.info(f"    - 当前会话: 从 PostgreSQL 加载")
+                logger.info(f"    - 工具结果: {'已拼接' if itinerary_context else '无需工具'}")
+
+                # LLM 生成响应（基于工具结果）
+                logger.info(">>> [聊天流程] Step 5: LLM 流式生成响应")
                 try:
-                    # Stream LLM response with user preferences and cross-session memory
+                    client_connected = True
+
+                    # 构建带工具结果的用户消息
+                    enhanced_message = msg.content
+                    if itinerary_context:
+                        enhanced_message += itinerary_context
+
                     async for chunk in llm_service.stream_chat(
-                        user_message=msg.content,
+                        user_message=enhanced_message,
                         conversation_id=conversation_id,
                         on_stop=stop_event,
                         user_id=user_id
                     ):
+                        if not client_connected:
+                            break
                         full_response += chunk
-                        await manager.send_json(
+                        if not await manager.send_json(
                             websocket,
                             WSResponse(type="delta", content=chunk, message_id=message_id)
-                        )
+                        ):
+                            client_connected = False
+                            break
 
-                    # Generate itinerary if intent detected (separate try-catch)
-                    itinerary_error = None
-                    if has_itinerary_intent:
-                        try:
-                            from app.services.agent_service import itinerary_agent
-                            from app.services.orchestrator import parse_chinese_date, extract_trip_info
+                    if not client_connected:
+                        logger.info("    客户端已断开，停止处理")
+                        break
 
-                            logger.info(f"[Chat] Generating itinerary for {msg.content[:20]}...")
-
-                            # 解析行程信息（目的地、日期）
-                            trip_info = extract_trip_info(msg.content)
-                            destination = trip_info.get("destination") or extract_destination(msg.content) or "北京"
-                            start_date = trip_info.get("start_date")
-                            end_date = trip_info.get("end_date")
-                            num_days = trip_info.get("num_days", 3)
-
-                            # 如果没有解析到日期，使用默认值
-                            if not start_date or not end_date:
-                                from datetime import datetime, timedelta
-                                start_date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-                                end_date = (datetime.now() + timedelta(days=7 + num_days - 1)).strftime("%Y-%m-%d")
-
-                            logger.info(f"[Chat] Trip: {destination}, {start_date} to {end_date} ({num_days} days)")
-
-                            itinerary = await itinerary_agent.generate_itinerary(
-                                destination=destination,
-                                start_date=start_date,
-                                end_date=end_date,
-                                preferences=msg.content,
-                                travelers=2,
-                                budget="medium",
-                                conversation_id=conversation_id
-                            )
-
-                            await manager.send_json(
-                                websocket,
-                                WSResponse(type="itinerary", itinerary=itinerary)
-                            )
-                            logger.info("[Chat] ✓ Itinerary sent")
-                        except Exception as e:
-                            itinerary_error = str(e)
-                            logger.error(f"[Chat] ✗ Itinerary generation error: {e}")
-
-                    if full_response:
-                        try:
-                            await create_message(UUID(conversation_id), "assistant", full_response)
-                        except Exception as e:
-                            logger.error(f"Failed to save assistant message: {e}")
-
-                    # Store assistant response in vector memory
-                    try:
-                        await memory_service.store_message(user_id, conversation_id, "assistant", full_response)
-                        logger.debug(f"[Chat] Stored assistant response in vector memory")
-                    except Exception as e:
-                        logger.warning(f"Failed to store assistant response in memory: {e}")
-
-                    # Extract and update user preferences asynchronously (don't block response)
-                    async def extract_and_update_preferences():
-                        try:
-                            from app.services.preference_service import preference_service
-                            # Build conversation text for extraction
-                            conversation_text = f"用户: {msg.content}\n助手: {full_response[:200]}"
-                            await preference_service.get_or_extract(user_id, conversation_text)
-                            logger.debug(f"[Chat] Extracted preferences for user={user_id}")
-                        except Exception as e:
-                            logger.warning(f"Failed to extract preferences: {e}")
-
-                    # Schedule preference extraction without blocking
-                    asyncio.create_task(extract_and_update_preferences())
-
-                    # Always send done message
-                    await manager.send_json(
-                        websocket,
-                        WSResponse(
-                            type="done",
-                            message_id=message_id,
-                            conversation_id=conversation_id,
-                            content=full_response
-                        )
-                    )
-                    logger.info(f"[Chat] ✓ Done sent, response length: {len(full_response)}")
-
+                    logger.info(f"    ✓ LLM 流式输出完成 (共 {len(full_response)} 字符)")
                 except Exception as e:
-                    logger.error(f"LLM streaming error: {e}")
-                    await manager.send_json(websocket, WSResponse(type="error", error=str(e)))
-                    # Also send done after error so UI resets
-                    await manager.send_json(
+                    logger.error(f"    ✗ LLM 生成响应失败: {e}")
+                    if not await manager.send_json(
                         websocket,
-                        WSResponse(type="done", message_id=message_id, conversation_id=conversation_id)
+                        WSResponse(type="error", content=f"生成回复时出错: {str(e)}", message_id=message_id)
+                    ):
+                        logger.info("    客户端已断开")
+                        break
+
+                logger.info(">>> [聊天流程] Step 5: 记忆更新")
+                if full_response:
+                    try:
+                        await create_message(UUID(conversation_id), "assistant", full_response)
+                        logger.info("    ✓ 助手回复已存储 PostgreSQL")
+                    except Exception as e:
+                        logger.error(f"    ✗ 存储助手回复失败: {e}")
+
+                # Store assistant response in vector memory
+                try:
+                    await memory_service.store_message(user_id, conversation_id, "assistant", full_response)
+                    logger.info("    ✓ 助手回复已存储 ChromaDB")
+                except Exception as e:
+                    logger.warning(f"    ✗ ChromaDB 存储助手回复失败: {e}")
+
+                # Extract and update user preferences asynchronously (don't block response)
+                async def extract_and_update_preferences():
+                    try:
+                        from app.services.preference_service import preference_service
+                        conversation_text = f"用户: {msg.content}\n助手: {full_response[:200]}"
+                        await preference_service.get_or_extract(user_id, conversation_text)
+                        logger.info("    ✓ 用户偏好已提取并更新长期记忆")
+                    except Exception as e:
+                        logger.warning(f"    ✗ 偏好提取失败: {e}")
+
+                # Schedule preference extraction without blocking
+                asyncio.create_task(extract_and_update_preferences())
+
+                # Always send done message
+                if not await manager.send_json(
+                    websocket,
+                    WSResponse(
+                        type="done",
+                        message_id=message_id,
+                        conversation_id=conversation_id,
+                        content=full_response
                     )
+                ):
+                    logger.info("    客户端在发送 done 时断开")
+                    break
+                logger.info(f"    ✓ WebSocket done 消息已发送")
+                logger.info(f">>> [聊天流程] ✓ 全流程完成")
+                logger.info("=" * 60)
+
+    except WebSocketDisconnect:
+        logger.info("WebSocket client disconnected normally")
+        manager.disconnect(websocket)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        # Don't try to send error response if client disconnected
+        manager.disconnect(websocket)
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -337,14 +438,40 @@ async def get_conversations(limit: int = 50):
 
 @router.get("/conversations/{conv_id}/messages", response_model=list[MessageResponse])
 async def get_conversation_messages(conv_id: UUID, limit: int = 100):
-    """Get messages for a conversation."""
+    """Get messages for a conversation.
+
+    Returns 404 if the conversation doesn't exist.
+    """
+    # First check if conversation exists
+    from app.db.postgres import get_conversation
+    conversation = await get_conversation(conv_id)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation {conv_id} not found"
+        )
+
     messages = await get_messages(conv_id, limit)
     return [MessageResponse(**m) for m in messages]
 
 
 @router.get("/conversations/{conv_id}/context", response_model=ContextWindow)
 async def get_conversation_context(conv_id: UUID):
-    """Get conversation context within token limits."""
+    """Get conversation context within token limits.
+
+    Returns 404 if the conversation doesn't exist.
+    """
+    # First check if conversation exists
+    from app.db.postgres import get_conversation
+    conversation = await get_conversation(conv_id)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation {conv_id} not found"
+        )
+
     messages = await get_context_window(conv_id)
     # Rough token count
     total_tokens = sum(len(m.get("content", "")) // 4 for m in messages)

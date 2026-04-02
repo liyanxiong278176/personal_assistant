@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Core 测试页面</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .chat-area {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+        }
+        .message.user { justify-content: flex-end; }
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.assistant .message-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .input-area button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .input-area button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .quick-actions {
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .quick-btn {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .quick-btn:hover { background: #e0e0e0; }
+        .status {
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #666;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Agent Core 测试</h1>
+            <p>测试 Slash 命令、Skill 触发和 LLM 对话</p>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="message assistant">
+                <div class="message-content">
+                    你好！我是 Agent Core 测试助手。你可以尝试：
+                    <br><br>
+                    • <b>/help</b> - 查看可用命令<br>
+                    • <b>/plan 北京</b> - 快速规划行程<br>
+                    • <b>/weather 上海</b> - 查询天气<br>
+                    • <b>请帮我规划北京的行程</b> - 触发 Skill<br>
+                    • <b>推荐一些杭州的景点</b> - 触发 Skill
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="sendQuick('/help')">/help</button>
+            <button class="quick-btn" onclick="sendQuick('/plan 北京 2026-05-01')">/plan 北京</button>
+            <button class="quick-btn" onclick="sendQuick('/weather 上海')">/weather 上海</button>
+            <button class="quick-btn" onclick="sendQuick('请帮我规划上海的行程')">行程规划</button>
+            <button class="quick-btn" onclick="sendQuick('推荐杭州的景点')">景点推荐</button>
+            <button class="quick-btn" onclick="sendQuick('/reset')">/reset</button>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button id="sendBtn" onclick="sendMessage()">发送</button>
+        </div>
+
+        <div class="status" id="status">
+            状态: 就绪 | API: <span id="apiStatus">检测中...</span>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api/agent/chat';
+        const STATUS_URL = 'http://localhost:8000/api/agent/status';
+        let conversationId = 'test-' + Date.now();
+
+        // 检查 API 状态
+        async function checkStatus() {
+            try {
+                const resp = await fetch(STATUS_URL);
+                const data = await resp.json();
+                document.getElementById('apiStatus').textContent =
+                    data.status === 'running' ? '✓ 在线' : '✗ 离线';
+                document.getElementById('apiStatus').style.color =
+                    data.status === 'running' ? 'green' : 'red';
+            } catch (e) {
+                document.getElementById('apiStatus').textContent = '✗ 连接失败';
+                document.getElementById('apiStatus').style.color = 'red';
+            }
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(content, isUser) {
+            const chatArea = document.getElementById('chatArea');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ' + (isUser ? 'user' : 'assistant');
+            msgDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            chatArea.appendChild(msgDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            addMessage(message, true);
+
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.textContent = '发送中...';
+
+            try {
+                const resp = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_id: conversationId
+                    })
+                });
+
+                const data = await resp.json();
+                addMessage(data.message || data.error || '无响应', false);
+            } catch (e) {
+                addMessage(`错误: ${e.message}`, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '发送';
+            }
+        }
+
+        // 快捷发送
+        function sendQuick(msg) {
+            document.getElementById('messageInput').value = msg;
+            sendMessage();
+        }
+
+        // 初始化
+        checkStatus();
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>

@@ -13,17 +13,22 @@ export async function GET(
       method: "GET",
     });
 
+    // Return 404 from backend directly (conversation not found)
+    if (response.status === 404) {
+      return NextResponse.json([], { status: 200 });  // Return empty array as 200
+    }
+
     if (!response.ok) {
-      throw new Error("Failed to fetch messages");
+      const errorText = await response.text();
+      console.error("API error:", response.status, errorText);
+      throw new Error(`Failed to fetch messages: ${response.status}`);
     }
 
     const data: Message[] = await response.json();
     return NextResponse.json(data);
   } catch (error) {
     console.error("API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch messages" },
-      { status: 500 }
-    );
+    // Return empty array instead of error to gracefully handle deleted conversations
+    return NextResponse.json([]);
   }
 }

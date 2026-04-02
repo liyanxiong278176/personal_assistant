@@ -334,7 +334,121 @@ class Database:
                 )
             """)
 
+            # Fix foreign key constraints for existing tables
+            # This ensures CASCADE delete works properly even for tables created before FK constraints
+            await cls._ensure_foreign_key_constraints()
+
             print("[OK] Database tables initialized")
+        finally:
+            await cls.release_connection(conn)
+
+    @classmethod
+    async def _ensure_foreign_key_constraints(cls) -> None:
+        """Ensure foreign key constraints with CASCADE delete are properly set.
+
+        This is a safety measure to fix any existing tables that may have been
+        created without proper CASCADE delete constraints.
+        """
+        # Check and fix messages table foreign key
+        await cls._fix_foreign_key(
+            table_name="messages",
+            column_name="conversation_id",
+            referenced_table="conversations",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+        # Check and fix itineraries table foreign key
+        await cls._fix_foreign_key(
+            table_name="itineraries",
+            column_name="conversation_id",
+            referenced_table="conversations",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+        # Check and fix episodic_memories table foreign key
+        await cls._fix_foreign_key(
+            table_name="episodic_memories",
+            column_name="conversation_id",
+            referenced_table="conversations",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+        # Check and fix conversation_tags table foreign key
+        await cls._fix_foreign_key(
+            table_name="conversation_tags",
+            column_name="conversation_id",
+            referenced_table="conversations",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+    @classmethod
+    async def _fix_foreign_key(
+        cls,
+        table_name: str,
+        column_name: str,
+        referenced_table: str,
+        referenced_column: str,
+        on_delete: str
+    ) -> None:
+        """Fix or add a foreign key constraint with CASCADE delete.
+
+        Args:
+            table_name: The table that has the foreign key
+            column_name: The column that references another table
+            referenced_table: The table being referenced
+            referenced_column: The column being referenced
+            on_delete: Action on delete (CASCADE, SET NULL, etc.)
+        """
+        conn = await cls.get_connection()
+        try:
+            # Check if constraint already exists with correct CASCADE
+            check_query = """
+                SELECT EXISTS(
+                    SELECT 1 FROM pg_constraint
+                    WHERE conrelid = $1::regclass
+                    AND confdeltype = 'c'  -- 'c' = CASCADE
+                    AND conname LIKE $2
+                )
+            """
+            constraint_name = f"fk_{table_name}_{column_name}"
+            has_cascade = await conn.fetchval(
+                check_query,
+                table_name,
+                f"%{constraint_name}%"
+            )
+
+            if not has_cascade:
+                # Drop existing constraint if it exists (without CASCADE)
+                drop_constraint_query = """
+                    SELECT conname
+                    FROM pg_constraint
+                    WHERE conrelid = $1::regclass
+                    AND conname LIKE $2
+                """
+                existing_constraint = await conn.fetchval(
+                    drop_constraint_query,
+                    table_name,
+                    f"%{column_name}%"
+                )
+
+                if existing_constraint:
+                    await conn.execute(
+                        f'ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {existing_constraint}'
+                    )
+
+                # Add new constraint with CASCADE
+                await conn.execute(f"""
+                    ALTER TABLE {table_name}
+                    ADD CONSTRAINT {constraint_name}
+                    FOREIGN KEY ({column_name})
+                    REFERENCES {referenced_table}({referenced_column})
+                    ON DELETE {on_delete}
+                """)
+                print(f"[OK] Fixed foreign key constraint: {table_name}.{column_name} -> {referenced_table}.{referenced_column} ON DELETE {on_delete}")
         finally:
             await cls.release_connection(conn)
 

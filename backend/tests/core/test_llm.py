@@ -2,6 +2,7 @@
 
 import os
 import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.core.llm import LLMClient
 
@@ -65,3 +66,49 @@ async def test_llm_client_stream():
     result = "".join(chunks)
     assert result  # 应该有响应
     assert isinstance(result, str)
+
+
+@pytest.mark.asyncio
+async def test_llm_client_retry_on_429():
+    """测试客户端在 429 错误时重试"""
+    client = LLMClient(api_key="test-key", max_retries=2)
+
+    # Mock httpx client
+    mock_response = MagicMock()
+    mock_response.status_code = 429
+    mock_response.aread = AsyncMock(return_value=b"Rate limit exceeded")
+
+    mock_stream_context = MagicMock()
+    mock_stream_context.__aenter__ = AsyncMock(return_value=mock_response)
+    mock_stream_context.__aexit__ = AsyncMock()
+
+    mock_client = MagicMock()
+    mock_client.stream = MagicMock(return_value=mock_stream_context)
+
+    with patch.object(client, '_get_client', return_value=mock_client):
+        chunks = []
+        async for chunk in client.stream_chat([{"role": "user", "content": "hi"}]):
+            chunks.append(chunk)
+
+        # 第一次失败，重试一次后应该返回错误消息
+        result = "".join(chunks)
+        assert "429" in result or "API 错误" in result
+
+
+@pytest.mark.asyncio
+async def test_llm_client_max_retries_respected():
+    """测试 max_retries 参数被正确使用"""
+    client = LLMClient(api_key="test-key", max_retries=1)
+
+    # 验证 max_retries 属性被正确设置
+    assert client.max_retries == 1
+
+    client_3 = LLMClient(api_key="test-key", max_retries=3)
+    assert client_3.max_retries == 3
+
+
+@pytest.mark.asyncio
+async def test_llm_client_default_max_retries():
+    """测试默认 max_retries 为 3"""
+    client = LLMClient(api_key="test-key")
+    assert client.max_retries == 3

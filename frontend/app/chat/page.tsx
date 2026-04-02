@@ -23,6 +23,7 @@ export default function ChatPage() {
 
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
+  const activeConversationRef = useRef<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
   const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations } = useConversationStore();
 
@@ -46,6 +47,7 @@ export default function ChatPage() {
       // User logged out - clear all conversation data
       setMessages([]);
       setCurrentConversationId(null);
+      activeConversationRef.current = null;  // Clear ref
       clearConversations();
       if (transportRef.current) {
         transportRef.current.setConversationId("");
@@ -76,6 +78,7 @@ export default function ChatPage() {
     if (storeActiveConversationId && storeActiveConversationId !== currentConversationId) {
       // Store has active conversation but local state doesn't match
       setCurrentConversationId(storeActiveConversationId);
+      activeConversationRef.current = storeActiveConversationId;  // Update ref
       loadConversationMessages(storeActiveConversationId);
     }
     // Only run when storeActiveConversationId changes, not on every render
@@ -132,8 +135,15 @@ export default function ChatPage() {
       const transport = transportRef.current;
       if (!transport) throw new Error("Transport not initialized");
 
+      // Capture current conversation ID for use in callbacks
+      const sendingConversationId = currentConversationId;
+
       await transport.sendMessage(messageContent, {
         onChunk: (chunk: string) => {
+          // Only update if we're still on this conversation
+          if (activeConversationRef.current !== sendingConversationId) {
+            return;
+          }
           streamingMessageRef.current += chunk;
           setMessages((prev) =>
             prev.map((msg) =>
@@ -144,6 +154,10 @@ export default function ChatPage() {
           );
         },
         onItinerary: (itinerary: Itinerary) => {
+          // Only update if we're still on this conversation
+          if (activeConversationRef.current !== sendingConversationId) {
+            return;
+          }
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantMessageId
@@ -155,6 +169,10 @@ export default function ChatPage() {
         onDone: (messageId: string) => {
           clearTimeout(safetyTimeout);
           setIsLoading(false);
+          // Only update conversation ID if we're still on this conversation
+          if (activeConversationRef.current !== sendingConversationId) {
+            return;
+          }
           const convId = transport.getConversationId();
           if (convId && !currentConversationId) {
             setCurrentConversationId(convId);
@@ -162,6 +180,11 @@ export default function ChatPage() {
         },
         onError: (error: string) => {
           clearTimeout(safetyTimeout);
+          // Only update if we're still on this conversation
+          if (activeConversationRef.current !== sendingConversationId) {
+            setIsLoading(false);
+            return;
+          }
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantMessageId
@@ -214,21 +237,52 @@ export default function ChatPage() {
 
   // Handle conversation selection
   const handleConversationSelect = useCallback(async (conversationId: string) => {
+    console.log('[ChatPage] handleConversationSelect called:', { conversationId, currentConversationId, isLoading });
+
+    // If currently generating and switching to a different conversation, stop the stream first
+    if (isLoading && conversationId !== currentConversationId) {
+      console.log('[ChatPage] Stopping current stream before switching');
+      transportRef.current?.sendStop();
+      // Wait a bit for the stop to take effect
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setIsLoading(false);
+    }
+
+    // Handle empty string - clear messages (use empty session)
+    if (!conversationId) {
+      console.log('[ChatPage] Clearing messages (empty session)');
+      setCurrentConversationId(null);
+      setActiveConversation(null);
+      setMessages([]);
+      if (transportRef.current) {
+        transportRef.current.setConversationId("");
+      }
+      return;
+    }
+
+    // Don't switch if already on this conversation (unless stopping stream above)
+    if (conversationId === currentConversationId && !isLoading) {
+      return;
+    }
+
     setCurrentConversationId(conversationId);
     setActiveConversation(conversationId);
+    activeConversationRef.current = conversationId;  // Update ref immediately
     if (transportRef.current) {
       transportRef.current.setConversationId(conversationId);
     }
 
+    console.log('[ChatPage] Loading messages for conversation:', conversationId);
     // Load conversation messages from backend
     try {
       const history = await conversationsApi.getMessages(conversationId);
+      console.log('[ChatPage] Messages loaded:', history.length);
       setMessages(history);
     } catch (error) {
-      console.error("Failed to load conversation messages:", error);
+      console.error("[ChatPage] Failed to load conversation messages:", error);
       setMessages([]);
     }
-  }, [setActiveConversation]);
+  }, [setActiveConversation, isLoading, currentConversationId]);
 
   return (
     <div className="flex h-screen bg-background">

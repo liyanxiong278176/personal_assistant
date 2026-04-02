@@ -1,5 +1,8 @@
-"""LLM ��户端"""
+"""LLM 客户端
 
-from .client import LLMClient
+支持 Function Calling（工���调用）功能。
+"""
 
-__all__ = ["LLMClient"]
+from .client import LLMClient, ToolCall
+
+__all__ = ["LLMClient", "ToolCall"]
