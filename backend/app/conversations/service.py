@@ -218,18 +218,49 @@ class ConversationService:
         # Verify ownership first
         conv = await get_conversation(conversation_id)
         if not conv:
+            logger.warning(f"[delete_conversation] Conversation {conversation_id} not found")
             return False
 
         if conv.get("user_id") and str(conv["user_id"]) != user_id:
             raise PermissionError("You do not have access to this conversation")
 
-        # Perform delete
+        # Perform delete in transaction (cascade delete manually to be sure)
         conn = await Database.get_connection()
         try:
-            result = await conn.execute(
-                "DELETE FROM conversations WHERE id = $1", conversation_id
-            )
-            return result == "DELETE 1"
+            async with conn.transaction():
+                # First count and delete associated messages
+                messages_count = await conn.fetchval(
+                    "SELECT COUNT(*) FROM messages WHERE conversation_id = $1", conversation_id
+                )
+                logger.info(f"[delete_conversation] Found {messages_count} messages to delete for conversation {conversation_id}")
+
+                await conn.execute(
+                    "DELETE FROM messages WHERE conversation_id = $1", conversation_id
+                )
+
+                # Delete associated itineraries
+                await conn.execute(
+                    "DELETE FROM itineraries WHERE conversation_id = $1", conversation_id
+                )
+
+                # Delete associated tags
+                await conn.execute(
+                    "DELETE FROM conversation_tags WHERE conversation_id = $1", conversation_id
+                )
+
+                # Delete associated memories
+                await conn.execute(
+                    "DELETE FROM episodic_memories WHERE conversation_id = $1", conversation_id
+                )
+
+                # Finally delete the conversation
+                result = await conn.execute(
+                    "DELETE FROM conversations WHERE id = $1", conversation_id
+                )
+
+                success = result == "DELETE 1"
+                logger.info(f"[delete_conversation] Conversation {conversation_id} deleted: {success}")
+                return success
         finally:
             await Database.release_connection(conn)
 

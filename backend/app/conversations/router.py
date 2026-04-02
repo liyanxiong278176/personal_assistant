@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from app.auth.dependencies import get_current_user, require_auth
 from app.auth.models import UserInfo
@@ -352,17 +352,22 @@ async def delete_conversation(
     This will cascade delete all associated messages.
     """
     try:
+        logger.info(f"[delete_conversation] User {current_user.user_id} deleting conversation {conversation_id}")
         success = await service.delete_conversation(
             conversation_id=conversation_id,
             user_id=current_user.user_id,
         )
         if not success:
+            logger.warning(f"[delete_conversation] Conversation {conversation_id} not found for user {current_user.user_id}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Conversation not found",
             )
-        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+
+        logger.info(f"[delete_conversation] Successfully deleted conversation {conversation_id}")
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except PermissionError as e:
+        logger.warning(f"[delete_conversation] Permission denied for user {current_user.user_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),

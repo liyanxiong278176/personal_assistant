@@ -119,7 +119,54 @@ export function ConversationList({
   };
 
   const handleDelete = async (id: string) => {
-    await deleteConversation(id);
+    console.log('[ConversationList] handleDelete called:', { id, activeConversationId, conversationsCount: conversations.length });
+
+    // If deleting the active conversation, find the next one to switch to
+    if (id === activeConversationId) {
+      // Sort conversations by updated_at (most recent first)
+      const sortedConversations = [...conversations].sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      console.log('[ConversationList] Sorted conversations:', sortedConversations.map(c => c.id));
+
+      // Find the index of the conversation being deleted
+      const currentIndex = sortedConversations.findIndex(c => c.id === id);
+      console.log('[ConversationList] Current index:', currentIndex);
+
+      // Find the next conversation to switch to (either the one after or the one before)
+      let nextConversation: Conversation | null = null;
+
+      if (sortedConversations.length > 1) {
+        // Try to get the next one in the list (if deleted is not the last)
+        if (currentIndex < sortedConversations.length - 1) {
+          nextConversation = sortedConversations[currentIndex + 1];
+        } else if (currentIndex > 0) {
+          // If deleted was the last, use the one before
+          nextConversation = sortedConversations[currentIndex - 1];
+        }
+      }
+      console.log('[ConversationList] Next conversation:', nextConversation?.id || 'none');
+
+      // Delete the conversation first
+      await deleteConversation(id);
+      console.log('[ConversationList] Conversation deleted');
+
+      // If we found a next conversation, switch to it
+      if (nextConversation) {
+        console.log('[ConversationList] Switching to next conversation:', nextConversation.id);
+        // Use the onConversationSelect callback to switch to the next conversation
+        onConversationSelect?.(nextConversation.id);
+      } else {
+        console.log('[ConversationList] No next conversation, clearing messages');
+        // No other conversation, clear messages (use empty session)
+        // The parent component should handle clearing messages
+        onConversationSelect?.("");
+      }
+    } else {
+      console.log('[ConversationList] Not active conversation, just deleting');
+      // Not deleting active conversation, just delete
+      await deleteConversation(id);
+    }
   };
 
   const handleSelect = (id: string) => {
