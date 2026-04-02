@@ -138,9 +138,9 @@ export function ConversationItem({
     <div ref={itemRef} className="relative group">
       <div
         className={`
-          flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer
-          transition-colors relative
-          ${isActive ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"}
+          flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer
+          transition-all relative
+          ${isActive ? "bg-gradient-to-r from-primary/15 to-accent/10 border border-primary/20" : "hover:bg-muted/40"}
           ${isPending ? "opacity-50 pointer-events-none" : ""}
         `}
         onClick={onClick}
@@ -148,7 +148,7 @@ export function ConversationItem({
       >
         {/* Pin icon for pinned conversations */}
         {conversation.pinned && (
-          <Pin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+          <Pin className="w-3.5 h-3.5 text-accent flex-shrink-0" />
         )}
 
         {/* Title or rename input */}
@@ -160,15 +160,17 @@ export function ConversationItem({
             onChange={(e) => setRenameValue(e.target.value)}
             onBlur={handleRenameSubmit}
             onKeyDown={handleRenameKeyDown}
-            className="flex-1 bg-background border border-input rounded px-2 py-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 bg-background border border-input rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <span className="flex-1 truncate text-sm">{conversation.title}</span>
+          <span className={`flex-1 truncate text-sm ${isActive ? "font-medium text-foreground" : "text-foreground/70"}`}>
+            {conversation.title}
+          </span>
         )}
 
         {/* Time */}
-        <span className="text-xs text-muted-foreground flex-shrink-0">
+        <span className="text-[11px] text-muted-foreground/60 flex-shrink-0">
           {formatTime(conversation.updated_at)}
         </span>
 
@@ -178,7 +180,7 @@ export function ConversationItem({
             e.stopPropagation();
             setIsContextMenuOpen(!isContextMenuOpen);
           }}
-          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-muted rounded transition-opacity"
+          className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-muted/60 transition-all active:scale-95"
           aria-label="更多选项"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

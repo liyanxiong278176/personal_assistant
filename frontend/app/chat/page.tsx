@@ -290,8 +290,9 @@ export default function ChatPage() {
         className={`
           ${sidebarOpen ? "w-64" : "w-0"}
           transition-all duration-300
-          border-r border-border
-          bg-muted/50
+          border-r border-border/40
+          bg-card/30
+          backdrop-blur-sm
           overflow-hidden
           lg:block hidden
         `}
@@ -303,31 +304,48 @@ export default function ChatPage() {
         />
       </aside>
 
-      <main className="flex-1 flex flex-col">
-        <header className="h-14 border-b border-border flex items-center justify-between px-4 gap-2">
-          <div className="flex items-center gap-2">
+      <main className="flex-1 flex flex-col relative">
+        {/* Decorative ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-radial opacity-30" />
+        </div>
+
+        <header className="relative z-10 h-14 border-b border-border/50 flex items-center justify-between px-4 gap-2 glass-card/30">
+          <div className="flex items-center gap-3">
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-2 hover:bg-muted rounded"
+              className="lg:hidden p-2 hover:bg-muted/60 rounded-lg transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="font-semibold text-lg">AI Travel Assistant</h1>
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-[hsl(25,65%,50%)] flex items-center justify-center shadow-soft">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <h1 className="font-display text-xl font-semibold text-gradient-warm hidden sm:block">
+                AI Travel Assistant
+              </h1>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mr-1">
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
                     alt={user.username || user.email}
-                    className="w-7 h-7 rounded-full object-cover"
+                    className="w-7 h-7 rounded-full object-cover ring-2 ring-white/50"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-xs font-medium text-primary">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-sm">
+                    <span className="text-[11px] font-semibold text-white">
                       {(user.username || user.email)?.[0]?.toUpperCase() || "U"}
                     </span>
                   </div>
@@ -339,31 +357,45 @@ export default function ChatPage() {
             ) : null}
             <button
               onClick={() => setShowAuthModal(true)}
-              className="p-2 hover:bg-muted rounded flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 hover:bg-muted/60 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-all"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span className="hidden sm:inline">{isAuthenticated ? "账号" : "登录"}</span>
+              {isAuthenticated ? (
+                <>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span className="hidden sm:inline text-xs">账号</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                  </svg>
+                  <span className="hidden sm:inline text-xs">登录</span>
+                </>
+              )}
             </button>
             <a
               href="/settings"
-              className="p-2 hover:bg-muted rounded flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 hover:bg-muted/60 rounded-lg flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-all"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
-              <span className="hidden sm:inline">设置</span>
+              <span className="hidden sm:inline text-xs">设置</span>
             </a>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-elegant">
           <MessageList messages={messages} />
         </div>
 
-        <div className="border-t border-border bg-background">
+        <div className="relative z-10 border-t border-border/50 bg-background/80 backdrop-blur-md">
           <ChatInput
             value={input}
             onChange={setInput}

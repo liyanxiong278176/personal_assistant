@@ -3,6 +3,7 @@ import type {
   ConversationTag,
   ConversationListResponse,
   CreateConversationRequest,
+  Message,
   UpdateConversationRequest,
   SearchConversationsParams,
   CreateTagRequest,
@@ -200,9 +201,9 @@ export const conversationsApi = {
     const response = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages?limit=${limit}`, {
       headers: getAuthHeaders(),
     });
-    const data = await handleResponse(response);
+    const data = await handleResponse(response) as any[];
     // Convert backend format to frontend format
-    return data.map((m: any) => ({
+    return data.map((m) => ({
       id: m.id,
       role: m.role,
       content: m.content,
