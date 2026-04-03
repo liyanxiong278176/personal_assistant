@@ -9,6 +9,7 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 - 记忆管理
 - 上下文管理
 - Coordinator 和 Worker（多 Agent 协调）
+- 槽位提取（意图识别）
 """
 
 from .errors import AgentError, DegradationLevel, DegradationStrategy
@@ -32,6 +33,7 @@ from .coordinator import (
     WorkerResult,
     create_worker,
 )
+from .intent import SlotExtractor, SlotResult, DateRange
 
 __all__ = [
     "AgentError",
@@ -65,4 +67,7 @@ __all__ = [
     "WorkerStatus",
     "WorkerResult",
     "create_worker",
+    "SlotExtractor",
+    "SlotResult",
+    "DateRange",
 ]
