@@ -1040,6 +1040,9 @@ class QueryEngine:
                 level=DegradationLevel.LLM_DEGRADED
             )
 
+        # 保存当前消息供后续使用
+        self._current_message = user_input
+
         # ===== 步骤 1: 意图 & 槽位识别 =====
         intent_result = await self._intent_classifier.classify(user_input)
         slots = self._slot_extractor.extract(user_input)
@@ -1244,15 +1247,7 @@ class QueryEngine:
 运行: `cd backend && pytest tests/core/test_unified_workflow.py -v`
 预期: PASS
 
-- [ ] **Step 4: 添加 _current_message 属性**
-
-```python
-# backend/app/core/query_engine.py (在 process 方法开始处)
-
-        self._current_message = user_input  # 保存当前消息供后续使用
-```
-
-- [ ] **Step 5: 提交**
+- [ ] **Step 4: 提交**
 
 ```bash
 git add backend/app/core/query_engine.py backend/tests/core/test_unified_workflow.py
