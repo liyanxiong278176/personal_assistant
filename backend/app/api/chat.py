@@ -29,7 +29,7 @@ from app.db.postgres import (
 )
 from app.services.llm_service import llm_service
 from app.services.memory_service import memory_service
-from app.core.intent import intent_classifier, IntentResult
+from app.core.intent import intent_classifier, IntentResult, SlotExtractor
 
 
 router = APIRouter(prefix="/api", tags=["conversations"])
@@ -232,15 +232,16 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                     logger.info(">>> [行程规划流程] Step 1: 提取目的地、日期信息")
                     try:
                         from app.services.agent_service import itinerary_agent
-                        from app.services.orchestrator import extract_trip_info
                         import json
 
-                        # 解析行程信息
-                        trip_info = extract_trip_info(msg.content)
-                        destination = trip_info.get("destination") or extract_destination(msg.content) or "北京"
-                        start_date = trip_info.get("start_date")
-                        end_date = trip_info.get("end_date")
-                        num_days = trip_info.get("num_days", 3)
+                        # 使用新的 SlotExtractor 解析行程信息
+                        slot_extractor = SlotExtractor()
+                        slots = slot_extractor.extract(msg.content)
+
+                        destination = slots.destination or extract_destination(msg.content) or "北京"
+                        start_date = slots.start_date
+                        end_date = slots.end_date
+                        num_days = slots.num_days or 3
 
                         # 默认日期
                         if not start_date or not end_date:
