@@ -5,11 +5,38 @@
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from .registry import ToolRegistry
 from .base import Tool
 
 logger = logging.getLogger(__name__)
+
+
+class ToolCallLike:
+    """工具调用接口（类型协议）
+
+    支持两种格式：
+    1. ToolCall 对象（来自 app.core.llm）- 有 name 和 arguments 属性
+    2. Dict - 有 "tool"/"args" 或 "name"/"arguments" 键
+    """
+
+    @staticmethod
+    def get_tool_name(call: Union["ToolCallLike", Dict]) -> str:
+        """从工具调用中提取工具名称"""
+        if hasattr(call, "name"):
+            return call.name
+        if isinstance(call, dict):
+            return call.get("tool") or call.get("name", "")
+        return ""
+
+    @staticmethod
+    def get_arguments(call: Union["ToolCallLike", Dict]) -> Dict[str, Any]:
+        """从工具调用中提取参数"""
+        if hasattr(call, "arguments"):
+            return call.arguments
+        if isinstance(call, dict):
+            return call.get("args") or call.get("arguments", {})
+        return {}
 
 
 class ToolExecutionError(Exception):
@@ -63,17 +90,20 @@ class ToolExecutor:
             logger.error(f"[ToolExecutor] Tool {tool_name} failed: {e}")
             raise ToolExecutionError(tool_name, e) from e
 
-    async def execute_parallel(self, tool_calls: List[Dict]) -> Dict[str, Any]:
+    async def execute_parallel(
+        self,
+        tool_calls: List[Union["ToolCall", Dict]]
+    ) -> Dict[str, Any]:
         """并行执行工具调用
 
-        根据工具的 is_concurrency_safe 属性，分离可并行和串行工具：
-        - 并行执行所有 is_concurrency_safe=True 的工具
-        - 串行执行所有 is_concurrency_safe=False 的工具
+        支持两种输入格式：
+        1. ToolCall 对象（有 name 和 arguments 属性）
+        2. Dict 格式（有 "tool"/"args" 或 "name"/"arguments" 键）
+
+        对于 is_concurrency_safe=False 的工具，仍然串行执行。
 
         Args:
-            tool_calls: 工具调用列表，每个元素为字典，包含:
-                - "tool": 工具名称
-                - "args": 工具参数字典 (可选)
+            tool_calls: 工具调用列表，ToolCall 对象或字典
 
         Returns:
             工具名称到执行结果的映射，格式为:
@@ -84,9 +114,11 @@ class ToolExecutor:
 
         Example:
             >>> executor = ToolExecutor(registry)
+            >>> # 使用 ToolCall 对象
+            >>> from app.core.llm import ToolCall
             >>> calls = [
-            ...     {"tool": "search_weather", "args": {"city": "北京"}},
-            ...     {"tool": "search_poi", "args": {"keyword": "景点"}},
+            ...     ToolCall(id="1", name="search_weather", arguments={"city": "北京"}),
+            ...     ToolCall(id="2", name="search_poi", arguments={"keyword": "景点"}),
             ... ]
             >>> results = await executor.execute_parallel(calls)
         """
@@ -94,11 +126,11 @@ class ToolExecutor:
             return {}
 
         # 分离可并行和串行工具
-        parallel_calls: List[Dict] = []
-        sequential_calls: List[Dict] = []
+        parallel_calls: List[Union["ToolCall", Dict]] = []
+        sequential_calls: List[Union["ToolCall", Dict]] = []
 
         for call in tool_calls:
-            tool_name = call.get("tool")
+            tool_name = ToolCallLike.get_tool_name(call)
             if not tool_name:
                 logger.warning("[ToolExecutor] Skipping call without tool name")
                 continue
@@ -181,17 +213,24 @@ class ToolExecutor:
 
         return results
 
-    async def _safe_execute_with_result(self, call: Dict) -> Optional[Dict[str, Any]]:
+    async def _safe_execute_with_result(
+        self,
+        call: Union["ToolCall", Dict]
+    ) -> Optional[Dict[str, Any]]:
         """安全执行工具并返回格式化结果
 
+        支持两种输入格式：
+        1. ToolCall 对象（有 name 和 arguments 属性）
+        2. Dict 格式（有 "tool"/"args" 或 "name"/"arguments" 键）
+
         Args:
-            call: 工具调用字典
+            call: 工具调用对象或字典
 
         Returns:
             格式化的结果字典: {"tool_name": result} 或 {"tool_name": {"error": ...}}
         """
-        tool_name = call.get("tool", "")
-        args = call.get("args", {})
+        tool_name = ToolCallLike.get_tool_name(call)
+        args = ToolCallLike.get_arguments(call)
 
         try:
             result = await self.execute(tool_name, **args)
