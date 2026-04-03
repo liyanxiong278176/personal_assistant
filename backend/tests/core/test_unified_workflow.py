@@ -196,7 +196,8 @@ class TestContextBuilding:
         context = await query_engine._build_context(
             user_id="user1",
             tool_results={},
-            slots=slots
+            slots=slots,
+            stage_log=None
         )
 
         # 验证上下文包含槽位信息
@@ -301,7 +302,7 @@ class TestErrorHandling:
             async for _ in engine.process("你好", "conv999"):
                 pass
 
-        assert "LLM client" in str(exc_info.value) or "not configured" in str(exc_info.value)
+        assert "LLM" in str(exc_info.value) or "客户端" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_workflow_tool_execution_failure(self, query_engine, mock_llm_client):

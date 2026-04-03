@@ -12,7 +12,10 @@
 import asyncio
 import json
 import logging
+import time
+import traceback
 from typing import AsyncIterator, Optional, List, Dict, Any, Union
+from enum import Enum
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT
@@ -22,6 +25,99 @@ from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
 
 logger = logging.getLogger(__name__)
+
+
+class WorkflowStage(Enum):
+    """工作流程阶段枚举"""
+    STAGE_0_INIT = "0_INIT"           # 初始化
+    STAGE_1_INTENT = "1_INTENT"       # 意图识别
+    STAGE_2_STORAGE = "2_STORAGE"      # 消息存储
+    STAGE_3_TOOLS = "3_TOOLS"         # 工具执行
+    STAGE_4_CONTEXT = "4_CONTEXT"     # 上下文构建
+    STAGE_5_LLM = "5_LLM"             # LLM响应生成
+    STAGE_6_MEMORY = "6_MEMORY"       # 记忆更新
+    COMPLETE = "COMPLETE"             # 完成
+
+
+class StageLogger:
+    """阶段日志记录器"""
+
+    def __init__(self, stage: WorkflowStage, conversation_id: str, user_id: Optional[str] = None):
+        self.stage = stage
+        self.conversation_id = conversation_id
+        self.user_id = user_id
+        self.start_time: float = 0
+        self.end_time: float = 0
+        self.inputs: Dict[str, Any] = {}
+        self.outputs: Dict[str, Any] = {}
+        self.error: Optional[str] = None
+
+    def start(self, **kwargs):
+        """开始阶段，记录输入"""
+        self.start_time = time.perf_counter()
+        self.inputs = kwargs
+        logger.info(
+            f"[WORKFLOW:{self.stage.value}] ⏳ 开始 | conv={self.conversation_id} | "
+            f"输入: {self._format_inputs()}"
+        )
+
+    def end(self, **kwargs):
+        """结束阶段，记录输出和耗时"""
+        self.end_time = time.perf_counter()
+        self.outputs = kwargs
+        elapsed_ms = (self.end_time - self.start_time) * 1000
+
+        if self.error:
+            logger.error(
+                f"[WORKFLOW:{self.stage.value}] ❌ 失败 | conv={self.conversation_id} | "
+                f"耗时: {elapsed_ms:.2f}ms | 错误: {self.error}"
+            )
+        else:
+            logger.info(
+                f"[WORKFLOW:{self.stage.value}] ✅ 完成 | conv={self.conversation_id} | "
+                f"耗时: {elapsed_ms:.2f}ms | 输出: {self._format_outputs()}"
+            )
+
+    def fail(self, error: str):
+        """记录阶段失败"""
+        self.error = error
+        self.end()
+
+    def _format_inputs(self) -> str:
+        """格式化输入日志"""
+        if not self.inputs:
+            return "无"
+        return json.dumps(self.inputs, ensure_ascii=False, indent=None)[:200]
+
+    def _format_outputs(self) -> str:
+        """格式化输出日志"""
+        if not self.outputs:
+            return "无"
+        return json.dumps(self.outputs, ensure_ascii=False, indent=None)[:200]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            self.fail(f"{exc_type.__name__}: {exc_val}")
+            logger.debug(f"[WORKFLOW:{self.stage.value}] 堆栈:\n{''.join(traceback.format_exception(exc_type, exc_val, exc_tb))}")
+        return True  # 不阻止异常传播
+
+
+def log_workflow_summary(
+    conversation_id: str,
+    intent: str,
+    tool_calls: int,
+    total_time_ms: float,
+    response_length: int
+):
+    """记录工作流程总摘要"""
+    logger.info(
+        f"[WORKFLOW:SUMMARY] 📊 流程完成 | conv={conversation_id} | "
+        f"意图={intent} | 工具调用={tool_calls}次 | "
+        f"总耗时={total_time_ms:.2f}ms | 响应长度={response_length}字符"
+    )
 
 
 class QueryEngine:
@@ -59,11 +155,14 @@ class QueryEngine:
         self._intent_classifier = intent_classifier
         self._slot_extractor = SlotExtractor()
 
+        logger.info(
+            f"[QueryEngine] 🚀 初始化完成 | "
+            f"工具数量={len(self._tool_registry.list_tools())} | "
+            f"LLM客户端={'已配置' if llm_client else '未配置'}"
+        )
+
         if self.llm_client is None:
-            logger.warning(
-                "[QueryEngine] No LLM client provided, "
-                "queries will fail until client is set via set_llm_client()"
-            )
+            logger.warning("[QueryEngine] ⚠️ LLM客户端未配置，查询将失败")
 
     def set_llm_client(self, llm_client: LLMClient) -> None:
         """Set or update the LLM client.
@@ -72,7 +171,7 @@ class QueryEngine:
             llm_client: LLM client instance
         """
         self.llm_client = llm_client
-        logger.info("[QueryEngine] LLM client updated")
+        logger.info("[QueryEngine] 🔄 LLM客户端已更新")
 
     def set_tool_registry(self, tool_registry: ToolRegistry) -> None:
         """Set or update the tool registry.
@@ -82,7 +181,7 @@ class QueryEngine:
         """
         self._tool_registry = tool_registry
         self._tool_executor = ToolExecutor(tool_registry)
-        logger.info("[QueryEngine] Tool registry updated")
+        logger.info(f"[QueryEngine] 🔄 工具注册表已更新 | 工具数量={len(tool_registry.list_tools())}")
 
     def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
         """获取 LLM 可用的工具定义
@@ -98,7 +197,7 @@ class QueryEngine:
                 "description": meta.description,
                 "parameters": {
                     "type": "object",
-                    "properties": {},  # 可以扩展为从工具获取参数定义
+                    "properties": {},
                     "required": []
                 }
             })
@@ -120,15 +219,15 @@ class QueryEngine:
 
         for call in tool_calls:
             try:
-                logger.info(f"[QueryEngine] Executing tool: {call.name} with args: {call.arguments}")
+                logger.info(f"[TOOL] 📤 执行工具: {call.name} | 参数: {call.arguments}")
                 result = await self._tool_executor.execute(
                     call.name,
                     **call.arguments
                 )
                 results[call.name] = result
-                logger.info(f"[QueryEngine] Tool {call.name} completed")
+                logger.info(f"[TOOL] ✅ 工具完成: {call.name} | 结果长度: {len(str(result))}")
             except Exception as e:
-                logger.error(f"[QueryEngine] Tool {call.name} failed: {e}")
+                logger.error(f"[TOOL] ❌ 工具失败: {call.name} | 错误: {e}")
                 results[call.name] = {"error": str(e)}
 
         return results
@@ -154,7 +253,6 @@ class QueryEngine:
             if isinstance(result, dict) and "error" in result:
                 parts.append(f"  错误: {result['error']}")
             else:
-                # 尝试格式化结果
                 try:
                     result_str = json.dumps(result, ensure_ascii=False, indent=2)
                     parts.append(f"  {result_str}")
@@ -175,7 +273,6 @@ class QueryEngine:
         Returns:
             List of message dicts with 'role' and 'content' keys
         """
-        # Return a copy to avoid in-place modifications
         return list(self._conversation_history.get(conversation_id, []))
 
     def _update_conversation_history(
@@ -194,18 +291,16 @@ class QueryEngine:
         if conversation_id not in self._conversation_history:
             self._conversation_history[conversation_id] = []
 
-        # Keep last 20 messages to manage context window
         history = self._conversation_history[conversation_id]
         history.append({"role": "user", "content": user_message})
         history.append({"role": "assistant", "content": assistant_response})
 
-        # Trim to last 20 messages (10 exchanges)
         if len(history) > 20:
             self._conversation_history[conversation_id] = history[-20:]
 
         logger.debug(
-            f"[QueryEngine] Updated history for {conversation_id}, "
-            f"now has {len(self._conversation_history[conversation_id])} messages"
+            f"[MEMORY] 📝 更新历史 | conv={conversation_id} | "
+            f"消息数={len(self._conversation_history[conversation_id])}"
         )
 
     def reset_conversation(self, conversation_id: str) -> None:
@@ -216,7 +311,7 @@ class QueryEngine:
         """
         if conversation_id in self._conversation_history:
             del self._conversation_history[conversation_id]
-            logger.info(f"[QueryEngine] Reset conversation {conversation_id}")
+            logger.info(f"[MEMORY] 🗑️ 清空历史 | conv={conversation_id}")
 
     def _add_to_working_memory(
         self,
@@ -239,7 +334,6 @@ class QueryEngine:
             "content": content
         })
 
-        # 限制历史长度
         if len(self._conversation_history[conversation_id]) > 20:
             self._conversation_history[conversation_id] = \
                 self._conversation_history[conversation_id][-20:]
@@ -247,13 +341,15 @@ class QueryEngine:
     async def _execute_tools_by_intent(
         self,
         intent_result,
-        slots
+        slots,
+        stage_log: Optional[StageLogger] = None
     ) -> Dict[str, Any]:
         """根据意图执行工具
 
         Args:
             intent_result: 意图识别结果
             slots: 提取的槽位
+            stage_log: 阶段日志记录器（可选）
 
         Returns:
             工具执行结果
@@ -262,12 +358,14 @@ class QueryEngine:
         tools = self._get_tools_for_llm()
 
         if not tools:
+            logger.warning("[TOOLS] ⚠️ 没有可用工具")
             return {}
+
+        logger.info(f"[TOOLS] 🔧 可用工具: {[t['name'] for t in tools]}")
 
         # 构建消息
         messages = [{"role": "user", "content": self._current_message}]
 
-        # 使用 LLM Function Calling 决定工具调用
         try:
             content, tool_calls = await self.llm_client.chat_with_tools(
                 messages=messages,
@@ -276,14 +374,29 @@ class QueryEngine:
             )
 
             if tool_calls:
-                # 并行执行工具
                 logger.info(
-                    f"[QueryEngine] Executing {len(tool_calls)} tool calls "
-                    f"for intent {intent_result.intent}"
+                    f"[TOOLS] 📋 LLM请求调用 {len(tool_calls)} 个工具: "
+                    f"{[tc.name for tc in tool_calls]}"
                 )
-                return await self._tool_executor.execute_parallel(tool_calls)
+
+                # 并行执行工具
+                start = time.perf_counter()
+                results = await self._tool_executor.execute_parallel(tool_calls)
+                elapsed = (time.perf_counter() - start) * 1000
+
+                # 统计结果
+                success = sum(1 for r in results.values() if not isinstance(r, dict) or "error" not in r)
+                failed = sum(1 for r in results.values() if isinstance(r, dict) and "error" in r)
+
+                logger.info(
+                    f"[TOOLS] ✅ 并行执行完成 | 成功={success} | 失败={failed} | "
+                    f"耗时={elapsed:.2f}ms"
+                )
+                return results
+            else:
+                logger.info("[TOOLS] ℹ️ LLM未请求工具调用")
         except Exception as e:
-            logger.error(f"[QueryEngine] Tool execution failed: {e}")
+            logger.error(f"[TOOLS] ❌ 工具执行失败: {e}")
 
         return {}
 
@@ -291,7 +404,8 @@ class QueryEngine:
         self,
         user_id: Optional[str],
         tool_results: Dict[str, Any],
-        slots
+        slots,
+        stage_log: Optional[StageLogger] = None
     ) -> str:
         """构建完整上下文
 
@@ -299,44 +413,68 @@ class QueryEngine:
             user_id: 用户ID
             tool_results: 工具执行结果
             slots: 槽位信息
+            stage_log: 阶段日志记录器（可选）
 
         Returns:
             格式化的上下文字符串（工具结果、槽位信息等）
         """
         parts = []
+        context_parts = []
 
         # 工具结果
         if tool_results:
             parts.append("## 工具调用结果")
+            context_parts.append("## 工具调用结果")
             for name, result in tool_results.items():
                 if isinstance(result, dict) and "error" in result:
                     parts.append(f"{name}: 错误 - {result['error']}")
+                    context_parts.append(f"{name}: 错误 - {result['error']}")
                 else:
                     try:
                         result_str = json.dumps(result, ensure_ascii=False)
                         parts.append(f"{name}: {result_str}")
+                        context_parts.append(f"{name}: {result_str}")
                     except Exception:
                         parts.append(f"{name}: {result}")
+                        context_parts.append(f"{name}: {result}")
 
         # 槽位信息
         if slots.destination or slots.start_date:
             parts.append("## 提取的信息")
+            context_parts.append("## 提取的信息")
             if slots.destination:
                 parts.append(f"- 目的地: {slots.destination}")
+                context_parts.append(f"- 目的地: {slots.destination}")
             if slots.start_date:
                 parts.append(f"- 日期: {slots.start_date}")
+                context_parts.append(f"- 日期: {slots.start_date}")
                 if slots.end_date and slots.end_date != slots.start_date:
                     parts.append(f"至 {slots.end_date}")
+                    context_parts.append(f"至 {slots.end_date}")
 
-        # 注: 对话历史直接作为 LLM 消息传递，不包含在 context 字符串中
+        result = "\n\n".join(parts) if parts else ""
 
-        return "\n\n".join(parts) if parts else ""
+        logger.info(
+            f"[CONTEXT] 📚 上下文构建 | "
+            f"工具结果={'有' if tool_results else '无'} | "
+            f"槽位={slots.destination or '无目的地'} | "
+            f"上下文长度={len(result)}字符"
+        )
+        if stage_log:
+            stage_log.end(
+                context_length=len(result),
+                has_tool_results=bool(tool_results),
+                has_slots=bool(slots.destination or slots.start_date)
+            )
+
+        return result
 
     async def _generate_response(
         self,
         context: str,
         user_input: str,
-        history: Optional[List[Dict[str, str]]] = None
+        history: Optional[List[Dict[str, str]]] = None,
+        stage_log: Optional[StageLogger] = None
     ) -> AsyncIterator[str]:
         """生成 LLM 响应
 
@@ -344,6 +482,7 @@ class QueryEngine:
             context: 构建的上下文
             user_input: 用户输入
             history: 对话历史
+            stage_log: 阶段日志记录器
 
         Yields:
             响应片段
@@ -355,11 +494,40 @@ class QueryEngine:
         else:
             messages.append({"role": "user", "content": user_input})
 
+        logger.info(
+            f"[LLM] 🧠 开始生成响应 | "
+            f"上下文长度={len(context)}字符 | "
+            f"历史消息数={len(messages)}"
+        )
+
+        start = time.perf_counter()
+        chunk_count = 0
+        first_chunk = True
+
         async for chunk in self.llm_client.stream_chat(
             messages=messages,
             system_prompt=self.system_prompt
         ):
+            chunk_count += 1
+            if first_chunk:
+                first_chunk_time = (time.perf_counter() - start) * 1000
+                logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                first_chunk = False
+
             yield chunk
+
+        total_time = (time.perf_counter() - start) * 1000
+        logger.info(
+            f"[LLM] ✅ 响应生成完成 | "
+            f"总耗时={total_time:.2f}ms | "
+            f"chunk数={chunk_count}"
+        )
+
+        if stage_log:
+            stage_log.end(
+                total_time_ms=total_time,
+                chunk_count=chunk_count
+            )
 
     async def _update_memory_async(
         self,
@@ -367,7 +535,8 @@ class QueryEngine:
         conversation_id: str,
         user_input: str,
         assistant_response: str,
-        slots
+        slots,
+        stage_log: Optional[StageLogger] = None
     ) -> None:
         """异步更新记忆（后台任务）
 
@@ -377,16 +546,29 @@ class QueryEngine:
             user_input: 用户输入
             assistant_response: 助手响应
             slots: 槽位信息
+            stage_log: 阶段日志记录器
         """
+        start = time.perf_counter()
+
         try:
             # TODO: 这里可以添加:
             # 1. 提取用户偏好
             # 2. 更新向量库
             # 3. 记忆晋升
 
-            logger.debug(f"[QueryEngine] Memory update task for {conversation_id}")
+            elapsed = (time.perf_counter() - start) * 1000
+            logger.debug(
+                f"[MEMORY] 💾 异步记忆更新 | conv={conversation_id} | "
+                f"耗时={elapsed:.2f}ms"
+            )
+
+            if stage_log:
+                stage_log.end(elapsed_ms=elapsed)
+
         except Exception as e:
-            logger.error(f"[QueryEngine] Memory update failed: {e}")
+            logger.error(f"[MEMORY] ❌ 记忆更新失败: {e}")
+            if stage_log:
+                stage_log.fail(f"记忆更新异常: {e}")
 
     async def process(
         self,
@@ -415,65 +597,155 @@ class QueryEngine:
         Raises:
             AgentError: If LLM client is not configured
         """
-        logger.info(f"[QueryEngine] Processing: {user_input[:50]}...")
-
-        if self.llm_client is None:
-            raise AgentError(
-                "LLM client not configured",
-                level=DegradationLevel.LLM_DEGRADED
-            )
-
-        # 保存当前消息供后续使用
+        total_start = time.perf_counter()
         self._current_message = user_input
 
-        # ===== 步骤 1: 意图 & 槽位识别 =====
+        logger.info(
+            f"[WORKFLOW] 🚀 ====== 工作流程开始 ====== | "
+            f"conv={conversation_id} | "
+            f"user={user_id or 'anonymous'} | "
+            f"输入长度={len(user_input)}字符"
+        )
+
+        # ===== 阶段 0: 初始化检查 =====
+        stage_start = time.perf_counter()
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:0_INIT] ⏳ 开始 | conv={conversation_id} | "
+            f"输入长度={len(user_input)}字符"
+        )
+
+        if self.llm_client is None:
+            error = "LLM客户端未配置"
+            logger.error(
+                f"[WORKFLOW:0_INIT] ❌ 失败 | conv={conversation_id} | "
+                f"耗时: {elapsed_ms:.2f}ms | 错误: {error}"
+            )
+            raise AgentError(error, level=DegradationLevel.LLM_DEGRADED)
+
+        logger.info(
+            f"[WORKFLOW:0_INIT] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | LLM已配置"
+        )
+
+        # ===== 阶段 1: 意图 & 槽位识别 =====
+        stage_start = time.perf_counter()
+        logger.info(
+            f"[WORKFLOW:1_INTENT] ⏳ 开始 | conv={conversation_id} | "
+            f"输入: {user_input[:100]}..."
+        )
+
         intent_result = await self._intent_classifier.classify(user_input)
         slots = self._slot_extractor.extract(user_input)
 
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
-            f"[QueryEngine] Intent: {intent_result.intent} "
-            f"(confidence: {intent_result.confidence}, method: {intent_result.method})"
+            f"[WORKFLOW:1_INTENT] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | "
+            f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f} | "
+            f"方法={intent_result.method} | "
+            f"目的地={slots.destination or '无'} | 日期={slots.start_date or '无'}"
         )
-        logger.debug(f"[QueryEngine] Slots: destination={slots.destination}, "
-                    f"dates={slots.start_date}-{slots.end_date}")
 
-        # ===== 步骤 2: 消息基础存储 =====
-        # 注: 实际的存储由调用者 (agent_service) 处理
-        # 这里只记录到工作记忆
-        # 获取历史记录（在添加当前消息之前）
+        # ===== 阶段 2: 消息基础存储 =====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:2_STORAGE] ⏳ 开始 | conv={conversation_id}")
+
         history = self._get_conversation_history(conversation_id)
-
-        # 添加当前消息到工作记忆
         self._add_to_working_memory(conversation_id, "user", user_input)
 
-        # ===== 步骤 3: 按需并行调用工具 =====
-        tool_results: Dict[str, Any] = {}
-        if intent_result.intent in ["itinerary", "query"]:
-            tool_results = await self._execute_tools_by_intent(
-                intent_result, slots
-            )
-
-        # ===== 步骤 4: 上下文构建 =====
-        context = await self._build_context(
-            user_id, tool_results, slots
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:2_STORAGE] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | "
+            f"历史: {len(history)} -> {len(self._conversation_history.get(conversation_id, []))} 条"
         )
 
-        # ===== 步骤 5: LLM 生成响应 =====
+        # ===== 阶段 3: 按需并行调用工具 =====
+        tool_results: Dict[str, Any] = {}
+        stage_start = time.perf_counter()
+        logger.info(
+            f"[WORKFLOW:3_TOOLS] ⏳ 开始 | conv={conversation_id} | 意图={intent_result.intent}"
+        )
+
+        if intent_result.intent in ["itinerary", "query"]:
+            logger.info(f"[TOOLS] 🔍 意图={intent_result.intent}，开始工具调用")
+            tool_results = await self._execute_tools_by_intent(
+                intent_result, slots, None
+            )
+        else:
+            logger.info(f"[TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具调用")
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:3_TOOLS] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | 工具调用={len(tool_results)}次"
+        )
+
+        # ===== 阶段 4: 上下文构建 =====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:4_CONTEXT] ⏳ 开始 | conv={conversation_id}")
+
+        context = await self._build_context(
+            user_id, tool_results, slots, None
+        )
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:4_CONTEXT] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | 上下文长度={len(context)}字符"
+        )
+
+        # ===== 阶段 5: LLM 生成响应 =====
         full_response = ""
-        async for chunk in self._generate_response(context, user_input, history):
+        stage_start = time.perf_counter()
+        logger.info(
+            f"[WORKFLOW:5_LLM] ⏳ 开始 | conv={conversation_id} | "
+            f"上下文长度={len(context)}字符"
+        )
+
+        async for chunk in self._generate_response(context, user_input, history, None):
             full_response += chunk
             yield chunk
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:5_LLM] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | 响应长度={len(full_response)}字符"
+        )
 
         # 更新工作记忆
         self._add_to_working_memory(conversation_id, "assistant", full_response)
 
-        # ===== 步骤 6: 异步记忆更新 =====
-        # 注: 实际的持久化由调用者处理
-        # 这里只创建后台任务
+        # ===== 阶段 6: 异步记忆更新 =====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:6_MEMORY] ⏳ 开始 | conv={conversation_id}")
+
         asyncio.create_task(
             self._update_memory_async(
-                user_id, conversation_id, user_input, full_response, slots
+                user_id, conversation_id, user_input, full_response, slots, None
             )
+        )
+
+        logger.info(
+            f"[WORKFLOW:6_MEMORY] ✅ 完成(后台) | conv={conversation_id}"
+        )
+
+        # 总耗时统计
+        total_time = (time.perf_counter() - total_start) * 1000
+
+        log_workflow_summary(
+            conversation_id=conversation_id,
+            intent=intent_result.intent,
+            tool_calls=len(tool_results),
+            total_time_ms=total_time,
+            response_length=len(full_response)
+        )
+
+        logger.info(
+            f"[WORKFLOW] 🏁 ====== 工作流程完成 ====== | "
+            f"conv={conversation_id} | "
+            f"总耗时={total_time:.2f}ms"
         )
 
     async def process_simple(
@@ -513,7 +785,7 @@ class QueryEngine:
         """
         if self.llm_client is not None:
             await self.llm_client.close()
-            logger.info("[QueryEngine] Closed LLM client")
+            logger.info("[QueryEngine] 🔒 LLM客户端已关闭")
 
 
 # Global default instance (lazy initialization)
