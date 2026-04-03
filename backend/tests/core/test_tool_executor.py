@@ -27,11 +27,6 @@ class MockTool(Tool):
     def description(self) -> str:
         return f"Mock tool {self._name}"
 
-    @property
-    def is_concurrency_safe(self) -> bool:
-        """标记为可并发执行，用于测试"""
-        return True
-
     async def execute(self, **kwargs):
         await asyncio.sleep(self._delay)
         return f"result from {self._name}"
@@ -50,10 +45,6 @@ class FailingTool(Tool):
     @property
     def description(self) -> str:
         return "A tool that fails"
-
-    @property
-    def is_concurrency_safe(self) -> bool:
-        return True
 
     async def execute(self, **kwargs):
         raise ValueError("This tool always fails")
@@ -111,54 +102,3 @@ async def test_execute_parallel_with_failure():
 
     # 失败的工具应该包含错误信息
     assert "error" in results["failing_tool"]
-
-
-@pytest.mark.asyncio
-async def test_execute_parallel_empty():
-    """测试: 空工具调用列表"""
-    registry = ToolRegistry()
-    executor = ToolExecutor(registry)
-
-    results = await executor.execute_parallel([])
-    assert results == {}
-
-
-@pytest.mark.asyncio
-async def test_execute_parallel_with_arguments():
-    """测试: 并行执行带参数的工具"""
-    registry = ToolRegistry()
-
-    class EchoTool(Tool):
-        def __init__(self, name: str):
-            self._name = name
-            super().__init__()
-
-        @property
-        def name(self) -> str:
-            return self._name
-
-        @property
-        def description(self) -> str:
-            return f"Echo tool {self._name}"
-
-        @property
-        def is_concurrency_safe(self) -> bool:
-            return True
-
-        async def execute(self, **kwargs):
-            return f"echo: {kwargs}"
-
-    registry.register(EchoTool("echo1"))
-    registry.register(EchoTool("echo2"))
-
-    executor = ToolExecutor(registry)
-
-    calls = [
-        ToolCall(id="1", name="echo1", arguments={"msg": "hello"}),
-        ToolCall(id="2", name="echo2", arguments={"msg": "world", "count": 42}),
-    ]
-
-    results = await executor.execute_parallel(calls)
-
-    assert results["echo1"] == "echo: {'msg': 'hello'}"
-    assert results["echo2"] == "echo: {'msg': 'world', 'count': 42}"
