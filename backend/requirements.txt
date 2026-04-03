@@ -13,7 +13,8 @@ sqlalchemy==2.0.36
 asyncpg==0.30.0
 
 # AI/LLM
-dashscope>=1.20.0
+# DeepSeek uses OpenAI-compatible API
+openai>=1.0.0
 
 # Utilities
 python-dotenv==1.0.1

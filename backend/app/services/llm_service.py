@@ -1,16 +1,13 @@
-"""LLM service using DashScope HTTP API (通义千问).
+"""LLM service using DeepSeek HTTP API.
 
 Uses HTTPX async client for true async streaming with interrupt support.
 
-References:
-- D-10: Use Tongyi Qianwen (DashScope API) as primary LLM
-- D-12: Model version: qwen-plus
-- D-13: API key via environment variable
-- D-17: Context window: last 20 messages or max 4000 tokens
-- D-18: Single request max tokens: input 2000 + output 2000
-- D-19: Implement question caching
-- D-20: Support user interruption
-- D-21: Timeout: single request max 30 seconds
+Configuration:
+- Model: deepseek-chat (or deepseek-reasoner for complex reasoning)
+- API key via environment variable DEEPSEEK_API_KEY
+- Context window: last 20 messages or max 4000 tokens
+- Single request max tokens: input 2000 + output 2000
+- Timeout: single request max 30 seconds
 """
 
 import asyncio
@@ -25,15 +22,15 @@ from app.cache import cache
 from app.db.postgres import get_context_window
 
 # Configuration from environment
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME", "qwen-plus")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-chat")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "2000"))
 REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "30"))
 CONTEXT_MESSAGE_LIMIT = int(os.getenv("CONTEXT_MESSAGE_LIMIT", "20"))
 CONTEXT_TOKEN_LIMIT = int(os.getenv("CONTEXT_TOKEN_LIMIT", "4000"))
 
-# DashScope API endpoint
-DASHSCOPE_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+# DeepSeek API endpoint (OpenAI compatible)
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
 logger = logging.getLogger(__name__)
 
@@ -219,8 +216,8 @@ class LLMService:
         Raises:
             Exception: If API call fails or timeout occurs
         """
-        if not DASHSCOPE_API_KEY:
-            raise ValueError("DASHSCOPE_API_KEY not configured")
+        if not DEEPSEEK_API_KEY:
+            raise ValueError("DEEPSEEK_API_KEY not configured")
 
         # Build messages with context and user preferences
         messages = await self._build_messages(user_message, conversation_id, user_id, system_prompt)
@@ -236,15 +233,15 @@ class LLMService:
                 await asyncio.sleep(0.01)
             return
 
-        # Call DashScope API with async streaming
-        logger.info(f"Calling DashScope API: model={MODEL_NAME}, messages={len(messages)}")
+        # Call DeepSeek API with async streaming
+        logger.info(f"Calling DeepSeek API: model={MODEL_NAME}, messages={len(messages)}")
 
         try:
             client = await self._get_client()
             full_response = ""
 
             headers = {
-                "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
                 "Content-Type": "application/json"
             }
 
@@ -257,13 +254,13 @@ class LLMService:
 
             async with client.stream(
                 "POST",
-                DASHSCOPE_API_URL,
+                DEEPSEEK_API_URL,
                 headers=headers,
                 json=payload
             ) as response:
                 if response.status_code != 200:
                     error_text = await response.aread()
-                    logger.error(f"DashScope API error: {response.status_code} - {error_text}")
+                    logger.error(f"DeepSeek API error: {response.status_code} - {error_text}")
                     raise Exception(f"API调用失败: {response.status_code}")
 
                 # Process SSE stream
@@ -304,7 +301,7 @@ class LLMService:
             raise
 
     def _extract_content(self, chunk_data: dict) -> str:
-        """Extract content from DashScope streaming chunk."""
+        """Extract content from DeepSeek streaming chunk."""
         try:
             delta = chunk_data.get("choices", [{}])[0].get("delta", {})
             return delta.get("content", "")
@@ -325,7 +322,7 @@ class LLMService:
         Returns:
             Dict with keys: intent, confidence, reasoning
         """
-        if not DASHSCOPE_API_KEY:
+        if not DEEPSEEK_API_KEY:
             return {"intent": "chat", "confidence": 0.0, "reasoning": "API not configured"}
 
         from app.services.intent_prompts import build_classification_prompt
@@ -336,7 +333,7 @@ class LLMService:
             client = await self._get_client()
 
             headers = {
-                "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
                 "Content-Type": "application/json"
             }
 
@@ -348,7 +345,7 @@ class LLMService:
             }
 
             response = await client.post(
-                DASHSCOPE_API_URL,
+                DEEPSEEK_API_URL,
                 headers=headers,
                 json=payload,
                 timeout=timeout

@@ -1,6 +1,6 @@
 """LLM 客户端封装
 
-封装通义千问 API 调用，提供流式和非流式接口。
+封装 DeepSeek API 调用，提供流式和非流式接口。
 支持 Function Calling（工具调用）功能。
 """
 
@@ -16,8 +16,8 @@ from ..errors import AgentError, DegradationLevel, DegradationStrategy
 
 logger = logging.getLogger(__name__)
 
-# DashScope API endpoint
-DASHSCOPE_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+# DeepSeek API endpoint (OpenAI compatible)
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
 
 class ToolCall:
@@ -37,18 +37,18 @@ class ToolCall:
 class LLMClient:
     """LLM 客户端
 
-    封装通义千问 API，提供重试和降级能力。
+    封装 DeepSeek API，提供重试和降级能力。
     支持 Function Calling（工具调用）功能。
     """
 
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "qwen-plus",
+        model: str = "deepseek-chat",
         max_retries: int = 3,
         timeout: float = 60.0
     ):
-        self.api_key = api_key or os.getenv("DASHSCOPE_API_KEY")
+        self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY")
         self.model = model
         self.max_retries = max_retries
         self.timeout = timeout
@@ -139,7 +139,7 @@ class LLMClient:
 
                 async with client.stream(
                     "POST",
-                    DASHSCOPE_API_URL,
+                    DEEPSEEK_API_URL,
                     headers=headers,
                     json=payload
                 ) as response:
@@ -244,7 +244,7 @@ class LLMClient:
             raise AgentError(f"LLM 调用失败（已重试 {self.max_retries} 次）: {last_error}")
 
     def _extract_content(self, chunk_data: dict) -> str:
-        """从 DashScope 流式响应块中提取内容"""
+        """从 DeepSeek 流式响应块中提取内容"""
         try:
             delta = chunk_data.get("choices", [{}])[0].get("delta", {})
             return delta.get("content", "")
@@ -331,7 +331,7 @@ class LLMClient:
 
                 async with client.stream(
                     "POST",
-                    DASHSCOPE_API_URL,
+                    DEEPSEEK_API_URL,
                     headers=headers,
                     json=payload
                 ) as response:

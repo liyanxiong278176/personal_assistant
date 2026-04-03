@@ -138,8 +138,8 @@
 ### AI Model Integration (Chinese LLMs)
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| **通义千问 (Tongyi Qianwen)** | Qwen 2.0+ | Primary LLM | Best price-performance in 2025, strong Chinese understanding, LangChain integration available |
-| **DashScope SDK** | Latest | Alibaba Cloud API client | Official Python SDK for Tongyi Qianwen, stable API access |
+| **DeepSeek** | deepseek-chat | Primary LLM | Best price-performance in 2025, strong Chinese understanding, OpenAI-compatible API |
+| **OpenAI SDK** | Latest | API client | Official Python SDK, compatible with DeepSeek API |
 | **LangChain** | 0.3.x | Agent framework | Comprehensive tool calling support, extensive Chinese model integrations |
 - **文心一言 (Ernie Bot)** - Good Chinese context, slightly higher cost
 - **智谱GLM** - Strong agent capabilities, good for automation tasks
@@ -168,7 +168,7 @@
 |---------|---------|-----|
 | **高德地图 API** | Maps, geocoding, POI search | Comprehensive Chinese location data, free tier available |
 | **和风天气 API** | Weather data | Reliable Chinese weather data, free tier for developers |
-| **通义千问 VL** | Image recognition | Multi-modal model for photo identification |
+| **DeepSeek VL** | Image recognition | Multi-modal model for photo identification |
 ## Deployment
 ### Development Environment
 # Frontend
@@ -183,7 +183,7 @@
 | **AI SDK** | Vercel AI SDK | Direct API calls | Vercel SDK handles streaming complexity automatically |
 | **Vector DB** | ChromaDB (local) | Pinecone (cloud) | Start local, migrate when needed. Pinecone costs add up |
 | **Agent Framework** | LangChain 0.3.x | LlamaIndex, LangGraph | LangChain has best Chinese model integration. LangGraph is newer, less proven |
-| **LLM** | Tongyi Qianwen | GPT-4, Claude | Chinese LLMs required for project constraints, more cost-effective |
+| **LLM** | DeepSeek | GPT-4, Claude | Chinese LLMs required for project constraints, more cost-effective |
 | **Deployment** | Docker + Nginx | Serverless (Vercel/FC) | Python backend needs long-running processes for WebSocket/streaming |
 ## What NOT to Use
 | Anti-Pattern | Why Avoid | What to Use Instead |
@@ -191,10 +191,10 @@
 | **LangChain v1.0** | Migration issues reported, unstable for production | LangChain 0.3.x |
 | **Flask for streaming** | No native async support, requires additional setup | FastAPI with built-in WebSocket support |
 | **Pinecone from day 1** | Cost scales quickly, overkill for MVP | ChromaDB local persistent storage |
-| **Direct API calls without SDK** | Reinventing streaming, error handling | Vercel AI SDK or DashScope SDK |
+| **Direct API calls without SDK** | Reinventing streaming, error handling | Vercel AI SDK or OpenAI SDK |
 | **Redux for chat state** | Overcomplicated for chat history | Vercel AI SDK's built-in state management |
 | **PostgreSQL for vectors** | Additional infrastructure complexity | ChromaDB with SQLite backend |
-| **OpenAI/ChatGPT API** | Access issues in China, higher cost | Tongyi Qianwen or other Chinese LLMs |
+| **OpenAI/ChatGPT API** | Access issues in China, higher cost | DeepSeek or other Chinese LLMs |
 ## Architecture Overview
 ## Installation Commands
 ### Frontend
@@ -215,10 +215,10 @@
 - [Qdrant Documentation](https://qdrant.tech/documentation/) - Verified 2026-03-30
 ### MEDIUM Confidence (Web Search Verified)
 - [Vector Database Comparison 2025](https://medium.com/tech-ai-made-easy/vector-database-comparison-pinecone-vs-weaviate-vs-qdrant-vs-faiss-vs-milvus-vs-chroma-2025-15bf152f891d) - Qdrant recommended as overall best
-- [国产AI全面崛起：通义千问、Kimi、GLM、文心深度对比](https://juejin.cn/post/7615267467041194026) - Tongyi Qianwen ranking and capabilities
+- [国产AI全面崛起：DeepSeek、Kimi、GLM、文心深度对比](https://juejin.cn/post/7615267467041194026) - Chinese LLM comparison
 - [LangChain Agents in 2025 Tutorial](https://www.youtube.com/watch?v=Gi7nqB37WEY) - v0.3 specific guidance
 ### LOW Confidence (Requires Verification)
-- Specific DashScope Python SDK version (website 404'd, verify directly with Alibaba Cloud docs)
+- Exact pricing for Chinese LLM APIs (changes frequently, verify with each provider)
 - Exact pricing for Chinese LLM APIs (changes frequently, verify with each provider)
 ## Notes
 <!-- GSD:stack-end -->
