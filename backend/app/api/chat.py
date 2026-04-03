@@ -29,7 +29,7 @@ from app.db.postgres import (
 )
 from app.services.llm_service import llm_service
 from app.services.memory_service import memory_service
-from app.services.intent_classifier import intent_classifier, IntentResult
+from app.core.intent import intent_classifier, IntentResult
 
 
 router = APIRouter(prefix="/api", tags=["conversations"])
