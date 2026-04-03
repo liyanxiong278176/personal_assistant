@@ -11,8 +11,8 @@ from app.core.llm import LLMClient
 async def test_llm_client_requires_api_key():
     """测试 LLM 客户端需要 API key"""
     # 临时移除环境变量
-    original_key = os.environ.get("DASHSCOPE_API_KEY")
-    os.environ.pop("DASHSCOPE_API_KEY", None)
+    original_key = os.environ.get("DEEPSEEK_API_KEY")
+    os.environ.pop("DEEPSEEK_API_KEY", None)
 
     client = LLMClient()
 
@@ -26,16 +26,16 @@ async def test_llm_client_requires_api_key():
 
     # 恢复环境变量
     if original_key:
-        os.environ["DASHSCOPE_API_KEY"] = original_key
+        os.environ["DEEPSEEK_API_KEY"] = original_key
 
 
 @pytest.mark.asyncio
 async def test_llm_client_with_system_prompt():
     """测试带系统提示词的 LLM 客户端"""
     # 这个测试需要真实的 API key，如果没有则跳过
-    api_key = os.environ.get("DASHSCOPE_API_KEY")
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
     if not api_key:
-        pytest.skip("需要 DASHSCOPE_API_KEY 环境变量")
+        pytest.skip("需要 DEEPSEEK_API_KEY 环境变量")
 
     client = LLMClient(api_key=api_key)
 
@@ -52,9 +52,9 @@ async def test_llm_client_with_system_prompt():
 @pytest.mark.asyncio
 async def test_llm_client_stream():
     """测试流式 LLM 客户端"""
-    api_key = os.environ.get("DASHSCOPE_API_KEY")
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
     if not api_key:
-        pytest.skip("需要 DASHSCOPE_API_KEY 环境变量")
+        pytest.skip("需要 DEEPSEEK_API_KEY 环境变量")
 
     client = LLMClient(api_key=api_key)
 

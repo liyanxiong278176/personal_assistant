@@ -27,3 +27,4 @@ backend/debug_*.txt
 backend/debug_*.json
 backend/test_*.py
 backend/run_server.py
+.gstack/
