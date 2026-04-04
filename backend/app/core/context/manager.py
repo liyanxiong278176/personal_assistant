@@ -12,7 +12,7 @@
 
 import logging
 from copy import deepcopy
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from .compressor import ContextCompressor
 from .tokenizer import TokenEstimator
@@ -155,13 +155,15 @@ class ContextManager:
         self._messages = self._compressor.compress(self._messages, llm_summary)
 
         # 记录压缩历史
-        self._compression_history.append({
-            "original_count": original_count,
-            "compressed_count": len(self._messages),
-            "original_tokens": original_tokens,
-            "compressed_tokens": self.get_token_count(),
-            "tokens_saved": original_tokens - self.get_token_count(),
-        })
+        self._compression_history.append(
+            {
+                "original_count": original_count,
+                "compressed_count": len(self._messages),
+                "original_tokens": original_tokens,
+                "compressed_tokens": self.get_token_count(),
+                "tokens_saved": original_tokens - self.get_token_count(),
+            }
+        )
 
         logger.info(
             f"Manual compression: {original_count} -> {len(self._messages)} messages, "
@@ -190,12 +192,14 @@ class ContextManager:
 
         # 记录压缩历史
         if summary:
-            self._compression_history.append({
-                "type": "compress_with_summary",
-                "compressed_count": len(self._messages),
-                "compressed_tokens": self.get_token_count(),
-                "summary": summary[:100] + "..." if len(summary) > 100 else summary,
-            })
+            self._compression_history.append(
+                {
+                    "type": "compress_with_summary",
+                    "compressed_count": len(self._messages),
+                    "compressed_tokens": self.get_token_count(),
+                    "summary": summary[:100] + "..." if len(summary) > 100 else summary,
+                }
+            )
 
         return messages.copy(), summary
 
