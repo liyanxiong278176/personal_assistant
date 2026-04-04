@@ -502,8 +502,60 @@ class Database:
         if cls._pool:
             await cls._pool.release(conn)
 
+    @classmethod
+    def connection(cls):
+        """Async context manager for database connections.
+
+        Usage:
+            async with Database.connection() as conn:
+                await conn.execute("...")
+        """
+        class _ConnectionContextManager:
+            def __init__(self):
+                self._conn = None
+
+            async def __aenter__(self) -> asyncpg.Connection:
+                self._conn = await cls.get_connection()
+                return self._conn
+
+            async def __aexit__(self, exc_type, exc_val, exc_tb):
+                if self._conn:
+                    await cls.release_connection(self._conn)
+
+        return _ConnectionContextManager()
+
 
 # Conversation operations
+async def create_conversation_ext(conn: asyncpg.Connection, conv_id: UUID, title: str = "新对话") -> None:
+    """Create a conversation with a specific ID (for external use).
+
+    Args:
+        conn: Database connection
+        conv_id: Conversation ID to use
+        title: Conversation title
+    """
+    await conn.execute(
+        """INSERT INTO conversations (id, title, created_at, updated_at)
+           VALUES ($1, $2, $3, $3)
+           ON CONFLICT (id) DO UPDATE SET updated_at = $3""",
+        conv_id, title, datetime.utcnow()
+    )
+
+
+async def get_conversation_ext(conn: asyncpg.Connection, conv_id: UUID) -> Optional[dict]:
+    """Get a conversation by ID (for external use).
+
+    Args:
+        conn: Database connection
+        conv_id: Conversation ID
+
+    Returns:
+        Conversation dict or None if not found
+    """
+    row = await conn.fetchrow("SELECT * FROM conversations WHERE id = $1", conv_id)
+    return dict(row) if row else None
+
+
 async def create_conversation(title: str = "新对话") -> UUID:
     """Create a new conversation."""
     conn = await Database.get_connection()

@@ -177,6 +177,13 @@ class QueryEngine:
             f"LLM客户端={'已配置' if llm_client else '未配置'}"
         )
 
+        # === Phase 2: 持久化组件初始化 ===
+        self._phase2_enabled = False
+        self._phase2_initialized = False
+        self._phase2_init_lock = asyncio.Lock()
+        self._background_tasks: set[asyncio.Task] = set()
+        # 延迟初始化，不在 __init__ 中执行
+
         if self.llm_client is None:
             logger.warning("[QueryEngine] ⚠️ LLM客户端未配置，查询将失败")
 
@@ -561,7 +568,7 @@ class QueryEngine:
         slots,
         stage_log: Optional[StageLogger] = None
     ) -> None:
-        """异步更新记忆（后台任务）
+        """异步更新记忆（后台任务）- Phase 2 集成版本
 
         Args:
             user_id: 用户ID
@@ -571,17 +578,131 @@ class QueryEngine:
             slots: 槽位信息
             stage_log: 阶段日志记录器
         """
+        import time
+        from uuid import uuid4
+
         start = time.perf_counter()
 
-        try:
-            # TODO: 这里可以添加:
-            # 1. 提取用户偏好
-            # 2. 更新向量库
-            # 3. 记忆晋升
+        # 确保 Phase 2 组件已初始化
+        await self._ensure_phase2_initialized()
 
+        if not self._phase2_enabled:
             elapsed = (time.perf_counter() - start) * 1000
             logger.debug(
-                f"[MEMORY] 💾 异步记忆更新 | conv={conversation_id} | "
+                f"[MEMORY] ⚠️ Phase2未启用，跳过持久化 | conv={conversation_id} | "
+                f"耗时={elapsed:.2f}ms"
+            )
+            return
+
+        try:
+            logger.info(f"[MEMORY:Phase2] 🔄 开始异步记忆更新 | conv={conversation_id}")
+
+            # === 步骤 1: 持久化消息到 PostgreSQL ===
+            try:
+                from app.core.memory.persistence import Message as PersistenceMessage
+                from app.db.postgres import create_conversation_ext, get_conversation_ext
+                from uuid import UUID
+
+                # 确保 conversation 存在（使用字符串 ID 转换为 UUID）
+                conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
+
+                # 检查 conversation 是否存在，不存在则创建
+                async with self._message_repo._get_db_connection() as conn:
+                    existing = await get_conversation_ext(conn, conv_uuid)
+                    if not existing:
+                        await create_conversation_ext(conn, conv_uuid, "对话")
+
+                # 保存用户消息
+                user_msg = PersistenceMessage(
+                    id=uuid4(),
+                    conversation_id=conv_uuid,
+                    user_id=user_id or "unknown",
+                    role="user",
+                    content=user_input
+                )
+
+                await self._persistence_manager.persist_message(user_msg)
+                logger.debug(f"[MEMORY:Phase2] ✓ 用户消息已入队持久化 | conv={conversation_id}")
+
+                # 保存助手响应
+                assistant_msg = PersistenceMessage(
+                    id=uuid4(),
+                    conversation_id=conv_uuid,
+                    user_id=user_id or "unknown",
+                    role="assistant",
+                    content=assistant_response,
+                    tokens=len(assistant_response) // 4  # 粗略估算
+                )
+
+                await self._persistence_manager.persist_message(assistant_msg)
+                logger.debug(f"[MEMORY:Phase2] ✓ 助手消息已入队持久化 | conv={conversation_id}")
+
+            except Exception as e:
+                logger.error(f"[MEMORY:Phase2] ❌ 消息持久化失败: {e}")
+
+            # === 步骤 2: 提取并保存语义记忆 ===
+            try:
+                from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
+                from app.db.vector_store import ChineseEmbeddings
+
+                embedder = ChineseEmbeddings()
+
+                # 检查是否包含偏好/意图信息
+                if self._should_save_as_semantic(user_input, assistant_response):
+                    # 提取用户偏好
+                    memory_content = f"用户: {user_input}\n助手: {assistant_response[:100]}..."
+
+                    memory = MemoryItem(
+                        content=memory_content,
+                        level=MemoryLevel.SEMANTIC,
+                        memory_type=MemoryType.PREFERENCE,
+                        importance=0.7,
+                        metadata={
+                            "user_id": user_id or "unknown",
+                            "conversation_id": conversation_id,
+                            "created_at": time.time()
+                        }
+                    )
+
+                    # 获取向量并保存
+                    embedding = embedder.embed_query(memory_content)
+                    await self._semantic_repo.add(
+                        content=memory_content,
+                        embedding=embedding,
+                        metadata=memory.metadata
+                    )
+                    logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存 | type=preference")
+
+            except Exception as e:
+                logger.error(f"[MEMORY:Phase2] ❌ 语义记忆保存失败: {e}")
+
+            # === 步骤 3: 更新情景记忆 ===
+            try:
+                from app.core.memory.hierarchy import MemoryItem, MemoryLevel
+
+                episodic_memory = MemoryItem(
+                    content=f"对话摘要: {user_input[:100]}... → {assistant_response[:100]}...",
+                    level=MemoryLevel.EPISODIC,
+                    memory_type=MemoryType.STATE,
+                    importance=0.5,
+                    metadata={
+                        "user_id": user_id or "unknown",
+                        "conversation_id": conversation_id,
+                        "last_message": user_input,
+                        "last_response": assistant_response[:200]
+                    }
+                )
+
+                # add() 是同步方法，不需要 await
+                self._memory_hierarchy.add(episodic_memory)
+                logger.debug(f"[MEMORY:Phase2] ✓ 情景记忆已更新 | level=episodic")
+
+            except Exception as e:
+                logger.error(f"[MEMORY:Phase2] ❌ 情景记忆更新失败: {e}")
+
+            elapsed = (time.perf_counter() - start) * 1000
+            logger.info(
+                f"[MEMORY:Phase2] ✅ 记忆更新完成 | conv={conversation_id} | "
                 f"耗时={elapsed:.2f}ms"
             )
 
@@ -589,9 +710,27 @@ class QueryEngine:
                 stage_log.end(elapsed_ms=elapsed)
 
         except Exception as e:
-            logger.error(f"[MEMORY] ❌ 记忆更新失败: {e}")
+            elapsed = (time.perf_counter() - start) * 1000
+            logger.error(
+                f"[MEMORY:Phase2] ❌ 记忆更新失败 | conv={conversation_id} | "
+                f"耗时={elapsed:.2f}ms | 错误={e}"
+            )
             if stage_log:
                 stage_log.fail(f"记忆更新异常: {e}")
+
+    def _should_save_as_semantic(self, user_input: str, response: str) -> bool:
+        """判断是否应该保存为语义记忆
+
+        Args:
+            user_input: 用户输入
+            response: 助手响应
+
+        Returns:
+            是否应该保存
+        """
+        # 简单规则：如果包含目的地、预算、偏好等关键词，则保存
+        keywords = ["去", "想", "预算", "喜欢", "推荐", "计划", "希望"]
+        return any(kw in user_input for kw in keywords) or any(kw in response for kw in keywords)
 
     async def process(
         self,
@@ -778,11 +917,13 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:8_MEMORY] ⏳ 开始 | conv={conversation_id}")
 
-        asyncio.create_task(
+        task = asyncio.create_task(
             self._update_memory_async(
                 user_id, conversation_id, user_input, full_response, slots, None
             )
         )
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
 
         logger.info(
             f"[WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv={conversation_id}"
@@ -835,11 +976,94 @@ class QueryEngine:
 
         return await self.llm_client.chat(messages, system_prompt=prompt)
 
+    async def _ensure_phase2_initialized(self):
+        """确保 Phase 2 组件已初始化（延迟初始化）"""
+        if self._phase2_initialized:
+            return
+
+        async with self._phase2_init_lock:
+            # 双重检查
+            if self._phase2_initialized:
+                return
+
+            try:
+                from app.db.postgres import Database
+                from app.db.message_repo import PostgresMessageRepository
+                from app.db.semantic_repo import ChromaDBSemanticRepository
+                from app.db.vector_store import VectorStore
+                from app.core.memory.retrieval import HybridRetriever
+                from app.core.memory.persistence import AsyncPersistenceManager
+                from app.core.memory.hierarchy import MemoryHierarchy
+                from app.core.memory.loaders import MemoryLoader
+
+                # 确保 Database 连接池已初始化
+                await Database.connect()
+
+                # 向量存储
+                self._vector_store = VectorStore()
+
+                # 语义仓储
+                self._semantic_repo = ChromaDBSemanticRepository(self._vector_store)
+
+                # 混合检索器
+                self._hybrid_retriever = HybridRetriever(self._semantic_repo)
+
+                # 记忆层级
+                self._memory_hierarchy = MemoryHierarchy()
+
+                # 记忆加载器
+                self._memory_loader = MemoryLoader(self._memory_hierarchy, self._hybrid_retriever)
+
+                # 消息仓储 (使用 Database.connection 上下文管理器)
+                self._message_repo = PostgresMessageRepository(Database.connection)
+
+                # 异步持久化管理器
+                self._persistence_manager = AsyncPersistenceManager(self._message_repo)
+
+                # 启动持久化管理器
+                await self._persistence_manager.start()
+
+                self._phase2_enabled = True
+                self._phase2_initialized = True
+
+                logger.info("[QueryEngine:Phase2] ✅ Phase 2 组件已初始化")
+                logger.info("[QueryEngine:Phase2]   - MessageRepository: PostgresMessageRepository")
+                logger.info("[QueryEngine:Phase2]   - SemanticRepository: ChromaDBSemanticRepository")
+                logger.info("[QueryEngine:Phase2]   - HybridRetriever: 已配置")
+                logger.info("[QueryEngine:Phase2]   - MemoryHierarchy: 已初始化")
+                logger.info("[QueryEngine:Phase2]   - PersistenceManager: 已启动")
+
+            except ImportError as e:
+                logger.warning(f"[QueryEngine:Phase2] ⚠️ Phase 2 组件导入失败: {e}")
+                self._phase2_enabled = False
+                self._phase2_initialized = True  # 标记为已尝试初始化
+            except Exception as e:
+                logger.error(f"[QueryEngine:Phase2] ❌ Phase 2 初始化失败: {e}")
+                self._phase2_enabled = False
+                self._phase2_initialized = True  # 标记为已尝试初始化
+
     async def close(self) -> None:
         """Clean up resources.
 
-        Closes the LLM client if it was created by this engine.
+        Closes the LLM client and stops the persistence manager if initialized.
         """
+        # 等待后台任务完成
+        if hasattr(self, '_background_tasks') and self._background_tasks:
+            pending = [t for t in self._background_tasks if not t.done()]
+            if pending:
+                logger.info(f"[QueryEngine] ⏳ 等待 {len(pending)} 个后���任务...")
+                await asyncio.gather(*pending, return_exceptions=True)
+                self._background_tasks.clear()
+
+        # 停止 Phase 2 持久化管理器
+        if self._phase2_initialized and hasattr(self, '_persistence_manager'):
+            try:
+                await self._persistence_manager.stop()
+                logger.info("[QueryEngine:Phase2] 🛑 持久化管理器已停止")
+            except Exception as e:
+                logger.error(f"[QueryEngine:Phase2] ❌ 停止持久化管理器失败: {e}")
+
+        # 关闭 LLM 客户端
         if self.llm_client is not None:
             await self.llm_client.close()
             logger.info("[QueryEngine] 🔒 LLM客户端已关闭")

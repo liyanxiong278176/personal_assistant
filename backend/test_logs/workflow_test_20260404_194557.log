@@ -1,0 +1,1356 @@
+2026-04-04 19:45:57,521 - asyncio - DEBUG - Using proactor: IocpProactor
+2026-04-04 19:45:57,521 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,521 - __main__ - INFO - 工作流程测试初始化
+2026-04-04 19:45:57,521 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,702 - __main__ - INFO - [INIT] 数据库已连接
+2026-04-04 19:45:57,703 - app.core.tools.executor - INFO - [ToolExecutor] Initialized
+2026-04-04 19:45:57,703 - app.core.context.guard - INFO - [CTX_GUARD] 🏗️ 初始化完成 | 窗口=128000 | 压缩阈值=0.75 | TTL=300s | LLM=已配置 | 规则缓存=0个文件
+2026-04-04 19:45:57,703 - app.core.query_engine - INFO - [QueryEngine] 🚀 初始化完成 | 工具数量=0 | LLM客户端=已配置
+2026-04-04 19:45:57,703 - __main__ - INFO - [INIT] QueryEngine 已初始化
+2026-04-04 19:45:57,703 - __main__ - INFO - 
+2026-04-04 19:45:57,703 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,703 - __main__ - INFO - 开始测试批次: NORMAL | 用例数: 10
+2026-04-04 19:45:57,703 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,703 - __main__ - INFO - 
+>>> 进度: 1/10
+2026-04-04 19:45:57,703 - __main__ - INFO - 
+2026-04-04 19:45:57,703 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,703 - __main__ - INFO - [NORMAL] 测试用例: N001 | 消息: 我想去北京旅游3天
+2026-04-04 19:45:57,703 - __main__ - INFO - ================================================================================
+2026-04-04 19:45:57,703 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N001 | user=test_user | 输入长度=9字符
+2026-04-04 19:45:57,703 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N001 | 输入长度=9字符
+2026-04-04 19:45:57,703 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N001 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:45:57,703 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N001 | 输入: 我想去北京旅游3天...
+2026-04-04 19:45:57,704 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Extracted destination: 北京
+2026-04-04 19:45:57,704 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N001 | 耗时: 0.97ms | 意图=itinerary | 置信度=1.00 | 方法=keyword | 目的地=北京 | 日期=无
+2026-04-04 19:45:57,704 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N001
+2026-04-04 19:45:57,704 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N001 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:45:57,704 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N001
+2026-04-04 19:45:57,704 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:45:57,705 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:45:57,705 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:45:57,705 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N001 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N001 | 意图=itinerary
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=itinerary，开始工具调用
+2026-04-04 19:45:57,705 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N001 | 耗时: 0.12ms | 工具调用=0次
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N001
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=北京 | 上下文长度=19字符
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N001 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N001 | 上下文长度=19字符
+2026-04-04 19:45:57,705 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:45:58,310 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:45:58,311 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDC2F90>
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:45:58,311 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:45:58,312 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:45:58,391 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED92AD0>
+2026-04-04 19:45:58,391 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:45:58,392 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:45:58,392 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:45:58,392 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:45:58,392 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:45:58,603 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'1e3e42b2c185cbefaad970aaa880a277'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:45:57 GMT'), (b'EO-LOG-UUID', b'1673314019344357326'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:45:58,604 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:45:58,604 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:45:59,213 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1508.04ms
+2026-04-04 19:46:24,250 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:46:24,251 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=26545.94ms | chunk数=1185
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N001 | 耗时: 26546.09ms | 响应长度=1965字符
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N001
+2026-04-04 19:46:24,251 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(10≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N001 | 耗时: 0.09ms | 历史: 1 条
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N001
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N001
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N001 | 意图=itinerary | 工具调用=0次 | 总耗时=26547.89ms | 响应长度=1965字符
+2026-04-04 19:46:24,251 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N001 | 总耗时=26547.89ms
+2026-04-04 19:46:24,251 - __main__ - INFO - [N001] ✅ 成功 | 耗时=26547.99ms | 响应长度=1965字符
+2026-04-04 19:46:24,251 - __main__ - DEBUG - [N001] 响应预览: 您好！很高兴为您规划北京3日游行程。作为中国的首都，北京融合了深厚的历史文化与现代都市魅力，3天时间可以体验其精华部分。
+
+以下是一个经典且高效的行程建议，兼顾著名景点、美食和文化体验：
+
+---
+
+...
+2026-04-04 19:46:24,251 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N001 | 耗时=0.00ms
+2026-04-04 19:46:24,252 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:46:24,756 - __main__ - INFO - 
+>>> 进度: 2/10
+2026-04-04 19:46:24,756 - __main__ - INFO - 
+2026-04-04 19:46:24,756 - __main__ - INFO - ================================================================================
+2026-04-04 19:46:24,756 - __main__ - INFO - [NORMAL] 测试用例: N002 | 消息: 帮我规划上海5天行程，预算3000元
+2026-04-04 19:46:24,756 - __main__ - INFO - ================================================================================
+2026-04-04 19:46:24,756 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N002 | user=test_user | 输入长度=18字符
+2026-04-04 19:46:24,756 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N002 | 输入长度=18字符
+2026-04-04 19:46:24,756 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N002 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:46:24,756 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N002 | 输入: 帮我规划上海5天行程，预算3000元...
+2026-04-04 19:46:24,757 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 上海
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N002 | 耗时: 0.41ms | 意图=itinerary | 置信度=1.00 | 方法=keyword | 目的地=上海 | 日期=无
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N002
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N002 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N002
+2026-04-04 19:46:24,757 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:46:24,757 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:46:24,757 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:46:24,757 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N002 | 耗时: 0.16ms | 历史: 1 条
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N002 | 意图=itinerary
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=itinerary，开始工具调用
+2026-04-04 19:46:24,757 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N002 | 耗时: 0.09ms | 工具调用=0次
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N002
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=上海 | 上下文长度=19字符
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N002 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N002 | 上下文长度=19字符
+2026-04-04 19:46:24,757 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:46:24,758 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:46:24,758 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE242D0>
+2026-04-04 19:46:24,758 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:24,759 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:46:24,759 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:24,759 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:46:24,759 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:24,759 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:46:24,759 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:46:24,898 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED43100>
+2026-04-04 19:46:24,899 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:46:24,899 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:46:24,899 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:46:24,899 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:46:24,899 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:46:25,100 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'2cbc0ae8825554e731e8965403248a88'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:46:24 GMT'), (b'EO-LOG-UUID', b'11518965682529983112'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:46:25,100 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:46:25,100 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:46:26,228 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1470.91ms
+2026-04-04 19:46:55,380 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:46:55,381 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=30623.58ms | chunk数=1390
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N002 | 耗时: 30623.67ms | 响应长度=2337字符
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N002
+2026-04-04 19:46:55,381 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(14≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N002 | 耗时: 0.08ms | 历史: 1 条
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N002
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N002
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N002 | 意图=itinerary | 工具调用=0次 | 总耗时=30624.87ms | 响应长度=2337字符
+2026-04-04 19:46:55,381 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N002 | 总耗时=30624.87ms
+2026-04-04 19:46:55,381 - __main__ - INFO - [N002] ✅ 成功 | 耗时=30624.96ms | 响应长度=2337字符
+2026-04-04 19:46:55,381 - __main__ - DEBUG - [N002] 响应预览: 好的，收到您的需求！为您规划一份**上海5天4晚，预算约3000元**的行程方案。这个预算需要精打细算，但完全可以体验到上海的经典与现代。方案以经济型住宿和公共交通为主，兼顾标志性景点、文化体验和美食...
+2026-04-04 19:46:55,381 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N002 | 耗时=0.00ms
+2026-04-04 19:46:55,382 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:46:55,882 - __main__ - INFO - 
+>>> 进度: 3/10
+2026-04-04 19:46:55,883 - __main__ - INFO - 
+2026-04-04 19:46:55,883 - __main__ - INFO - ================================================================================
+2026-04-04 19:46:55,883 - __main__ - INFO - [NORMAL] 测试用例: N003 | 消息: 推荐一些西安的景点
+2026-04-04 19:46:55,883 - __main__ - INFO - ================================================================================
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N003 | user=test_user | 输入长度=9字符
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N003 | 输入长度=9字符
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N003 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N003 | 输入: 推荐一些西安的景点...
+2026-04-04 19:46:55,883 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 西安
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N003 | 耗时: 0.17ms | 意图=query | 置信度=1.00 | 方法=keyword | 目的地=西安 | 日期=无
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N003
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N003 | 耗时: 0.04ms | 历史: 1 条
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N003
+2026-04-04 19:46:55,883 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:46:55,883 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:46:55,883 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:46:55,883 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N003 | 耗时: 0.17ms | 历史: 1 条
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N003 | 意图=query
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=query，开始工具调用
+2026-04-04 19:46:55,883 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N003 | 耗时: 0.09ms | 工具调用=0次
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N003
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=西安 | 上下文长度=19字符
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N003 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N003 | 上下文长度=19字符
+2026-04-04 19:46:55,883 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:46:55,884 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:46:55,885 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED41F30>
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:46:55,885 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:46:55,885 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:46:56,001 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDB30B0>
+2026-04-04 19:46:56,001 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:46:56,001 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:46:56,001 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:46:56,001 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:46:56,001 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:46:56,303 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'a1ed4f7ffb9e311a2eab9810ff4baaa0'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:46:55 GMT'), (b'EO-LOG-UUID', b'9776992708630892470'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:46:56,303 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:46:56,303 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:46:56,952 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1068.67ms
+2026-04-04 19:47:05,917 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:47:05,917 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=10034.12ms | chunk数=465
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N003 | 耗时: 10034.22ms | 响应长度=805字符
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N003
+2026-04-04 19:47:05,918 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(10≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N003 | 耗时: 0.08ms | 历史: 1 条
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N003
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N003
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N003 | 意图=query | 工具调用=0次 | 总耗时=10035.15ms | 响应长度=805字符
+2026-04-04 19:47:05,918 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N003 | 总耗时=10035.15ms
+2026-04-04 19:47:05,918 - __main__ - INFO - [N003] ✅ 成功 | 耗时=10035.23ms | 响应长度=805字符
+2026-04-04 19:47:05,918 - __main__ - DEBUG - [N003] 响应预览: 西安是中国历史文化名城，拥有丰富的古迹和景点。以下是一些经典推荐：
+
+### 🏛️ **历史文化类**
+1. **兵马俑博物馆**  
+   - 世界第八大奇迹，秦始皇陵的陪葬坑，规模宏大。
+2. *...
+2026-04-04 19:47:05,918 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N003 | 耗时=0.00ms
+2026-04-04 19:47:05,918 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:47:06,428 - __main__ - INFO - 
+>>> 进度: 4/10
+2026-04-04 19:47:06,428 - __main__ - INFO - 
+2026-04-04 19:47:06,428 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:06,428 - __main__ - INFO - [NORMAL] 测试用例: N004 | 消息: 我想去成都看大熊猫
+2026-04-04 19:47:06,428 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:06,428 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N004 | user=test_user | 输入长度=9字符
+2026-04-04 19:47:06,428 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N004 | 输入长度=9字符
+2026-04-04 19:47:06,428 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N004 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:47:06,428 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N004 | 输入: 我想去成都看大熊猫...
+2026-04-04 19:47:06,428 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 成都
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N004 | 耗时: 0.12ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=成都 | 日期=无
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N004
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N004 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N004
+2026-04-04 19:47:06,429 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:06,429 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:06,429 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:47:06,429 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.08ms
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N004 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N004 | 意图=chat
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N004 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N004
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=成都 | 上下文长度=19字符
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N004 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N004 | 上下文长度=19字符
+2026-04-04 19:47:06,429 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:47:06,429 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:47:06,430 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED838A0>
+2026-04-04 19:47:06,430 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:06,430 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:06,430 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:06,430 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:06,430 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:06,431 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:47:06,431 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:47:06,552 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED83460>
+2026-04-04 19:47:06,552 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:06,553 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:06,553 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:47:06,553 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:06,553 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:06,706 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'0e5b0a1216b67564b1cb06d971dffb98'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:47:06 GMT'), (b'EO-LOG-UUID', b'8566428138849946517'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:47:06,707 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:47:06,707 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:47:07,671 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1241.53ms
+2026-04-04 19:47:17,628 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:47:17,628 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=11199.01ms | chunk数=494
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N004 | 耗时: 11199.10ms | 响应长度=821字符
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N004
+2026-04-04 19:47:17,628 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(10≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N004 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N004
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N004
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N004 | 意图=chat | 工具调用=0次 | 总耗时=11199.89ms | 响应长度=821字符
+2026-04-04 19:47:17,628 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N004 | 总耗时=11199.89ms
+2026-04-04 19:47:17,628 - __main__ - INFO - [N004] ✅ 成功 | 耗时=11199.96ms | 响应长度=821字符
+2026-04-04 19:47:17,628 - __main__ - DEBUG - [N004] 响应预览: 您好！很高兴为您规划成都的大熊猫之旅。🐼
+
+成都作为“大熊猫的故乡”，确实是观赏这些可爱国宝的最佳地点。以下是为您推荐的行程和实用信息：
+
+### 🎯 **核心景点推荐**
+1. **成都大熊猫繁育研...
+2026-04-04 19:47:17,628 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N004 | 耗时=0.00ms
+2026-04-04 19:47:17,629 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:47:18,131 - __main__ - INFO - 
+>>> 进度: 5/10
+2026-04-04 19:47:18,132 - __main__ - INFO - 
+2026-04-04 19:47:18,132 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:18,132 - __main__ - INFO - [NORMAL] 测试用例: N005 | 消息: 杭州有什么好玩的地方？
+2026-04-04 19:47:18,132 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N005 | user=test_user | 输入长度=11字符
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N005 | 输入长度=11字符
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N005 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N005 | 输入: 杭州有什么好玩的地方？...
+2026-04-04 19:47:18,132 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 杭州
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N005 | 耗时: 0.19ms | 意图=query | 置信度=1.00 | 方法=keyword | 目的地=杭州 | 日期=无
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N005
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N005 | 耗时: 0.02ms | 历史: 1 条
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N005
+2026-04-04 19:47:18,132 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:18,132 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:18,132 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:47:18,132 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N005 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N005 | 意图=query
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=query，开始工具调用
+2026-04-04 19:47:18,132 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N005 | 耗时: 0.07ms | 工具调用=0次
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N005
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=杭州 | 上下文长度=19字符
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N005 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N005 | 上下文长度=19字符
+2026-04-04 19:47:18,132 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:47:18,133 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:47:18,133 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDE4C50>
+2026-04-04 19:47:18,133 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:18,134 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:18,134 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:18,134 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:18,134 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:18,134 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:47:18,134 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:47:18,277 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDE4D50>
+2026-04-04 19:47:18,277 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:18,277 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:18,277 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:47:18,277 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:18,277 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:18,542 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'a3af94ee7c76f4089e4f8ab91bd209ba'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:47:17 GMT'), (b'EO-LOG-UUID', b'13153963780266767253'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:47:18,543 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:47:18,543 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:47:19,189 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1056.33ms
+2026-04-04 19:47:32,000 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:47:32,000 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:47:32,000 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=13868.00ms | chunk数=647
+2026-04-04 19:47:32,000 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N005 | 耗时: 13868.09ms | 响应长度=1026字符
+2026-04-04 19:47:32,000 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N005
+2026-04-04 19:47:32,000 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(11≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:47:32,001 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N005 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:47:32,001 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N005
+2026-04-04 19:47:32,001 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N005
+2026-04-04 19:47:32,001 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N005 | 意图=query | 工具调用=0次 | 总耗时=13868.95ms | 响应长度=1026字符
+2026-04-04 19:47:32,001 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N005 | 总耗时=13868.95ms
+2026-04-04 19:47:32,001 - __main__ - INFO - [N005] ✅ 成功 | 耗时=13869.03ms | 响应长度=1026字符
+2026-04-04 19:47:32,001 - __main__ - DEBUG - [N005] 响应预览: 杭州是一座充满诗情画意的城市，既有秀丽的自然风光，也有深厚的历史文化。以下是一些经典的必游景点和活动推荐，供您参考：
+
+### 🌳 **自然与历史名胜**
+1. **西湖** - 杭州的灵魂  
+  ...
+2026-04-04 19:47:32,001 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N005 | 耗时=0.00ms
+2026-04-04 19:47:32,001 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:47:32,510 - __main__ - INFO - 
+>>> 进度: 6/10
+2026-04-04 19:47:32,510 - __main__ - INFO - 
+2026-04-04 19:47:32,510 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:32,510 - __main__ - INFO - [NORMAL] 测试用例: N006 | 消息: 计划一次广州美食之旅
+2026-04-04 19:47:32,510 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N006 | user=test_user | 输入长度=10字符
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N006 | 输入长度=10字符
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N006 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N006 | 输入: 计划一次广州美食之旅...
+2026-04-04 19:47:32,510 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 广州
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N006 | 耗时: 0.16ms | 意图=itinerary | 置信度=1.00 | 方法=keyword | 目的地=广州 | 日期=无
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N006
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N006 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:47:32,510 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N006
+2026-04-04 19:47:32,510 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:32,510 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:32,511 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:47:32,511 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N006 | 耗时: 0.16ms | 历史: 1 条
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N006 | 意图=itinerary
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=itinerary，开始工具调用
+2026-04-04 19:47:32,511 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N006 | 耗时: 0.08ms | 工具调用=0次
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N006
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=广州 | 上下文长度=19字符
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N006 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N006 | 上下文长度=19字符
+2026-04-04 19:47:32,511 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:47:32,511 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:47:32,512 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE40320>
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:32,512 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:47:32,512 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:47:32,648 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE406E0>
+2026-04-04 19:47:32,649 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:32,649 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:32,649 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:47:32,649 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:32,649 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:33,102 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'72931bd3825925d955efd082dad82e25'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:47:32 GMT'), (b'EO-LOG-UUID', b'11262587806073018631'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:47:33,102 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:47:33,102 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:47:33,753 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1241.87ms
+2026-04-04 19:47:49,707 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:47:49,707 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=17196.05ms | chunk数=804
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N006 | 耗时: 17196.15ms | 响应长度=1254字符
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N006
+2026-04-04 19:47:49,707 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(10≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N006 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N006
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N006
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N006 | 意图=itinerary | 工具调用=0次 | 总耗时=17197.03ms | 响应长度=1254字符
+2026-04-04 19:47:49,707 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N006 | 总耗时=17197.03ms
+2026-04-04 19:47:49,707 - __main__ - INFO - [N006] ✅ 成功 | 耗时=17197.11ms | 响应长度=1254字符
+2026-04-04 19:47:49,707 - __main__ - DEBUG - [N006] 响应预览: ## 广州美食之旅行程规划（3天2夜）
+
+### **行程亮点**
+- 品尝地道粤菜、广式点心、街头小吃
+- 体验老字号茶楼与新兴美食街区
+- 结合美食探索与岭南文化景点
+
+---
+
+### **Da...
+2026-04-04 19:47:49,707 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N006 | 耗时=0.00ms
+2026-04-04 19:47:49,707 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:47:50,210 - __main__ - INFO - 
+>>> 进度: 7/10
+2026-04-04 19:47:50,214 - __main__ - INFO - 
+2026-04-04 19:47:50,214 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:50,214 - __main__ - INFO - [NORMAL] 测试用例: N007 | 消息: 深圳有哪些必去的地方？
+2026-04-04 19:47:50,214 - __main__ - INFO - ================================================================================
+2026-04-04 19:47:50,214 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N007 | user=test_user | 输入长度=11字符
+2026-04-04 19:47:50,214 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N007 | 输入长度=11字符
+2026-04-04 19:47:50,214 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N007 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:47:50,214 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N007 | 输入: 深圳有哪些必去的地方？...
+2026-04-04 19:47:50,214 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 深圳
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N007 | 耗时: 0.12ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=深圳 | 日期=无
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N007
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N007 | 耗时: 0.02ms | 历史: 1 条
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N007
+2026-04-04 19:47:50,215 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:50,215 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:47:50,215 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:47:50,215 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.08ms
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N007 | 耗时: 0.13ms | 历史: 1 条
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N007 | 意图=chat
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N007 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N007
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=深圳 | 上下文长度=19字符
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N007 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N007 | 上下文长度=19字符
+2026-04-04 19:47:50,215 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:47:50,215 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:47:50,216 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE0DE10>
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:47:50,216 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:47:50,217 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:47:50,318 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE0E510>
+2026-04-04 19:47:50,318 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:50,318 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:47:50,318 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:47:50,318 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:47:50,318 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:47:50,433 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'21b99ce011c075f77abfe19c2c7a5115'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:47:49 GMT'), (b'EO-LOG-UUID', b'13761017077643406645'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:47:50,433 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:47:50,433 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:47:51,700 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1485.13ms
+2026-04-04 19:48:05,010 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:05,010 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:05,010 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=14795.46ms | chunk数=650
+2026-04-04 19:48:05,010 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N007 | 耗时: 14795.55ms | 响应长度=1179字符
+2026-04-04 19:48:05,010 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N007
+2026-04-04 19:48:05,011 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(11≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:05,011 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N007 | 耗时: 0.08ms | 历史: 1 条
+2026-04-04 19:48:05,011 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N007
+2026-04-04 19:48:05,011 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N007
+2026-04-04 19:48:05,011 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N007 | 意图=chat | 工具调用=0次 | 总耗时=14796.30ms | 响应长度=1179字符
+2026-04-04 19:48:05,011 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N007 | 总耗时=14796.30ms
+2026-04-04 19:48:05,011 - __main__ - INFO - [N007] ✅ 成功 | 耗时=14796.37ms | 响应长度=1179字符
+2026-04-04 19:48:05,011 - __main__ - DEBUG - [N007] 响应预览: 深圳作为中国最具活力的城市之一，融合了现代都市、自然风光和文化创意。以下是几个必去的地方，适合不同兴趣的游客：
+
+### 1. **深圳湾公园**
+   - **亮点**：沿海长廊，适合散步、骑行，欣...
+2026-04-04 19:48:05,011 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N007 | 耗时=0.00ms
+2026-04-04 19:48:05,011 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:05,521 - __main__ - INFO - 
+>>> 进度: 8/10
+2026-04-04 19:48:05,521 - __main__ - INFO - 
+2026-04-04 19:48:05,521 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:05,521 - __main__ - INFO - [NORMAL] 测试用例: N008 | 消息: 我想去云南旅游，大概7天
+2026-04-04 19:48:05,521 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:05,521 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N008 | user=test_user | 输入长度=12字符
+2026-04-04 19:48:05,521 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N008 | 输入长度=12字符
+2026-04-04 19:48:05,521 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N008 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:05,521 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N008 | 输入: 我想去云南旅游，大概7天...
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N008 | 耗时: 0.14ms | 意图=itinerary | 置信度=1.00 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N008
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N008 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N008
+2026-04-04 19:48:05,522 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:05,522 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:05,522 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:05,522 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N008 | 耗时: 0.15ms | 历史: 1 条
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N008 | 意图=itinerary
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=itinerary，开始工具调用
+2026-04-04 19:48:05,522 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N008 | 耗时: 0.07ms | 工具调用=0次
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N008
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N008 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N008 | 上下文长度=0字符
+2026-04-04 19:48:05,522 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:05,522 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:05,523 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDB6340>
+2026-04-04 19:48:05,523 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:05,524 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:05,524 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:05,524 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:05,524 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:05,524 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:05,524 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:05,648 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED36BD0>
+2026-04-04 19:48:05,648 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:05,648 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:05,648 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:05,649 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:05,649 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:05,830 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'02430e5eae59b04e18bd56c948491dd5'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:05 GMT'), (b'EO-LOG-UUID', b'7283629728774625809'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:05,830 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:05,830 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:06,561 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1038.81ms
+2026-04-04 19:48:21,812 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:21,812 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=16289.95ms | chunk数=792
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N008 | 耗时: 16290.04ms | 响应长度=1396字符
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N008
+2026-04-04 19:48:21,812 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(12≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N008 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N008
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N008
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N008 | 意图=itinerary | 工具调用=0次 | 总耗时=16290.89ms | 响应长度=1396字符
+2026-04-04 19:48:21,812 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N008 | 总耗时=16290.89ms
+2026-04-04 19:48:21,812 - __main__ - INFO - [N008] ✅ 成功 | 耗时=16290.97ms | 响应长度=1396字符
+2026-04-04 19:48:21,812 - __main__ - DEBUG - [N008] 响应预览: 您好！云南是一个风景优美、文化多样的绝佳旅游目的地。7天的时间可以安排一次非常精彩的旅程。以下是一个经典的 **7天云南旅游行程建议**，涵盖昆明、大理、丽江等热门目的地，供您参考：
+
+---
+
+##...
+2026-04-04 19:48:21,812 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N008 | 耗时=0.00ms
+2026-04-04 19:48:21,813 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:22,314 - __main__ - INFO - 
+>>> 进度: 9/10
+2026-04-04 19:48:22,314 - __main__ - INFO - 
+2026-04-04 19:48:22,314 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:22,314 - __main__ - INFO - [NORMAL] 测试用例: N009 | 消息: 推荐一下厦门的海边景点
+2026-04-04 19:48:22,314 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N009 | user=test_user | 输入长度=11字符
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N009 | 输入长度=11字符
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N009 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N009 | 输入: 推荐一下厦门的海边景点...
+2026-04-04 19:48:22,314 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 厦门
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N009 | 耗时: 0.14ms | 意图=query | 置信度=1.00 | 方法=keyword | 目的地=厦门 | 日期=无
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N009
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N009 | 耗时: 0.02ms | 历史: 1 条
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N009
+2026-04-04 19:48:22,314 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:22,314 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:22,314 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:22,314 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N009 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N009 | 意图=query
+2026-04-04 19:48:22,314 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=query，开始工具调用
+2026-04-04 19:48:22,314 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N009 | 耗时: 0.07ms | 工具调用=0次
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N009
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=厦门 | 上下文长度=19字符
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N009 | 耗时: 0.05ms | 上下文长度=19字符
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N009 | 上下文长度=19字符
+2026-04-04 19:48:22,315 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=19字符 | 历史消息数=1
+2026-04-04 19:48:22,315 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:22,316 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED37050>
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:22,316 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:22,316 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:22,479 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ECB6FC0>
+2026-04-04 19:48:22,479 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:22,479 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:22,479 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:22,479 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:22,479 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:22,718 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'8dc00cc1eac1d331f5f4e1c2f0f95dd1'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:22 GMT'), (b'EO-LOG-UUID', b'6198063360356708414'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:22,718 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:22,719 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:23,750 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1435.65ms
+2026-04-04 19:48:35,490 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:35,491 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=13176.19ms | chunk数=577
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N009 | 耗时: 13176.30ms | 响应长度=985字符
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N009
+2026-04-04 19:48:35,491 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(11≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N009 | 耗时: 0.09ms | 历史: 1 条
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N009
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N009
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N009 | 意图=query | 工具调用=0次 | 总耗时=13177.14ms | 响应长度=985字符
+2026-04-04 19:48:35,491 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N009 | 总耗时=13177.14ms
+2026-04-04 19:48:35,491 - __main__ - INFO - [N009] ✅ 成功 | 耗时=13177.23ms | 响应长度=985字符
+2026-04-04 19:48:35,491 - __main__ - DEBUG - [N009] 响应预览: 厦门作为一座美丽的海滨城市，拥有许多值得一去的海边景点。以下是一些推荐，涵盖不同特色和体验：
+
+---
+
+### **1. 鼓浪屿**
+- **特色**：世界文化遗产，融合了历史建筑、文艺小店和海岸风...
+2026-04-04 19:48:35,491 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N009 | 耗时=0.00ms
+2026-04-04 19:48:35,491 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:36,005 - __main__ - INFO - 
+>>> 进度: 10/10
+2026-04-04 19:48:36,005 - __main__ - INFO - 
+2026-04-04 19:48:36,005 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:36,005 - __main__ - INFO - [NORMAL] 测试用例: N010 | 消息: 我想去哈尔滨看冰雪大世界
+2026-04-04 19:48:36,005 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:36,005 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_N010 | user=test_user | 输入长度=12字符
+2026-04-04 19:48:36,005 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_N010 | 输入长度=12字符
+2026-04-04 19:48:36,005 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_N010 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:36,005 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_N010 | 输入: 我想去哈尔滨看冰雪大世界...
+2026-04-04 19:48:36,009 - app.core.intent.slot_extractor - DEBUG - [SlotExtractor] Found city: 哈尔滨
+2026-04-04 19:48:36,009 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_N010 | 耗时: 4.48ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=哈尔滨 | 日期=无
+2026-04-04 19:48:36,009 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_N010
+2026-04-04 19:48:36,009 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_N010 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:36,009 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_N010
+2026-04-04 19:48:36,010 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:36,010 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:36,010 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:36,010 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_N010 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_N010 | 意图=chat
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_N010 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_N010
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=哈尔滨 | 上下文长度=20字符
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_N010 | 耗时: 0.05ms | 上下文长度=20字符
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_N010 | 上下文长度=20字符
+2026-04-04 19:48:36,010 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=20字符 | 历史消息数=1
+2026-04-04 19:48:36,010 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:36,011 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ECB7960>
+2026-04-04 19:48:36,011 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:36,011 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:36,011 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:36,011 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:36,011 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:36,014 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:36,014 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:36,170 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE15590>
+2026-04-04 19:48:36,170 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:36,171 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:36,171 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:36,171 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:36,171 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:36,313 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'05d5fbe7ed3d312df69672530d160f38'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:35 GMT'), (b'EO-LOG-UUID', b'10777922378994481339'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:36,313 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:36,313 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:37,197 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1187.32ms
+2026-04-04 19:48:44,764 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:44,764 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=8754.42ms | chunk数=353
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_N010 | 耗时: 8754.52ms | 响应长度=587字符
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_N010
+2026-04-04 19:48:44,764 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(11≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_N010 | 耗时: 0.08ms | 历史: 1 条
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_N010
+2026-04-04 19:48:44,764 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_N010
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_N010 | 意图=chat | 工具调用=0次 | 总耗时=8759.69ms | 响应长度=587字符
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_N010 | 总耗时=8759.69ms
+2026-04-04 19:48:44,765 - __main__ - INFO - [N010] ✅ 成功 | 耗时=8759.76ms | 响应长度=587字符
+2026-04-04 19:48:44,765 - __main__ - DEBUG - [N010] 响应预览: 哈尔滨冰雪大世界是冬季旅游的绝佳选择！以下是相关信息和建议，帮助您规划行程：
+
+### **基本信息**
+- **开放时间**：通常在每年12月下旬至次年2月底（具体日期每年略有调整，建议出行前确认）...
+2026-04-04 19:48:44,765 - __main__ - INFO - 
+2026-04-04 19:48:44,765 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:44,765 - __main__ - INFO - 开始测试批次: ABNORMAL | 用例数: 10
+2026-04-04 19:48:44,765 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:44,765 - __main__ - INFO - 
+>>> 进度: 1/10
+2026-04-04 19:48:44,765 - __main__ - INFO - 
+2026-04-04 19:48:44,765 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:44,765 - __main__ - INFO - [ABNORMAL] 测试用例: A001 | 消息: 今天天气怎么样？
+2026-04-04 19:48:44,765 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A001 | user=test_user | 输入长度=8字符
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A001 | 输入长度=8字符
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A001 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A001 | 输入: 今天天气怎么样？...
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A001 | 耗时: 0.16ms | 意图=query | 置信度=0.90 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A001
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A001 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A001
+2026-04-04 19:48:44,765 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:44,765 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:44,765 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:44,765 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A001 | 耗时: 0.15ms | 历史: 1 条
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A001 | 意图=query
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [TOOLS] 🔍 意图=query，开始工具调用
+2026-04-04 19:48:44,765 - app.core.query_engine - WARNING - [TOOLS] ⚠️ 没有可用工具
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A001 | 耗时: 0.08ms | 工具调用=0次
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A001
+2026-04-04 19:48:44,765 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:44,766 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A001 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:48:44,766 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A001 | 上下文长度=0字符
+2026-04-04 19:48:44,766 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:44,766 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_N010 | 耗时=0.00ms
+2026-04-04 19:48:44,766 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:44,767 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE15450>
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:44,767 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:44,767 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:44,768 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:44,862 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9ED3AF90>
+2026-04-04 19:48:44,863 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:44,863 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:44,863 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:44,863 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:44,863 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:45,062 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'b61b065de28e5a83065c57b46412baaa'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:44 GMT'), (b'EO-LOG-UUID', b'15553821826750140691'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:45,062 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:45,062 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:45,872 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1106.03ms
+2026-04-04 19:48:48,372 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:48,372 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=3606.57ms | chunk数=114
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A001 | 耗时: 3606.66ms | 响应长度=198字符
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A001
+2026-04-04 19:48:48,372 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(9≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A001 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A001
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A001
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A001 | 意图=query | 工具调用=0次 | 总耗时=3607.53ms | 响应长度=198字符
+2026-04-04 19:48:48,372 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A001 | 总耗时=3607.53ms
+2026-04-04 19:48:48,372 - __main__ - INFO - [A001] ✅ 成功 | 耗时=3607.59ms | 响应长度=198字符
+2026-04-04 19:48:48,372 - __main__ - DEBUG - [A001] 响应预览: 您好！作为旅游助手，我目前无法直接获取实时天气数据。为了给您最准确的天气信息，建议您：
+
+1. **查看天气预报应用**：如中国天气网、墨迹天气等
+2. **使用搜索引擎**：直接搜索“您所在城市+天...
+2026-04-04 19:48:48,373 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A001 | 耗时=0.00ms
+2026-04-04 19:48:48,373 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:48,879 - __main__ - INFO - 
+>>> 进度: 2/10
+2026-04-04 19:48:48,879 - __main__ - INFO - 
+2026-04-04 19:48:48,879 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:48,879 - __main__ - INFO - [ABNORMAL] 测试用例: A002 | 消息: 你好
+2026-04-04 19:48:48,880 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A002 | user=test_user | 输入长度=2字符
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A002 | 输入长度=2字符
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A002 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A002 | 输入: 你好...
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A002 | 耗时: 0.09ms | 意图=chat | 置信度=1.00 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A002
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A002 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A002
+2026-04-04 19:48:48,880 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:48,880 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:48,880 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:48,880 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A002 | 耗时: 0.15ms | 历史: 1 条
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A002 | 意图=chat
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A002 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A002
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A002 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A002 | 上下文长度=0字符
+2026-04-04 19:48:48,880 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:48,880 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:48,881 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE1BED0>
+2026-04-04 19:48:48,881 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:48,882 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:48,882 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:48,882 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:48,882 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:48,882 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:48,882 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:49,004 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE19ED0>
+2026-04-04 19:48:49,004 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:49,004 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:49,004 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:49,004 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:49,004 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:49,130 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'0a390d91ba4d1e5e1caa845da92fac1f'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:48 GMT'), (b'EO-LOG-UUID', b'9450335045870331354'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:49,130 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:49,130 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:50,290 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1409.89ms
+2026-04-04 19:48:51,082 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:51,083 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=2202.55ms | chunk数=38
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A002 | 耗时: 2202.64ms | 响应长度=66字符
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A002
+2026-04-04 19:48:51,083 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(6≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A002 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A002
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A002
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A002 | 意图=chat | 工具调用=0次 | 总耗时=2203.39ms | 响应长度=66字符
+2026-04-04 19:48:51,083 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A002 | 总耗时=2203.39ms
+2026-04-04 19:48:51,083 - __main__ - INFO - [A002] ✅ 成功 | 耗时=2203.45ms | 响应长度=66字符
+2026-04-04 19:48:51,083 - __main__ - DEBUG - [A002] 响应预览: 你好！很高兴为你提供旅游帮助！😊 无论你想规划行程、了解景点、查询天气交通，还是需要个性化建议，我都可以协助你。请告诉我你的需求吧！
+2026-04-04 19:48:51,083 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A002 | 耗时=0.00ms
+2026-04-04 19:48:51,083 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:51,587 - __main__ - INFO - 
+>>> 进度: 3/10
+2026-04-04 19:48:51,587 - __main__ - INFO - 
+2026-04-04 19:48:51,587 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:51,587 - __main__ - INFO - [ABNORMAL] 测试用例: A003 | 消息: 你叫什么名字？
+2026-04-04 19:48:51,588 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A003 | user=test_user | 输入长度=7字符
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A003 | 输入长度=7字符
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A003 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A003 | 输入: 你叫什么名字？...
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A003 | 耗时: 0.21ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A003
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A003 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A003
+2026-04-04 19:48:51,588 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:51,588 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:51,588 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:51,588 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.11ms
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A003 | 耗时: 0.17ms | 历史: 1 条
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A003 | 意图=chat
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A003 | 耗时: 0.05ms | 工具调用=0次
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A003
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A003 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A003 | 上下文长度=0字符
+2026-04-04 19:48:51,588 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:51,589 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:51,590 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDCBA80>
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:51,590 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:51,590 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:51,787 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDCB9A0>
+2026-04-04 19:48:51,787 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:51,787 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:51,787 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:51,787 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:51,787 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:51,916 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'3ec1bd8b8a3276e418d59e15300fe199'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:51 GMT'), (b'EO-LOG-UUID', b'14024931973284745915'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:51,916 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:51,917 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:53,161 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1572.59ms
+2026-04-04 19:48:53,882 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:53,882 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=2294.17ms | chunk数=29
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A003 | 耗时: 2294.27ms | 响应长度=51字符
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A003
+2026-04-04 19:48:53,883 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(9≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A003 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A003
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A003
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A003 | 意图=chat | 工具调用=0次 | 总耗时=2295.28ms | 响应长度=51字符
+2026-04-04 19:48:53,883 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A003 | 总耗时=2295.28ms
+2026-04-04 19:48:53,883 - __main__ - INFO - [A003] ✅ 成功 | 耗时=2295.34ms | 响应长度=51字符
+2026-04-04 19:48:53,883 - __main__ - DEBUG - [A003] 响应预览: 你好！我是你的旅游助手AI，可以叫我“旅行小助手”或者直接叫我助手。有什么旅行方面的问题需要帮助吗？😊
+2026-04-04 19:48:53,883 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A003 | 耗时=0.00ms
+2026-04-04 19:48:53,883 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:54,389 - __main__ - INFO - 
+>>> 进度: 4/10
+2026-04-04 19:48:54,389 - __main__ - INFO - 
+2026-04-04 19:48:54,389 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:54,389 - __main__ - INFO - [ABNORMAL] 测试用例: A004 | 消息: 123456
+2026-04-04 19:48:54,389 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A004 | user=test_user | 输入长度=6字符
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A004 | 输入长度=6字符
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A004 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A004 | 输入: 123456...
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A004 | 耗时: 0.11ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A004
+2026-04-04 19:48:54,389 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A004 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A004
+2026-04-04 19:48:54,390 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:54,390 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:54,390 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:54,390 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A004 | 耗时: 0.15ms | 历史: 1 条
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A004 | 意图=chat
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A004 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A004
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A004 | 耗时: 0.04ms | 上下文长度=0字符
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A004 | 上下文长度=0字符
+2026-04-04 19:48:54,390 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:54,390 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:54,391 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDF1D90>
+2026-04-04 19:48:54,391 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:54,391 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:54,391 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:54,391 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:54,391 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:54,392 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:54,392 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:54,500 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EDF2150>
+2026-04-04 19:48:54,501 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:54,501 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:54,501 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:54,501 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:54,501 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:54,676 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'40656a138d1e7ade3ca0fcc233f13361'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:54 GMT'), (b'EO-LOG-UUID', b'13660890982644581262'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:54,676 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:54,676 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:55,569 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1179.17ms
+2026-04-04 19:48:57,676 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:48:57,677 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=3287.04ms | chunk数=94
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A004 | 耗时: 3287.13ms | 响应长度=171字符
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A004
+2026-04-04 19:48:57,677 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(7≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A004 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A004
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A004
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A004 | 意图=chat | 工具调用=0次 | 总耗时=3287.90ms | 响应长度=171字符
+2026-04-04 19:48:57,677 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A004 | 总耗时=3287.90ms
+2026-04-04 19:48:57,677 - __main__ - INFO - [A004] ✅ 成功 | 耗时=3287.97ms | 响应长度=171字符
+2026-04-04 19:48:57,677 - __main__ - DEBUG - [A004] 响应预览: 您好！我是您的旅游助手，很高兴为您服务！😊
+
+我看到您发送了一串数字“123456”，请问这是有什么特殊含义吗？或者您是想了解某个地方的旅游信息呢？
+
+请告诉我您需要什么帮助，比如：
+- 您想去哪里旅...
+2026-04-04 19:48:57,677 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A004 | 耗时=0.00ms
+2026-04-04 19:48:57,677 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:48:58,178 - __main__ - INFO - 
+>>> 进度: 5/10
+2026-04-04 19:48:58,178 - __main__ - INFO - 
+2026-04-04 19:48:58,179 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:58,179 - __main__ - INFO - [ABNORMAL] 测试用例: A005 | 消息: 帮我查一下快递
+2026-04-04 19:48:58,179 - __main__ - INFO - ================================================================================
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A005 | user=test_user | 输入长度=7字符
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A005 | 输入长度=7字符
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A005 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A005 | 输入: 帮我查一下快递...
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A005 | 耗时: 0.16ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A005
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A005 | 耗时: 0.04ms | 历史: 1 条
+2026-04-04 19:48:58,179 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A005
+2026-04-04 19:48:58,179 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:58,179 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:48:58,179 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:48:58,180 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A005 | 耗时: 0.18ms | 历史: 1 条
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A005 | 意图=chat
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A005 | 耗时: 0.05ms | 工具调用=0次
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A005
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A005 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A005 | 上下文长度=0字符
+2026-04-04 19:48:58,180 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:48:58,180 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:48:58,181 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE12210>
+2026-04-04 19:48:58,181 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:58,181 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:58,181 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:58,181 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:58,181 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:48:58,195 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:48:58,195 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:48:58,344 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE121C0>
+2026-04-04 19:48:58,344 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:58,344 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:48:58,344 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:48:58,344 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:48:58,344 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:48:58,470 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'322e16959c9471fa848ab61c4a2e71ad'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:48:57 GMT'), (b'EO-LOG-UUID', b'10324632770040492795'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:48:58,470 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:48:58,470 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:48:59,221 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1041.07ms
+2026-04-04 19:49:01,642 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:01,643 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=3462.97ms | chunk数=123
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A005 | 耗时: 3463.08ms | 响应长度=199字符
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A005
+2026-04-04 19:49:01,643 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(9≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A005 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A005
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A005
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A005 | 意图=chat | 工具调用=0次 | 总耗时=3464.38ms | 响应长度=199字符
+2026-04-04 19:49:01,643 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A005 | 总耗时=3464.38ms
+2026-04-04 19:49:01,643 - __main__ - INFO - [A005] ✅ 成功 | 耗时=3464.45ms | 响应长度=199字符
+2026-04-04 19:49:01,643 - __main__ - DEBUG - [A005] 响应预览: 目前我无法直接查询快递信息，但您可以尝试以下方式：
+
+1. **查询快递单号**：在快递公司官网或APP（如顺丰、中通、圆通、申通等）输入您的快递单号进行查询。
+2. **联系发件人**：请发件人提供...
+2026-04-04 19:49:01,643 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A005 | 耗时=0.00ms
+2026-04-04 19:49:01,643 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:49:02,148 - __main__ - INFO - 
+>>> 进度: 6/10
+2026-04-04 19:49:02,148 - __main__ - INFO - 
+2026-04-04 19:49:02,148 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:02,148 - __main__ - INFO - [ABNORMAL] 测试用例: A006 | 消息: 今天吃什么？
+2026-04-04 19:49:02,148 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:02,148 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A006 | user=test_user | 输入长度=6字符
+2026-04-04 19:49:02,148 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A006 | 输入长度=6字符
+2026-04-04 19:49:02,148 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A006 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:49:02,148 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A006 | 输入: 今天吃什么？...
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A006 | 耗时: 0.13ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A006
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A006 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A006
+2026-04-04 19:49:02,149 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:02,149 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:02,149 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:49:02,149 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A006 | 耗时: 0.17ms | 历史: 1 条
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A006 | 意图=chat
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A006 | 耗时: 0.05ms | 工具调用=0次
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A006
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A006 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A006 | 上下文长度=0字符
+2026-04-04 19:49:02,149 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:49:02,150 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:49:02,150 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE11630>
+2026-04-04 19:49:02,150 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:02,151 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:02,151 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:02,151 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:02,151 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:02,151 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:49:02,151 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:49:02,323 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE12490>
+2026-04-04 19:49:02,323 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:02,323 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:02,323 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:49:02,323 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:02,323 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:03,397 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'212560a03a4aa02f6d41d6d48f53445a'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:49:01 GMT'), (b'EO-LOG-UUID', b'12428205787046619503'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:49:03,397 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:49:03,397 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:49:03,574 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1424.70ms
+2026-04-04 19:49:04,737 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:04,737 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=2587.96ms | chunk数=54
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A006 | 耗时: 2588.05ms | 响应长度=99字符
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A006
+2026-04-04 19:49:04,737 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(8≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A006 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A006
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A006
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A006 | 意图=chat | 工具调用=0次 | 总耗时=2589.04ms | 响应长度=99字符
+2026-04-04 19:49:04,737 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A006 | 总耗时=2589.04ms
+2026-04-04 19:49:04,737 - __main__ - INFO - [A006] ✅ 成功 | 耗时=2589.11ms | 响应长度=99字符
+2026-04-04 19:49:04,738 - __main__ - DEBUG - [A006] 响应预览: 哈哈，这个问题虽然和旅游不直接相关，但作为你的助手，我可以试着帮你想想！如果你正在旅行中，可以告诉我你在哪个城市，我可以推荐当地的特色美食。如果是在家，也可以说说你的口味偏好，我来给你一些灵感哦！😊
+2026-04-04 19:49:04,738 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A006 | 耗时=0.00ms
+2026-04-04 19:49:04,738 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:49:05,239 - __main__ - INFO - 
+>>> 进度: 7/10
+2026-04-04 19:49:05,239 - __main__ - INFO - 
+2026-04-04 19:49:05,239 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:05,239 - __main__ - INFO - [ABNORMAL] 测试用例: A007 | 消息: 讲个笑话
+2026-04-04 19:49:05,239 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A007 | user=test_user | 输入长度=4字符
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A007 | 输入长度=4字符
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A007 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A007 | 输入: 讲个笑话...
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A007 | 耗时: 0.09ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A007
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A007 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:49:05,239 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A007
+2026-04-04 19:49:05,239 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:05,239 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:05,239 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:49:05,240 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A007 | 耗时: 0.14ms | 历史: 1 条
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A007 | 意图=chat
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A007 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A007
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A007 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A007 | 上下文长度=0字符
+2026-04-04 19:49:05,240 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:49:05,240 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:49:05,241 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE10A00>
+2026-04-04 19:49:05,241 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:05,241 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:05,241 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:05,241 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:05,241 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:05,242 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:49:05,242 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:49:05,360 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE111D0>
+2026-04-04 19:49:05,361 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:05,361 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:05,361 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:49:05,361 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:05,361 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:05,509 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'5ad6c28c46aeba44bbeabc1d1d1f9972'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:49:04 GMT'), (b'EO-LOG-UUID', b'15068314443206328059'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:49:05,509 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:49:05,510 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:49:06,238 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=998.20ms
+2026-04-04 19:49:07,170 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:07,171 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=1931.08ms | chunk数=41
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A007 | 耗时: 1931.20ms | 响应长度=65字符
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A007
+2026-04-04 19:49:07,171 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(7≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A007 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A007
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A007
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A007 | 意图=chat | 工具调用=0次 | 总耗时=1932.01ms | 响应长度=65字符
+2026-04-04 19:49:07,171 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A007 | 总耗时=1932.01ms
+2026-04-04 19:49:07,171 - __main__ - INFO - [A007] ✅ 成功 | 耗时=1932.07ms | 响应长度=65字符
+2026-04-04 19:49:07,171 - __main__ - DEBUG - [A007] 响应预览: 为什么企鹅不会飞？  
+——因为它们已经够“冷”了，不需要再“飞”到天上吹风！😄  
+（需要旅行相关的笑话或建议，随时告诉我哦！）
+2026-04-04 19:49:07,171 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A007 | 耗时=0.00ms
+2026-04-04 19:49:07,171 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:49:07,676 - __main__ - INFO - 
+>>> 进度: 8/10
+2026-04-04 19:49:07,676 - __main__ - INFO - 
+2026-04-04 19:49:07,676 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:07,676 - __main__ - INFO - [ABNORMAL] 测试用例: A008 | 消息: 我失恋了
+2026-04-04 19:49:07,676 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A008 | user=test_user | 输入长度=4字符
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A008 | 输入长度=4字符
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A008 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A008 | 输入: 我失恋了...
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A008 | 耗时: 0.21ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A008
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A008 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:49:07,676 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A008
+2026-04-04 19:49:07,676 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:07,676 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:07,676 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:49:07,676 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.10ms
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A008 | 耗时: 0.16ms | 历史: 1 条
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A008 | 意图=chat
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A008 | 耗时: 0.25ms | 工具调用=0次
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A008
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A008 | 耗时: 0.06ms | 上下文长度=0字符
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A008 | 上下文长度=0字符
+2026-04-04 19:49:07,677 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:49:07,677 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:49:07,678 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE11B30>
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:07,678 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:49:07,679 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:49:07,776 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE10870>
+2026-04-04 19:49:07,776 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:07,776 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:07,776 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:49:07,776 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:07,776 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:07,925 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'b8a473186f172cf77f6998467d1f48bb'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:49:07 GMT'), (b'EO-LOG-UUID', b'10933823693154122270'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:49:07,925 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:49:07,926 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:49:08,617 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=940.35ms
+2026-04-04 19:49:10,281 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:10,281 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=2604.24ms | chunk数=74
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A008 | 耗时: 2604.33ms | 响应长度=124字符
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A008
+2026-04-04 19:49:10,281 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(7≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A008 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A008
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A008
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A008 | 意图=chat | 工具调用=0次 | 总耗时=2605.47ms | 响应长度=124字符
+2026-04-04 19:49:10,281 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A008 | 总耗时=2605.47ms
+2026-04-04 19:49:10,281 - __main__ - INFO - [A008] ✅ 成功 | 耗时=2605.54ms | 响应长度=124字符
+2026-04-04 19:49:10,281 - __main__ - DEBUG - [A008] 响应预览: 听到这个消息我很难过。失恋确实会让人感到痛苦和失落，但请相信，时间会慢慢抚平这些情绪。或许可以尝试通过旅行来转换心情，比如去一个风景优美的地方散散心，或者体验一些新的活动。如果你愿意，我可以为你推荐一...
+2026-04-04 19:49:10,282 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A008 | 耗时=0.00ms
+2026-04-04 19:49:10,282 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:49:10,794 - __main__ - INFO - 
+>>> 进度: 9/10
+2026-04-04 19:49:10,795 - __main__ - INFO - 
+2026-04-04 19:49:10,795 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:10,795 - __main__ - INFO - [ABNORMAL] 测试用例: A009 | 消息: 怎么赚钱？
+2026-04-04 19:49:10,795 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A009 | user=test_user | 输入长度=5字符
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A009 | 输入长度=5字符
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A009 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A009 | 输入: 怎么赚钱？...
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A009 | 耗时: 0.12ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A009
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A009 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A009
+2026-04-04 19:49:10,795 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:10,795 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:10,795 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:49:10,795 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.09ms
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A009 | 耗时: 0.15ms | 历史: 1 条
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A009 | 意图=chat
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A009 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A009
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A009 | 耗时: 0.05ms | 上下文长度=0字符
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A009 | 上下文长度=0字符
+2026-04-04 19:49:10,795 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:49:10,796 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:49:10,796 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE12C60>
+2026-04-04 19:49:10,797 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:10,797 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:10,797 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:10,797 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:10,797 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:10,799 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:49:10,799 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:49:10,897 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE12260>
+2026-04-04 19:49:10,898 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:10,898 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:10,898 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:49:10,898 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:10,898 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:11,027 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'd186622deff33f0334939f9beded7b9e'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:49:10 GMT'), (b'EO-LOG-UUID', b'18013548894582775607'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:49:11,028 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:49:11,028 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:49:11,676 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=880.75ms
+2026-04-04 19:49:15,480 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:15,480 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=4684.77ms | chunk数=176
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A009 | 耗时: 4684.89ms | 响应长度=315字符
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A009
+2026-04-04 19:49:15,480 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(8≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A009 | 耗时: 0.09ms | 历史: 1 条
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A009
+2026-04-04 19:49:15,480 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A009
+2026-04-04 19:49:15,481 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A009 | 意图=chat | 工具调用=0次 | 总耗时=4685.74ms | 响应长度=315字符
+2026-04-04 19:49:15,481 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A009 | 总耗时=4685.74ms
+2026-04-04 19:49:15,481 - __main__ - INFO - [A009] ✅ 成功 | 耗时=4685.81ms | 响应长度=315字符
+2026-04-04 19:49:15,481 - __main__ - DEBUG - [A009] 响应预览: 您好！作为旅游助手，我可以为您提供一些与旅游相关的赚钱思路，比如：
+
+1. **旅游内容创作**  
+   - 写游记、拍旅行Vlog、做旅行攻略博主，通过平台广告、赞助或带货变现。
+   - 在社交...
+2026-04-04 19:49:15,481 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A009 | 耗时=0.00ms
+2026-04-04 19:49:15,481 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
+2026-04-04 19:49:15,992 - __main__ - INFO - 
+>>> 进度: 10/10
+2026-04-04 19:49:15,997 - __main__ - INFO - 
+2026-04-04 19:49:15,997 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:15,997 - __main__ - INFO - [ABNORMAL] 测试用例: A010 | 消息: aaaa乱七八糟的输入
+2026-04-04 19:49:15,997 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW] 🚀 ====== 工作流程开始 ====== | conv=test_A010 | user=test_user | 输入长度=11字符
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ⏳ 开始 | conv=test_A010 | 输入长度=11字符
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:0_INIT] ✅ 完成 | conv=test_A010 | 耗时: 0.00ms | LLM已配置
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ⏳ 开始 | conv=test_A010 | 输入: aaaa乱七八糟的输入...
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:1_INTENT] ✅ 完成 | conv=test_A010 | 耗时: 0.08ms | 意图=chat | 置信度=0.50 | 方法=keyword | 目的地=无 | 日期=无
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ⏳ 开始 | conv=test_A010
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:2_STORAGE] ✅ 完成 | conv=test_A010 | 耗时: 0.03ms | 历史: 1 条
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv=test_A010
+2026-04-04 19:49:15,997 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:15,997 - app.core.context.cleaner - DEBUG - [CLEANER] 🛡️ 保护跳过 | role=user | 原因=受保护角色/规则
+2026-04-04 19:49:15,997 - app.core.context.cleaner - INFO - [CLEANER] 📊 清理结果 | mode=auto | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0
+2026-04-04 19:49:15,997 - app.core.context.guard - INFO - [CTX_GUARD] 📥 前置清理完成 | conv=unknown | 输入=1条 → 输出=1条 | 过期=0 修剪=0 清除=0 | 耗时=0.08ms
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv=test_A010 | 耗时: 0.13ms | 历史: 1 条
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ⏳ 开始 | conv=test_A010 | 意图=chat
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [TOOLS] ℹ️ 意图=chat，跳过工具调用
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:4_TOOLS] ✅ 完成 | conv=test_A010 | 耗时: 0.04ms | 工具调用=0次
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ⏳ 开始 | conv=test_A010
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [CONTEXT] 📚 上下文构建 | 工具结果=无 | 槽位=无目的地 | 上下文长度=0字符
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:5_CONTEXT] ✅ 完成 | conv=test_A010 | 耗时: 0.04ms | 上下文长度=0字符
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ⏳ 开始 | conv=test_A010 | 上下文长度=0字符
+2026-04-04 19:49:15,997 - app.core.query_engine - INFO - [LLM] 🧠 开始生成响应 | 上下文长度=0字符 | 历史消息数=1
+2026-04-04 19:49:15,998 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=7890 local_address=None timeout=60.0 socket_options=None
+2026-04-04 19:49:15,998 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE11C20>
+2026-04-04 19:49:15,998 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:15,998 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:15,998 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:15,998 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:15,999 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'CONNECT']>
+2026-04-04 19:49:15,999 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'Connection established', [])
+2026-04-04 19:49:15,999 - httpcore.proxy - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001BB9EDC6990> server_hostname='api.deepseek.com' timeout=60.0
+2026-04-04 19:49:16,158 - httpcore.proxy - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BB9EE12BC0>
+2026-04-04 19:49:16,158 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:16,158 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-04-04 19:49:16,159 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2026-04-04 19:49:16,159 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-04-04 19:49:16,159 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2026-04-04 19:49:16,316 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'openresty'), (b'Content-Type', b'text/event-stream; charset=utf-8'), (b'vary', b'origin, access-control-request-method, access-control-request-headers'), (b'access-control-allow-credentials', b'true'), (b'x-ds-trace-id', b'ab52d8f6d1f29bf1ed3e1c232f42ca01'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Cache-Control', b'no-cache'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Date', b'Sat, 04 Apr 2026 11:49:15 GMT'), (b'EO-LOG-UUID', b'4184253495929271657'), (b'EO-Cache-Status', b'MISS')])
+2026-04-04 19:49:16,317 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-04 19:49:16,317 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2026-04-04 19:49:17,053 - app.core.query_engine - INFO - [LLM] ⚡ 首token响应 | 耗时=1055.35ms
+2026-04-04 19:49:18,437 - httpcore.http11 - DEBUG - response_closed.started
+2026-04-04 19:49:18,437 - httpcore.http11 - DEBUG - response_closed.complete
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [LLM] ✅ 响应生成完成 | 总耗时=2439.79ms | chunk数=62
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:6_LLM] ✅ 完成 | conv=test_A010 | 耗时: 2439.87ms | 响应长度=115字符
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv=test_A010
+2026-04-04 19:49:18,437 - app.core.context.guard - INFO - [CTX_GUARD] 📤 后置管理完成 | conv=unknown | 输入=1条 → 输出=1条 | 操作=仅规则检查 | 是否压缩=False(10≥96000) | 规则注入=False | 耗时=0.01ms
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv=test_A010 | 耗时: 0.07ms | 历史: 1 条
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ⏳ 开始 | conv=test_A010
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv=test_A010
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW:SUMMARY] 📊 流程完成 | conv=test_A010 | 意图=chat | 工具调用=0次 | 总耗时=2440.60ms | 响应长度=115字符
+2026-04-04 19:49:18,437 - app.core.query_engine - INFO - [WORKFLOW] 🏁 ====== 工作流程完成 ====== | conv=test_A010 | 总耗时=2440.60ms
+2026-04-04 19:49:18,437 - __main__ - INFO - [A010] ✅ 成功 | 耗时=2440.67ms | 响应长度=115字符
+2026-04-04 19:49:18,437 - __main__ - DEBUG - [A010] 响应预览: 您好！看起来您可能遇到了一些问题，或者只是随意输入了一些内容。如果您需要帮助规划旅行、推荐景点、查询天气或交通信息，或者有任何其他旅游相关的问题，请随时告诉我！我很乐意为您提供帮助。😊
+
+请告诉我您想...
+2026-04-04 19:49:18,437 - __main__ - INFO - 
+2026-04-04 19:49:18,437 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:18,437 - __main__ - INFO - 测试摘要报告
+2026-04-04 19:49:18,438 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:18,438 - __main__ - INFO - 总测试数: 20
+2026-04-04 19:49:18,438 - __main__ - INFO - 成功: 20 | 失败: 0
+2026-04-04 19:49:18,438 - __main__ - INFO - 正常用例: 10 | 成功: 10
+2026-04-04 19:49:18,438 - __main__ - INFO - 异常用例: 10 | 成功: 10
+2026-04-04 19:49:18,438 - __main__ - INFO - 平均响应时间: 9580.53ms
+2026-04-04 19:49:18,438 - __main__ - INFO - 
+2026-04-04 19:49:18,438 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-04 19:49:18,438 - __main__ - INFO - 详细结果:
+2026-04-04 19:49:18,438 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N001] 我想去北京旅游3天 | success | 26547.99ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N002] 帮我规划上海5天行程，预算3000元 | success | 30624.96ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N003] 推荐一些西安的景点 | success | 10035.23ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N004] 我想去成都看大熊猫 | success | 11199.96ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N005] 杭州有什么好玩的地方？ | success | 13869.03ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N006] 计划一次广州美食之旅 | success | 17197.11ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N007] 深圳有哪些必去的地方？ | success | 14796.37ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N008] 我想去云南旅游，大概7天 | success | 16290.97ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N009] 推荐一下厦门的海边景点 | success | 13177.23ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [N010] 我想去哈尔滨看冰雪大世界 | success | 8759.76ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A001] 今天天气怎么样？ | success | 3607.59ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A002] 你好 | success | 2203.45ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A003] 你叫什么名字？ | success | 2295.34ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A004] 123456 | success | 3287.97ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A005] 帮我查一下快递 | success | 3464.45ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A006] 今天吃什么？ | success | 2589.11ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A007] 讲个笑话 | success | 1932.07ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A008] 我失恋了 | success | 2605.54ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A009] 怎么赚钱？ | success | 4685.81ms
+2026-04-04 19:49:18,438 - __main__ - INFO - ✅ [A010] aaaa乱七八糟的输入 | success | 2440.67ms
+2026-04-04 19:49:18,439 - __main__ - INFO - 
+摘要已保存到: test_logs\summary_20260404_194918.txt
+2026-04-04 19:49:18,439 - __main__ - INFO - 
+2026-04-04 19:49:18,439 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:18,439 - __main__ - INFO - 所有测试完成！
+2026-04-04 19:49:18,439 - __main__ - INFO - ================================================================================
+2026-04-04 19:49:18,439 - app.core.query_engine - DEBUG - [MEMORY] 💾 异步记忆更新 | conv=test_A010 | 耗时=0.00ms
+2026-04-04 19:49:18,441 - httpcore.http11 - DEBUG - receive_response_body.failed exception=GeneratorExit()
