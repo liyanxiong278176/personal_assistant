@@ -4,6 +4,7 @@
 - Token 估算器
 - 上下文压缩器
 - 上下文管理器
+- 上下文配置
 """
 
 from .tokenizer import (
@@ -13,6 +14,11 @@ from .tokenizer import (
 )
 from .compressor import ContextCompressor
 from .manager import ContextManager
+from .config import (
+    ContextConfig,
+    load_config_from_env,
+    get_default_config,
+)
 
 __all__ = [
     "TokenEstimator",
@@ -20,4 +26,7 @@ __all__ = [
     "estimate_message_tokens",
     "ContextCompressor",
     "ContextManager",
+    "ContextConfig",
+    "load_config_from_env",
+    "get_default_config",
 ]
