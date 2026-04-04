@@ -24,6 +24,53 @@ CLEARED_PLACEHOLDER = "[Old result cleared]"  # 硬清除时使用的占位符
 TRIM_INDICATOR = "...[trimmed]..."  # 软修剪时插入的指示符
 
 
+# ============================================================
+# 结构化日志宏
+# ============================================================
+
+
+def _log_cleaner_ttl_check(role: str, expired: bool, age_seconds: float, ttl: int):
+    """TTL检查日志"""
+    symbol = "⏰" if expired else "✓"
+    logger.debug(
+        f"[CLEANER] {symbol} TTL检查 | role={role} | "
+        f"过期={expired} | 存活={age_seconds:.1f}s/{ttl}s"
+    )
+
+
+def _log_cleaner_soft_trim(role: str, original_len: int, trimmed_len: int):
+    """软修剪日志"""
+    logger.info(
+        f"[CLEANER] ✂️ 软修剪 | role={role} | "
+        f"{original_len} → {trimmed_len}字符 | 节省={original_len - trimmed_len}字符"
+    )
+
+
+def _log_cleaner_hard_clear(role: str):
+    """硬清除日志"""
+    logger.info(
+        f"[CLEANER] 🗑️ 硬清除 | role={role} | "
+        f"内容已替换为占位符"
+    )
+
+
+def _log_cleaner_protected(role: str, reason: str):
+    """保护跳过日志"""
+    logger.debug(
+        f"[CLEANER] 🛡️ 保护跳过 | role={role} | 原因={reason}"
+    )
+
+
+def _log_cleaner_result(mode: str, input_count: int, output_count: int,
+                        expired_count: int, trimmed_count: int, cleared_count: int):
+    """清理结果汇总日志"""
+    logger.info(
+        f"[CLEANER] 📊 清理结果 | mode={mode} | "
+        f"输入={input_count}条 → 输出={output_count}条 | "
+        f"过期={expired_count} 修剪={trimmed_count} 清除={cleared_count}"
+    )
+
+
 CleanMode = Literal["soft", "hard", "auto"]
 
 
@@ -84,11 +131,20 @@ class ContextCleaner:
         cleaned = [msg.copy() for msg in messages]
 
         if mode == "soft":
-            return self._soft_clean(cleaned)
+            cleaned = self._soft_clean(cleaned)
         elif mode == "hard":
-            return self._hard_clean(cleaned)
+            cleaned = self._hard_clean(cleaned)
         else:  # auto
-            return self._auto_clean(cleaned)
+            cleaned = self._auto_clean(cleaned)
+
+        # 统计清理结果
+        expired_count = sum(1 for m in cleaned if m.get("_expired"))
+        trimmed_count = sum(1 for m in cleaned if m.get("_trimmed"))
+        cleared_count = sum(1 for m in cleaned if m.get("_cleared"))
+
+        _log_cleaner_result(mode, len(messages), len(cleaned),
+                           expired_count, trimmed_count, cleared_count)
+        return cleaned
 
     def _soft_clean(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """软清理：修剪过长的工具结果
@@ -99,8 +155,11 @@ class ContextCleaner:
         Returns:
             修剪后的消息列表
         """
+        trimmed_count = 0
         for message in messages:
+            role = message.get("role", "unknown")
             if self._is_protected(message):
+                _log_cleaner_protected(role, "受保护角色/规则")
                 continue
 
             content = message.get("content")
@@ -108,9 +167,9 @@ class ContextCleaner:
                 trimmed = self._soft_trim(content)
                 if trimmed != content:
                     message["content"] = trimmed
-                    logger.debug(
-                        f"Soft trimmed message content: {len(content)} -> {len(trimmed)} chars"
-                    )
+                    message["_trimmed"] = True
+                    trimmed_count += 1
+                    _log_cleaner_soft_trim(role, len(content), len(trimmed))
 
         return messages
 
@@ -123,14 +182,19 @@ class ContextCleaner:
         Returns:
             清除后的消息列表
         """
+        cleared_count = 0
         for message in messages:
+            role = message.get("role", "unknown")
             if self._is_protected(message):
+                _log_cleaner_protected(role, "受保护角色/规则")
                 continue
 
             if self._check_ttl(message):
                 cleared = self._hard_clear(message)
                 message["content"] = cleared["content"]
-                logger.debug("Hard cleared expired tool result")
+                message["_cleared"] = True
+                cleared_count += 1
+                _log_cleaner_hard_clear(role)
 
         return messages
 
@@ -170,7 +234,14 @@ class ContextCleaner:
         # 检查是否过期
         current_time = time.time()
         age = current_time - timestamp
-        return age >= self.ttl_seconds
+        is_expired = age >= self.ttl_seconds
+
+        _log_cleaner_ttl_check(
+            message.get("role", "unknown"),
+            is_expired, age, self.ttl_seconds
+        )
+
+        return is_expired
 
     def _soft_trim(self, content: str) -> str:
         """软修剪：超长内容保留首尾

@@ -6,11 +6,65 @@
 
 import asyncio
 import logging
+import time
 from typing import Dict, List, Optional, Callable
 
 from ..llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# 结构化日志宏
+# ============================================================
+
+
+def _log_summary_start(message_count: int, total_chars: int):
+    """摘要开始日志"""
+    logger.info(
+        f"[SUMMARY] 📝 开始生成摘要 | "
+        f"消息数={message_count} | 总字符≈{total_chars}"
+    )
+
+
+def _log_summary_llm_call(attempt: int, max_retries: int):
+    """LLM调用日志"""
+    logger.info(
+        f"[SUMMARY] 🤖 LLM摘要调用 | 第{attempt}/{max_retries}次尝试"
+    )
+
+
+def _log_summary_fallback(message_count: int, user_count: int,
+                          assistant_count: int, tool_count: int):
+    """降级摘要日志"""
+    logger.info(
+        f"[SUMMARY] 📉 使用降级摘要 | "
+        f"消息={message_count}条 | "
+        f"用户={user_count} 助手={assistant_count} 工具={tool_count}"
+    )
+
+
+def _log_summary_complete(tokens: int, elapsed_ms: float, method: str):
+    """摘要完成日志"""
+    logger.info(
+        f"[SUMMARY] ✅ 摘要生成完成 | "
+        f"方法={method} | token≈{tokens} | 耗时={elapsed_ms:.2f}ms"
+    )
+
+
+def _log_summary_no_llm():
+    """无LLM日志"""
+    logger.info(
+        f"[SUMMARY] ⚠️ LLM客户端不可用 | 使用降级方案"
+    )
+
+
+def _log_summary_init(model: str, max_retries: int, timeout: float):
+    """初始化日志"""
+    logger.info(
+        f"[SUMMARY] 🏗️ 初始化 | "
+        f"模型={model} | 最大重试={max_retries} | 超时={timeout}s"
+    )
 
 # DeepSeek API endpoint (OpenAI compatible)
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
@@ -56,6 +110,7 @@ class LLMSummaryProvider:
         self.max_chars_per_message = max_chars_per_message
         self.timeout = timeout
         self._llm_client: Optional[LLMClient] = None
+        _log_summary_init(model, max_retries, timeout)
 
     def _get_llm_client(self) -> Optional[LLMClient]:
         """获取或创建 LLM 客户端
@@ -167,16 +222,24 @@ class LLMSummaryProvider:
         if not messages:
             return "No conversation history."
 
+        total_chars = sum(len(m.get("content", "")) for m in messages)
+        _log_summary_start(len(messages), total_chars)
+        start_time = time.perf_counter()
+
         # 获取 LLM 客户端
         llm_client = self._get_llm_client()
         if llm_client is None:
-            logger.info("[LLMSummaryProvider] Using fallback summary (no LLM client)")
+            _log_summary_no_llm()
             return self._fallback_summary(messages)
 
         # 格式化消息
         formatted_text = self._format_messages_for_summary(messages)
         if not formatted_text:
-            return self._fallback_summary(messages)
+            result = self._fallback_summary(messages)
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            _log_summary_fallback(len(messages), 0, 0, 0)
+            _log_summary_complete(0, elapsed_ms, "降级计数(无格式化内容)")
+            return result
 
         # 构建摘要请求消息
         summary_messages = [
@@ -188,20 +251,20 @@ class LLMSummaryProvider:
 
         # 尝试使用 LLM 生成摘要
         for attempt in range(self.max_retries):
+            _log_summary_llm_call(attempt + 1, self.max_retries)
             try:
-                logger.debug(
-                    f"[LLMSummaryProvider] Generating summary (attempt {attempt + 1}/{self.max_retries})"
-                )
                 summary = await llm_client.chat(
                     messages=summary_messages,
                     system_prompt=None,  # 系统提示已包含在用户消息中
                 )
+                elapsed_ms = (time.perf_counter() - start_time) * 1000
+                tokens = len(summary) // 4  # 粗略估算
+                _log_summary_complete(tokens, elapsed_ms, "LLM摘要")
                 return summary
 
             except Exception as e:
                 logger.warning(
-                    f"[LLMSummaryProvider] Summary generation failed "
-                    f"(attempt {attempt + 1}/{self.max_retries}): {e}"
+                    f"[SUMMARY] ❌ LLM摘要失败 | 第{attempt + 1}/{self.max_retries}次 | 错误={e}"
                 )
                 if attempt < self.max_retries - 1:
                     # 指数退避
@@ -209,8 +272,17 @@ class LLMSummaryProvider:
                 continue
 
         # 所有重试都失败，使用降级方案
-        logger.info("[LLMSummaryProvider] All retries failed, using fallback summary")
-        return self._fallback_summary(messages)
+        result = self._fallback_summary(messages)
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        _log_summary_complete(0, elapsed_ms, "降级计数(重试耗尽)")
+
+        # 统计降级摘要的内容
+        user_count = sum(1 for m in messages if m.get("role") == "user")
+        assistant_count = sum(1 for m in messages if m.get("role") == "assistant")
+        tool_count = sum(1 for m in messages if m.get("role") == "tool")
+        _log_summary_fallback(len(messages), user_count, assistant_count, tool_count)
+
+        return result
 
     def create_summary_func(self) -> Callable[[List[Dict[str, str]]], str]:
         """创建同步的摘要函数
