@@ -7,6 +7,7 @@
 - 上下文配置
 - 上下文清理器
 - 规则重注入器
+- 摘要生成器
 """
 
 from .tokenizer import (
@@ -28,6 +29,11 @@ from .cleaner import (
     CleanMode,
 )
 from .reinjector import RuleReinjector
+from .summary import (
+    LLMSummaryProvider,
+    create_summary_provider,
+    DEFAULT_SUMMARY_PROMPT,
+)
 
 __all__ = [
     "TokenEstimator",
@@ -43,4 +49,7 @@ __all__ = [
     "CLEARED_PLACEHOLDER",
     "CleanMode",
     "RuleReinjector",
+    "LLMSummaryProvider",
+    "create_summary_provider",
+    "DEFAULT_SUMMARY_PROMPT",
 ]
