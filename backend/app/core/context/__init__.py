@@ -8,6 +8,7 @@
 - 上下文清理器
 - 规则重注入器
 - 摘要生成器
+- 上下文守卫
 """
 
 from .tokenizer import (
@@ -34,6 +35,7 @@ from .summary import (
     create_summary_provider,
     DEFAULT_SUMMARY_PROMPT,
 )
+from .guard import ContextGuard
 
 __all__ = [
     "TokenEstimator",
@@ -52,4 +54,5 @@ __all__ = [
     "LLMSummaryProvider",
     "create_summary_provider",
     "DEFAULT_SUMMARY_PROMPT",
+    "ContextGuard",
 ]
