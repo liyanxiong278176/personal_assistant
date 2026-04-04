@@ -123,6 +123,12 @@ backend/app/core/context/
 }
 ```
 
+**重要说明**: `_timestamp` 字段需要由工具执行器在工具返回结果时设置。
+如果工具结果没有此字段，TTL 检查将被跳过（这是降级行为，不会导致错误）。
+
+在 Phase 1 中，TTL 清理是可选的增强功能。如果工具执行器尚未设置 `_timestamp`，
+代码会安全地跳过 TTL 检查，只执行基于 `_expired` 标记的硬清除。
+
 ### 2.4 处理流程
 
 ```
@@ -180,8 +186,6 @@ class ContextConfig:
 
     # === 窗口配置 ===
     window_size: int = 128000              # DeepSeek 上下文窗口
-    soft_trim_ratio: float = 0.3           # 30% 触发软修剪
-    hard_clear_ratio: float = 0.5          # 50% 触发硬清除
 
     # === TTL 配置 ===
     tool_result_ttl_seconds: int = 300     # 工具结果 5 分钟过期
@@ -288,6 +292,7 @@ class ContextGuard:
         config: ContextConfig,
         llm_client: Optional["LLMClient"] = None,
         context_manager: Optional["ContextManager"] = None,
+        rules_cache: Optional[Dict[str, str]] = None,
     ):
         """初始化 ContextGuard
 
@@ -295,6 +300,7 @@ class ContextGuard:
             config: 上下文配置
             llm_client: LLM 客户端 (用于摘要生成)
             context_manager: 现有的 ContextManager 实例 (可选)
+            rules_cache: 规则文件缓存 (可选，如果未提供则使用空字典)
         """
         self.config = config
         self.cleaner = Cleaner(config)
@@ -304,6 +310,7 @@ class ContextGuard:
             config=config
         )
         self._context_manager = context_manager
+        self._rules_cache = rules_cache or {}
 
         # 统计信息
         self._stats = {
@@ -359,19 +366,14 @@ class ContextGuard:
         if needs_compress:
             self._stats["compress_count"] += 1
 
-            # 2. 生成摘要并压缩 (使用现有的 ContextManager)
-            if self._context_manager:
-                summary_func = self.summary_provider.create_summary_func()
-                result, _ = self._context_manager.compress_with_summary(
-                    summary_func=summary_func
-                )
-            else:
-                # 降级: 简单的摘要生成
-                summary = await self.summary_provider.generate_summary(result)
-                result = self._simple_compress_with_summary(result, summary)
+            # 2. 生成摘要并压缩
+            # 由于 ContextManager.compress_with_summary() 需要同步函数，
+            # 而 LLM 调用是异步的，我们直接使用异步摘要路径
+            summary = await self.summary_provider.generate_summary(result)
+            result = self._simple_compress_with_summary(result, summary)
 
-        # 3. 规则重注入
-        result = self.reinjector.reinject(result)
+        # 3. 规则重注入 (传入 rules_cache)
+        result = self.reinjector.reinject(result, self._rules_cache)
 
         logger.debug(
             f"[ContextGuard] post_process | "
@@ -468,6 +470,9 @@ class Cleaner:
     3. 硬清除 - 替换过期结果为占位符
     """
 
+    # 软修剪保留的字符数 (每端)
+    TRIM_KEEP_CHARS = 1500
+
     def __init__(self, config: ContextConfig):
         self.config = config
 
@@ -501,6 +506,8 @@ class Cleaner:
         """检查工具结果是否过期
 
         工具结果通过 content 中的特殊标记或 _type 字段识别
+        
+        注意: 如果消息没有 _timestamp 字段，跳过 TTL 检查
         """
         for msg in messages:
             # 检查是否是工具结果
@@ -511,6 +518,9 @@ class Cleaner:
 
             if is_tool_result:
                 timestamp = msg.get("_timestamp", 0)
+                if timestamp == 0:
+                    continue  # 没有时间戳，跳过 TTL 检查
+                
                 age = current_time - timestamp
 
                 if age > self.config.tool_result_ttl_seconds:
@@ -521,7 +531,6 @@ class Cleaner:
     def _soft_trim(self, messages: List[Dict]) -> List[Dict]:
         """软修剪: 超长结果保留首尾
 
-        触发条件: 上下文占用 > soft_trim_ratio (30%)
         执行动作: 单条结果 > max_tool_result_chars 时保留首尾
         """
         for msg in messages:
@@ -536,9 +545,9 @@ class Cleaner:
             if is_tool_result:
                 content = msg.get("content", "")
                 if len(content) > self.config.max_tool_result_chars:
-                    # 保留前 1500 + 后 1500
-                    head = content[:1500]
-                    tail = content[-1500:]
+                    # 保留前 TRIM_KEEP_CHARS + 后 TRIM_KEEP_CHARS
+                    head = content[:self.TRIM_KEEP_CHARS]
+                    tail = content[-self.TRIM_KEEP_CHARS:]
                     msg["content"] = f"{head}\n...[中间省略]...\n{tail}"
                     msg["_trimmed"] = True
 
@@ -583,7 +592,13 @@ logger = logging.getLogger(__name__)
 class LLMSummaryProvider:
     """LLM 摘要生成器
 
-    为 ContextManager.compress_with_summary() 提供摘要生成函数
+    提供:
+    1. 异步摘要生成 (generate_summary)
+    2. 同步降级摘要 (create_summary_func)
+    
+    注意: 由于 ContextManager.compress_with_summary() 需要同步函数，
+    而 LLM 调用是异步的，create_summary_func() 返回的是降级方案。
+    完整的 LLM 摘要需要通过异步的 generate_summary() 调用。
     """
 
     # 默认摘要模板
@@ -612,7 +627,7 @@ class LLMSummaryProvider:
         self.config = config or ContextConfig()
 
     async def generate_summary(self, messages: List[Dict]) -> str:
-        """生成对话摘要
+        """生成对话摘要 (异步，使用 LLM)
 
         Args:
             messages: 要摘要的消息列表
@@ -635,9 +650,36 @@ class LLMSummaryProvider:
                         messages=[{"role": "user", "content": prompt}],
                         system_prompt="你是一个专业的对话摘要助手。"
                     )
+                    return summary
                 else:
                     # 降级: 简单计数摘要
-                    summary = self._fallback_summary(messages)
+                    return self._fallback_summary(messages)
+
+            except Exception as e:
+                logger.warning(f"[LLMSummary] 摘要失败 (尝试 {attempt+1}): {e}")
+
+                # 最后一次尝试失败，使用降级方案
+                if attempt == self.config.summary_max_retries - 1:
+                    return self._fallback_summary(messages)
+
+        return self._fallback_summary(messages)
+
+    def create_summary_func(self) -> Callable:
+        """创建同步摘要函数 (降级方案)
+
+        由于 ContextManager.compress_with_summary() 需要同步函数，
+        而 LLM 调用是异步的，这里返回的是降级计数摘要。
+
+        完整的 LLM 摘要请使用异步的 generate_summary() 方法。
+        
+        Returns:
+            同步摘要函数
+        """
+        def sync_summary(messages: List[Dict]) -> str:
+            """同步摘要函数 (降级为简单计数)"""
+            return self._fallback_summary(messages)
+
+        return sync_summary
 
                 return summary
 
@@ -858,13 +900,12 @@ print(f"压缩: {stats['compress_count']}次")
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | `window_size` | 128000 | DeepSeek 上下文窗口 |
-| `soft_trim_ratio` | 0.3 | 30% 触发软修剪 |
-| `hard_clear_ratio` | 0.5 | 50% 触发硬清除 |
 | `tool_result_ttl_seconds` | 300 | 工具结果 5 分钟过期 |
 | `max_tool_result_chars` | 4000 | 单条结果超过 4000 字符修剪 |
 | `summary_max_retries` | 3 | 摘要重试次数 |
 | `rules_reinject_window` | 5 | 检查最近 5 条消息 |
 | `rules_reinject_interval` | 3 | 至少间隔 3 条消息后重新注入 |
+| `TRIM_KEEP_CHARS` | 1500 | 软修剪时每端保留的字符数 |
 
 **注意**: 压缩阈值 75% 低于现有的 ContextManager 的 80%，这样前置清理会先触发，
 减少需要完整压缩的频率。
