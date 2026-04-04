@@ -52,15 +52,39 @@ from .hierarchy import (
 )
 from .injection import MemoryInjector
 from .promoter import MemoryPromoter, PromotionResult
+from .repositories import (
+    BaseRepository,
+    MessageRepository,
+    EpisodicRepository,
+    SemanticRepository,
+)
+from .retrieval import HybridRetriever
+from .persistence import (
+    AsyncPersistenceManager,
+    Message as PersistenceMessage,
+)
+from .loaders import MemoryLoader
 
 __all__ = [
+    # Hierarchy
     "MemoryHierarchy",
     "MemoryHierarchyFactory",
     "MemoryItem",
     "MemoryLevel",
     "MemoryType",
     "WorkingMemoryEntry",
+    # Injection & Promotion
     "MemoryInjector",
     "MemoryPromoter",
     "PromotionResult",
+    # Repositories
+    "BaseRepository",
+    "MessageRepository",
+    "EpisodicRepository",
+    "SemanticRepository",
+    # Phase 2
+    "HybridRetriever",
+    "AsyncPersistenceManager",
+    "MemoryLoader",
+    "PersistenceMessage",
 ]
