@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_injected_rules_from_cache(
-    rules_cache: Dict[str, str],
-    rules_files: List[str]
+    rules_cache: Dict[str, str], rules_files: List[str]
 ) -> str:
     """从缓存中获取格式化的规则字符串
 
@@ -55,11 +54,7 @@ class RuleReinjector:
         self.config = config
         self._last_reinject_position = -1
 
-    def reinject(
-        self,
-        messages: List[Dict],
-        rules_cache: Dict[str, str]
-    ) -> List[Dict]:
+    def reinject(self, messages: List[Dict], rules_cache: Dict[str, str]) -> List[Dict]:
         """压缩后重新注入核心规则
 
         Args:
@@ -90,19 +85,12 @@ class RuleReinjector:
         if not self._should_reinject(messages, rules_cache):
             return messages
 
-        rules = _get_injected_rules_from_cache(
-            rules_cache,
-            self.config.rules_files
-        )
+        rules = _get_injected_rules_from_cache(rules_cache, self.config.rules_files)
         if not rules:
             return messages
 
         # 构建规则消息
-        rule_msg = {
-            "role": "system",
-            "content": rules,
-            "_rules_reinjected": True
-        }
+        rule_msg = {"role": "system", "content": rules, "_rules_reinjected": True}
 
         # 找到合适的插入位置（摘要后，当前对话前）
         result: List[Dict] = []
@@ -129,9 +117,7 @@ class RuleReinjector:
         return result
 
     def _should_reinject(
-        self,
-        messages: List[Dict],
-        rules_cache: Dict[str, str]
+        self, messages: List[Dict], rules_cache: Dict[str, str]
     ) -> bool:
         """判断是否需要重新注入规则
 

@@ -21,7 +21,7 @@ class TokenEstimator:
     """
 
     # 中文字符正则（包括汉字、中文标点）
-    _CHINESE_PATTERN = re.compile(r'[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]')
+    _CHINESE_PATTERN = re.compile(r"[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]")
 
     # 英文字符正则（字母、数字、英文标点）
     _ENGLISH_PATTERN = re.compile(r'[a-zA-Z0-9\s.,!?;:"\'\-()]')
@@ -56,16 +56,13 @@ class TokenEstimator:
         # 统计中文字符数量
         chinese_chars = len(cls._CHINESE_PATTERN.findall(text))
 
-        # 统计英文字符数量
-        english_chars = len(cls._ENGLISH_PATTERN.findall(text))
-
         # 其他字符（符号、表情等）按英文处理
         other_chars = total_chars - chinese_chars
 
         # 计算估算 token 数
         # 中文：2字符/token，英文：4字符/token
         chinese_tokens = (chinese_chars + 1) // 2  # 向上取整
-        english_tokens = (other_chars + 3) // 4    # 向上取整
+        english_tokens = (other_chars + 3) // 4  # 向上取整
 
         return chinese_tokens + english_tokens
 

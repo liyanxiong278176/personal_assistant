@@ -50,10 +50,12 @@ class ContextConfig:
     rules_cache: Dict[str, str] = field(default_factory=dict)
 
     # 保护配置
-    protected_message_types: List[str] = field(default_factory=lambda: ["user", "system", "image"])
+    protected_message_types: List[str] = field(
+        default_factory=lambda: ["user", "system", "image"]
+    )
 
     # 规则重注入配置
-    rules_reinject_window: int = 5   # 检查最近 N 条消息是否有规则
+    rules_reinject_window: int = 5  # 检查最近 N 条消息是否有规则
     rules_reinject_interval: int = 3  # 至少间隔 N 条消息后重新注入
 
     @classmethod

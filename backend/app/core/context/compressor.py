@@ -97,7 +97,7 @@ class ContextCompressor:
 
         logger.info(
             f"Compressing context: {len(messages)} messages -> ",
-            extra={"original_count": len(messages)}
+            extra={"original_count": len(messages)},
         )
 
         compressed: List[Dict[str, str]] = []
@@ -108,21 +108,23 @@ class ContextCompressor:
 
         # 2. 如果有摘要，添加为上下文消息
         if llm_summary:
-            compressed.append({
-                "role": "system",
-                "content": f"[历史对话摘要]\n{llm_summary}",
-            })
+            compressed.append(
+                {
+                    "role": "system",
+                    "content": f"[历史对话摘要]\n{llm_summary}",
+                }
+            )
 
         # 3. 提取非 system 消息
         non_system_messages = [m for m in messages if m.get("role") != "system"]
 
         # 4. 保留最近 N 条消息
-        recent_messages = non_system_messages[-self.keep_recent:]
+        recent_messages = non_system_messages[-self.keep_recent :]
         compressed.extend(recent_messages)
 
         logger.info(
             f"Compression complete: {len(compressed)} messages kept",
-            extra={"compressed_count": len(compressed)}
+            extra={"compressed_count": len(compressed)},
         )
 
         return compressed
@@ -149,10 +151,9 @@ class ContextCompressor:
             return messages, None
 
         # 提取需要摘要的消息（排除 system 和保留的最近消息）
-        system_messages = [m for m in messages if m.get("role") == "system"]
         non_system_messages = [m for m in messages if m.get("role") != "system"]
 
-        messages_to_summarize = non_system_messages[:-self.keep_recent]
+        messages_to_summarize = non_system_messages[: -self.keep_recent]
 
         # 生成摘要
         summary = None
@@ -164,8 +165,12 @@ class ContextCompressor:
                     logger.warning(f"Failed to generate summary: {e}")
             else:
                 # 简单的文本摘要（计数信息）
-                user_count = sum(1 for m in messages_to_summarize if m.get("role") == "user")
-                assistant_count = sum(1 for m in messages_to_summarize if m.get("role") == "assistant")
+                user_count = sum(
+                    1 for m in messages_to_summarize if m.get("role") == "user"
+                )
+                assistant_count = sum(
+                    1 for m in messages_to_summarize if m.get("role") == "assistant"
+                )
                 summary = (
                     f"历史对话包含 {user_count} 条用户消息和 {assistant_count} 条助手回复。"
                     f"这些内容已被压缩以节省上下文空间。"
@@ -190,7 +195,9 @@ class ContextCompressor:
             "max_tokens": self.max_tokens,
             "threshold": threshold,
             "needs_compaction": current_tokens >= threshold,
-            "usage_ratio": current_tokens / self.max_tokens if self.max_tokens > 0 else 0,
+            "usage_ratio": current_tokens / self.max_tokens
+            if self.max_tokens > 0
+            else 0,
             "message_count": len(messages),
         }
 

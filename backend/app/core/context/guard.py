@@ -11,7 +11,6 @@ import logging
 from typing import Dict, List, Optional
 
 from ..llm.client import LLMClient
-from ..errors import AgentError
 from .config import ContextConfig, get_default_config
 from .cleaner import ContextCleaner
 from .compressor import ContextCompressor
@@ -133,7 +132,9 @@ class ContextGuard:
 
         # 调用清理器进行自动清理（软修剪 + 硬清除）
         cleaned = self.cleaner.clean(messages, mode="auto")
-        logger.debug(f"[ContextGuard] Pre-process: {len(messages)} -> {len(cleaned)} messages")
+        logger.debug(
+            f"[ContextGuard] Pre-process: {len(messages)} -> {len(cleaned)} messages"
+        )
         return cleaned
 
     async def post_process(self, messages: List[Dict]) -> List[Dict]:
@@ -161,7 +162,9 @@ class ContextGuard:
             return messages
 
         self._stats["compression_triggered_count"] += 1
-        logger.info(f"[ContextGuard] Post-process: triggering compression for {len(messages)} messages")
+        logger.info(
+            f"[ContextGuard] Post-process: triggering compression for {len(messages)} messages"
+        )
 
         # 执行压缩
         compressed = await self._compress_messages(messages)
@@ -227,11 +230,13 @@ class ContextGuard:
 
         # 添加摘要消息
         if summary_text:
-            result.append({
-                "role": "system",
-                "content": f"[历史对话摘要]\n{summary_text}",
-                "_compressed": True,
-            })
+            result.append(
+                {
+                    "role": "system",
+                    "content": f"[历史对话摘要]\n{summary_text}",
+                    "_compressed": True,
+                }
+            )
 
         # 保留最近 40% 的消息（确保对话连贯性）
         keep_count = max(1, int(len(other_messages) * 0.4))
@@ -282,11 +287,13 @@ class ContextGuard:
         )
 
         # 添加摘要消息
-        result.append({
-            "role": "system",
-            "content": f"[历史对话摘要]\n{summary_text}",
-            "_compressed": True,
-        })
+        result.append(
+            {
+                "role": "system",
+                "content": f"[历史对话摘要]\n{summary_text}",
+                "_compressed": True,
+            }
+        )
 
         # 保留最近 40% 的消息
         keep_count = max(1, int(len(other_messages) * 0.4))

@@ -8,10 +8,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional, Callable
 
-import httpx
-
 from ..llm.client import LLMClient
-from ..errors import AgentError
 
 logger = logging.getLogger(__name__)
 
@@ -208,7 +205,7 @@ class LLMSummaryProvider:
                 )
                 if attempt < self.max_retries - 1:
                     # 指数退避
-                    await asyncio.sleep(2 ** attempt)
+                    await asyncio.sleep(2**attempt)
                 continue
 
         # 所有重试都失败，使用降级方案

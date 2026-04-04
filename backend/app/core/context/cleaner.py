@@ -48,7 +48,9 @@ class ContextCleaner:
         """
         self.ttl_seconds = ttl_seconds
         self.max_result_chars = max_result_chars
-        self.protected_roles = set(protected_roles) if protected_roles else {"user", "system"}
+        self.protected_roles = (
+            set(protected_roles) if protected_roles else {"user", "system"}
+        )
 
     def clean(
         self,
@@ -71,7 +73,9 @@ class ContextCleaner:
             ValueError: 当 mode 不是有效值时
         """
         if mode not in ("soft", "hard", "auto"):
-            raise ValueError(f"Invalid clean mode: {mode}. Must be 'soft', 'hard', or 'auto'")
+            raise ValueError(
+                f"Invalid clean mode: {mode}. Must be 'soft', 'hard', or 'auto'"
+            )
 
         if not messages:
             return []
@@ -104,7 +108,9 @@ class ContextCleaner:
                 trimmed = self._soft_trim(content)
                 if trimmed != content:
                     message["content"] = trimmed
-                    logger.debug(f"Soft trimmed message content: {len(content)} -> {len(trimmed)} chars")
+                    logger.debug(
+                        f"Soft trimmed message content: {len(content)} -> {len(trimmed)} chars"
+                    )
 
         return messages
 
@@ -124,7 +130,7 @@ class ContextCleaner:
             if self._check_ttl(message):
                 cleared = self._hard_clear(message)
                 message["content"] = cleared["content"]
-                logger.debug(f"Hard cleared expired tool result")
+                logger.debug("Hard cleared expired tool result")
 
         return messages
 
