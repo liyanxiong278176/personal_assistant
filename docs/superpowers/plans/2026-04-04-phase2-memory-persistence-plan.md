@@ -1,4 +1,4 @@
-# Phase 2: Message Persistence and Memory Loading Implementation Plan
+# Phase 2: Message Persistence and Memory Loading Implementation Plan (Revised)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -6,7 +6,9 @@
 
 **Architecture:** Repository pattern for storage abstraction, async non-blocking persistence with 3-retry exponential backoff, queue-based fallback to file for extreme cases. Memory retrieval combines vector similarity, time decay, and conversation proximity.
 
-**Tech Stack:** PostgreSQL (asyncpg), SQLAlchemy 2.0, ChromaDB 0.5+, asyncio, aiofiles
+**Tech Stack:** PostgreSQL (existing asyncpg), ChromaDB 0.5+ (existing), asyncio, aiofiles
+
+**Note**: This plan integrates with existing codebase - reuses `backend/app/db/vector_store.py`, `backend/app/db/postgres.py`, and `backend/app/utils/retry.py`.
 
 ---
 
@@ -20,182 +22,67 @@ backend/app/
 │   │   ├── repositories.py          # Create - abstract interfaces
 │   │   ├── retrieval.py             # Create - hybrid retriever
 │   │   ├── persistence.py           # Create - async persistence manager
-│   │   ├── vector_store.py          # Create - ChromaDB wrapper
 │   │   └── loaders.py               # Create - memory loading orchestration
 │   └── query_engine.py              # Modify - integrate Phase 2
 │
 ├── db/
-│   ├── __init__.py                  # Create - DB connection
-│   ├── base.py                      # Create - SQLAlchemy base
-│   ├── models.py                    # Create - ORM models
+│   ├── __init__.py                  # Modify - add new exports (keep existing)
+│   ├── vector_store.py              # Modify - extend with metadata helpers
+│   ├── postgres.py                  # Modify - add message storage functions
 │   ├── message_repo.py              # Create - Message repository impl
 │   ├── episodic_repo.py             # Create - Episodic repository impl
 │   └── semantic_repo.py             # Create - Semantic repository impl
 │
 ├── utils/
-│   ├── __init__.py
-│   └── embedding.py                 # Create - embedding client
+│   ├── __init__.py                  # Modify - add new exports
+│   └── retry.py                     # Already exists - reuse
 │
-└── config.py                        # Modify - add DB configs
+└── config.py                        # Create - new config file
 
-tests/core/memory/
-├── __init__.py                      # Create
+tests/core/
+├── __init__.py                      # Already exists
+├── test_memory.py                   # Modify - add Phase 2 tests
 ├── test_retrieval.py                # Create - hybrid retrieval tests
-├── test_persistence.py              # Create - persistence tests
-└── test_repositories.py             # Create - repository tests
+└── test_persistence.py              # Create - persistence tests
 ```
 
 ---
 
-## Task 1: Database Models and Connection
+## Task 1: Create Configuration Module
 
 **Files:**
-- Create: `backend/app/db/__init__.py`
-- Create: `backend/app/db/base.py`
-- Create: `backend/app/db/models.py`
-- Modify: `backend/app/config.py`
+- Create: `backend/app/config.py`
 
-- [ ] **Step 1: Write DB base module**
+- [ ] **Step 1: Write configuration module**
 
 ```python
-# backend/app/db/base.py
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+# backend/app/config.py
+"""Application configuration using pydantic settings."""
+import os
+from pathlib import Path
+from typing import Optional
 
-from app.config import settings
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
-# Async engine
-engine = create_async_engine(
-    settings.database_url,
-    echo=settings.debug,
-    future=True,
-)
-
-# Async session factory
-async_session_factory = sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-
-# Declarative base
-Base = declarative_base()
-
-
-async def get_db_session() -> AsyncSession:
-    """Get async database session."""
-    async with async_session_factory() as session:
-        yield session
-
-
-async def init_db():
-    """Initialize database (create tables)."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-```
-
-- [ ] **Step 2: Run linter to verify syntax**
-
-Run: `python -m py_compile backend/app/db/base.py`
-Expected: No errors
-
-- [ ] **Step 3: Write ORM models**
-
-```python
-# backend/app/db/models.py
-from datetime import datetime
-from uuid import UUID, uuid4
-
-from sqlalchemy import Column, DateTime, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
-from sqlalchemy.sql import func
-
-from app.db.base import Base
-
-
-class MessageModel(Base):
-    """Message storage table."""
-    __tablename__ = "messages"
-
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    conversation_id = Column(PGUUID(as_uuid=True), nullable=False, index=True)
-    user_id = Column(String(255), nullable=False, index=True)
-    role = Column(String(50), nullable=False)  # user, assistant, system
-    content = Column(Text, nullable=False)
-    tokens = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": str(self.id),
-            "conversation_id": str(self.conversation_id),
-            "user_id": self.user_id,
-            "role": self.role,
-            "content": self.content,
-            "tokens": self.tokens,
-            "created_at": self.created_at.isoformat(),
-        }
-
-
-class ConversationStateModel(Base):
-    """Conversation state storage (episodic memory)."""
-    __tablename__ = "conversation_states"
-
-    conversation_id = Column(PGUUID(as_uuid=True), primary_key=True)
-    user_id = Column(String(255), nullable=False)
-    state_data = Column(JSONB, default=dict)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    def to_dict(self) -> dict:
-        return {
-            "conversation_id": str(self.conversation_id),
-            "user_id": self.user_id,
-            "state_data": self.state_data,
-            "updated_at": self.updated_at.isoformat(),
-        }
-```
-
-- [ ] **Step 4: Run linter to verify syntax**
-
-Run: `python -m py_compile backend/app/db/models.py`
-Expected: No errors
-
-- [ ] **Step 5: Write DB init file**
-
-```python
-# backend/app/db/__init__.py
-from app.db.base import Base, async_session_factory, engine, get_db_session, init_db
-from app.db.models import MessageModel, ConversationStateModel
-
-__all__ = [
-    "Base",
-    "async_session_factory",
-    "engine",
-    "get_db_session",
-    "init_db",
-    "MessageModel",
-    "ConversationStateModel",
-]
-```
-
-- [ ] **Step 6: Add config settings**
-
-```python
-# Add to backend/app/config.py
 
 class Settings(BaseSettings):
-    # ... existing settings ...
+    """Application settings with environment variable support."""
+
+    # Application
+    app_name: str = Field(default="Travel Assistant", description="Application name")
+    debug: bool = Field(default=False, description="Debug mode")
+    environment: str = Field(default="development", description="Environment name")
 
     # Database
     database_url: str = Field(
-        default="postgresql+asyncpg://user:pass@localhost/travel_assistant",
+        default="postgresql://user:pass@localhost:5432/travel_assistant",
         description="PostgreSQL connection URL"
     )
 
     # ChromaDB
     chromadb_path: str = Field(
-        default="./data/chromadb",
+        default="./data/chroma_db",
         description="ChromaDB persistent storage path"
     )
 
@@ -206,32 +93,380 @@ class Settings(BaseSettings):
         default="failed_messages.jsonl",
         description="Fallback file for failed messages"
     )
+
+    # LLM
+    llm_api_key: Optional[str] = Field(default=None, description="LLM API key")
+    llm_model: str = Field(default="deepseek-chat", description="LLM model name")
+    llm_base_url: str = Field(default="https://api.deepseek.com/v1", description="LLM base URL")
+
+    # Context
+    context_window_size: int = Field(default=16000, description="LLM context window size")
+    context_soft_trim_ratio: float = Field(default=0.3, description="Soft trim ratio")
+    context_hard_clear_ratio: float = Field(default=0.5, description="Hard clear ratio")
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+
+# Global settings instance
+settings = Settings()
 ```
 
-- [ ] **Step 7: Run linter to verify syntax**
+- [ ] **Step 2: Run linter to verify syntax**
 
 Run: `python -m py_compile backend/app/config.py`
 Expected: No errors
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add backend/app/db/ backend/app/config.py
-git commit -m "feat(phase2): add database models and connection
+git add backend/app/config.py
+git commit -m "feat(phase2): add configuration module
 
-- Add SQLAlchemy async engine setup
-- Add MessageModel and ConversationStateModel
-- Add DB config settings"
+- Add pydantic-based settings
+- Support environment variables via .env
+- Add database, persistence, and LLM configs"
 ```
 
 ---
 
-## Task 2: Repository Interfaces
+## Task 2: Extend Existing Vector Store
+
+**Files:**
+- Modify: `backend/app/db/vector_store.py`
+
+- [ ] **Step 1: Read existing vector store**
+
+Run: `head -150 backend/app/db/vector_store.py`
+Expected: See existing ChromaDB setup
+
+- [ ] **Step 2: Extend VectorStore with metadata helpers**
+
+Add to the end of `backend/app/db/vector_store.py`:
+
+```python
+# Add to backend/app/db/vector_store.py
+
+# ... existing code ...
+
+def ensure_metadata(metadata: dict) -> dict:
+    """Ensure required metadata fields exist for Phase 2 hybrid retrieval.
+
+    Required fields:
+    - user_id: User ID for isolation
+    - conversation_id: Conversation ID for proximity scoring
+    - created_at: Unix timestamp for time decay
+    - memory_type: Type of memory (preference, fact, constraint)
+    - importance: Importance score 0.0-1.0
+
+    Args:
+        metadata: Metadata dict to validate/complete
+
+    Returns:
+        Metadata dict with required fields
+    """
+    import time
+
+    result = metadata.copy()
+
+    if "created_at" not in result:
+        result["created_at"] = time.time()
+
+    if "memory_type" not in result:
+        result["memory_type"] = "preference"
+
+    if "importance" not in result:
+        result["importance"] = 0.5
+
+    return result
+
+
+def format_search_results(results: dict) -> list[dict]:
+    """Format ChromaDB query results with similarity scores.
+
+    Converts distance to similarity score (1 - distance).
+
+    Args:
+        results: Raw ChromaDB query results
+
+    Returns:
+        List of formatted results with content, metadata, score
+    """
+    if not results or not results.get("ids") or not results["ids"][0]:
+        return []
+
+    formatted = []
+    for i, item_id in enumerate(results["ids"][0]):
+        formatted.append({
+            "id": item_id,
+            "content": results["documents"][0][i],
+            "metadata": results["metadatas"][0][i],
+            "score": 1.0 - results["distances"][0][i],  # Distance to similarity
+        })
+
+    return formatted
+```
+
+- [ ] **Step 3: Run linter to verify syntax**
+
+Run: `python -m py_compile backend/app/db/vector_store.py`
+Expected: No errors
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add backend/app/db/vector_store.py
+git commit -m "feat(phase2): extend vector store with metadata helpers
+
+- Add ensure_metadata() for Phase 2 requirements
+- Add format_search_results() with distance-to-similarity conversion"
+```
+
+---
+
+## Task 3: Add Message Storage to Existing PostgreSQL Module
+
+**Files:**
+- Modify: `backend/app/db/postgres.py`
+
+- [ ] **Step 1: Read existing postgres module**
+
+Run: `head -100 backend/app/db/postgres.py`
+Expected: See existing Database class and async functions
+
+- [ ] **Step 2: Add message storage functions**
+
+Add to `backend/app/db/postgres.py`:
+
+```python
+# Add to backend/app/db/postgres.py
+
+import logging
+from datetime import datetime
+from uuid import UUID, uuid4
+
+logger = logging.getLogger(__name__)
+
+# ... existing code ...
+
+# ============== Phase 2: Message Storage ==============
+
+async def create_message(
+    conn,
+    conversation_id: UUID,
+    user_id: str,
+    role: str,
+    content: str,
+    tokens: int = 0,
+) -> dict:
+    """Create a message record.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        user_id: User ID
+        role: Message role (user/assistant/system)
+        content: Message content
+        tokens: Estimated token count
+
+    Returns:
+        Created message record as dict
+    """
+    message_id = uuid4()
+    now = datetime.utcnow()
+
+    await conn.execute(
+        """
+        INSERT INTO messages (id, conversation_id, user_id, role, content, tokens, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        """,
+        message_id, conversation_id, user_id, role, content, tokens, now
+    )
+
+    return {
+        "id": str(message_id),
+        "conversation_id": str(conversation_id),
+        "user_id": user_id,
+        "role": role,
+        "content": content,
+        "tokens": tokens,
+        "created_at": now.isoformat(),
+    }
+
+
+async def get_messages(
+    conn,
+    conversation_id: UUID,
+    limit: int = 50,
+) -> list[dict]:
+    """Get messages for a conversation.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        limit: Max messages to return
+
+    Returns:
+        List of message dicts
+    """
+    rows = await conn.fetch(
+        """
+        SELECT id, conversation_id, user_id, role, content, tokens, created_at
+        FROM messages
+        WHERE conversation_id = $1
+        ORDER BY created_at ASC
+        LIMIT $2
+        """,
+        conversation_id, limit
+    )
+
+    return [
+        {
+            "id": str(row["id"]),
+            "conversation_id": str(row["conversation_id"]),
+            "user_id": row["user_id"],
+            "role": row["role"],
+            "content": row["content"],
+            "tokens": row["tokens"],
+            "created_at": row["created_at"].isoformat(),
+        }
+        for row in rows
+    ]
+
+
+async def get_recent_messages(
+    conn,
+    user_id: str,
+    limit: int = 20,
+) -> list[dict]:
+    """Get recent messages for a user.
+
+    Args:
+        conn: Database connection
+        user_id: User ID
+        limit: Max messages to return
+
+    Returns:
+        List of message dicts, newest first
+    """
+    rows = await conn.fetch(
+        """
+        SELECT id, conversation_id, user_id, role, content, tokens, created_at
+        FROM messages
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2
+        """,
+        user_id, limit
+    )
+
+    return [
+        {
+            "id": str(row["id"]),
+            "conversation_id": str(row["conversation_id"]),
+            "user_id": row["user_id"],
+            "role": row["role"],
+            "content": row["content"],
+            "tokens": row["tokens"],
+            "created_at": row["created_at"].isoformat(),
+        }
+        for row in rows
+    ]
+
+
+# ============== Phase 2: Conversation State (Episodic Memory) ==============
+
+async def upsert_conversation_state(
+    conn,
+    conversation_id: UUID,
+    user_id: str,
+    state_data: dict,
+) -> bool:
+    """Create or update conversation state.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        user_id: User ID
+        state_data: State data to merge
+
+    Returns:
+        True if successful
+    """
+    await conn.execute(
+        """
+        INSERT INTO conversation_states (conversation_id, user_id, state_data, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (conversation_id)
+        DO UPDATE SET
+            state_data = conversation_states.state_data || $3,
+            updated_at = NOW()
+        """,
+        conversation_id, user_id, state_data
+    )
+
+    return True
+
+
+async def get_conversation_state(
+    conn,
+    conversation_id: UUID,
+) -> dict | None:
+    """Get conversation state.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+
+    Returns:
+        State data dict or None
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT conversation_id, user_id, state_data, updated_at
+        FROM conversation_states
+        WHERE conversation_id = $1
+        """,
+        conversation_id
+    )
+
+    if not row:
+        return None
+
+    return {
+        "conversation_id": str(row["conversation_id"]),
+        "user_id": row["user_id"],
+        "state_data": row["state_data"],
+        "updated_at": row["updated_at"].isoformat(),
+    }
+```
+
+- [ ] **Step 3: Run linter to verify syntax**
+
+Run: `python -m py_compile backend/app/db/postgres.py`
+Expected: No errors
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add backend/app/db/postgres.py
+git add backend/app/db/postgres.py
+git commit -m "feat(phase2): add message storage to postgres module
+
+- Add create_message(), get_messages(), get_recent_messages()
+- Add upsert_conversation_state(), get_conversation_state()
+- Use existing asyncpg pattern"
+```
+
+---
+
+## Task 4: Create Repository Interfaces
 
 **Files:**
 - Create: `backend/app/core/memory/repositories.py`
-- Create: `tests/core/memory/__init__.py`
-- Create: `tests/core/memory/test_repositories.py`
+- Create: `tests/core/test_repositories.py`
 
 - [ ] **Step 1: Write repository abstract interfaces**
 
@@ -279,9 +514,7 @@ class MessageRepository(BaseRepository, abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_recent(
-        self, user_id: str, limit: int = 20
-    ) -> List["Message"]:
+    async def get_recent(self, user_id: str, limit: int = 20) -> List["Message"]:
         """Get recent messages for a user."""
         pass
 
@@ -348,9 +581,8 @@ Expected: No errors
 - [ ] **Step 3: Write repository interface tests**
 
 ```python
-# tests/core/memory/test_repositories.py
+# tests/core/test_repositories.py
 import pytest
-from uuid import uuid4
 
 from app.core.memory.repositories import (
     BaseRepository,
@@ -386,7 +618,6 @@ class TestRepositoryInterfaces:
         """MessageRepository requires all methods."""
         repo = DummyMessageRepository()
 
-        # Should not raise AttributeError
         assert hasattr(repo, 'save_message')
         assert hasattr(repo, 'get_by_conversation')
         assert hasattr(repo, 'get_recent')
@@ -414,13 +645,13 @@ class TestRepositoryInterfaces:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `cd backend && pytest tests/core/memory/test_repositories.py -v`
-Expected: PASS (all interface tests)
+Run: `cd backend && pytest tests/core/test_repositories.py -v`
+Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add backend/app/core/memory/repositories.py tests/core/memory/test_repositories.py
+git add backend/app/core/memory/repositories.py tests/core/test_repositories.py
 git commit -m "feat(phase2): add repository abstract interfaces
 
 - Define BaseRepository, MessageRepository, EpisodicRepository, SemanticRepository
@@ -429,421 +660,39 @@ git commit -m "feat(phase2): add repository abstract interfaces
 
 ---
 
-## Task 3: ChromaDB Vector Store
-
-**Files:**
-- Create: `backend/app/core/memory/vector_store.py`
-- Create: `tests/core/memory/test_vector_store.py`
-
-- [ ] **Step 1: Write ChromaDB wrapper**
-
-```python
-# backend/app/core/memory/vector_store.py
-"""ChromaDB vector storage for semantic memories.
-
-Metadata schema (required):
-- user_id: User ID for isolation
-- conversation_id: Conversation ID for proximity scoring
-- created_at: Unix timestamp for time decay
-- memory_type: Type of memory (preference, fact, constraint)
-- importance: Importance score 0.0-1.0
-"""
-import logging
-import time
-from typing import Any, Dict, List, Optional
-
-import chromadb
-from chromadb.config import Settings
-
-from app.config import settings
-
-logger = logging.getLogger(__name__)
-
-
-class ChromaDBVectorStore:
-    """ChromaDB wrapper for semantic memory storage."""
-
-    COLLECTION_NAME = "semantic_memories"
-
-    def __init__(self, path: Optional[str] = None):
-        """Initialize ChromaDB client.
-
-        Args:
-            path: Storage path (default from settings)
-        """
-        self._path = path or settings.chromadb_path
-        self._client = chromadb.PersistentClient(path=self._path)
-        self._collection = self._client.get_or_create_collection(
-            name=self.COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"}
-        )
-        logger.info(f"[ChromaDB] Initialized: collection={self._collection.name}, path={self._path}")
-
-    async def add(
-        self,
-        content: str,
-        embedding: List[float],
-        metadata: Dict[str, Any],
-        item_id: Optional[str] = None,
-    ) -> str:
-        """Add semantic memory to vector store.
-
-        Args:
-            content: Text content
-            embedding: Vector embedding
-            metadata: Metadata dict (must include required fields)
-            item_id: Optional custom ID
-
-        Returns:
-            Item ID
-        """
-        # Ensure required metadata
-        metadata = self._ensure_metadata(metadata)
-
-        item_id = item_id or self._generate_id(metadata)
-
-        self._collection.add(
-            embeddings=[embedding],
-            documents=[content],
-            metadatas=[metadata],
-            ids=[item_id],
-        )
-
-        logger.debug(f"[ChromaDB] Added: {item_id}")
-        return item_id
-
-    async def search(
-        self,
-        query_embedding: List[float],
-        user_id: str,
-        n_results: int = 10,
-        where: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
-        """Search by vector similarity.
-
-        Args:
-            query_embedding: Query vector
-            user_id: User ID for filtering
-            n_results: Max results
-            where: Additional filter conditions
-
-        Returns:
-            List of results with content, metadata, score
-        """
-        where_clause = {"user_id": user_id}
-        if where:
-            where_clause.update(where)
-
-        results = self._collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results,
-            where=where_clause,
-        )
-
-        return self._format_results(results)
-
-    async def get_by_type(
-        self,
-        user_id: str,
-        memory_type: str,
-        limit: int = 20,
-    ) -> List[Dict[str, Any]]:
-        """Get memories by type.
-
-        Args:
-            user_id: User ID
-            memory_type: Memory type filter
-            limit: Max results
-
-        Returns:
-            List of memories
-        """
-        results = self._collection.get(
-            where={"user_id": user_id, "memory_type": memory_type},
-            limit=limit,
-        )
-
-        return self._format_get_results(results)
-
-    async def delete_by_conversation(self, conversation_id: str) -> int:
-        """Delete all memories for a conversation.
-
-        Args:
-            conversation_id: Conversation ID
-
-        Returns:
-            Number of deleted items (ChromaDB doesn't return count, so estimate)
-        """
-        self._collection.delete(
-            where={"conversation_id": conversation_id}
-        )
-        logger.info(f"[ChromaDB] Deleted conversation: {conversation_id}")
-        return 0
-
-    def _ensure_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
-        """Ensure required metadata fields exist."""
-        result = metadata.copy()
-
-        if "created_at" not in result:
-            result["created_at"] = time.time()
-
-        if "memory_type" not in result:
-            result["memory_type"] = "preference"
-
-        if "importance" not in result:
-            result["importance"] = 0.5
-
-        return result
-
-    def _generate_id(self, metadata: Dict[str, Any]) -> str:
-        """Generate unique item ID."""
-        return f"{metadata.get('user_id', 'unknown')}_{metadata.get('created_at', 0)}_{id(metadata)}"
-
-    def _format_results(self, results: Dict) -> List[Dict[str, Any]]:
-        """Format query results."""
-        if not results or not results.get("ids") or not results["ids"][0]:
-            return []
-
-        formatted = []
-        for i, item_id in enumerate(results["ids"][0]):
-            formatted.append({
-                "id": item_id,
-                "content": results["documents"][0][i],
-                "metadata": results["metadatas"][0][i],
-                "score": 1.0 - results["distances"][0][i],  # Distance to similarity
-            })
-
-        return formatted
-
-    def _format_get_results(self, results: Dict) -> List[Dict[str, Any]]:
-        """Format get() results."""
-        if not results or not results.get("ids"):
-            return []
-
-        formatted = []
-        for i, item_id in enumerate(results["ids"]):
-            formatted.append({
-                "id": item_id,
-                "content": results["documents"][i],
-                "metadata": results["metadatas"][i],
-            })
-
-        return formatted
-```
-
-- [ ] **Step 2: Run linter to verify syntax**
-
-Run: `python -m py_compile backend/app/core/memory/vector_store.py`
-Expected: No errors
-
-- [ ] **Step 3: Write vector store tests**
-
-```python
-# tests/core/memory/test_vector_store.py
-import pytest
-
-from app.core.memory.vector_store import ChromaDBVectorStore
-
-
-@pytest.fixture
-async def vector_store(tmp_path):
-    """Create test vector store."""
-    store = ChromaDBVectorStore(path=str(tmp_path / "chromadb"))
-    yield store
-    # Cleanup
-    import shutil
-    shutil.rmtree(tmp_path, ignore_errors=True)
-
-
-class TestChromaDBVectorStore:
-    """Test ChromaDB vector store."""
-
-    @pytest.mark.asyncio
-    async def test_add_memory(self, vector_store):
-        """Should add memory with generated ID."""
-        item_id = await vector_store.add(
-            content="用户喜欢自然景观",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "test_user", "memory_type": "preference"},
-        )
-
-        assert item_id is not None
-        assert isinstance(item_id, str)
-
-    @pytest.mark.asyncio
-    async def test_add_ensures_created_at(self, vector_store):
-        """Should add created_at if not in metadata."""
-        import time
-
-        before = time.time()
-        item_id = await vector_store.add(
-            content="test",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "test_user"},
-        )
-
-        results = await vector_store.search(
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            n_results=1,
-        )
-
-        assert results[0]["metadata"]["created_at"] >= before
-
-    @pytest.mark.asyncio
-    async def test_search_by_user(self, vector_store):
-        """Should only return results for specified user."""
-        await vector_store.add(
-            content="user1 preference",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "user1"},
-        )
-        await vector_store.add(
-            content="user2 preference",
-            embedding=[0.2] * 384,
-            metadata={"user_id": "user2"},
-        )
-
-        results = await vector_store.search(
-            query_embedding=[0.1] * 384,
-            user_id="user1",
-            n_results=10,
-        )
-
-        assert len(results) == 1
-        assert results[0]["metadata"]["user_id"] == "user1"
-
-    @pytest.mark.asyncio
-    async def test_search_returns_similarity_score(self, vector_store):
-        """Should convert distance to similarity score."""
-        await vector_store.add(
-            content="test",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "test_user"},
-        )
-
-        results = await vector_store.search(
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            n_results=1,
-        )
-
-        assert "score" in results[0]
-        assert 0.0 <= results[0]["score"] <= 1.0
-
-    @pytest.mark.asyncio
-    async def test_get_by_type(self, vector_store):
-        """Should filter by memory type."""
-        await vector_store.add(
-            content="preference",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "test_user", "memory_type": "preference"},
-        )
-        await vector_store.add(
-            content="fact",
-            embedding=[0.2] * 384,
-            metadata={"user_id": "test_user", "memory_type": "fact"},
-        )
-
-        results = await vector_store.get_by_type(
-            user_id="test_user",
-            memory_type="preference",
-        )
-
-        assert len(results) == 1
-        assert results[0]["metadata"]["memory_type"] == "preference"
-
-    @pytest.mark.asyncio
-    async def test_delete_by_conversation(self, vector_store):
-        """Should delete all memories for a conversation."""
-        conv_id = "test_conv_123"
-
-        await vector_store.add(
-            content="memory1",
-            embedding=[0.1] * 384,
-            metadata={"user_id": "test_user", "conversation_id": conv_id},
-        )
-        await vector_store.add(
-            content="memory2",
-            embedding=[0.2] * 384,
-            metadata={"user_id": "test_user", "conversation_id": conv_id},
-        )
-
-        await vector_store.delete_by_conversation(conv_id)
-
-        results = await vector_store.search(
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            n_results=10,
-        )
-
-        assert len(results) == 0
-```
-
-- [ ] **Step 4: Run tests to verify they pass**
-
-Run: `cd backend && pytest tests/core/memory/test_vector_store.py -v`
-Expected: PASS (all tests)
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add backend/app/core/memory/vector_store.py tests/core/memory/test_vector_store.py
-git commit -m "feat(phase2): add ChromaDB vector store wrapper
-
-- Implement ChromaDBVectorStore with add/search/delete
-- Ensure required metadata fields
-- Add comprehensive tests"
-```
-
----
-
-## Task 4: PostgreSQL Repository Implementations
+## Task 5: Implement Message Repository
 
 **Files:**
 - Create: `backend/app/db/message_repo.py`
-- Create: `backend/app/db/episodic_repo.py`
-- Modify: `backend/app/db/__init__.py`
 
-- [ ] **Step 1: Write Message repository implementation**
+- [ ] **Step 1: Write message repository implementation**
 
 ```python
 # backend/app/db/message_repo.py
-"""PostgreSQL implementation of MessageRepository."""
-import logging
+"""PostgreSQL implementation of MessageRepository using existing asyncpg functions."""
+from dataclasses import dataclass
 from datetime import datetime
 from typing import List
-from uuid import UUID, uuid4
-
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 from app.core.memory.repositories import MessageRepository
-from app.db.models import MessageModel
-
-logger = logging.getLogger(__name__)
+from app.db.postgres import create_message, get_messages, get_recent_messages
 
 
-class MessageDTO:
-    """Data transfer object for messages."""
+@dataclass
+class Message:
+    """Message data class for persistence."""
+    id: UUID
+    conversation_id: UUID
+    user_id: str
+    role: str
+    content: str
+    tokens: int = 0
+    created_at: datetime = None
 
-    def __init__(
-        self,
-        id: UUID,
-        conversation_id: UUID,
-        user_id: str,
-        role: str,
-        content: str,
-        tokens: int = 0,
-        created_at: datetime = None,
-    ):
-        self.id = id
-        self.conversation_id = conversation_id
-        self.user_id = user_id
-        self.role = role
-        self.content = content
-        self.tokens = tokens
-        self.created_at = created_at or datetime.utcnow()
+    def __post_init__(self):
+        if self.created_at is None:
+            self.created_at = datetime.utcnow()
 
     def to_dict(self) -> dict:
         return {
@@ -860,118 +709,73 @@ class MessageDTO:
 class PostgresMessageRepository(MessageRepository):
     """PostgreSQL implementation for message persistence."""
 
-    def __init__(self, session_factory):
+    def __init__(self, get_db_connection):
         """Initialize repository.
 
         Args:
-            session_factory: Async session factory
+            get_db_connection: Callable that returns asyncpg connection
         """
-        self._session_factory = session_factory
+        self._get_db_connection = get_db_connection
 
-    async def save_message(self, message: MessageDTO) -> MessageDTO:
-        """Save message to PostgreSQL.
-
-        Args:
-            message: Message to save
-
-        Returns:
-            Saved message
-        """
-        async with self._session_factory() as session:
-            db_message = MessageModel(
-                id=message.id,
+    async def save_message(self, message: Message) -> Message:
+        """Save message to PostgreSQL."""
+        async with self._get_db_connection() as conn:
+            result = await create_message(
+                conn=conn,
                 conversation_id=message.conversation_id,
                 user_id=message.user_id,
                 role=message.role,
                 content=message.content,
                 tokens=message.tokens,
-                created_at=message.created_at,
             )
 
-            session.add(db_message)
-            await session.commit()
-            await session.refresh(db_message)
-
-            logger.debug(f"[MessageRepo] Saved: {message.id}")
-
-            return MessageDTO(
-                id=db_message.id,
-                conversation_id=db_message.conversation_id,
-                user_id=db_message.user_id,
-                role=db_message.role,
-                content=db_message.content,
-                tokens=db_message.tokens,
-                created_at=db_message.created_at,
+            # Update created_at from database
+            return Message(
+                id=UUID(result["id"]),
+                conversation_id=UUID(result["conversation_id"]),
+                user_id=result["user_id"],
+                role=result["role"],
+                content=result["content"],
+                tokens=result["tokens"],
+                created_at=datetime.fromisoformat(result["created_at"]),
             )
 
     async def get_by_conversation(
         self, conversation_id: UUID, limit: int = 50
-    ) -> List[MessageDTO]:
-        """Get messages for a conversation.
-
-        Args:
-            conversation_id: Conversation UUID
-            limit: Max messages to return
-
-        Returns:
-            List of messages, oldest first
-        """
-        async with self._session_factory() as session:
-            stmt = (
-                select(MessageModel)
-                .where(MessageModel.conversation_id == conversation_id)
-                .order_by(MessageModel.created_at)
-                .limit(limit)
-            )
-
-            result = await session.execute(stmt)
-            messages = result.scalars().all()
+    ) -> List[Message]:
+        """Get messages for a conversation."""
+        async with self._get_db_connection() as conn:
+            rows = await get_messages(conn, conversation_id, limit)
 
             return [
-                MessageDTO(
-                    id=m.id,
-                    conversation_id=m.conversation_id,
-                    user_id=m.user_id,
-                    role=m.role,
-                    content=m.content,
-                    tokens=m.tokens,
-                    created_at=m.created_at,
+                Message(
+                    id=UUID(row["id"]),
+                    conversation_id=UUID(row["conversation_id"]),
+                    user_id=row["user_id"],
+                    role=row["role"],
+                    content=row["content"],
+                    tokens=row["tokens"],
+                    created_at=datetime.fromisoformat(row["created_at"]),
                 )
-                for m in messages
+                for row in rows
             ]
 
-    async def get_recent(self, user_id: str, limit: int = 20) -> List[MessageDTO]:
-        """Get recent messages for a user.
-
-        Args:
-            user_id: User ID
-            limit: Max messages to return
-
-        Returns:
-            List of messages, newest first
-        """
-        async with self._session_factory() as session:
-            stmt = (
-                select(MessageModel)
-                .where(MessageModel.user_id == user_id)
-                .order_by(MessageModel.created_at.desc())
-                .limit(limit)
-            )
-
-            result = await session.execute(stmt)
-            messages = result.scalars().all()
+    async def get_recent(self, user_id: str, limit: int = 20) -> List[Message]:
+        """Get recent messages for a user."""
+        async with self._get_db_connection() as conn:
+            rows = await get_recent_messages(conn, user_id, limit)
 
             return [
-                MessageDTO(
-                    id=m.id,
-                    conversation_id=m.conversation_id,
-                    user_id=m.user_id,
-                    role=m.role,
-                    content=m.content,
-                    tokens=m.tokens,
-                    created_at=m.created_at,
+                Message(
+                    id=UUID(row["id"]),
+                    conversation_id=UUID(row["conversation_id"]),
+                    user_id=row["user_id"],
+                    role=row["role"],
+                    content=row["content"],
+                    tokens=row["tokens"],
+                    created_at=datetime.fromisoformat(row["created_at"]),
                 )
-                for m in messages
+                for row in rows
             ]
 
     async def save(self, item) -> Any:
@@ -988,22 +792,171 @@ class PostgresMessageRepository(MessageRepository):
 Run: `python -m py_compile backend/app/db/message_repo.py`
 Expected: No errors
 
-- [ ] **Step 3: Write Episodic repository implementation**
+- [ ] **Step 3: Commit**
+
+```bash
+git add backend/app/db/message_repo.py
+git commit -m "feat(phase2): add PostgreSQL message repository
+
+- Implement PostgresMessageRepository using existing asyncpg functions
+- Add Message dataclass
+- Integrate with create_message, get_messages, get_recent_messages"
+```
+
+---
+
+## Task 6: Implement Semantic Repository
+
+**Files:**
+- Create: `backend/app/db/semantic_repo.py`
+
+- [ ] **Step 1: Write semantic repository implementation**
+
+```python
+# backend/app/db/semantic_repo.py
+"""ChromaDB implementation of SemanticRepository using existing VectorStore."""
+import logging
+from typing import Any, Dict, List
+
+from app.core.memory.repositories import SemanticRepository
+from app.db.vector_store import VectorStore, ensure_metadata, format_search_results
+
+logger = logging.getLogger(__name__)
+
+
+class ChromaDBSemanticRepository(SemanticRepository):
+    """ChromaDB implementation for semantic memory."""
+
+    def __init__(self, vector_store: VectorStore, collection_name: str = "conversations"):
+        """Initialize repository.
+
+        Args:
+            vector_store: Existing VectorStore instance
+            collection_name: ChromaDB collection name
+        """
+        self._store = vector_store
+        self._collection_name = collection_name
+
+    async def add(
+        self,
+        content: str,
+        embedding: List[float],
+        metadata: Dict[str, Any],
+    ) -> str:
+        """Add semantic memory."""
+        # Ensure required metadata
+        metadata = ensure_metadata(metadata)
+
+        # Get or create collection
+        collection = self._store.client.get_or_create_collection(
+            name=self._collection_name,
+            metadata={"hnsw:space": "cosine"}
+        )
+
+        # Generate ID
+        item_id = f"{metadata.get('user_id', 'unknown')}_{metadata.get('created_at', 0)}_{id(metadata)}"
+
+        collection.add(
+            embeddings=[embedding],
+            documents=[content],
+            metadatas=[metadata],
+            ids=[item_id],
+        )
+
+        logger.debug(f"[SemanticRepo] Added: {item_id}")
+        return item_id
+
+    async def search_similar(
+        self,
+        query_embedding: List[float],
+        user_id: str,
+        n_results: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """Search by vector similarity."""
+        collection = self._store.client.get_or_create_collection(
+            name=self._collection_name
+        )
+
+        results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=n_results,
+            where={"user_id": user_id},
+        )
+
+        return format_search_results(results)
+
+    async def get_by_type(
+        self,
+        user_id: str,
+        memory_type: str,
+        limit: int = 20,
+    ) -> List[Dict[str, Any]]:
+        """Get memories by type."""
+        collection = self._store.client.get_or_create_collection(
+            name=self._collection_name
+        )
+
+        results = collection.get(
+            where={"user_id": user_id, "memory_type": memory_type},
+            limit=limit,
+        )
+
+        if not results or not results.get("ids"):
+            return []
+
+        return [
+            {
+                "id": results["ids"][i],
+                "content": results["documents"][i],
+                "metadata": results["metadatas"][i],
+            }
+            for i in range(len(results["ids"]))
+        ]
+
+    async def save(self, item: Any) -> Any:
+        """Generic save interface - requires embedding."""
+        raise NotImplementedError("Use add() with embedding directly")
+
+    async def search(self, *args, **kwargs) -> List[Any]:
+        """Generic search interface."""
+        return await self.search_similar(*args, **kwargs)
+```
+
+- [ ] **Step 2: Run linter to verify syntax**
+
+Run: `python -m py_compile backend/app/db/semantic_repo.py`
+Expected: No errors
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add backend/app/db/semantic_repo.py
+git commit -m "feat(phase2): add ChromaDB semantic repository
+
+- Implement ChromaDBSemanticRepository
+- Wrap existing VectorStore with repository interface
+- Use ensure_metadata and format_search_results helpers"
+```
+
+---
+
+## Task 7: Implement Episodic Repository
+
+**Files:**
+- Create: `backend/app/db/episodic_repo.py`
+
+- [ ] **Step 1: Write episodic repository implementation**
 
 ```python
 # backend/app/db/episodic_repo.py
-"""PostgreSQL implementation of EpisodicRepository."""
+"""PostgreSQL implementation of EpisodicRepository using existing asyncpg functions."""
 import logging
 from typing import Any, Dict, List
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.dialects.postgresql import insert
-
 from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
 from app.core.memory.repositories import EpisodicRepository
-from app.db.models import ConversationStateModel
+from app.db.postgres import upsert_conversation_state, get_conversation_state
 
 logger = logging.getLogger(__name__)
 
@@ -1011,49 +964,28 @@ logger = logging.getLogger(__name__)
 class PostgresEpisodicRepository(EpisodicRepository):
     """PostgreSQL implementation for episodic memory."""
 
-    def __init__(self, session_factory):
+    def __init__(self, get_db_connection):
         """Initialize repository.
 
         Args:
-            session_factory: Async session factory
+            get_db_connection: Callable that returns asyncpg connection
         """
-        self._session_factory = session_factory
+        self._get_db_connection = get_db_connection
 
     async def save_episodic(self, item: MemoryItem) -> str:
-        """Save episodic memory to conversation state.
-
-        Args:
-            item: Memory item to save
-
-        Returns:
-            Item ID
-        """
+        """Save episodic memory to conversation state."""
         conversation_id = item.metadata.get("conversation_id")
         if not conversation_id:
             logger.warning("[EpisodicRepo] No conversation_id in metadata")
             return item.item_id
 
-        async with self._session_factory() as session:
-            # Upsert conversation state
-            stmt = (
-                insert(ConversationStateModel)
-                .values(
-                    conversation_id=UUID(conversation_id),
-                    user_id=item.metadata.get("user_id", ""),
-                    state_data={"memory": item.to_dict()},
-                )
-                .on_conflict_do_update(
-                    index_elements=["conversation_id"],
-                    set_={
-                        "state_data": ConversationStateModel.state_data.concat(
-                            {"memory": item.to_dict()}
-                        )
-                    },
-                )
+        async with self._get_db_connection() as conn:
+            await upsert_conversation_state(
+                conn=conn,
+                conversation_id=UUID(conversation_id),
+                user_id=item.metadata.get("user_id", ""),
+                state_data={"memory": item.to_dict()},
             )
-
-            await session.execute(stmt)
-            await session.commit()
 
             logger.debug(f"[EpisodicRepo] Saved: {item.item_id}")
 
@@ -1062,28 +994,15 @@ class PostgresEpisodicRepository(EpisodicRepository):
     async def get_conversation_memories(
         self, conversation_id: UUID
     ) -> List[MemoryItem]:
-        """Get memories for a conversation.
+        """Get memories for a conversation."""
+        async with self._get_db_connection() as conn:
+            state = await get_conversation_state(conn, conversation_id)
 
-        Args:
-            conversation_id: Conversation UUID
-
-        Returns:
-            List of memory items
-        """
-        async with self._session_factory() as session:
-            stmt = select(ConversationStateModel).where(
-                ConversationStateModel.conversation_id == conversation_id
-            )
-
-            result = await session.execute(stmt)
-            state = result.scalar_one_or_none()
-
-            if not state or not state.state_data:
+            if not state or not state.get("state_data"):
                 return []
 
-            # Extract memories from state data
             memories = []
-            memory_data = state.state_data.get("memory", {})
+            memory_data = state["state_data"].get("memory", {})
             if isinstance(memory_data, dict):
                 memories.append(MemoryItem.from_dict(memory_data))
 
@@ -1092,27 +1011,14 @@ class PostgresEpisodicRepository(EpisodicRepository):
     async def update_conversation_state(
         self, conversation_id: UUID, state: Dict[str, Any]
     ) -> bool:
-        """Update conversation state.
-
-        Args:
-            conversation_id: Conversation UUID
-            state: State data to merge
-
-        Returns:
-            True if successful
-        """
-        async with self._session_factory() as session:
-            stmt = (
-                insert(ConversationStateModel)
-                .values(conversation_id=conversation_id, state_data=state)
-                .on_conflict_do_update(
-                    index_elements=["conversation_id"],
-                    set_={"state_data": ConversationStateModel.state_data.concat(state)},
-                )
+        """Update conversation state."""
+        async with self._get_db_connection() as conn:
+            await upsert_conversation_state(
+                conn=conn,
+                conversation_id=conversation_id,
+                user_id=state.get("user_id", ""),
+                state_data=state,
             )
-
-            await session.execute(stmt)
-            await session.commit()
 
             logger.debug(f"[EpisodicRepo] Updated state: {conversation_id}")
 
@@ -1127,203 +1033,88 @@ class PostgresEpisodicRepository(EpisodicRepository):
         return await self.get_conversation_memories(*args, **kwargs)
 ```
 
-- [ ] **Step 4: Run linter to verify syntax**
+- [ ] **Step 2: Run linter to verify syntax**
 
 Run: `python -m py_compile backend/app/db/episodic_repo.py`
 Expected: No errors
 
-- [ ] **Step 5: Update DB init file**
-
-```python
-# backend/app/db/__init__.py
-from app.db.base import Base, async_session_factory, engine, get_db_session, init_db
-from app.db.models import MessageModel, ConversationStateModel
-from app.db.message_repo import PostgresMessageRepository, MessageDTO
-from app.db.episodic_repo import PostgresEpisodicRepository
-
-__all__ = [
-    "Base",
-    "async_session_factory",
-    "engine",
-    "get_db_session",
-    "init_db",
-    "MessageModel",
-    "ConversationStateModel",
-    "PostgresMessageRepository",
-    "MessageDTO",
-    "PostgresEpisodicRepository",
-]
-```
-
-- [ ] **Step 6: Run linter to verify syntax**
-
-Run: `python -m py_compile backend/app/db/__init__.py`
-Expected: No errors
-
-- [ ] **Step 7: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add backend/app/db/message_repo.py backend/app/db/episodic_repo.py backend/app/db/__init__.py
-git commit -m "feat(phase2): add PostgreSQL repository implementations
+git add backend/app/db/episodic_repo.py
+git commit -m "feat(phase2): add PostgreSQL episodic repository
 
-- Implement PostgresMessageRepository
-- Implement PostgresEpisodicRepository with upsert
-- Add MessageDTO for data transfer"
+- Implement PostgresEpisodicRepository
+- Integrate with upsert_conversation_state, get_conversation_state"
 ```
 
 ---
 
-## Task 5: Semantic Repository Implementation
+## Task 8: Update DB Package Exports
 
 **Files:**
-- Create: `backend/app/db/semantic_repo.py`
 - Modify: `backend/app/db/__init__.py`
 
-- [ ] **Step 1: Write Semantic repository implementation**
+- [ ] **Step 1: Update DB package exports**
 
 ```python
-# backend/app/db/semantic_repo.py
-"""ChromaDB implementation of SemanticRepository."""
-import logging
-from typing import Any, Dict, List
+# backend/app/db/__init__.py
+"""Database package for travel assistant."""
 
-from app.core.memory.repositories import SemanticRepository
-from app.core.memory.vector_store import ChromaDBVectorStore
+# Existing exports (keep these)
+from app.db.postgres import Database, create_conversation, get_conversation, list_conversations
+from app.db.postgres import create_message, get_messages, get_context_window
 
-logger = logging.getLogger(__name__)
+# Phase 2 new exports
+from app.db.message_repo import PostgresMessageRepository, Message
+from app.db.episodic_repo import PostgresEpisodicRepository
+from app.db.semantic_repo import ChromaDBSemanticRepository
+from app.db.vector_store import VectorStore, ChineseEmbeddings, get_chroma_client, ensure_metadata, format_search_results
 
-
-class ChromaDBSemanticRepository(SemanticRepository):
-    """ChromaDB implementation for semantic memory."""
-
-    def __init__(self, vector_store: ChromaDBVectorStore):
-        """Initialize repository.
-
-        Args:
-            vector_store: ChromaDB vector store instance
-        """
-        self._store = vector_store
-
-    async def add(
-        self,
-        content: str,
-        embedding: List[float],
-        metadata: Dict[str, Any],
-    ) -> str:
-        """Add semantic memory.
-
-        Args:
-            content: Text content
-            embedding: Vector embedding
-            metadata: Metadata dict
-
-        Returns:
-            Item ID
-        """
-        item_id = await self._store.add(
-            content=content,
-            embedding=embedding,
-            metadata=metadata,
-        )
-
-        logger.debug(f"[SemanticRepo] Added: {item_id}")
-        return item_id
-
-    async def search_similar(
-        self,
-        query_embedding: List[float],
-        user_id: str,
-        n_results: int = 10,
-    ) -> List[Dict[str, Any]]:
-        """Search by vector similarity.
-
-        Args:
-            query_embedding: Query vector
-            user_id: User ID filter
-            n_results: Max results
-
-        Returns:
-            List of results with content, metadata, score
-        """
-        results = await self._store.search(
-            query_embedding=query_embedding,
-            user_id=user_id,
-            n_results=n_results,
-        )
-
-        logger.debug(f"[SemanticRepo] Found {len(results)} results")
-        return results
-
-    async def get_by_type(
-        self,
-        user_id: str,
-        memory_type: str,
-        limit: int = 20,
-    ) -> List[Dict[str, Any]]:
-        """Get memories by type.
-
-        Args:
-            user_id: User ID
-            memory_type: Memory type filter
-            limit: Max results
-
-        Returns:
-            List of memories
-        """
-        results = await self._store.get_by_type(
-            user_id=user_id,
-            memory_type=memory_type,
-            limit=limit,
-        )
-
-        logger.debug(f"[SemanticRepo] Found {len(results)} of type {memory_type}")
-        return results
-
-    async def save(self, item: Any) -> Any:
-        """Generic save interface - requires embedding."""
-        # This requires embedding generation, handled by caller
-        raise NotImplementedError("Use add() with embedding directly")
-
-    async def search(self, *args, **kwargs) -> List[Any]:
-        """Generic search interface."""
-        return await self.search_similar(*args, **kwargs)
+__all__ = [
+    # Existing
+    "Database",
+    "create_conversation",
+    "get_conversation",
+    "list_conversations",
+    "create_message",
+    "get_messages",
+    "get_context_window",
+    # Phase 2
+    "PostgresMessageRepository",
+    "Message",
+    "PostgresEpisodicRepository",
+    "ChromaDBSemanticRepository",
+    "VectorStore",
+    "ChineseEmbeddings",
+    "get_chroma_client",
+    "ensure_metadata",
+    "format_search_results",
+]
 ```
 
 - [ ] **Step 2: Run linter to verify syntax**
 
-Run: `python -m py_compile backend/app/db/semantic_repo.py`
+Run: `python -m py_compile backend/app/db/__init__.py`
 Expected: No errors
 
-- [ ] **Step 3: Update DB init file**
-
-```python
-# Add to backend/app/db/__init__.py
-
-from app.db.semantic_repo import ChromaDBSemanticRepository
-
-__all__ = [
-    # ... existing exports ...
-    "ChromaDBSemanticRepository",
-]
-```
-
-- [ ] **Step 4: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add backend/app/db/semantic_repo.py backend/app/db/__init__.py
-git commit -m "feat(phase2): add ChromaDB semantic repository
+git add backend/app/db/__init__.py
+git commit -m "feat(phase2): update DB package exports
 
-- Implement ChromaDBSemanticRepository
-- Wrap ChromaDBVectorStore with repository interface"
+- Add Phase 2 repository exports
+- Keep all existing exports"
 ```
 
 ---
 
-## Task 6: Hybrid Retriever
+## Task 9: Implement Hybrid Retriever
 
 **Files:**
 - Create: `backend/app/core/memory/retrieval.py`
-- Create: `tests/core/memory/test_retrieval.py`
+- Create: `tests/core/test_retrieval.py`
 
 - [ ] **Step 1: Write hybrid retriever**
 
@@ -1331,13 +1122,15 @@ git commit -m "feat(phase2): add ChromaDB semantic repository
 # backend/app/core/memory/retrieval.py
 """Hybrid memory retrieval combining vector, time, and recency scoring.
 
-Scoring formula:
+Scoring formula (matching spec):
   final_score = 0.6 * vector_similarity
               + 0.2 * time_decay
               + 0.2 * conversation_recency
 
 Time decay: exp(-days_passed / 30)  # 30-day half-life
 Recency: 1.0 for same conversation, 0.3 otherwise
+
+Note: Embedding generation is done internally via ChineseEmbeddings.
 """
 import logging
 import time
@@ -1346,51 +1139,48 @@ from uuid import UUID
 
 from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
 from app.core.memory.repositories import SemanticRepository
+from app.db.vector_store import ChineseEmbeddings
 
 logger = logging.getLogger(__name__)
 
 
 class HybridRetriever:
-    """Hybrid memory retrieval with multi-factor scoring.
+    """Hybrid memory retrieval with multi-factor scoring."""
 
-    Combines vector similarity, time decay, and conversation proximity
-    for more relevant memory retrieval.
-    """
-
-    # Time decay: 30-day half-life
     TIME_DECAY_HALFLIFE = 30
-
-    # Same conversation bonus
     SAME_CONVERSATION_SCORE = 1.0
     DIFFERENT_CONVERSATION_SCORE = 0.3
 
     def __init__(
         self,
         semantic_repo: SemanticRepository,
+        embedding_client: Optional[ChineseEmbeddings] = None,
         min_score: float = 0.3,
     ):
         """Initialize retriever.
 
         Args:
             semantic_repo: Semantic repository for vector search
+            embedding_client: Optional embedding client (if None, creates own)
             min_score: Minimum score threshold
         """
         self._semantic_repo = semantic_repo
+        self._embedding_client = embedding_client or ChineseEmbeddings()
         self._min_score = min_score
 
     async def retrieve(
         self,
         query: str,
-        query_embedding: List[float],
         user_id: str,
         conversation_id: UUID,
         limit: int = 5,
     ) -> List[MemoryItem]:
         """Retrieve relevant semantic memories.
 
+        Matches spec signature: generates embedding internally.
+
         Args:
-            query: Query text (for logging)
-            query_embedding: Query vector embedding
+            query: Query text
             user_id: User ID
             conversation_id: Current conversation ID
             limit: Max results to return
@@ -1398,7 +1188,10 @@ class HybridRetriever:
         Returns:
             Sorted list of MemoryItems by relevance score
         """
-        # 1. Vector search (get more for re-ranking)
+        # 1. Generate query embedding
+        query_embedding = self._embedding_client.embed_query(query)
+
+        # 2. Vector search (get more for re-ranking)
         raw_results = await self._semantic_repo.search_similar(
             query_embedding=query_embedding,
             user_id=user_id,
@@ -1409,7 +1202,7 @@ class HybridRetriever:
             logger.debug(f"[HybridRetriever] No results for: '{query[:30]}...'")
             return []
 
-        # 2. Calculate hybrid scores
+        # 3. Calculate hybrid scores
         current_time = time.time()
         scored_items = []
 
@@ -1439,10 +1232,10 @@ class HybridRetriever:
             if final_score >= self._min_score:
                 scored_items.append((final_score, result))
 
-        # 3. Sort by score
+        # 4. Sort by score
         scored_items.sort(key=lambda x: x[0], reverse=True)
 
-        # 4. Convert to MemoryItem
+        # 5. Convert to MemoryItem
         memories = []
         for score, result in scored_items[:limit]:
             memories.append(self._to_memory_item(result, score))
@@ -1455,18 +1248,9 @@ class HybridRetriever:
         return memories
 
     def _to_memory_item(self, result: dict, score: float) -> MemoryItem:
-        """Convert search result to MemoryItem.
-
-        Args:
-            result: Search result from repository
-            score: Calculated hybrid score
-
-        Returns:
-            MemoryItem instance
-        """
+        """Convert search result to MemoryItem."""
         metadata = result.get("metadata", {})
 
-        # Parse memory type
         memory_type_str = metadata.get("memory_type", "preference")
         try:
             memory_type = MemoryType(memory_type_str)
@@ -1490,7 +1274,7 @@ Expected: No errors
 - [ ] **Step 3: Write hybrid retriever tests**
 
 ```python
-# tests/core/memory/test_retrieval.py
+# tests/core/test_retrieval.py
 import pytest
 import time
 from uuid import uuid4
@@ -1506,7 +1290,6 @@ class MockSemanticRepository:
         self._results = results or []
 
     async def search_similar(self, query_embedding, user_id, n_results=10):
-        """Return mock results."""
         return self._results[:n_results]
 
     async def add(self, content, embedding, metadata):
@@ -1521,13 +1304,11 @@ class MockSemanticRepository:
 
 @pytest.fixture
 def mock_repo():
-    """Create mock repository."""
     return MockSemanticRepository()
 
 
 @pytest.fixture
 async def retriever(mock_repo):
-    """Create retriever with mock repo."""
     return HybridRetriever(semantic_repo=mock_repo)
 
 
@@ -1536,19 +1317,15 @@ class TestHybridRetriever:
 
     @pytest.mark.asyncio
     async def test_empty_results(self, retriever):
-        """Should return empty list when no results."""
         memories = await retriever.retrieve(
             query="test query",
-            query_embedding=[0.1] * 384,
             user_id="test_user",
             conversation_id=uuid4(),
         )
-
         assert memories == []
 
     @pytest.mark.asyncio
     async def test_vector_score_weight(self, mock_repo):
-        """Vector similarity should have 60% weight."""
         now = time.time()
 
         mock_repo._results = [{
@@ -1559,7 +1336,7 @@ class TestHybridRetriever:
                 "created_at": now,
                 "memory_type": "preference",
             },
-            "score": 0.8,  # Vector similarity
+            "score": 0.8,
         }]
 
         retriever = HybridRetriever(semantic_repo=mock_repo)
@@ -1567,18 +1344,16 @@ class TestHybridRetriever:
 
         memories = await retriever.retrieve(
             query="test",
-            query_embedding=[0.1] * 384,
             user_id="test_user",
             conversation_id=conv_id,
         )
 
         assert len(memories) == 1
-        # Score = 0.6 * 0.8 + 0.2 * 1.0 + 0.2 * 0.3 ≈ 0.74
+        # 0.6 * 0.8 + 0.2 * 1.0 + 0.2 * 0.3 ≈ 0.74
         assert 0.7 < memories[0].importance < 0.8
 
     @pytest.mark.asyncio
     async def test_time_decay_calculation(self, mock_repo):
-        """Should apply time decay (30-day half-life)."""
         now = time.time()
         old_time = now - (30 * 86400)  # 30 days ago
 
@@ -1598,17 +1373,15 @@ class TestHybridRetriever:
 
         memories = await retriever.retrieve(
             query="test",
-            query_embedding=[0.1] * 384,
             user_id="test_user",
             conversation_id=conv_id,
         )
 
-        # 30-day decay: 0.5, score = 0.6*1.0 + 0.2*0.5 + 0.2*0.3 = 0.76
+        # 0.6*1.0 + 0.2*0.5 + 0.2*0.3 = 0.76
         assert 0.75 < memories[0].importance < 0.77
 
     @pytest.mark.asyncio
     async def test_same_conversation_boost(self, mock_repo):
-        """Same conversation should get 1.0 recency score."""
         conv_id = uuid4()
         now = time.time()
 
@@ -1627,129 +1400,38 @@ class TestHybridRetriever:
 
         memories = await retriever.retrieve(
             query="test",
-            query_embedding=[0.1] * 384,
             user_id="test_user",
             conversation_id=conv_id,
         )
 
-        # Same conv: score = 0.6*0.5 + 0.2*1.0 + 0.2*1.0 = 0.7
+        # 0.6*0.5 + 0.2*1.0 + 0.2*1.0 = 0.7
         assert 0.69 < memories[0].importance < 0.71
-
-    @pytest.mark.asyncio
-    async def test_different_conversation_penalty(self, mock_repo):
-        """Different conversation should get 0.3 recency score."""
-        conv_id = uuid4()
-        other_conv_id = uuid4()
-        now = time.time()
-
-        mock_repo._results = [{
-            "content": "other conv memory",
-            "metadata": {
-                "user_id": "test_user",
-                "conversation_id": str(other_conv_id),
-                "created_at": now,
-                "memory_type": "preference",
-            },
-            "score": 0.5,
-        }]
-
-        retriever = HybridRetriever(semantic_repo=mock_repo)
-
-        memories = await retriever.retrieve(
-            query="test",
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            conversation_id=conv_id,
-        )
-
-        # Different conv: score = 0.6*0.5 + 0.2*1.0 + 0.2*0.3 = 0.56
-        assert 0.55 < memories[0].importance < 0.57
-
-    @pytest.mark.asyncio
-    async def test_filters_by_min_score(self, mock_repo):
-        """Should filter results below min_score threshold."""
-        now = time.time()
-
-        mock_repo._results = [{
-            "content": "low score memory",
-            "metadata": {
-                "user_id": "test_user",
-                "conversation_id": str(uuid4()),
-                "created_at": now,
-                "memory_type": "preference",
-            },
-            "score": 0.1,  # Very low vector score
-        }]
-
-        retriever = HybridRetriever(semantic_repo=mock_repo, min_score=0.4)
-
-        memories = await retriever.retrieve(
-            query="test",
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            conversation_id=uuid4(),
-        )
-
-        # Score would be ~0.32, below threshold
-        assert len(memories) == 0
-
-    @pytest.mark.asyncio
-    async def test_returns_limit_results(self, mock_repo):
-        """Should return at most `limit` results."""
-        now = time.time()
-
-        # Create 10 results
-        mock_repo._results = [
-            {
-                "content": f"memory {i}",
-                "metadata": {
-                    "user_id": "test_user",
-                    "conversation_id": str(uuid4()),
-                    "created_at": now,
-                    "memory_type": "preference",
-                },
-                "score": 0.9 - (i * 0.05),
-            }
-            for i in range(10)
-        ]
-
-        retriever = HybridRetriever(semantic_repo=mock_repo)
-
-        memories = await retriever.retrieve(
-            query="test",
-            query_embedding=[0.1] * 384,
-            user_id="test_user",
-            conversation_id=uuid4(),
-            limit=3,
-        )
-
-        assert len(memories) == 3
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `cd backend && pytest tests/core/memory/test_retrieval.py -v`
-Expected: PASS (all tests)
+Run: `cd backend && pytest tests/core/test_retrieval.py -v`
+Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add backend/app/core/memory/retrieval.py tests/core/memory/test_retrieval.py
+git add backend/app/core/memory/retrieval.py tests/core/test_retrieval.py
 git commit -m "feat(phase2): add hybrid memory retriever
 
 - Implement 0.6/0.2/0.2 scoring: vector/time/recency
+- Generate embedding internally (matches spec)
 - Add 30-day time decay half-life
-- Add same-conversation proximity boost
-- Add comprehensive scoring tests"
+- Add same-conversation proximity boost"
 ```
 
 ---
 
-## Task 7: Async Persistence Manager
+## Task 10: Implement Async Persistence Manager
 
 **Files:**
 - Create: `backend/app/core/memory/persistence.py`
-- Create: `tests/core/memory/test_persistence.py`
+- Create: `tests/core/test_persistence.py`
 
 - [ ] **Step 1: Write async persistence manager**
 
@@ -1757,10 +1439,7 @@ git commit -m "feat(phase2): add hybrid memory retriever
 # backend/app/core/memory/persistence.py
 """Async persistence manager with retry and fallback.
 
-Features:
-- Non-blocking: returns immediately, background task handles persistence
-- Retry: 3 attempts with exponential backoff (1s → 2s → 4s)
-- Fallback: failed items go to queue, queue overflow → file
+Uses existing @with_retry decorator from utils/retry.py.
 """
 import asyncio
 import logging
@@ -1772,6 +1451,7 @@ from uuid import UUID, uuid4
 import aiofiles
 
 from app.config import settings
+from app.utils.retry import with_retry
 
 if TYPE_CHECKING:
     from app.core.memory.repositories import MessageRepository
@@ -1809,18 +1489,6 @@ class Message:
         import json
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "Message":
-        return cls(
-            id=UUID(data["id"]),
-            conversation_id=UUID(data["conversation_id"]),
-            user_id=data["user_id"],
-            role=data["role"],
-            content=data["content"],
-            tokens=data.get("tokens", 0),
-            created_at=datetime.fromisoformat(data["created_at"]),
-        )
-
 
 class AsyncPersistenceManager:
     """Non-blocking async persistence manager.
@@ -1842,14 +1510,6 @@ class AsyncPersistenceManager:
         max_queue_size: int = None,
         fallback_path: str = None,
     ):
-        """Initialize manager.
-
-        Args:
-            message_repo: Message repository for persistence
-            max_retries: Max retry attempts (default from settings)
-            max_queue_size: Retry queue size (default from settings)
-            fallback_path: Fallback file path (default from settings)
-        """
         self._message_repo = message_repo
         self._max_retries = max_retries or settings.persistence_max_retries
         self._max_queue_size = max_queue_size or settings.persistence_queue_size
@@ -1885,11 +1545,7 @@ class AsyncPersistenceManager:
         logger.info("[AsyncPersistenceManager] Stopped")
 
     async def persist_message(self, message: Message) -> None:
-        """Persist message (returns immediately, non-blocking).
-
-        Args:
-            message: Message to persist
-        """
+        """Persist message (returns immediately, non-blocking)."""
         if not self._running:
             logger.warning("[AsyncPersistenceManager] Not started, message not persisted")
             return
@@ -1897,28 +1553,19 @@ class AsyncPersistenceManager:
         asyncio.create_task(self._persist_with_retry(message))
 
     async def _persist_with_retry(self, message: Message) -> None:
-        """Persist with exponential backoff retry.
+        """Persist using existing retry decorator."""
+        try:
+            # Use existing retry mechanism
+            await self._do_persist(message)
+            logger.debug(f"[AsyncPersistenceManager] Saved {message.id}")
+        except Exception as e:
+            logger.warning(f"[AsyncPersistenceManager] All retries failed for {message.id}: {e}")
+            await self._enqueue_for_retry(message)
 
-        Retry: 1s → 2s → 4s
-        """
-        for attempt in range(self._max_retries):
-            try:
-                await self._message_repo.save_message(message)
-                logger.debug(
-                    f"[AsyncPersistenceManager] Saved {message.id} "
-                    f"(attempt {attempt + 1})"
-                )
-                return
-            except Exception as e:
-                wait_time = 2 ** attempt
-                logger.warning(
-                    f"[AsyncPersistenceManager] Attempt {attempt + 1} failed: {e}, "
-                    f"retrying in {wait_time}s"
-                )
-                await asyncio.sleep(wait_time)
-
-        # All retries failed → queue
-        await self._enqueue_for_retry(message)
+    @with_retry(max_attempts=3, base_delay=1.0, exponential=True)
+    async def _do_persist(self, message: Message) -> None:
+        """Actual persist call wrapped by retry decorator."""
+        await self._message_repo.save_message(message)
 
     async def _enqueue_for_retry(self, message: Message) -> None:
         """Add failed message to retry queue."""
@@ -1926,7 +1573,6 @@ class AsyncPersistenceManager:
             await self._retry_queue.put(message)
             logger.info(f"[AsyncPersistenceManager] Queued {message.id} for retry")
         except asyncio.QueueFull:
-            # Queue full → file fallback
             await self._fallback_to_jsonl(message)
 
     async def _retry_worker(self) -> None:
@@ -1949,13 +1595,9 @@ class AsyncPersistenceManager:
         try:
             async with aiofiles.open(self._fallback_path, "a") as f:
                 await f.write(message.to_json() + "\n")
-            logger.warning(
-                f"[AsyncPersistenceManager] Wrote {message.id} to fallback file"
-            )
+            logger.warning(f"[AsyncPersistenceManager] Wrote {message.id} to fallback file")
         except Exception as e:
-            logger.error(
-                f"[AsyncPersistenceManager] Fallback write failed: {e}"
-            )
+            logger.error(f"[AsyncPersistenceManager] Fallback write failed: {e}")
 
     async def drain_queue(self) -> int:
         """Drain retry queue (for shutdown)."""
@@ -1982,10 +1624,9 @@ Expected: No errors
 - [ ] **Step 3: Write persistence manager tests**
 
 ```python
-# tests/core/memory/test_persistence.py
+# tests/core/test_persistence.py
 import asyncio
 import pytest
-from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -1993,8 +1634,6 @@ from app.core.memory.persistence import AsyncPersistenceManager, Message
 
 
 class FailingMessageRepository:
-    """Repository that always fails."""
-
     def __init__(self, fail_count=3):
         self.fail_count = fail_count
         self.attempts = 0
@@ -2007,22 +1646,43 @@ class FailingMessageRepository:
         self.saved.append(message)
         return message
 
+    async def get_by_conversation(self, conversation_id, limit=50):
+        return []
+
+    async def get_recent(self, user_id, limit=20):
+        return []
+
+    async def save(self, item):
+        return await self.save_message(item)
+
+    async def search(self, *args, **kwargs):
+        return []
+
 
 class SuccessfulMessageRepository:
-    """Repository that always succeeds."""
-
     def __init__(self):
         self.saved = []
 
     async def save_message(self, message):
-        await asyncio.sleep(0.01)  # Simulate IO
+        await asyncio.sleep(0.01)
         self.saved.append(message)
         return message
+
+    async def get_by_conversation(self, conversation_id, limit=50):
+        return []
+
+    async def get_recent(self, user_id, limit=20):
+        return []
+
+    async def save(self, item):
+        return await self.save_message(item)
+
+    async def search(self, *args, **kwargs):
+        return []
 
 
 @pytest.fixture
 def sample_message():
-    """Create sample message."""
     return Message(
         id=uuid4(),
         conversation_id=uuid4(),
@@ -2034,7 +1694,6 @@ def sample_message():
 
 @pytest.fixture
 async def persistence_manager(sample_message, tmp_path):
-    """Create persistence manager with temp fallback path."""
     repo = SuccessfulMessageRepository()
     manager = AsyncPersistenceManager(
         message_repo=repo,
@@ -2046,35 +1705,25 @@ async def persistence_manager(sample_message, tmp_path):
 
 
 class TestAsyncPersistenceManager:
-    """Test async persistence manager."""
-
     @pytest.mark.asyncio
     async def test_non_blocking_persist(self, persistence_manager, sample_message):
-        """Should return immediately without waiting."""
         start = asyncio.get_event_loop().time()
 
         await persistence_manager.persist_message(sample_message)
 
         elapsed = asyncio.get_event_loop().time() - start
-
-        # Should return very quickly (not wait for IO)
         assert elapsed < 0.1
 
     @pytest.mark.asyncio
     async def test_successful_persistence(self, persistence_manager, sample_message):
-        """Should eventually persist message."""
         await persistence_manager.persist_message(sample_message)
-
-        # Wait for background task
         await asyncio.sleep(0.1)
 
         repo = persistence_manager._message_repo
         assert len(repo.saved) == 1
-        assert repo.saved[0].id == sample_message.id
 
     @pytest.mark.asyncio
     async def test_retry_mechanism(self, sample_message, tmp_path):
-        """Should retry 3 times with exponential backoff."""
         repo = FailingMessageRepository(fail_count=3)
         manager = AsyncPersistenceManager(
             message_repo=repo,
@@ -2083,38 +1732,14 @@ class TestAsyncPersistenceManager:
         await manager.start()
 
         await manager.persist_message(sample_message)
-
-        # Wait for retries
         await asyncio.sleep(0.1)
 
-        assert repo.attempts == 3
-
-        await manager.stop()
-
-    @pytest.mark.asyncio
-    async def test_retry_success_after_failures(self, sample_message):
-        """Should succeed after initial failures."""
-        repo = FailingMessageRepository(fail_count=2)
-        manager = AsyncPersistenceManager(
-            message_repo=repo,
-            max_retries=3,
-        )
-        await manager.start()
-
-        await manager.persist_message(sample_message)
-
-        # Wait for retries
-        await asyncio.sleep(0.2)
-
-        assert len(repo.saved) == 1
-        assert repo.saved[0].id == sample_message.id
-
+        assert repo.attempts >= 3
         await manager.stop()
 
     @pytest.mark.asyncio
     async def test_queue_fallback_to_file(self, sample_message, tmp_path):
-        """Should write to file when queue is full."""
-        repo = FailingMessageRepository(fail_count=10)  # Always fail
+        repo = FailingMessageRepository(fail_count=10)
         manager = AsyncPersistenceManager(
             message_repo=repo,
             max_queue_size=2,
@@ -2122,108 +1747,37 @@ class TestAsyncPersistenceManager:
         )
         await manager.start()
 
-        # Fill queue beyond capacity
         for _ in range(5):
             await manager.persist_message(sample_message)
 
-        # Wait for processing
         await asyncio.sleep(0.3)
 
-        # Check fallback file was written
         fallback_path = Path(tmp_path / "fallback.jsonl")
         assert fallback_path.exists()
 
-        content = fallback_path.read_text()
-        assert len(content.strip().split('\n')) > 0
-
         await manager.stop()
-
-    @pytest.mark.asyncio
-    async def test_queue_size_tracking(self, persistence_manager, sample_message):
-        """Should track queue size."""
-        assert persistence_manager.queue_size == 0
-
-        # Note: queue size depends on retry worker timing
-        # This is a basic smoke test
-        assert isinstance(persistence_manager.queue_size, int)
-
-    @pytest.mark.asyncio
-    async def test_start_stop_idempotent(self, persistence_manager):
-        """Start/stop should be idempotent."""
-        await persistence_manager.start()
-        await persistence_manager.start()  # Should not error
-
-        assert persistence_manager._running is True
-
-        await persistence_manager.stop()
-        await persistence_manager.stop()  # Should not error
-
-        assert persistence_manager._running is False
-
-
-class TestMessage:
-    """Test Message data class."""
-
-    def test_to_dict(self, sample_message):
-        """Should convert to dict."""
-        result = sample_message.to_dict()
-
-        assert isinstance(result, dict)
-        assert "id" in result
-        assert "conversation_id" in result
-        assert result["role"] == "user"
-
-    def test_to_json(self, sample_message):
-        """Should serialize to JSON."""
-        result = sample_message.to_json()
-
-        assert isinstance(result, str)
-        assert "user" in result
-        assert "test message" in result
-
-    def test_from_dict(self, sample_message):
-        """Should deserialize from dict."""
-        data = sample_message.to_dict()
-        restored = Message.from_dict(data)
-
-        assert restored.id == sample_message.id
-        assert restored.content == sample_message.content
-        assert restored.role == sample_message.role
-
-    def test_default_created_at(self):
-        """Should set created_at if not provided."""
-        message = Message(
-            id=uuid4(),
-            conversation_id=uuid4(),
-            user_id="test",
-            role="user",
-            content="test",
-        )
-
-        assert message.created_at is not None
-        assert isinstance(message.created_at, datetime)
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `cd backend && pytest tests/core/memory/test_persistence.py -v`
-Expected: PASS (all tests)
+Run: `cd backend && pytest tests/core/test_persistence.py -v`
+Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add backend/app/core/memory/persistence.py tests/core/memory/test_persistence.py
+git add backend/app/core/memory/persistence.py tests/core/test_persistence.py
 git commit -m "feat(phase2): add async persistence manager
 
 - Non-blocking message persistence
-- 3-retry with exponential backoff (1s→2s→4s)
+- Reuse existing @with_retry decorator
 - Queue overflow → file fallback
 - Add comprehensive tests"
 ```
 
 ---
 
-## Task 8: Memory Loader
+## Task 11: Implement Memory Loader
 
 **Files:**
 - Create: `backend/app/core/memory/loaders.py`
@@ -2232,10 +1786,7 @@ git commit -m "feat(phase2): add async persistence manager
 
 ```python
 # backend/app/core/memory/loaders.py
-"""Memory loading orchestration for QueryEngine.
-
-Loads all three memory levels and formats them for LLM context.
-"""
+"""Memory loading orchestration for QueryEngine."""
 import logging
 from typing import List, Optional
 from uuid import UUID
@@ -2252,25 +1803,13 @@ logger = logging.getLogger(__name__)
 
 
 class MemoryLoader:
-    """Orchestrates loading all memory levels.
-
-    Combines:
-    - Working memory (recent messages from hierarchy)
-    - Episodic memory (conversation context)
-    - Semantic memory (user preferences via hybrid retrieval)
-    """
+    """Orchestrates loading all memory levels."""
 
     def __init__(
         self,
         hierarchy: MemoryHierarchy,
         retriever: Optional[HybridRetriever] = None,
     ):
-        """Initialize loader.
-
-        Args:
-            hierarchy: Memory hierarchy instance
-            retriever: Optional hybrid retriever for semantic memory
-        """
         self._hierarchy = hierarchy
         self._retriever = retriever
 
@@ -2279,7 +1818,6 @@ class MemoryLoader:
         user_id: str,
         conversation_id: UUID,
         query: str,
-        query_embedding: Optional[List[float]] = None,
     ) -> str:
         """Load all memory levels and format for LLM.
 
@@ -2287,7 +1825,6 @@ class MemoryLoader:
             user_id: User ID
             conversation_id: Current conversation ID
             query: User query for semantic retrieval
-            query_embedding: Optional query embedding (if None, skips semantic)
 
         Returns:
             Formatted memory context string
@@ -2300,9 +1837,9 @@ class MemoryLoader:
             context_parts.append(working)
 
         # 2. Semantic memory (user preferences)
-        if self._retriever and query_embedding:
+        if self._retriever:
             semantic = await self._load_semantic_memory(
-                query, query_embedding, user_id, conversation_id
+                query, user_id, conversation_id
             )
             if semantic:
                 context_parts.append(semantic)
@@ -2325,7 +1862,7 @@ class MemoryLoader:
             return None
 
         lines = ["最近对话："]
-        for msg in messages[-5:]:  # Last 5 messages
+        for msg in messages[-5:]:
             role = msg.get("role", "unknown")
             content = msg.get("content", "")[:100]
             lines.append(f"  {role}: {content}")
@@ -2335,14 +1872,12 @@ class MemoryLoader:
     async def _load_semantic_memory(
         self,
         query: str,
-        query_embedding: List[float],
         user_id: str,
         conversation_id: UUID,
     ) -> Optional[str]:
         """Load semantic memory via hybrid retrieval."""
         memories = await self._retriever.retrieve(
             query=query,
-            query_embedding=query_embedding,
             user_id=user_id,
             conversation_id=conversation_id,
             limit=3,
@@ -2392,7 +1927,7 @@ git commit -m "feat(phase2): add memory loader orchestration
 
 ---
 
-## Task 9: Update Memory Package Exports
+## Task 12: Update Memory Package Exports
 
 **Files:**
 - Modify: `backend/app/core/memory/__init__.py`
@@ -2401,17 +1936,7 @@ git commit -m "feat(phase2): add memory loader orchestration
 
 ```python
 # backend/app/core/memory/__init__.py
-"""Memory subsystem for Agent Core.
-
-Provides 3-tier memory hierarchy with async persistence and hybrid retrieval.
-
-Components:
-- MemoryHierarchy: In-memory 3-tier storage
-- HybridRetriever: Vector + time + recency scoring
-- AsyncPersistenceManager: Non-blocking persistence with retry
-- MemoryLoader: Orchestrate memory loading for LLM context
-- Repositories: Storage abstraction interfaces
-"""
+"""Memory subsystem for Agent Core."""
 
 from app.core.memory.hierarchy import (
     MemoryHierarchy,
@@ -2435,7 +1960,6 @@ from app.core.memory.persistence import (
     Message,
 )
 from app.core.memory.loaders import MemoryLoader
-from app.core.memory.vector_store import ChromaDBVectorStore
 
 __all__ = [
     # Hierarchy
@@ -2454,11 +1978,10 @@ __all__ = [
     "MessageRepository",
     "EpisodicRepository",
     "SemanticRepository",
-    # Phase 2 components
+    # Phase 2
     "HybridRetriever",
     "AsyncPersistenceManager",
     "MemoryLoader",
-    "ChromaDBVectorStore",
     "Message",
 ]
 ```
@@ -2474,518 +1997,73 @@ Expected: No errors
 git add backend/app/core/memory/__init__.py
 git commit -m "feat(phase2): update memory package exports
 
-- Export all Phase 2 components
-- Add comprehensive docstring"
+- Export all Phase 2 components"
 ```
 
 ---
 
-## Task 10: Integration with QueryEngine
+## Task 13: Update Utils Package Exports
 
 **Files:**
-- Modify: `backend/app/core/query_engine.py`
+- Modify: `backend/app/utils/__init__.py`
 
-- [ ] **Step 1: Read current QueryEngine implementation**
-
-Run: `head -100 backend/app/core/query_engine.py`
-Expected: See current structure
-
-- [ ] **Step 2: Add Phase 2 integration to QueryEngine**
+- [ ] **Step 1: Update utils package**
 
 ```python
-# Add imports to backend/app/core/query_engine.py
+# backend/app/utils/__init__.py
+"""Utility modules."""
 
-from app.core.memory.persistence import AsyncPersistenceManager, Message
-from app.core.memory.loaders import MemoryLoader
+from app.utils.retry import with_retry, with_fallback, with_retry_and_fallback
 
-# Add to QueryEngine.__init__ parameters and initialization
-
-class QueryEngine:
-    """Query engine with unified 6-step workflow."""
-
-    def __init__(
-        self,
-        llm_client,
-        # ... existing parameters ...
-        persistence_manager: AsyncPersistenceManager = None,
-        memory_loader: MemoryLoader = None,
-    ):
-        # ... existing initialization ...
-
-        self._persistence_manager = persistence_manager
-        self._memory_loader = memory_loader
-
-        # Start persistence manager if provided
-        if self._persistence_manager:
-            asyncio.create_task(self._persistence_manager.start())
-
-    async def process(
-        self,
-        user_input: str,
-        conversation_id: UUID,
-        user_id: str,
-    ) -> AsyncIterator[str]:
-        """Process user input through unified workflow."""
-
-        # === Phase 1: Intent classification (existing) ===
-        intent_result = await self._classify_intent(user_input)
-
-        # === Phase 2: Message persistence and memory loading ===
-
-        # 2.1 Async persist user message (non-blocking)
-        if self._persistence_manager:
-            user_message = Message(
-                id=uuid4(),
-                conversation_id=conversation_id,
-                user_id=user_id,
-                role="user",
-                content=user_input,
-                tokens=len(user_input) // 4,
-            )
-            await self._persistence_manager.persist_message(user_message)
-
-        # 2.2 Load memory context
-        memory_context = ""
-        if self._memory_loader:
-            # Get embedding for query (if using semantic search)
-            query_embedding = None  # TODO: implement embedding
-            memory_context = await self._memory_loader.load_all(
-                user_id=user_id,
-                conversation_id=conversation_id,
-                query=user_input,
-                query_embedding=query_embedding,
-            )
-
-        # === Phase 3-9: Continue with existing workflow ===
-        # ... rest of existing implementation ...
-
-        # When generating assistant response, also persist it
-        if self._persistence_manager and final_response:
-            assistant_message = Message(
-                id=uuid4(),
-                conversation_id=conversation_id,
-                user_id=user_id,
-                role="assistant",
-                content=final_response,
-                tokens=len(final_response) // 4,
-            )
-            await self._persistence_manager.persist_message(assistant_message)
-
-        yield final_response
-```
-
-- [ ] **Step 3: Run linter to verify syntax**
-
-Run: `python -m py_compile backend/app/core/query_engine.py`
-Expected: No errors
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add backend/app/core/query_engine.py
-git commit -m "feat(phase2): integrate Phase 2 into QueryEngine
-
-- Add async message persistence to process()
-- Add memory loading with MemoryLoader
-- Persist both user and assistant messages"
-```
-
----
-
-## Task 11: Create Utilities and Integration Tests
-
-**Files:**
-- Create: `backend/app/utils/embedding.py`
-- Create: `tests/core/integration/test_phase2_integration.py`
-
-- [ ] **Step 1: Create embedding utility stub**
-
-```python
-# backend/app/utils/embedding.py
-"""Embedding generation for semantic search.
-
-TODO: Implement actual embedding client (e.g., sentence-transformers, OpenAI)
-"""
-import logging
-from typing import List
-
-logger = logging.getLogger(__name__)
-
-
-class EmbeddingClient:
-    """Client for generating text embeddings."""
-
-    def __init__(self, model: str = "default"):
-        """Initialize client.
-
-        Args:
-            model: Model name/identifier
-        """
-        self._model = model
-        logger.warning("[EmbeddingClient] Using dummy implementation")
-
-    async def embed(self, text: str) -> List[float]:
-        """Generate embedding for text.
-
-        Args:
-            text: Input text
-
-        Returns:
-            Embedding vector (dummy: zeros)
-        """
-        # TODO: Implement actual embedding
-        # For now, return dummy vector
-        return [0.0] * 384  # Common dimension
-
-    async def embed_batch(self, texts: List[str]) -> List[List[float]]:
-        """Generate embeddings for multiple texts.
-
-        Args:
-            texts: Input texts
-
-        Returns:
-            List of embedding vectors
-        """
-        return [await self.embed(text) for text in texts]
+__all__ = [
+    "with_retry",
+    "with_fallback",
+    "with_retry_and_fallback",
+]
 ```
 
 - [ ] **Step 2: Run linter to verify syntax**
 
-Run: `python -m py_compile backend/app/utils/embedding.py`
+Run: `python -m py_compile backend/app/utils/__init__.py`
 Expected: No errors
 
-- [ ] **Step 3: Write integration test**
-
-```python
-# tests/core/integration/test_phase2_integration.py
-"""Integration tests for Phase 2 components."""
-import asyncio
-import pytest
-from datetime import datetime
-from pathlib import Path
-from uuid import uuid4
-
-from app.core.memory import (
-    MemoryHierarchy,
-    HybridRetriever,
-    AsyncPersistenceManager,
-    MemoryLoader,
-    Message,
-)
-from app.core.memory.vector_store import ChromaDBVectorStore
-from app.db.message_repo import PostgresMessageRepository, MessageDTO
-from app.db.semantic_repo import ChromaDBSemanticRepository
-
-
-@pytest.fixture
-async def memory_hierarchy():
-    """Create memory hierarchy."""
-    return MemoryHierarchy(
-        conversation_id=uuid4(),
-        user_id="test_user",
-    )
-
-
-@pytest.fixture
-async def vector_store(tmp_path):
-    """Create test vector store."""
-    return ChromaDBVectorStore(path=str(tmp_path / "chromadb"))
-
-
-@pytest.fixture
-async def semantic_repo(vector_store):
-    """Create semantic repository."""
-    return ChromaDBSemanticRepository(vector_store=vector_store)
-
-
-@pytest.fixture
-async def hybrid_retriever(semantic_repo):
-    """Create hybrid retriever."""
-    return HybridRetriever(semantic_repo=semantic_repo)
-
-
-@pytest.fixture
-async def memory_loader(memory_hierarchy, hybrid_retriever):
-    """Create memory loader."""
-    return MemoryLoader(
-        hierarchy=memory_hierarchy,
-        retriever=hybrid_retriever,
-    )
-
-
-@pytest.fixture
-def temp_fallback_file(tmp_path):
-    """Create temp fallback file path."""
-    return str(tmp_path / "fallback.jsonl")
-
-
-class TestPhase2Integration:
-    """Integration tests for Phase 2."""
-
-    @pytest.mark.asyncio
-    async def test_full_memory_flow(self, memory_loader, semantic_repo):
-        """Test complete flow: add → retrieve → format."""
-        from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
-
-        # Add semantic memory
-        item_id = await semantic_repo.add(
-            content="用户喜欢自然景观",
-            embedding=[0.1] * 384,
-            metadata={
-                "user_id": "test_user",
-                "conversation_id": str(uuid4()),
-                "memory_type": "preference",
-            },
-        )
-
-        assert item_id is not None
-
-        # Load memories
-        context = await memory_loader.load_all(
-            user_id="test_user",
-            conversation_id=uuid4(),
-            query="自然景观",
-            query_embedding=[0.1] * 384,
-        )
-
-        assert "用户偏好记忆" in context or "最近对话" in context
-
-    @pytest.mark.asyncio
-    async def test_persistence_end_to_end(self, temp_fallback_file):
-        """Test persistence with retry and fallback."""
-        from app.core.memory.repositories import MessageRepository
-
-        class SlowMessageRepository(MessageRepository):
-            """Repository that fails initially then succeeds."""
-
-            def __init__(self):
-                self.attempts = 0
-                self.saved = []
-
-            async def save_message(self, message):
-                self.attempts += 1
-                if self.attempts < 3:
-                    raise Exception("Simulated failure")
-                self.saved.append(message)
-                return message
-
-            async def get_by_conversation(self, conversation_id, limit=50):
-                return []
-
-            async def get_recent(self, user_id, limit=20):
-                return []
-
-            async def save(self, item):
-                return await self.save_message(item)
-
-            async def search(self, *args, **kwargs):
-                return []
-
-        repo = SlowMessageRepository()
-        manager = AsyncPersistenceManager(
-            message_repo=repo,
-            fallback_path=temp_fallback_file,
-        )
-
-        await manager.start()
-
-        message = Message(
-            id=uuid4(),
-            conversation_id=uuid4(),
-            user_id="test_user",
-            role="user",
-            content="test message",
-        )
-
-        await manager.persist_message(message)
-
-        # Wait for retries
-        await asyncio.sleep(0.2)
-
-        assert len(repo.saved) == 1
-        assert repo.attempts == 3
-
-        await manager.stop()
-
-    @pytest.mark.asyncio
-    async def test_hybrid_retrieval_with_time_decay(self, semantic_repo):
-        """Test that time decay affects scoring."""
-        import time
-
-        conv_id = str(uuid4())
-        now = time.time()
-        old_time = now - (60 * 86400)  # 60 days ago
-
-        # Add recent memory
-        await semantic_repo.add(
-            content="recent preference",
-            embedding=[0.5] * 384,
-            metadata={
-                "user_id": "test_user",
-                "conversation_id": conv_id,
-                "created_at": now,
-                "memory_type": "preference",
-            },
-        )
-
-        # Add old memory
-        await semantic_repo.add(
-            content="old preference",
-            embedding=[0.5] * 384,
-            metadata={
-                "user_id": "test_user",
-                "conversation_id": conv_id,
-                "created_at": old_time,
-                "memory_type": "preference",
-            },
-        )
-
-        retriever = HybridRetriever(semantic_repo=semantic_repo)
-
-        results = await retriever.retrieve(
-            query="preference",
-            query_embedding=[0.5] * 384,
-            user_id="test_user",
-            conversation_id=uuid4(),
-            limit=10,
-        )
-
-        # Recent memory should rank higher
-        if len(results) >= 2:
-            assert results[0].content == "recent preference"
-
-
-@pytest.mark.asyncio
-async def test_memory_hierarchy_with_loader(memory_hierarchy, memory_loader):
-    """Test memory hierarchy integration with loader."""
-    # Add working memory
-    memory_hierarchy.add_working_message("user", "我想去北京旅游")
-
-    # Add episodic memory
-    from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
-
-    memory_hierarchy.add_episodic(MemoryItem(
-        content="用户预算5000元",
-        level=MemoryLevel.EPISODIC,
-        memory_type=MemoryType.FACT,
-    ))
-
-    # Load context
-    context = await memory_loader.load_all(
-        user_id="test_user",
-        conversation_id=uuid4(),
-        query="北京旅游",
-        query_embedding=[0.1] * 384,
-    )
-
-    # Should include working memory
-    assert "最近对话" in context or "北京" in context
-```
-
-- [ ] **Step 4: Run integration tests**
-
-Run: `cd backend && pytest tests/core/integration/test_phase2_integration.py -v`
-Expected: PASS (all integration tests)
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add backend/app/utils/embedding.py tests/core/integration/test_phase2_integration.py
-git commit -m "feat(phase2): add embedding utility and integration tests
+git add backend/app/utils/__init__.py
+git commit -m "feat(phase2): update utils package exports
 
-- Add EmbeddingClient stub (TODO: implement actual)
-- Add end-to-end integration tests
-- Test full flow: persist → retrieve → format"
+- Export retry decorators"
 ```
 
 ---
 
-## Task 12: Update Documentation
+## Task 14: Final Verification and Documentation
 
 **Files:**
-- Modify: `backend/app/core/README.md`
-- Create: `backend/app/core/memory/PHASE2.md`
+- Run all tests
+- Update documentation
 
-- [ ] **Step 1: Update core README**
+- [ ] **Step 1: Run all Phase 2 tests**
+
+Run: `cd backend && pytest tests/core/test_retrieval.py tests/core/test_persistence.py tests/core/test_repositories.py -v`
+
+Expected: All tests pass
+
+- [ ] **Step 2: Verify package imports**
+
+Run: `cd backend && python -c "from app.core.memory import *; from app.db import PostgresMessageRepository, ChromaDBSemanticRepository; print('All imports OK')"`
+
+Expected: No import errors
+
+- [ ] **Step 3: Update core README**
+
+Add to `backend/app/core/README.md`:
 
 ```markdown
-# Travel Agent Core 使用指南
+## Phase 2 Components
 
-企业级 Agent 内核，实现统一的 6 步工作流程。
-
-## 架构概述
-
-### 统一工作流程
-
-```
-用户发送消息
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  1. 意图 & 槽位识别                     │
-│     - 三层分类器：缓存 → 关键词 → LLM    │
-│     - 提取：目的地、日期、人数、预算等    │
-└─────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  2. 消息持久化与记忆加载 ← Phase 2 新增  │
-│     - PostgreSQL: 原始消息存储           │
-│     - ChromaDB: 向量语义记忆             │
-│     - 混合检索: 0.6向量 + 0.2时间 + 0.2邻近│
-│     - 异步持久化: 重试 + 队列 + 文件降级  │
-└─────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  3. 按需并行调用工具（意图驱动）          │
-│     - 仅 itinerary/query 意图调用        │
-│     - LLM Function Calling 并行执行      │
-└─────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  4. 上下文构建                           │
-│     - 用户偏好 (ChromaDB)                │
-│     - 情景记忆 (PostgreSQL)              │
-│     - 当前会话 + 工具结果                │
-└─────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  5. LLM 生成响应                         │
-│     - WebSocket 流式输出                 │
-│     - 普通回答 / 结构化行程JSON           │
-└─────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────┐
-│  6. 异步记忆更新                         │
-│     - 提取用户偏好                       │
-│     - 更新长期记忆与向量库               │
-└─────────────────────────────────────────┘
-```
-
-### 核心组件
-
-| 组件 | 职责 | Phase |
-|------|------|-------|
-| `QueryEngine` | 总控中心，统一 6 步工作流程 | 1 |
-| `IntentClassifier` | 三层意图分类器 | 1 |
-| `SlotExtractor` | 槽位提取器 | 1 |
-| `LLMClient` | LLM 客户端封装 | 1 |
-| `ToolExecutor` | 工具执行器 | 1 |
-| `ToolRegistry` | 工具注册表 | 1 |
-| `MemoryHierarchy` | 三层记忆层级 (工作/情景/语义) | 1 |
-| `HybridRetriever` | 混合检索 (向量+时间+邻近) | 2 |
-| `AsyncPersistenceManager` | 异步持久化 (重试+队列+降级) | 2 |
-| `MemoryLoader` | 记忆加载编排 | 2 |
-| `ChromaDBVectorStore` | ChromaDB 向量存储封装 | 2 |
-| `PostgresMessageRepository` | PostgreSQL 消息存储 | 2 |
-
-## Phase 2 新功能
-
-### 混合检索
+### Hybrid Retrieval
 
 ```python
 from app.core.memory import HybridRetriever
@@ -2994,7 +2072,6 @@ retriever = HybridRetriever(semantic_repo)
 
 memories = await retriever.retrieve(
     query="用户喜欢自然景观",
-    query_embedding=embedding,
     user_id="user123",
     conversation_id=conv_id,
     limit=5,
@@ -3002,7 +2079,7 @@ memories = await retriever.retrieve(
 # 评分: 0.6*向量相似度 + 0.2*时间衰减 + 0.2*会话邻近度
 ```
 
-### 异步持久化
+### Async Persistence
 
 ```python
 from app.core.memory import AsyncPersistenceManager, Message
@@ -3020,194 +2097,14 @@ await manager.persist_message(
         content="我想去北京旅游",
     )
 )
-# 立即返回，后台处理
 ```
 
-### 容错机制
+### Repository Pattern
 
-- **重试**: 3次，指数退避 (1s → 2s → 4s)
-- **队列**: 失败消息进入内存队列
-- **降级**: 队列满时写 JSONL 文件
-
-## 设计文档
-
-- [Phase 1 设计](../../docs/superpowers/specs/2026-04-03-unified-workflow-design.md)
-- [Phase 2 设计](../../docs/superpowers/specs/2026-04-04-phase2-memory-persistence-design.md)
-- [Phase 2 实现计划](../../docs/superpowers/plans/2026-04-04-phase2-memory-persistence-plan.md)
+- `PostgresMessageRepository`: PostgreSQL message storage (uses existing asyncpg)
+- `PostgresEpisodicRepository`: Conversation state storage
+- `ChromaDBSemanticRepository`: Vector semantic search (uses existing VectorStore)
 ```
-
-- [ ] **Step 2: Create Phase 2 reference doc**
-
-```markdown
-# Phase 2: Memory Persistence and Retrieval
-
-## 概述
-
-Phase 2 实现了消息的异步持久化和三层记忆的智能加载，是 Agent Core 的核心数据层。
-
-## 组件
-
-### 1. 混合检索 (HybridRetriever)
-
-**评分公式**:
-```
-final_score = 0.6 × vector_similarity
-            + 0.2 × time_decay
-            + 0.2 × conversation_recency
-```
-
-**时间衰减**: 30天半衰期，`exp(-days / 30)`
-
-**会话邻近度**:
-- 同会话: 1.0
-- 不同会话: 0.3
-
-### 2. 异步持久化 (AsyncPersistenceManager)
-
-**特性**:
-- 非阻塞: `asyncio.create_task()` 后台处理
-- 重试: 3次，指数退避
-- 队列: 失败消息进入内存队列
-- 降级: 队列满 → JSONL 文件
-
-### 3. Repository 模式
-
-抽象接口:
-- `BaseRepository`: 基类
-- `MessageRepository`: 消息持久化
-- `EpisodicRepository`: 情景记忆
-- `SemanticRepository`: 语义记忆
-
-实现:
-- `PostgresMessageRepository`: PostgreSQL
-- `PostgresEpisodicRepository`: PostgreSQL
-- `ChromaDBSemanticRepository`: ChromaDB
-
-## 使用示例
-
-### 完整流程
-
-```python
-from app.core.memory import (
-    MemoryHierarchy,
-    HybridRetriever,
-    AsyncPersistenceManager,
-    MemoryLoader,
-    Message,
-)
-from app.core.memory.vector_store import ChromaDBVectorStore
-from app.db import PostgresMessageRepository, ChromaDBSemanticRepository
-
-# 1. 初始化组件
-vector_store = ChromaDBVectorStore()
-semantic_repo = ChromaDBSemanticRepository(vector_store)
-message_repo = PostgresMessageRepository(async_session_factory)
-
-hierarchy = MemoryHierarchy(
-    conversation_id=conv_id,
-    user_id="user123",
-)
-
-retriever = HybridRetriever(semantic_repo)
-loader = MemoryLoader(hierarchy, retriever)
-
-persistence_manager = AsyncPersistenceManager(message_repo)
-await persistence_manager.start()
-
-# 2. 处理用户消息
-user_message = Message(
-    id=uuid4(),
-    conversation_id=conv_id,
-    user_id="user123",
-    role="user",
-    content="我想去北京旅游",
-)
-
-# 非阻塞持久化
-await persistence_manager.persist_message(user_message)
-
-# 3. 加载记忆上下文
-memory_context = await loader.load_all(
-    user_id="user123",
-    conversation_id=conv_id,
-    query="北京旅游",
-    query_embedding=await embedding_client.embed("北京旅游"),
-)
-
-# 4. 使用上下文进行 LLM 推理...
-
-await persistence_manager.stop()
-```
-
-## ChromaDB Metadata 规范
-
-```python
-metadata = {
-    "user_id": "user123",              # 必需: 用户隔离
-    "conversation_id": str(conv_id),   # 必需: 会话邻近度
-    "created_at": time.time(),         # 必需: 时间衰减
-    "memory_type": "preference",       # 可选: 记忆类型
-    "importance": 0.85,                # 可选: 重要性
-}
-```
-
-## 测试
-
-```bash
-# 运行 Phase 2 测试
-pytest tests/core/memory/test_retrieval.py -v
-pytest tests/core/memory/test_persistence.py -v
-pytest tests/core/integration/test_phase2_integration.py -v
-```
-
-## 性能考虑
-
-- **持久化**: 异步非阻塞，不影响响应时间
-- **检索**: ChromaDB HNSW 索引，毫秒级
-- **队列**: 默认1000容量，可配置
-- **时间衰减**: 预计算，O(1)复杂度
-```
-
-- [ ] **Step 3: Run linter to verify documentation files**
-
-Run: `python -m py_compile backend/app/core/README.md`  # Will fail (markdown), just check syntax
-Expected: Markdown files don't need compilation
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add backend/app/core/README.md backend/app/core/memory/PHASE2.md
-git commit -m "docs(phase2): add Phase 2 documentation
-
-- Update core README with Phase 2 components
-- Add Phase 2 reference guide"
-```
-
----
-
-## Task 13: Final Verification
-
-**Files:**
-- Run all tests
-- Check imports
-
-- [ ] **Step 1: Run all Phase 2 tests**
-
-Run: `cd backend && pytest tests/core/memory/ tests/core/integration/test_phase2_integration.py -v`
-
-Expected: All tests pass
-
-- [ ] **Step 2: Verify package imports**
-
-Run: `cd backend && python -c "from app.core.memory import *; print('All imports OK')"`
-
-Expected: No import errors
-
-- [ ] **Step 3: Check code coverage (optional)**
-
-Run: `cd backend && pytest tests/core/memory/ --cov=app/core/memory --cov-report=term-missing`
-
-Expected: Coverage report displayed
 
 - [ ] **Step 4: Final commit**
 
@@ -3218,8 +2115,7 @@ git commit -m "feat(phase2): complete Phase 2 implementation
 - Repository pattern for storage abstraction
 - Hybrid retrieval: 0.6 vector + 0.2 time + 0.2 recency
 - Async persistence with retry + queue + file fallback
-- ChromaDB + PostgreSQL integration
-- Memory loader orchestration
+- Integration with existing vector_store.py, postgres.py, retry.py
 - Comprehensive tests and documentation
 
 See: docs/superpowers/specs/2026-04-04-phase2-memory-persistence-design.md"
@@ -3231,13 +2127,23 @@ See: docs/superpowers/specs/2026-04-04-phase2-memory-persistence-design.md"
 
 Phase 2 implements:
 
-1. **Repository Pattern**: Abstract storage interfaces for PostgreSQL and ChromaDB
+1. **Repository Pattern**: Abstract storage interfaces, PostgreSQL and ChromaDB implementations
 2. **Hybrid Retrieval**: Multi-factor scoring (60% vector + 20% time + 20% recency)
-3. **Async Persistence**: Non-blocking with 3-retry, queue, and file fallback
+3. **Async Persistence**: Non-blocking with existing @with_retry decorator, queue, and file fallback
 4. **Memory Loader**: Orchestrates loading all memory levels for LLM context
-5. **Integration**: Connected to QueryEngine for end-to-end workflow
+5. **Integration**: Works with existing `vector_store.py`, `postgres.py`, and `retry.py`
 
-**Total tasks**: 13
-**Estimated time**: 4-6 hours
-**Files created**: 15+
-**Tests**: 50+
+**Key Changes from Original Plan**:
+- Reuses existing `backend/app/db/vector_store.py` instead of creating duplicate
+- Uses existing raw `asyncpg` pattern from `postgres.py` instead of SQLAlchemy
+- Reuses existing `@with_retry` decorator from `utils/retry.py`
+- Merges exports with existing `db/__init__.py` instead of overwriting
+- Uses existing flat test structure `tests/core/` instead of nested `tests/core/memory/`
+- Creates `backend/app/config.py` as new file (documented)
+- `retrieve()` signature matches spec (generates embedding internally)
+
+**Total tasks**: 14
+**Estimated time**: 4-5 hours
+**Files modified**: 8
+**Files created**: 12
+**Tests**: 40+
