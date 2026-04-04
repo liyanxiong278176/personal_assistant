@@ -296,6 +296,21 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_tags_name ON conversation_tags(tag_name);
             """)
 
+            # Create conversation_states table for Phase 2 episodic memory
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS conversation_states (
+                    conversation_id UUID PRIMARY KEY REFERENCES conversations(id) ON DELETE CASCADE,
+                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    state_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_conversation_states_user_id
+                ON conversation_states(user_id)
+            """)
+
             # Create episodic_memories table for short-term memory
             await conn.execute("""
                 CREATE TABLE IF NOT EXISTS episodic_memories (
@@ -1199,3 +1214,215 @@ async def get_all_user_tags(user_id: str) -> list[str]:
         return [row["tag_name"] for row in rows]
     finally:
         await Database.release_connection(conn)
+
+
+# ============================================================
+# Phase 2: Message Storage Extensions
+# ============================================================
+
+async def get_recent_messages(
+    user_id: str,
+    limit: int = 20
+) -> list[dict]:
+    """Get recent messages for a user across all conversations.
+
+    Args:
+        user_id: User UUID
+        limit: Max messages to return
+
+    Returns:
+        List of message dicts, newest first
+    """
+    conn = await Database.get_connection()
+    try:
+        rows = await conn.fetch("""
+            SELECT m.id, m.conversation_id, c.user_id, m.role, m.content,
+                   COALESCE(m.tokens_used, 0) as tokens, m.created_at
+            FROM messages m
+            JOIN conversations c ON m.conversation_id = c.id
+            WHERE c.user_id = $1
+            ORDER BY m.created_at DESC
+            LIMIT $2
+        """, user_id, limit)
+
+        return [
+            {
+                "id": str(row["id"]),
+                "conversation_id": str(row["conversation_id"]),
+                "user_id": str(row["user_id"]),
+                "role": row["role"],
+                "content": row["content"],
+                "tokens": row["tokens"],
+                "created_at": row["created_at"].isoformat(),
+            }
+            for row in rows
+        ]
+    finally:
+        await Database.release_connection(conn)
+
+
+async def create_message_ext(
+    conn,
+    conversation_id: UUID,
+    user_id: str,
+    role: str,
+    content: str,
+    tokens: int = 0,
+) -> dict:
+    """Create a message record (for use within existing transactions).
+
+    This version takes a connection parameter for use in repository
+    implementations that manage their own connections.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        user_id: User ID
+        role: Message role (user/assistant/system)
+        content: Message content
+        tokens: Estimated token count
+
+    Returns:
+        Created message record as dict
+    """
+    message_id = uuid4()
+    now = datetime.utcnow()
+
+    await conn.execute(
+        """
+        INSERT INTO messages (id, conversation_id, role, content, tokens_used, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        """,
+        message_id, conversation_id, role, content, tokens, now
+    )
+
+    return {
+        "id": str(message_id),
+        "conversation_id": str(conversation_id),
+        "user_id": user_id,
+        "role": role,
+        "content": content,
+        "tokens": tokens,
+        "created_at": now.isoformat(),
+    }
+
+
+async def get_messages_ext(
+    conn,
+    conversation_id: UUID,
+    limit: int = 50,
+) -> list[dict]:
+    """Get messages for a conversation (for use within existing transactions).
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        limit: Max messages to return
+
+    Returns:
+        List of message dicts
+    """
+    rows = await conn.fetch(
+        """
+        SELECT id, conversation_id, role, content,
+               COALESCE(tokens_used, 0) as tokens, created_at
+        FROM messages
+        WHERE conversation_id = $1
+        ORDER BY created_at ASC
+        LIMIT $2
+        """,
+        conversation_id, limit
+    )
+
+    return [
+        {
+            "id": str(row["id"]),
+            "conversation_id": str(row["conversation_id"]),
+            "role": row["role"],
+            "content": row["content"],
+            "tokens": row["tokens"],
+            "created_at": row["created_at"].isoformat(),
+        }
+        for row in rows
+    ]
+
+
+# ============================================================
+# Phase 2: Conversation State (Episodic Memory)
+# ============================================================
+
+async def upsert_conversation_state(
+    conn,
+    conversation_id: UUID,
+    user_id: UUID,
+    state_data: dict,
+) -> bool:
+    """Create or update conversation state.
+
+    This version takes a connection parameter for use in repository
+    implementations that manage their own connections.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+        user_id: User UUID
+        state_data: State data to merge
+
+    Returns:
+        True if successful
+    """
+    import json
+    await conn.execute(
+        """
+        INSERT INTO conversation_states (conversation_id, user_id, state_data, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        ON CONFLICT (conversation_id)
+        DO UPDATE SET
+            state_data = conversation_states.state_data || $3::jsonb,
+            updated_at = NOW()
+        """,
+        conversation_id, user_id, json.dumps(state_data)
+    )
+
+    return True
+
+
+async def get_conversation_state(
+    conn,
+    conversation_id: UUID,
+) -> dict | None:
+    """Get conversation state.
+
+    This version takes a connection parameter for use in repository
+    implementations that manage their own connections.
+
+    Args:
+        conn: Database connection
+        conversation_id: Conversation UUID
+
+    Returns:
+        State data dict or None
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT conversation_id, user_id, state_data, updated_at
+        FROM conversation_states
+        WHERE conversation_id = $1
+        """,
+        conversation_id
+    )
+
+    if not row:
+        return None
+
+    import json
+    state_data = row["state_data"]
+    if isinstance(state_data, str):
+        state_data = json.loads(state_data)
+
+    return {
+        "conversation_id": str(row["conversation_id"]),
+        "user_id": str(row["user_id"]),
+        "state_data": state_data,
+        "updated_at": row["updated_at"].isoformat(),
+    }
