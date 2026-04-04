@@ -17,12 +17,16 @@ import traceback
 from typing import AsyncIterator, Optional, List, Dict, Any, Union
 from enum import Enum
 
+from pathlib import Path
+
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT
 from .errors import AgentError, DegradationLevel
 from .tools import ToolRegistry, global_registry
 from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
+from .context.guard import ContextGuard
+from .context.config import ContextConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +35,14 @@ class WorkflowStage(Enum):
     """工作流程阶段枚举"""
     STAGE_0_INIT = "0_INIT"           # 初始化
     STAGE_1_INTENT = "1_INTENT"       # 意图识别
-    STAGE_2_STORAGE = "2_STORAGE"      # 消息存储
-    STAGE_3_TOOLS = "3_TOOLS"         # 工具执行
-    STAGE_4_CONTEXT = "4_CONTEXT"     # 上下文构建
-    STAGE_5_LLM = "5_LLM"             # LLM响应生成
-    STAGE_6_MEMORY = "6_MEMORY"       # 记忆更新
-    COMPLETE = "COMPLETE"             # 完成
+    STAGE_2_STORAGE = "2_STORAGE"     # 消息存储
+    STAGE_3_CTX_CLEAN = "3_CTX_CLEAN"  # 上下文前置清理
+    STAGE_4_TOOLS = "4_TOOLS"         # 工具执行
+    STAGE_5_CONTEXT = "5_CONTEXT"     # 上下文构建
+    STAGE_6_LLM = "6_LLM"             # LLM响应生成
+    STAGE_7_CTX_MANAGE = "7_CTX_MANAGE"  # 上下文后置管理
+    STAGE_8_MEMORY = "8_MEMORY"       # 记忆更新
+    COMPLETE = "COMPLETE"            # 完成
 
 
 class StageLogger:
@@ -154,6 +160,16 @@ class QueryEngine:
         # 意图分类器和槽位提取器
         self._intent_classifier = intent_classifier
         self._slot_extractor = SlotExtractor()
+
+        # === 上下文守卫初始化 ===
+        rules_cache = ContextConfig.load_rules_at_startup(
+            Path("docs/superpowers/")
+        )
+        context_config = ContextConfig(rules_cache=rules_cache)
+        self.context_guard = ContextGuard(
+            config=context_config,
+            llm_client=self.llm_client,
+        )
 
         logger.info(
             f"[QueryEngine] 🚀 初始化完成 | "
@@ -474,30 +490,37 @@ class QueryEngine:
         context: str,
         user_input: str,
         history: Optional[List[Dict[str, str]]] = None,
-        stage_log: Optional[StageLogger] = None
+        stage_log: Optional[StageLogger] = None,
+        messages: Optional[List[Dict[str, str]]] = None,
     ) -> AsyncIterator[str]:
         """生成 LLM 响应
 
         Args:
             context: 构建的上下文
             user_input: 用户输入
-            history: 对话历史
+            history: 对话历史（仅当 messages 未提供时使用）
             stage_log: 阶段日志记录器
+            messages: 预构建的消息列表（推荐，避免内部修改 history）
 
         Yields:
             响应片段
         """
-        messages = list(history) if history else []
-
-        if context:
-            messages.append({"role": "user", "content": f"{context}\n\n用户: {user_input}"})
+        # 使用预构建的消息列表（如果提供），否则从 history 构建
+        if messages is not None:
+            llm_messages = messages
         else:
-            messages.append({"role": "user", "content": user_input})
+            # 从 history 构建时使用副本，避免修改原始历史
+            llm_messages = list(history) if history else []
+            new_msg = {
+                "role": "user",
+                "content": f"{context}\n\n用户: {user_input}" if context else user_input
+            }
+            llm_messages.append(new_msg)
 
         logger.info(
             f"[LLM] 🧠 开始生成响应 | "
             f"上下文长度={len(context)}字符 | "
-            f"历史消息数={len(messages)}"
+            f"历史消息数={len(llm_messages)}"
         )
 
         start = time.perf_counter()
@@ -505,7 +528,7 @@ class QueryEngine:
         first_chunk = True
 
         async for chunk in self.llm_client.stream_chat(
-            messages=messages,
+            messages=llm_messages,
             system_prompt=self.system_prompt
         ):
             chunk_count += 1
@@ -651,21 +674,36 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:2_STORAGE] ⏳ 开始 | conv={conversation_id}")
 
-        history = self._get_conversation_history(conversation_id)
+        # 获取添加用户消息前的历史（用于传递给 LLM）
+        clean_history = self._get_conversation_history(conversation_id)
         self._add_to_working_memory(conversation_id, "user", user_input)
+        # 获取包含用户消息的历史（用于 pre/post 处理）
+        history = self._get_conversation_history(conversation_id)
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
             f"[WORKFLOW:2_STORAGE] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms | "
-            f"历史: {len(history)} -> {len(self._conversation_history.get(conversation_id, []))} 条"
+            f"历史: {len(history)} 条"
         )
 
-        # ===== 阶段 3: 按需并行调用工具 =====
+        # ===== 阶段 3: 上下文前置清理 =====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv={conversation_id}")
+
+        history = await self.context_guard.pre_process(history)
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
+        )
+
+        # ===== 阶段 4: 按需并行调用工具 =====
         tool_results: Dict[str, Any] = {}
         stage_start = time.perf_counter()
         logger.info(
-            f"[WORKFLOW:3_TOOLS] ⏳ 开始 | conv={conversation_id} | 意图={intent_result.intent}"
+            f"[WORKFLOW:4_TOOLS] ⏳ 开始 | conv={conversation_id} | 意图={intent_result.intent}"
         )
 
         if intent_result.intent in ["itinerary", "query"]:
@@ -678,13 +716,13 @@ class QueryEngine:
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
-            f"[WORKFLOW:3_TOOLS] ✅ 完成 | conv={conversation_id} | "
+            f"[WORKFLOW:4_TOOLS] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms | 工具调用={len(tool_results)}次"
         )
 
-        # ===== 阶段 4: 上下文构建 =====
+        # ===== 阶段 5: 上下文构建 =====
         stage_start = time.perf_counter()
-        logger.info(f"[WORKFLOW:4_CONTEXT] ⏳ 开始 | conv={conversation_id}")
+        logger.info(f"[WORKFLOW:5_CONTEXT] ⏳ 开始 | conv={conversation_id}")
 
         context = await self._build_context(
             user_id, tool_results, slots, None
@@ -692,34 +730,53 @@ class QueryEngine:
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
-            f"[WORKFLOW:4_CONTEXT] ✅ 完成 | conv={conversation_id} | "
+            f"[WORKFLOW:5_CONTEXT] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms | 上下文长度={len(context)}字符"
         )
 
-        # ===== 阶段 5: LLM 生成响应 =====
+        # ===== 阶段 6: LLM 生成响应 =====
         full_response = ""
         stage_start = time.perf_counter()
         logger.info(
-            f"[WORKFLOW:5_LLM] ⏳ 开始 | conv={conversation_id} | "
+            f"[WORKFLOW:6_LLM] ⏳ 开始 | conv={conversation_id} | "
             f"上下文长度={len(context)}字符"
         )
 
-        async for chunk in self._generate_response(context, user_input, history, None):
+        # 构建 LLM 消息列表（使用 clean_history 副本，避免后续修改影响）
+        llm_messages = list(clean_history) if clean_history else []
+        if context:
+            llm_messages.append({"role": "user", "content": f"{context}\n\n用户: {user_input}"})
+        else:
+            llm_messages.append({"role": "user", "content": user_input})
+
+        async for chunk in self._generate_response(context, user_input, clean_history, None, messages=llm_messages):
             full_response += chunk
             yield chunk
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
-            f"[WORKFLOW:5_LLM] ✅ 完成 | conv={conversation_id} | "
+            f"[WORKFLOW:6_LLM] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms | 响应长度={len(full_response)}字符"
         )
 
         # 更新工作记忆
         self._add_to_working_memory(conversation_id, "assistant", full_response)
 
-        # ===== 阶段 6: 异步记忆更新 =====
+        # ===== 阶段 7: 上下文后置管理 =====
         stage_start = time.perf_counter()
-        logger.info(f"[WORKFLOW:6_MEMORY] ⏳ 开始 | conv={conversation_id}")
+        logger.info(f"[WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv={conversation_id}")
+
+        history = await self.context_guard.post_process(history)
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
+        )
+
+        # ===== 阶段 8: 异步记忆更新 =====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:8_MEMORY] ⏳ 开始 | conv={conversation_id}")
 
         asyncio.create_task(
             self._update_memory_async(
@@ -728,7 +785,7 @@ class QueryEngine:
         )
 
         logger.info(
-            f"[WORKFLOW:6_MEMORY] ✅ 完成(后台) | conv={conversation_id}"
+            f"[WORKFLOW:8_MEMORY] ✅ 完成(后台) | conv={conversation_id}"
         )
 
         # 总耗时统计
