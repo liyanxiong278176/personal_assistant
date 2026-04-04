@@ -2,9 +2,10 @@
 
 提供上下文管理相关功能：
 - Token 估算器
-- 上下文压缩器
+- ��下文压缩器
 - 上下文管理器
 - 上下文配置
+- 上下文清理器
 """
 
 from .tokenizer import (
@@ -19,6 +20,12 @@ from .config import (
     load_config_from_env,
     get_default_config,
 )
+from .cleaner import (
+    ContextCleaner,
+    TRIM_KEEP_CHARS,
+    CLEARED_PLACEHOLDER,
+    CleanMode,
+)
 
 __all__ = [
     "TokenEstimator",
@@ -29,4 +36,8 @@ __all__ = [
     "ContextConfig",
     "load_config_from_env",
     "get_default_config",
+    "ContextCleaner",
+    "TRIM_KEEP_CHARS",
+    "CLEARED_PLACEHOLDER",
+    "CleanMode",
 ]
