@@ -9,6 +9,55 @@ from typing import Dict, List
 logger = logging.getLogger(__name__)
 
 
+# ============================================================
+# 结构化日志宏
+# ============================================================
+
+
+def _log_reinject_decision(skipped: bool, reason: str):
+    """规则注入决策日志"""
+    if skipped:
+        logger.debug(f"[REINJECTOR] ⏭️ 跳过注入 | 原因={reason}")
+    else:
+        logger.debug(f"[REINJECTOR] ✅ 允许注入")
+
+
+def _log_reinject_window_check(window: int, has_rules: bool):
+    """窗口检查日志"""
+    logger.debug(
+        f"[REINJECTOR] 🔍 窗口检查 | 窗口={window} | 近期有规则={has_rules}"
+    )
+
+
+def _log_reinject_interval_check(interval: int, messages_since: int):
+    """间隔检查日志"""
+    allowed = messages_since >= interval
+    symbol = "✅" if allowed else "⏳"
+    logger.debug(
+        f"[REINJECTOR] ⏱️ 间隔检查 | 间隔要求={interval} | "
+        f"距上次注入={messages_since}条 | {symbol}"
+    )
+
+
+def _log_reinject_result(position: int, input_count: int, output_count: int,
+                         rules_size: int, insert_after_compressed: bool):
+    """注入结果日志"""
+    action = "摘要后" if insert_after_compressed else "开头"
+    logger.info(
+        f"[REINJECTOR] 📥 规则注入完成 | "
+        f"输入={input_count}条 → 输出={output_count}条 | "
+        f"注入位置={action}(pos={position}) | "
+        f"规则大小≈{rules_size}字符"
+    )
+
+
+def _log_reinject_skip(reason: str, messages_count: int):
+    """跳过注入日志"""
+    logger.debug(
+        f"[REINJECTOR] ⏭️ 跳过注入 | 原因={reason} | 消息数={messages_count}"
+    )
+
+
 def _get_injected_rules_from_cache(
     rules_cache: Dict[str, str], rules_files: List[str]
 ) -> str:
@@ -69,24 +118,23 @@ class RuleReinjector:
 
         # 如果第一条消息已经是规则
         if messages[0].get("_rules_reinjected"):
-            # 判断来源：
-            # - 如果上次注入位置已设置且 rules 位于该位置附近，说明是之前调用插入的，可以再次注入
-            # - 如果上次注入位置未设置（=-1），说明是输入数据自带的，跳过避免重复
             if self._last_reinject_position >= 0:
-                # 之前调用插入的：检查间隔
                 messages_since = len(messages) - self._last_reinject_position
                 if messages_since < self.config.rules_reinject_interval:
+                    _log_reinject_skip(f"第一条已是规则且间隔不足({messages_since}<{self.config.rules_reinject_interval})", len(messages))
                     return messages
             else:
-                # 输入自带的 rules，跳过
+                _log_reinject_skip("第一条已是规则(输入自带)", len(messages))
                 return messages
 
         # 检查是否需要注入
         if not self._should_reinject(messages, rules_cache):
+            _log_reinject_skip("should_reinject返回False", len(messages))
             return messages
 
         rules = _get_injected_rules_from_cache(rules_cache, self.config.rules_files)
         if not rules:
+            _log_reinject_skip("规则缓存为空", len(messages))
             return messages
 
         # 构建规则消息
@@ -95,6 +143,7 @@ class RuleReinjector:
         # 找到合适的插入位置（摘要后，当前对话前）
         result: List[Dict] = []
         inserted = False
+        insert_after_compressed = False
 
         for i, msg in enumerate(messages):
             result.append(msg)
@@ -104,14 +153,17 @@ class RuleReinjector:
                 result.append(rule_msg)
                 self._last_reinject_position = i
                 inserted = True
+                insert_after_compressed = True
 
         # 如果没找到摘要，插入到开头
         if not inserted:
             result.insert(0, rule_msg)
             self._last_reinject_position = 0
 
-        logger.debug(
-            f"[RuleReinjector] Rules reinjected | Position: {self._last_reinject_position}"
+        _log_reinject_result(
+            self._last_reinject_position,
+            len(messages), len(result),
+            len(rules), insert_after_compressed
         )
 
         return result
@@ -127,22 +179,33 @@ class RuleReinjector:
         3. 距离上次注入至少 N 条消息
         """
         if not rules_cache:
+            _log_reinject_decision(True, "规则缓存为空")
             return False
 
         # 检查最近的消息（跳过 position-0）
         window = self.config.rules_reinject_window
         recent = messages[-window:] if len(messages) >= window else messages
 
+        has_recent_rules = False
         for m in recent[1:]:
             if m.get("_rules_reinjected"):
-                return False
+                has_recent_rules = True
+                break
+
+        _log_reinject_window_check(window, has_recent_rules)
+        if has_recent_rules:
+            _log_reinject_decision(True, "近期消息中已有规则")
+            return False
 
         # 检查距离上次注入的消息数
         if self._last_reinject_position >= 0:
             messages_since = len(messages) - self._last_reinject_position
+            _log_reinject_interval_check(self.config.rules_reinject_interval, messages_since)
             if messages_since < self.config.rules_reinject_interval:
+                _log_reinject_decision(True, f"间隔不足({messages_since}<{self.config.rules_reinject_interval})")
                 return False
 
+        _log_reinject_decision(False, "通过所有检查")
         return True
 
 
