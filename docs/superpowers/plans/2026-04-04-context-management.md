@@ -32,13 +32,29 @@ tests/core/context/
 
 ---
 
-## Task 1: 创建 config.py - 上下文配置
+## Task 1: 确保目录结构
+
+- [ ] **Step 1: 创建必要的目录**
+
+```bash
+# 创建测试目录
+mkdir -p backend/tests/core/context
+touch backend/tests/core/context/__init__.py
+
+# 确保 docs/superpowers 目录存在 (用于规则文件)
+mkdir -p docs/superpowers
+touch docs/superpowers/.gitkeep
+```
+
+---
+
+## Task 2: 创建 config.py - 上下文配置
 
 **Files:**
 - Create: `backend/app/core/context/config.py`
 - Test: `tests/core/context/test_config.py`
 
-- [ ] **Step 1: 创建测试文件框架**
+- [ ] **Step 1: 写配置类测试**
 
 ```bash
 # 创建测试目录
@@ -1379,8 +1395,8 @@ class ContextGuard:
     def __init__(
         self,
         config: ContextConfig,
-        llm_client: Optional = None,
-        context_manager: Optional = None,
+        llm_client: Optional["LLMClient"] = None,
+        context_manager: Optional["ContextManager"] = None,
         rules_cache: Optional[Dict[str, str]] = None,
     ):
         """初始化 ContextGuard
@@ -1633,21 +1649,85 @@ pytest tests/core/context/test_query_engine_integration.py -v
 ```
 Expected: FAIL - QueryEngine尚未集成
 
+- [ ] **Step 3: ��成到 QueryEngine**
+
+```python
+# backend/app/core/query_engine.py
+
+# 在文件顶部添加导入
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .llm import LLMClient
+
+from .context.guard import ContextGuard, ContextConfig, load_rules_at_startup
+
+class QueryEngine:
+    def __init__(
+        self,
+        llm_client: Optional[LLMClient] = None,
+        system_prompt: Optional[str] = None,
+        tool_registry: Optional[ToolRegistry] = None
+    ):
+        """Initialize QueryEngine."""
+        # 现有初始化代码 (lines 148-165)
+        self.llm_client = llm_client
+        self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
+        self._tool_registry = tool_registry or global_registry
+        self._tool_executor = ToolExecutor(self._tool_registry)
+        self._conversation_history: Dict[str, List[Dict[str, str]]] {}
+        
+        # 意图分类器和槽位提取器
+        self._intent_classifier = intent_classifier
+        self._slot_extractor = SlotExtractor()
+        
+        # === 新增: 上下文守卫 ===
+        rules_cache = load_rules_at_startup(
+            Path("docs/superpowers/"),
+            ContextConfig.rules_files
+        )
+        
+        self.context_guard = ContextGuard(
+            config=ContextConfig(),
+            llm_client=self.llm_client,
+            rules_cache=rules_cache
+        )
+        
 - [ ] **Step 3: 集成到 QueryEngine**
 
 ```python
 # backend/app/core/query_engine.py
 
-# 在现有导入中添加
+# 在文件顶部添加导入
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .llm import LLMClient
 
 from .context.guard import ContextGuard, ContextConfig, load_rules_at_startup
 
 class QueryEngine:
-    def __init__(self, ...):
-        # ... 现有初始化代码 ...
+    def __init__(
+        self,
+        llm_client: Optional[LLMClient] = None,
+        system_prompt: Optional[str] = None,
+        tool_registry: Optional[ToolRegistry] = None
+    ):
+        """Initialize QueryEngine."""
+        # 现有初始化代码 (lines 148-165)
+        self.llm_client = llm_client
+        self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
+        self._tool_registry = tool_registry or global_registry
+        self._tool_executor = ToolExecutor(self._tool_registry)
+        self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
         
-        # 新增: 上下文守卫
+        # 意图分类器和槽位提取器
+        self._intent_classifier = intent_classifier
+        self._slot_extractor = SlotExtractor()
+        
+        # === 新增: 上下文守卫 ===
         rules_cache = load_rules_at_startup(
             Path("docs/superpowers/"),
             ContextConfig.rules_files
@@ -1660,6 +1740,34 @@ class QueryEngine:
         )
         
         logger.info("[QueryEngine] ContextGuard initialized")
+```
+
+- [ ] **Step 4: 在 process 方法中集成前置清理**
+
+在 `async def process` 方法中，在阶段 2 之后添加：
+
+```python
+# 在 line 662 之后 (阶段 2_STORAGE 完成后)
+
+# === 阶段 3: 上下文前置清理 ===
+history = await self.context_guard.pre_process(history)
+```
+
+- [ ] **Step 5: 在 process 方法中集成后置处理**
+
+在 `async def process` 方法中，在阶段 5 (LLM生成响应) 之后添加：
+
+```python
+# 在 full_response 计算完成后 (大约 line 715)
+
+# 更新工作记忆
+self._add_to_working_memory(conversation_id, "assistant", full_response)
+
+# === 阶段 7: 上下文后置管理 ===
+history = await self.context_guard.post_process(history)
+
+# 继续原有的异步记忆更新...
+```
 
     async def process(self, user_input: str, conversation_id: str, ...):
         # ... 现有阶段0-2代码 ...
@@ -1785,12 +1893,113 @@ git commit -m "feat(context): complete Phase 1 context management implementation
 
 ---
 
+## Task 7: 更新文档
+
+**Files:**
+- Modify: `backend/app/core/context/README.md` (如果存在)
+- Create: `docs/superpowers/context-management-implementation.md`
+
+- [ ] **Step 1: 创建实现文档**
+
+```markdown
+# Phase 1 上下文管理实现完成
+
+## 已实现功能
+
+- [x] ContextConfig - 不可变配置类
+- [x] Cleaner - TTL检查、软修剪、硬清除
+- [x] RuleReinjector - 核心规则重注入
+- [x] LLMSummaryProvider - 异步LLM摘要 + 同步降级
+- [x] ContextGuard - 统一的前置/后置处理入口
+- [x] QueryEngine 集成
+
+## 使用方式
+
+```python
+from app.core.context.guard import ContextGuard
+from app.core.context.config import ContextConfig, load_rules_at_startup
+
+# 初始化
+rules_cache = load_rules_at_startup(Path("docs/superpowers/"), ContextConfig.rules_files)
+guard = ContextGuard(config=ContextConfig(), rules_cache=rules_cache)
+
+# 前置清理
+messages = await guard.pre_process(messages)
+
+# 后置处理
+messages = await guard.post_process(messages)
+
+# 手动压缩
+messages = await guard.force_compress(messages)
+```
+
+## 测试
+
+运行测试: `pytest backend/tests/core/context/ -v`
+```
+
+- [ ] **Step 2: 提交文档**
+
+```bash
+git add docs/superpowers/context-management-implementation.md
+git commit -m "docs: add Phase 1 context management implementation notes"
+```
+
+---
+
+## Task 8: 完整测试与验证
+
+- [ ] **Step 1: 确保测试环境配置**
+
+```bash
+# 检查 pytest-asyncio 是否已安装
+cd backend
+pip show pytest-asyncio > /dev/null || pip install pytest-asyncio
+```
+
+- [ ] **Step 2: 运行所有上下文管理测试**
+
+```bash
+cd backend
+pytest tests/core/context/ -v --tb=short
+```
+
+- [ ] **Step 3: 运行现有测试确保无破坏**
+
+```bash
+cd backend
+pytest tests/core/test_query_engine.py -v --tb=short
+```
+
+- [ ] **Step 4: 检查代码质量**
+
+```bash
+cd backend
+ruff check app/core/context/
+```
+
+- [ ] **Step 5: 格式化代码**
+
+```bash
+cd backend
+ruff format app/core/context/
+```
+
+- [ ] **Step 6: 最终提交**
+
+```bash
+git add backend/app/core/context/ backend/tests/core/context/
+git commit -m "feat(context): complete Phase 1 context management implementation"
+```
+
+---
+
 ## 执行检查清单
 
 - [ ] 所有文件已创建
 - [ ] 所有测试通过
 - [ ] 代码格式化完成
-- [- ] 文档已更新
+- [ ] 文档已更新
 - [ ] 向后兼容性保持
 
 ---
