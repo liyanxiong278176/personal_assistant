@@ -2,10 +2,11 @@
 
 提供上下文管理相关功能：
 - Token 估算器
-- ��下文压缩器
+- 上下文压缩器
 - 上下文管理器
 - 上下文配置
 - 上下文清理器
+- 规则重注入器
 """
 
 from .tokenizer import (
@@ -26,6 +27,7 @@ from .cleaner import (
     CLEARED_PLACEHOLDER,
     CleanMode,
 )
+from .reinjector import RuleReinjector
 
 __all__ = [
     "TokenEstimator",
@@ -40,4 +42,5 @@ __all__ = [
     "TRIM_KEEP_CHARS",
     "CLEARED_PLACEHOLDER",
     "CleanMode",
+    "RuleReinjector",
 ]
