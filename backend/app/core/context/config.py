@@ -27,6 +27,8 @@ class ContextConfig:
         rules_files: 核心规则文件列表，默认 ["AGENTS.md", "TOOLS.md"]
         rules_cache: 规则文件内容缓存，启动时加载
         protected_message_types: 受保护的消息类型，这些消息不会被修剪
+        rules_reinject_window: 规则重注入窗口，检查最近 N 条消息是否有规则，默认 5
+        rules_reinject_interval: 规则重注入间隔，至少间隔 N 条消息后重新注入，默认 3
     """
 
     # 窗口配置
@@ -49,6 +51,10 @@ class ContextConfig:
 
     # 保护配置
     protected_message_types: List[str] = field(default_factory=lambda: ["user", "system", "image"])
+
+    # 规则重注入配置
+    rules_reinject_window: int = 5   # 检查最近 N 条消息是否有规则
+    rules_reinject_interval: int = 3  # 至少间隔 N 条消息后重新注入
 
     @classmethod
     def load_rules_at_startup(cls, rules_dir: Path) -> Dict[str, str]:
