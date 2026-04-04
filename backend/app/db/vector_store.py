@@ -207,3 +207,61 @@ class VectorStore:
         # ChromaDB doesn't support bulk delete by metadata directly
         # Need to query and delete by IDs (not implemented for MVP)
         logger.warning(f"[VectorStore] delete_conversation not yet implemented for {conversation_id}")
+
+
+def ensure_metadata(metadata: dict) -> dict:
+    """Ensure required metadata fields exist for Phase 2 hybrid retrieval.
+
+    Required fields:
+    - user_id: User ID for isolation
+    - conversation_id: Conversation ID for proximity scoring
+    - created_at: Unix timestamp for time decay
+    - memory_type: Type of memory (preference, fact, constraint)
+    - importance: Importance score 0.0-1.0
+
+    Args:
+        metadata: Metadata dict to validate/complete
+
+    Returns:
+        Metadata dict with required fields
+    """
+    import time
+
+    result = metadata.copy()
+
+    if "created_at" not in result:
+        result["created_at"] = time.time()
+
+    if "memory_type" not in result:
+        result["memory_type"] = "preference"
+
+    if "importance" not in result:
+        result["importance"] = 0.5
+
+    return result
+
+
+def format_search_results(results: dict) -> list[dict]:
+    """Format ChromaDB query results with similarity scores.
+
+    Converts distance to similarity score (1 - distance).
+
+    Args:
+        results: Raw ChromaDB query results
+
+    Returns:
+        List of formatted results with content, metadata, score
+    """
+    if not results or not results.get("ids") or not results["ids"][0]:
+        return []
+
+    formatted = []
+    for i, item_id in enumerate(results["ids"][0]):
+        formatted.append({
+            "id": item_id,
+            "content": results["documents"][0][i],
+            "metadata": results["metadatas"][0][i],
+            "score": 1.0 - results["distances"][0][i],  # Distance to similarity
+        })
+
+    return formatted
