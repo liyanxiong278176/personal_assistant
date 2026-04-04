@@ -681,28 +681,6 @@ class LLMSummaryProvider:
 
         return sync_summary
 
-                return summary
-
-            except Exception as e:
-                logger.warning(f"[LLMSummary] 摘要失败 (尝试 {attempt+1}): {e}")
-
-                # 最后一次尝试失败，使用降级方案
-                if attempt == self.config.summary_max_retries - 1:
-                    return self._fallback_summary(messages)
-
-        return self._fallback_summary(messages)
-
-    def create_summary_func(self) -> Callable:
-        """创建同步摘要函数供 ContextManager 使用
-
-        ContextManager.compress_with_summary() 需要一个同步函数，
-        但我们的 LLM 调用是异步的。这里返回一个包装函数。
-        """
-        def sync_summary(messages: List[Dict]) -> str:
-            """同步摘要函数 (降级为简单计数)"""
-            return self._fallback_summary(messages)
-
-        return sync_summary
 
     def _format_messages_for_summary(self, messages: List[Dict]) -> str:
         """格式化消息用于摘要输入"""
