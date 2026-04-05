@@ -20,6 +20,7 @@ from .fallback import (
     FallbackResponse,
 )
 from .initializer import SessionInitializer
+from .recovery import SessionRecovery
 
 __all__ = [
     # state
@@ -37,4 +38,6 @@ __all__ = [
     "FallbackResponse",
     # initializer
     "SessionInitializer",
+    # recovery
+    "SessionRecovery",
 ]
