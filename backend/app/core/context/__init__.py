@@ -36,6 +36,7 @@ from .summary import (
     DEFAULT_SUMMARY_PROMPT,
 )
 from .guard import ContextGuard
+from .enhancement_config import AgentEnhancementConfig
 
 __all__ = [
     "TokenEstimator",
@@ -55,4 +56,5 @@ __all__ = [
     "create_summary_provider",
     "DEFAULT_SUMMARY_PROMPT",
     "ContextGuard",
+    "AgentEnhancementConfig",
 ]
