@@ -1,8 +1,12 @@
 """Preference Pattern Matcher - Extract travel preferences from Chinese text.
 
 This module provides regex-based pattern matching for extracting travel
-preferences from user messages. It supports destinations, budget, duration,
-accommodation, activities, and dates.
+preferences from user messages. It supports destinations, budget, and duration.
+
+Limitations:
+- Chinese number normalization only supports single digits (一-九, 十).
+- Compound numbers like "三千五百" or "三十天" are not properly normalized.
+  For full compound number support, implement a proper Chinese numeral parser.
 """
 
 import re
@@ -15,14 +19,15 @@ logger = logging.getLogger(__name__)
 
 
 class PreferenceType:
-    """Preference type constants for categorizing extracted preferences."""
+    """Preference type constants for categorizing extracted preferences.
+
+    Note: Only DESTINATION, BUDGET, and DURATION have patterns defined.
+    Other types can be added as needed with their own regex patterns.
+    """
 
     DESTINATION = "destination"
     BUDGET = "budget"
     DURATION = "duration"
-    ACCOMMODATION = "accommodation"
-    ACTIVITY = "activity"
-    DATE = "date"
 
 
 @dataclass
@@ -60,6 +65,8 @@ class PreferenceMatcher:
     """
 
     # Regex patterns for each preference type
+    # Note: Chinese number patterns only support single digits (一-九, 十)
+    # For compound numbers like "三千五百", users should use Arabic numerals
     PATTERNS = {
         PreferenceType.DESTINATION: [
             r"我想去\s*([^，。！？\s\n和]+?)(?:[，。！？\s\n和]|旅游|玩|逛|$)",
@@ -68,24 +75,26 @@ class PreferenceMatcher:
             r"[,，]\s*([^，。！？\s\n]+?)\s*(?:旅游|玩|逛|去|，。！？|$)",
         ],
         PreferenceType.BUDGET: [
-            r"预算\s*([一二三四五六七八九十百千万\d]+)(?:元|块)?",
-            r"([一二三四五六七八九十百千万\d]+)(?:元|块)?\s*以内",
-            r"([一二三四五六七八九十百千万\d]+)(?:元|块)\s*左右",
-            r"([一二三四五六七八九十百千万\d]+)(?:元|块)\s*预算",
+            r"预算\s*([一二三四五六七八九十\d]+)(?:元|块)?",
+            r"([一二三四五六七八九十\d]+)(?:元|块)?\s*以内",
+            r"([一二三四五六七八九十\d]+)(?:元|块)\s*左右",
+            r"([一二三四五六七八九十\d]+)(?:元|块)\s*预算",
         ],
         PreferenceType.DURATION: [
             r"(\d+)\s*天",
             r"(\d+)\s*晚",
-            r"([一二三四五六七八九十]+)\s*天",
-            r"([一二三四五六七八九十]+)\s*晚",
+            r"([一二三四五六七八九十])\s*天",
+            r"([一二三四五六七八九十])\s*晚",
         ],
     }
 
-    # Chinese number to Arabic numeral mapping
+    # Chinese number to Arabic numeral mapping (single digits only)
+    # Note: "十" is treated as 10, not as a position marker
+    # This approach does NOT support compound numbers like "三十" or "三千五百"
     CHINESE_NUMBERS = {
         "一": "1", "二": "2", "三": "3", "四": "4", "五": "5",
         "六": "6", "七": "7", "八": "8", "九": "9", "十": "10",
-        "两": "2", "零": "0", "百": "00", "千": "000", "万": "0000",
+        "两": "2",
     }
 
     def __init__(self, confidence_threshold: float = 0.7):
