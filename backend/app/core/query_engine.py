@@ -27,6 +27,9 @@ from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
 from .context.guard import ContextGuard
 from .context.config import ContextConfig
+from .context.enhancement_config import AgentEnhancementConfig
+from .context.inference_guard import InferenceGuard, OverlimitStrategy
+from .preferences.extractor import PreferenceExtractor
 from .session import SessionInitializer
 from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
 
@@ -145,7 +148,8 @@ class QueryEngine:
         llm_client: Optional[LLMClient] = None,
         system_prompt: Optional[str] = None,
         tool_registry: Optional[ToolRegistry] = None,
-        config_path: Optional[Path] = None
+        config_path: Optional[Path] = None,
+        enhancement_config: Optional[AgentEnhancementConfig] = None
     ):
         """Initialize QueryEngine.
 
@@ -154,12 +158,32 @@ class QueryEngine:
             system_prompt: 系统提示词，为 None 时使用默认值
             tool_registry: 工具注册表，为 None 时使用全局注册表
             config_path: 会话配置文件路径
+            enhancement_config: 增强功能配置，为 None 时加载默认配置
         """
         self.llm_client = llm_client
         self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
         self._tool_registry = tool_registry or global_registry
         self._tool_executor = ToolExecutor(self._tool_registry)
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
+
+        # === 增强功能配置 ===
+        self._config = enhancement_config or AgentEnhancementConfig.load()
+        if self._config.enable_inference_guard:
+            self._inference_guard = InferenceGuard(
+                max_tokens_per_response=self._config.max_tokens_per_response,
+                max_total_budget=self._config.max_total_token_budget,
+                warning_threshold=self._config.inference_warning_threshold,
+                overlimit_strategy=OverlimitStrategy(self._config.overlimit_strategy)
+            )
+        else:
+            self._inference_guard = None
+
+        if self._config.enable_preference_extraction:
+            self._pref_extractor = PreferenceExtractor(
+                confidence_threshold=self._config.preference_confidence_threshold
+            )
+        else:
+            self._pref_extractor = None
 
         # 意图分类器和槽位提取器
         self._intent_classifier = intent_classifier
@@ -394,6 +418,9 @@ class QueryEngine:
     ) -> Dict[str, Any]:
         """根据意图执行工具
 
+        支持工具循环模式：如果启用工具循环，LLM 可以基于工具结果继续调用工具，
+        直到达到最大迭代次数或 token 限制。
+
         Args:
             intent_result: 意图识别结果
             slots: 提取的槽位
@@ -411,6 +438,14 @@ class QueryEngine:
 
         logger.info(f"[TOOLS] 🔧 可用工具: {[t['name'] for t in tools]}")
 
+        # === 工具循环模式 ===
+        if self._config.enable_tool_loop:
+            return await self._execute_tools_with_loop(
+                tools=tools,
+                stage_log=stage_log
+            )
+
+        # === 原有单次工具调用逻辑 ===
         # 构建消息
         messages = [{"role": "user", "content": self._current_message}]
 
@@ -448,6 +483,93 @@ class QueryEngine:
 
         return {}
 
+    async def _execute_tools_with_loop(
+        self,
+        tools: List[Dict[str, Any]],
+        stage_log: Optional[StageLogger] = None
+    ) -> Dict[str, Any]:
+        """使用工具循环模式执行工具
+
+        允许 LLM 基于工具结果继续调用工具，直到满足停止条件。
+
+        Args:
+            tools: 可用工具列表
+            stage_log: 阶段日志记录器（可选）
+
+        Returns:
+            所有工具执行结果的合并字典
+        """
+        max_iterations = self._config.max_tool_iterations
+        token_limit = self._config.tool_loop_token_limit
+
+        messages = [{"role": "user", "content": self._current_message}]
+        all_results: Dict[str, Any] = {}
+        iteration = 0
+        total_tokens = 0
+
+        logger.info(
+            f"[TOOLS:LOOP] 🔄 工具循环模式启动 | "
+            f"max_iterations={max_iterations} | token_limit={token_limit}"
+        )
+
+        while iteration < max_iterations:
+            iteration += 1
+            logger.info(f"[TOOLS:LOOP] 📍 迭代 {iteration}/{max_iterations}")
+
+            try:
+                content, tool_calls = await self.llm_client.chat_with_tools(
+                    messages=messages,
+                    tools=tools,
+                    system_prompt=self.system_prompt
+                )
+
+                # 估算 token 使用
+                total_tokens += len(str(content)) + len(str(messages))
+                if total_tokens > token_limit:
+                    logger.warning(
+                        f"[TOOLS:LOOP] ⚠️ Token 限制达到 | "
+                        f"used={total_tokens} | limit={token_limit}"
+                    )
+                    break
+
+                if not tool_calls:
+                    logger.info(f"[TOOLS:LOOP] ✅ LLM 完成工具调用（迭代 {iteration}）")
+                    break
+
+                logger.info(
+                    f"[TOOLS:LOOP] 📋 迭代 {iteration} | 调用工具: "
+                    f"{[tc.name for tc in tool_calls]}"
+                )
+
+                # 执行工具
+                results = await self._tool_executor.execute_parallel(tool_calls)
+
+                # 合并结果
+                all_results.update(results)
+
+                # 将结果添加到消息中
+                messages.append({"role": "assistant", "content": content})
+                messages.append({
+                    "role": "tool",
+                    "content": json.dumps(results, ensure_ascii=False)
+                })
+
+                # 检查是否有错误
+                errors = [k for k, v in results.items() if isinstance(v, dict) and "error" in v]
+                if errors:
+                    logger.warning(f"[TOOLS:LOOP] ⚠️ 部分工具失败: {errors}")
+
+            except Exception as e:
+                logger.error(f"[TOOLS:LOOP] ❌ 迭代 {iteration} 失败: {e}")
+                break
+
+        logger.info(
+            f"[TOOLS:LOOP] 🏁 循环完成 | 迭代={iteration} | "
+            f"结果数={len(all_results)} | tokens≈{total_tokens}"
+        )
+
+        return all_results
+
     async def _build_context(
         self,
         user_id: Optional[str],
@@ -468,6 +590,20 @@ class QueryEngine:
         """
         parts = []
         context_parts = []
+
+        # 用户偏好（如果启用偏好提取）
+        if self._config.enable_preference_extraction and self._pref_extractor and user_id:
+            try:
+                preferences = await self._pref_extractor.get_preferences(user_id)
+                if preferences:
+                    parts.append("## 用户偏好")
+                    context_parts.append("## 用户偏好")
+                    for key, value in preferences.items():
+                        parts.append(f"- {key}: {value}")
+                        context_parts.append(f"- {key}: {value}")
+                    logger.debug(f"[CONTEXT] ✅ 用户偏好已注入 | 数量={len(preferences)}")
+            except Exception as e:
+                logger.warning(f"[CONTEXT] ⚠️ 用户偏好加载失败: {e}")
 
         # 工具结果
         if tool_results:
@@ -559,9 +695,14 @@ class QueryEngine:
         chunk_count = 0
         first_chunk = True
 
+        # 重置推理守卫计数器
+        if self._inference_guard:
+            self._inference_guard.reset_response_counter()
+
         async for chunk in self.llm_client.stream_chat(
             messages=llm_messages,
-            system_prompt=self.system_prompt
+            system_prompt=self.system_prompt,
+            guard=self._inference_guard
         ):
             chunk_count += 1
             if first_chunk:
@@ -1029,6 +1170,23 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:1_INTENT] ✅ 完成 | "
             f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f}"
         )
+
+        # ===== 偏好提取（如果启用） =====
+        if self._config.enable_preference_extraction and self._pref_extractor and user_id:
+            try:
+                preferences = await self._pref_extractor.extract(
+                    user_input=user_input,
+                    conversation_id=conversation_id,
+                    user_id=user_id
+                )
+                if preferences:
+                    logger.info(
+                        f"[WORKFLOW:STREAM:1_INTENT] ✅ 偏好已提取 | "
+                        f"数量={len(preferences)} | "
+                        f"keys={[p.key for p in preferences]}"
+                    )
+            except Exception as e:
+                logger.warning(f"[WORKFLOW:STREAM:1_INTENT] ⚠️ 偏好提取失败: {e}")
 
         # ===== 阶段 2: 消息基础存储 =====
         logger.info(f"[WORKFLOW:STREAM:2_STORAGE] ⏳ 开始")
