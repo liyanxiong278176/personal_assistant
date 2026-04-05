@@ -127,6 +127,18 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
     engine = get_query_engine()
 
     try:
+        # 连接建立后立即执行会话初始化 (Step 0)
+        try:
+            await engine._session_initializer.initialize(
+                conversation_id="temp",
+                user_id="anonymous"
+            )
+            websocket._session_initialized = True
+            logger.info("[Chat] 会话初始化完成")
+        except Exception as e:
+            logger.warning(f"[Chat] 会话初始化失败: {e}")
+            websocket._session_initialized = False
+
         while True:
             # Receive message from client
             data = await websocket.receive_json()
