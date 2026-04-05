@@ -89,7 +89,7 @@ class SubAgentOrchestrator:
             breakdown.append("有预算要求:+1")
 
         # 天数
-        days = slots.get("days", 1)
+        days = slots.get("days") or 1
         if days > 3:
             score += 1
             breakdown.append(f"天数({days}>3):+1")

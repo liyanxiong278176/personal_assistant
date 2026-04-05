@@ -35,6 +35,10 @@ class InjectionGuard:
             "|".join(self.INJECTION_PATTERNS),
             re.IGNORECASE
         )
+        self._checked_count = 0
+        self._deny_count = 0
+        self._review_count = 0
+        logger.info(f"[Security] InjectionGuard initialized: patterns={len(self.INJECTION_PATTERNS)}, sensitive_actions={len(self.SENSITIVE_ACTIONS)}")
 
     def check(self, message: str) -> PolicyDecision:
         """检查消息是否包含注入攻击
@@ -45,15 +49,18 @@ class InjectionGuard:
         Returns:
             策略决策
         """
+        self._checked_count += 1
         # 1. 检测注入攻击
         if self._injection_regex.search(message):
-            logger.warning(f"[Security] Injection detected: {message[:50]}...")
+            self._deny_count += 1
+            logger.warning(f"[Security] Injection detected: message={message[:80]!r}...")
             return PolicyDecision.DENY
 
         # 2. 检测敏感操作
         for action in self.SENSITIVE_ACTIONS:
             if action in message:
-                logger.info(f"[Security] Sensitive action detected: {action}")
+                self._review_count += 1
+                logger.info(f"[Security] Sensitive action detected: action={action}")
                 return PolicyDecision.REVIEW
 
         # 3. 正常消息
@@ -61,6 +68,7 @@ class InjectionGuard:
 
     def sanitize(self, message: str) -> str:
         """清理消息中的潜在注入内容"""
+        logger.debug(f"[Security] Sanitizing message: length={len(message)}")
         # 移除HTML标签及其内容
         sanitized = re.sub(r'<[^>]*>.*?</[^>]*>', '', message)
         # 移除自闭合标签及其内容
@@ -69,4 +77,5 @@ class InjectionGuard:
         sanitized = re.sub(r'<[^>]*>', '', sanitized)
         # 移除JSON注入尝试
         sanitized = re.sub(r'\{.*?\}', '', sanitized, flags=re.DOTALL)
+        logger.debug(f"[Security] Message sanitized: original_len={len(message)}, sanitized_len={len(sanitized)}")
         return sanitized.strip()

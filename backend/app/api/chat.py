@@ -37,6 +37,8 @@ from app.db.postgres import (
 # 使用新的 Agent Core
 from app.core import QueryEngine
 from app.core.llm import LLMClient
+from app.core.multimodal.image_handler import ImageHandler
+import base64
 
 
 router = APIRouter(prefix="/api", tags=["conversations"])
@@ -194,13 +196,41 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
 
                 logger.info("=" * 60)
                 logger.info(f">>> [QueryEngine] 处理消息 | conv={conversation_id} | user={user_id}")
-                logger.info(f"    内容: {msg.content[:100]}...")
+
+                # === 处理图片附件 ===
+                user_content = msg.content
+                if msg.has_image and msg.image_data:
+                    logger.info(f"[Chat] 📸 收到图片附件 | size={len(msg.image_data)} chars")
+                    try:
+                        # 解码 base64 图片
+                        image_bytes = base64.b64decode(msg.image_data)
+
+                        # 使用 ImageHandler 处理
+                        image_handler = ImageHandler()
+                        image_desc = await image_handler.process_image(
+                            image_data=image_bytes,
+                            filename="upload.jpg"
+                        )
+
+                        # 将图片描述添加到用户消息中
+                        user_content = f"{image_desc} {msg.content}"
+                        logger.info(f"[Chat] ✅ 图片已处理 | 描述: {image_desc[:50]}...")
+                    except Exception as e:
+                        logger.error(f"[Chat] ❌ 图片处理失败: {e}")
+                        if not await manager.send_json(
+                            websocket,
+                            WSResponse(type="error", error=f"图片处理失败: {str(e)}")
+                        ):
+                            break
+                        continue
+
+                logger.info(f"    内容: {user_content[:100]}...")
 
                 try:
                     # 使用 QueryEngine.process() 处理消息
                     # QueryEngine 内部实现完整的 6 步工作流程
                     async for chunk in engine.process(
-                        user_input=msg.content,
+                        user_input=user_content,
                         conversation_id=conversation_id,
                         user_id=user_id
                     ):

@@ -324,6 +324,7 @@ export const useConversationStore = create<ConversationStore>()(
       selectedTags: [],
       showPinnedOnly: false,
       page: 1,
+      pageSize: 20,
       total: 0,
       hasMore: true,
     });

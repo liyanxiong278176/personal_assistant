@@ -49,6 +49,7 @@ export function MessageList({ messages }: MessageListProps) {
                 "智能行程规划",
                 "实时景点推荐",
                 "预算优化建议",
+                "图片识别景点",
               ].map((feature) => (
                 <div
                   key={feature}
@@ -94,6 +95,17 @@ export function MessageList({ messages }: MessageListProps) {
               }`}
             >
               <div className={message.role === "user" ? "max-w-[80%]" : "max-w-full"}>
+                {/* Image display for user messages */}
+                {message.image && (
+                  <div className="mb-2 rounded-lg overflow-hidden border border-border/50">
+                    <img
+                      src={`data:image/jpeg;base64,${message.image.data}`}
+                      alt="Uploaded"
+                      className="max-w-full h-auto max-h-64 object-cover"
+                    />
+                  </div>
+                )}
+
                 {/* Message bubble */}
                 {message.content && (
                   <div

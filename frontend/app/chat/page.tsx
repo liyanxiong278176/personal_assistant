@@ -20,6 +20,7 @@ export default function ChatPage() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
@@ -94,11 +95,11 @@ export default function ChatPage() {
       console.error("Failed to load conversation messages:", error);
       setMessages([]);
     }
-  }, []);
+  }, []);  // Empty deps is fine - this only depends on the API which is stable
 
   // Handle sending message
   const handleSendMessage = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !selectedImage) || isLoading) return;
 
     const messageContent = input.trim();
 
@@ -109,8 +110,16 @@ export default function ChatPage() {
       createdAt: new Date(),
     };
 
+    // Add image data if present
+    if (selectedImage) {
+      (userMessage as any).image = {
+        data: selectedImage,
+      };
+    }
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setSelectedImage(null);
     setIsLoading(true);
     streamingMessageRef.current = "";
 
@@ -139,6 +148,7 @@ export default function ChatPage() {
       const sendingConversationId = currentConversationId;
 
       await transport.sendMessage(messageContent, {
+        imageData: selectedImage || undefined,
         onChunk: (chunk: string) => {
           // Only update if we're still on this conversation
           if (activeConversationRef.current !== sendingConversationId) {
@@ -200,7 +210,7 @@ export default function ChatPage() {
       setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
       setIsLoading(false);
     }
-  }, [input, isLoading, currentConversationId]);
+  }, [input, isLoading, currentConversationId, selectedImage]);
 
   const handleStop = useCallback(() => {
     transportRef.current?.sendStop();
@@ -248,8 +258,8 @@ export default function ChatPage() {
       setIsLoading(false);
     }
 
-    // Handle empty string - clear messages (use empty session)
-    if (!conversationId) {
+    // Handle empty string or null - clear messages (use empty session)
+    if (!conversationId || conversationId === "") {
       console.log('[ChatPage] Clearing messages (empty session)');
       setCurrentConversationId(null);
       setActiveConversation(null);
@@ -262,9 +272,12 @@ export default function ChatPage() {
 
     // Don't switch if already on this conversation (unless stopping stream above)
     if (conversationId === currentConversationId && !isLoading) {
+      console.log('[ChatPage] Already on this conversation, skipping');
       return;
     }
 
+    // Clear current messages first before loading new ones
+    setMessages([]);
     setCurrentConversationId(conversationId);
     setActiveConversation(conversationId);
     activeConversationRef.current = conversationId;  // Update ref immediately
@@ -402,6 +415,7 @@ export default function ChatPage() {
             onSend={handleSendMessage}
             onStop={handleStop}
             isLoading={isLoading}
+            onImageChange={setSelectedImage}
           />
         </div>
       </main>
