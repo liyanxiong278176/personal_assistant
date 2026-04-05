@@ -8,9 +8,14 @@ import asyncio
 import json
 import logging
 import os
-from typing import AsyncIterator, Optional, List, Dict, Any, Union
+import time
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, AsyncIterator, Optional, List, Dict, Any, Union
 
 import httpx
+
+if TYPE_CHECKING:
+    from ..context.inference_guard import InferenceGuard
 
 from ..errors import AgentError, DegradationLevel, DegradationStrategy
 
@@ -32,6 +37,28 @@ class ToolCall:
 
     def __repr__(self):
         return f"ToolCall(id={self.id!r}, name={self.name!r}, args={self.arguments})"
+
+
+@dataclass
+class ToolResult:
+    """工具执行结果"""
+    success: bool
+    data: Any
+    error: Optional[str] = None
+    execution_time_ms: int = 0
+
+
+@dataclass
+class ToolCallResult:
+    """工具循环单次迭代结果"""
+    iteration: int
+    content: str
+    tool_calls: List[ToolCall]
+    tool_results: Dict[str, ToolResult]
+    tokens_used: int
+    total_tokens: int
+    should_continue: bool
+    stop_reason: Optional[str] = None
 
 
 class LLMClient:
@@ -99,13 +126,15 @@ class LLMClient:
     async def stream_chat(
         self,
         messages: List[Dict[str, str]],
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
+        guard: Optional["InferenceGuard"] = None,
     ) -> AsyncIterator[str]:
         """流式聊天
 
         Args:
             messages: 消息列表
             system_prompt: 系统提示词（可选）
+            guard: 可选 InferenceGuard 用于 token 限制检查
 
         Yields:
             str: 流式响应片段
@@ -178,6 +207,13 @@ class LLMClient:
                             chunk_data = json.loads(data)
                             content = self._extract_content(chunk_data)
                             if content:
+                                # 应用 guard 检查
+                                if guard is not None:
+                                    should_cont, warning = guard.check_before_yield(content)
+                                    if not should_cont:
+                                        if warning:
+                                            yield warning
+                                        break
                                 yield content
                         except json.JSONDecodeError:
                             logger.debug(f"[LLMClient] Failed to parse chunk: {data}")
@@ -463,6 +499,165 @@ class LLMClient:
                 content_parts.append(chunk)
 
         return ("".join(content_parts), tool_calls)
+
+    async def chat_with_tool_loop(
+        self,
+        messages: List[Dict[str, str]],
+        tools: List[Dict[str, Any]],
+        tool_executor,  # Callable[[ToolCall], Awaitable[ToolResult]]
+        system_prompt: Optional[str] = None,
+        max_iterations: int = 10,
+        stop_event: Optional[asyncio.Event] = None,
+        guard: Optional["InferenceGuard"] = None,
+    ) -> AsyncIterator[ToolCallResult]:
+        """工具循环方法：持续调用 LLM 直到没有工具调用或达到上限
+
+        Args:
+            messages: 消息列表（会被追加）
+            tools: 工具定义列表
+            tool_executor: 工具执行器，接收 ToolCall 返回 ToolResult
+            system_prompt: 系统提示词（可选）
+            max_iterations: 最大迭代次数
+            stop_event: 可选停止事件
+            guard: 可选 InferenceGuard 用于 token 限制检查
+
+        Yields:
+            ToolCallResult: 每次迭代的结果
+        """
+        iteration = 0
+        total_tokens = 0
+        all_messages = list(messages)
+
+        while iteration < max_iterations:
+            # 检查停止事件
+            if stop_event is not None and stop_event.is_set():
+                yield ToolCallResult(
+                    iteration=iteration,
+                    content="",
+                    tool_calls=[],
+                    tool_results={},
+                    tokens_used=0,
+                    total_tokens=total_tokens,
+                    should_continue=False,
+                    stop_reason="stop_event_set",
+                )
+                return
+
+            iteration += 1
+            content_parts = []
+            tool_calls: List[ToolCall] = []
+
+            # 调用流式聊天
+            async for chunk in self.stream_chat_with_tools(
+                all_messages, tools, system_prompt
+            ):
+                if isinstance(chunk, ToolCall):
+                    tool_calls.append(chunk)
+                else:
+                    # 应用 guard 检查
+                    if guard is not None:
+                        should_cont, warning = guard.check_before_yield(chunk)
+                        if not should_cont:
+                            # 截断内容，添加友好提示
+                            if warning:
+                                content_parts.append(warning)
+                            break
+                    content_parts.append(chunk)
+
+            content = "".join(content_parts)
+            tokens_used = len(content)  # 简化 token 估算
+            total_tokens += tokens_used
+
+            # 如果没有工具调用，结束循环
+            if not tool_calls:
+                yield ToolCallResult(
+                    iteration=iteration,
+                    content=content,
+                    tool_calls=[],
+                    tool_results={},
+                    tokens_used=tokens_used,
+                    total_tokens=total_tokens,
+                    should_continue=False,
+                    stop_reason="no_tool_calls",
+                )
+                return
+
+            # 将 assistant 回复加入消息
+            assistant_msg: Dict[str, Any] = {"role": "assistant", "content": content}
+            if tool_calls:
+                assistant_msg["tool_calls"] = [
+                    {"id": tc.id, "type": "function", "function": {"name": tc.name, "arguments": json.dumps(tc.arguments)}}
+                    for tc in tool_calls
+                ]
+            all_messages.append(assistant_msg)
+
+            # 执行工具调用
+            tool_results: Dict[str, ToolResult] = {}
+            for tc in tool_calls:
+                start = time.perf_counter()
+                try:
+                    result = await tool_executor(tc)
+                    if isinstance(result, ToolResult):
+                        tool_results[tc.id] = result
+                    else:
+                        tool_results[tc.id] = ToolResult(
+                            success=True,
+                            data=result,
+                            execution_time_ms=int((time.perf_counter() - start) * 1000),
+                        )
+                except Exception as e:
+                    tool_results[tc.id] = ToolResult(
+                        success=False,
+                        data=None,
+                        error=str(e),
+                        execution_time_ms=int((time.perf_counter() - start) * 1000),
+                    )
+
+                # 将工具结果加入消息
+                tr = tool_results[tc.id]
+                tool_msg = {
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": json.dumps(tr.data) if tr.success else f"Error: {tr.error}",
+                }
+                all_messages.append(tool_msg)
+
+            # 检查 token 限制
+            if guard is not None and guard.total_budget_used >= guard.max_total_budget:
+                yield ToolCallResult(
+                    iteration=iteration,
+                    content=content,
+                    tool_calls=tool_calls,
+                    tool_results=tool_results,
+                    tokens_used=tokens_used,
+                    total_tokens=total_tokens,
+                    should_continue=False,
+                    stop_reason="token_budget_exceeded",
+                )
+                return
+
+            # 继续下一次迭代
+            yield ToolCallResult(
+                iteration=iteration,
+                content=content,
+                tool_calls=tool_calls,
+                tool_results=tool_results,
+                tokens_used=tokens_used,
+                total_tokens=total_tokens,
+                should_continue=True,
+            )
+
+        # 达到最大迭代次数
+        yield ToolCallResult(
+            iteration=iteration,
+            content="".join(content_parts) if content_parts else "",
+            tool_calls=tool_calls,
+            tool_results={},
+            tokens_used=0,
+            total_tokens=total_tokens,
+            should_continue=False,
+            stop_reason="max_iterations_reached",
+        )
 
     async def chat(
         self,

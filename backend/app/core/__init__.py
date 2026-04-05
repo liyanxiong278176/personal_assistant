@@ -13,7 +13,7 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 """
 
 from .errors import AgentError, DegradationLevel, DegradationStrategy
-from .llm import LLMClient, ToolCall
+from .llm import LLMClient, ToolCall, ToolResult, ToolCallResult
 from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
 from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_PROMPT
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
@@ -52,6 +52,8 @@ __all__ = [
     "DegradationStrategy",
     "LLMClient",
     "ToolCall",
+    "ToolResult",
+    "ToolCallResult",
     "Tool",
     "ToolInput",
     "ToolMetadata",
