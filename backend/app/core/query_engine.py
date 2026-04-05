@@ -28,6 +28,7 @@ from .intent import IntentClassifier, SlotExtractor, intent_classifier
 from .context.guard import ContextGuard
 from .context.config import ContextConfig
 from .session import SessionInitializer
+from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +183,9 @@ class QueryEngine:
         self._max_total_retries = 5
         # 跟踪已初始化的会话，避免重复初始化
         self._initialized_sessions: set[str] = set()
+
+        # === Phase 4: 多Agent系统初始化 ===
+        self._subagent_orchestrator = SubAgentOrchestrator()
 
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
@@ -842,7 +846,7 @@ class QueryEngine:
             f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
         )
 
-        # ===== 阶段 4: 按需并行调用工具 =====
+        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 =====
         tool_results: Dict[str, Any] = {}
         stage_start = time.perf_counter()
         logger.info(
@@ -850,10 +854,45 @@ class QueryEngine:
         )
 
         if intent_result.intent in ["itinerary", "query"]:
-            logger.info(f"[TOOLS] 🔍 意图={intent_result.intent}，开始工具调用")
-            tool_results = await self._execute_tools_by_intent(
-                intent_result, slots, None
-            )
+            # 检查是否需要派生子Agent（复杂度 >= 5）
+            slots_dict = slots.__dict__ if hasattr(slots, '__dict__') else {}
+            session_state = self._conversation_history.get(conversation_id)
+
+            if self._subagent_orchestrator.should_spawn_subagents(slots_dict, session_state):
+                logger.info(f"[WORKFLOW:4_TOOLS] 🔄 多Agent模式 | conv={conversation_id}")
+
+                # 确定Agent类型
+                agent_types = []
+                if slots_dict.get("destinations") or slots_dict.get("destination"):
+                    agent_types.append(AgentType.ROUTE)
+                if slots_dict.get("need_hotel"):
+                    agent_types.append(AgentType.HOTEL)
+                if slots_dict.get("need_weather"):
+                    agent_types.append(AgentType.WEATHER)
+                if agent_types:  # 有其他Agent时，通常需要预算
+                    agent_types.append(AgentType.BUDGET)
+
+                # 派生并执行
+                sessions = await self._subagent_orchestrator.spawn_subagents(
+                    agent_types=agent_types,
+                    parent_session=session_state,
+                    slots=slots_dict,
+                    llm_client=self.llm_client
+                )
+
+                # 结果冒泡
+                bubble = ResultBubble(parent_session_id=conversation_id)
+                stats = await bubble.bubble_up(sessions, tool_results)
+
+                logger.info(
+                    f"[WORKFLOW:4_TOOLS] 多Agent完成 | 成功={stats.successful} | 失败={stats.failed}"
+                )
+            else:
+                # 单Agent模式：原有逻辑
+                logger.info(f"[WORKFLOW:4_TOOLS] 🔧 单Agent模式 | conv={conversation_id}")
+                tool_results = await self._execute_tools_by_intent(
+                    intent_result, slots, None
+                )
         else:
             logger.info(f"[TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具调用")
 
