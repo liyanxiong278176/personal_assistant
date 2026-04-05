@@ -1280,8 +1280,8 @@ git commit -m "feat(phase3): complete session lifecycle implementation"
 - [ ] session_states 表已创建
 - [ ] ErrorClassifier 正确分类异常
 - [ ] RetryManager 正确跟踪重试次数
-- ] FallbackHandler 生成友好的降级响应
-- ] SessionInitializer 在连接时执行
+- [ ] FallbackHandler 生成友好的降级响应
+- [ ] SessionInitializer 在连接时执行
 - [ ] QueryEngine.process 包装在重试循环中
 - [ ] 所有测试通过
 - [ ] 服务器可以正常启动
