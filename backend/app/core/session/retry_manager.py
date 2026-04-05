@@ -4,6 +4,7 @@ from typing import Dict, Tuple, Optional
 
 from .state import ErrorCategory, RecoveryStrategy
 from .error_classifier import ErrorClassifier, ErrorClassification
+from .structured_logger import SessionPhase, log_event, LogLevel
 
 logger = logging.getLogger(__name__)
 
@@ -62,21 +63,56 @@ class RetryManager:
         # 检查策略是否允许重试
         if classification.strategy == RecoveryStrategy.FAIL:
             logger.info(f"[RetryManager] 策略=FAIL, 不重试")
+            log_event(
+                LogLevel.INFO,
+                SessionPhase.RETRY,
+                "重试策略=FAIL, 不重试",
+                conversation_id=conversation_id,
+                strategy=classification.strategy.value,
+                should_retry=False
+            )
             return False, current_count
 
         if classification.strategy == RecoveryStrategy.SKIP:
             logger.info(f"[RetryManager] 策略=SKIP, 跳过重试")
+            log_event(
+                LogLevel.INFO,
+                SessionPhase.RETRY,
+                "重试策略=SKIP, 跳过重试",
+                conversation_id=conversation_id,
+                strategy=classification.strategy.value,
+                should_retry=False
+            )
             return False, current_count
 
         # 检查是否超过最大重试次数
         max_allowed = min(classification.max_retries, self._policy.max_total_retries)
         if current_count >= max_allowed:
             logger.warning(f"[RetryManager] 达到最大重试次数: {current_count} >= {max_allowed}")
+            log_event(
+                LogLevel.WARNING,
+                SessionPhase.RETRY,
+                "达到最大重试次数",
+                conversation_id=conversation_id,
+                current_count=current_count,
+                max_allowed=max_allowed,
+                should_retry=False
+            )
             return False, current_count
 
         # 可以重试
         self._retry_counts[conversation_id] = current_count + 1
         logger.info(f"[RetryManager] 允许重试: {current_count + 1}/{max_allowed}")
+        log_event(
+            LogLevel.INFO,
+            SessionPhase.RETRY,
+            "允许重试",
+            conversation_id=conversation_id,
+            retry_count=current_count + 1,
+            max_allowed=max_allowed,
+            strategy=classification.strategy.value,
+            should_retry=True
+        )
         return True, current_count + 1
 
     async def apply_backoff(self, retry_count: int) -> None:
@@ -93,6 +129,13 @@ class RetryManager:
             self._policy.backoff_max
         )
         logger.info(f"[RetryManager] 退避延迟: {delay}s")
+        log_event(
+            LogLevel.INFO,
+            SessionPhase.RETRY,
+            f"应用退避延迟: {delay}s",
+            retry_count=retry_count,
+            delay_seconds=delay
+        )
         await asyncio.sleep(delay)
 
     def reset(self, conversation_id: str) -> None:
@@ -104,6 +147,12 @@ class RetryManager:
         self._retry_counts.pop(conversation_id, None)
         self._last_errors.pop(conversation_id, None)
         logger.debug(f"[RetryManager] 重置重试状态: conv={conversation_id}")
+        log_event(
+            LogLevel.INFO,
+            SessionPhase.RETRY,
+            f"重置重试状态",
+            conversation_id=conversation_id
+        )
 
     def get_retry_count(self, conversation_id: str) -> int:
         """获取当前重试次数

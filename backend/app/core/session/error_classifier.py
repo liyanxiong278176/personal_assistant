@@ -3,6 +3,7 @@ import logging
 from typing import Dict, Tuple, Optional
 
 from .state import ErrorCategory, RecoveryStrategy
+from .structured_logger import SessionPhase, log_event, LogLevel
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,17 @@ class ErrorClassifier:
         # 检查自定义规则
         if error_name in self._custom_rules:
             category, strategy, max_retries = self._custom_rules[error_name]
+            # 记录结构化日志
+            log_event(
+                LogLevel.INFO,
+                SessionPhase.CLASSIFY,
+                f"错误分类（自定义规则）: {error_name}",
+                error_type=error_name,
+                category=category.value,
+                strategy=strategy.value,
+                max_retries=max_retries,
+                rule_type="custom"
+            )
             return ErrorClassification(category, strategy, max_retries)
 
         # 检查预设规则（包括父类）
@@ -82,10 +94,32 @@ class ErrorClassifier:
                 logger.debug(
                     f"[ErrorClassifier] 分类: {error_name} -> {category.value}/{strategy.value}"
                 )
+                # 记录结构化日志
+                log_event(
+                    LogLevel.INFO,
+                    SessionPhase.CLASSIFY,
+                    f"错误分类（预设规则）: {error_name}",
+                    error_type=error_name,
+                    category=category.value,
+                    strategy=strategy.value,
+                    max_retries=max_retries,
+                    rule_type="preset"
+                )
                 return ErrorClassification(category, strategy, max_retries)
 
         # 默认：临时错误，重试1次
         logger.warning(
             f"[ErrorClassifier] 未知异常类型: {error_name}, 使用默认分类"
+        )
+        # 记录结构化日志 - 未知类型
+        log_event(
+            LogLevel.WARNING,
+            SessionPhase.CLASSIFY,
+            f"未知异常类型，使用默认分类: {error_name}",
+            error_type=error_name,
+            category=ErrorCategory.TRANSIENT.value,
+            strategy=RecoveryStrategy.RETRY.value,
+            max_retries=1,
+            rule_type="default"
         )
         return ErrorClassification(ErrorCategory.TRANSIENT, RecoveryStrategy.RETRY, 1)

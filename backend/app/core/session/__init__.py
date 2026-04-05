@@ -21,6 +21,16 @@ from .fallback import (
 )
 from .initializer import SessionInitializer
 from .recovery import SessionRecovery
+from .structured_logger import (
+    LogLevel,
+    SessionPhase,
+    StructuredLog,
+    PhaseLogger,
+    SessionMetrics,
+    async_phase_logger,
+    log_phase_start,
+    log_event,
+)
 
 __all__ = [
     # state
@@ -40,4 +50,13 @@ __all__ = [
     "SessionInitializer",
     # recovery
     "SessionRecovery",
+    # structured_logger
+    "LogLevel",
+    "SessionPhase",
+    "StructuredLog",
+    "PhaseLogger",
+    "SessionMetrics",
+    "async_phase_logger",
+    "log_phase_start",
+    "log_event",
 ]

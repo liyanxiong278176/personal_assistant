@@ -180,6 +180,8 @@ class QueryEngine:
             custom_rules=None
         )
         self._max_total_retries = 5
+        # 跟踪已初始化的会话，避免重复初始化
+        self._initialized_sessions: set[str] = set()
 
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
@@ -346,6 +348,14 @@ class QueryEngine:
         if conversation_id in self._conversation_history:
             del self._conversation_history[conversation_id]
             logger.info(f"[MEMORY] 🗑️ 清空历史 | conv={conversation_id}")
+
+        # 清理会话初始化状态
+        if conversation_id in self._initialized_sessions:
+            self._initialized_sessions.discard(conversation_id)
+            logger.info(f"[MEMORY] 🗑️ 清空会话初始化状态 | conv={conversation_id}")
+
+        # 重置重试状态
+        self._session_initializer.retry_manager.reset(conversation_id)
 
     def _add_to_working_memory(
         self,
@@ -948,10 +958,12 @@ class QueryEngine:
     ) -> AsyncIterator[str]:
         """统一处理流程 - 带重试循环
 
-        主循环（最多5次重试）：
-        - 执行 6 步流程
-        - 失败时分类异常
-        - 根据策略决定重试或降级
+        工作流程：
+        - Step 0: 会话初始化（仅首次）
+        - 主循环（最多5次重试）：
+          - 执行 6 步流程
+          - 失败时分类异常
+          - 根据策略决定重试或降级
 
         Args:
             user_input: 用户输入
@@ -967,7 +979,37 @@ class QueryEngine:
         total_start = time.perf_counter()
         retry_manager = self._session_initializer.retry_manager
 
-        # 主循环（最多5次重试）
+        # ===== Phase 3 Step 0: 会话初始化（仅首次） =====
+        if conversation_id not in self._initialized_sessions:
+            logger.info(
+                f"[WORKFLOW:STEP_0] 🚀 会话初始化 | "
+                f"conv={conversation_id} | user={user_id or 'anonymous'}"
+            )
+            try:
+                # 如果没有提供 user_id，生成一个临时的
+                if user_id is None:
+                    from uuid import uuid4
+                    user_id = str(uuid4())
+                    logger.info(f"[WORKFLOW:STEP_0] 生成临时用户ID: {user_id}")
+
+                session_state = await self._session_initializer.initialize(
+                    conversation_id=conversation_id,
+                    user_id=user_id
+                )
+
+                # 标记会话已初始化
+                self._initialized_sessions.add(conversation_id)
+
+                logger.info(
+                    f"[WORKFLOW:STEP_0] ✅ 会话初始化完成 | "
+                    f"session={session_state.session_id} | "
+                    f"context_window={session_state.context_window_size}"
+                )
+            except Exception as e:
+                logger.warning(f"[WORKFLOW:STEP_0] ⚠️ 初始化失败（非致命）: {e}")
+                # 初始化失败不阻止工作流程继续
+
+        # ===== 主循环（最多5次重试） =====
         while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
             try:
                 # ===== 执行单次工作流程 =====
