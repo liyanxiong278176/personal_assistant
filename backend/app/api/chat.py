@@ -148,6 +148,10 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
             # Receive message from client
             data = await websocket.receive_json()
 
+            # Auto-generate session_id if missing (for compatibility with clients)
+            if "session_id" not in data or not data["session_id"]:
+                data["session_id"] = str(uuid4())
+
             try:
                 msg = WSMessage(**data)
             except ValidationError as e:

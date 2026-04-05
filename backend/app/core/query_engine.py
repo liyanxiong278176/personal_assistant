@@ -989,6 +989,190 @@ class QueryEngine:
 
         return full_response, intent_result, tool_results
 
+    async def _process_streaming_attempt(
+        self,
+        user_input: str,
+        conversation_id: str,
+        user_id: Optional[str] = None
+    ) -> AsyncIterator[str]:
+        """流式工作流程执行 - 直接yield LLM chunks而不是收集成字符串
+
+        Steps 1-5: 意图识别、工具调用、上下文构建
+        Step 6: 流式LLM生成（直接yield）
+        Steps 7-8: 后处理和记忆更新
+
+        Yields:
+            LLM响应片段
+        """
+        total_start = time.perf_counter()
+        self._current_message = user_input
+
+        logger.info(
+            f"[WORKFLOW:STREAM] 🚀 ====== 流式工作流程开始 ====== | "
+            f"conv={conversation_id} | "
+            f"user={user_id or 'anonymous'}"
+        )
+
+        # ===== 阶段 0: 初始化检查 =====
+        if self.llm_client is None:
+            error = "LLM客户端未配置"
+            logger.error(f"[WORKFLOW:STREAM] ❌ 失败 | {error}")
+            raise AgentError(error, level=DegradationLevel.LLM_DEGRADED)
+
+        # ===== 阶段 1: 意图 & 槽位识别 =====
+        logger.info(f"[WORKFLOW:STREAM:1_INTENT] ⏳ 开始 | 输入: {user_input[:50]}...")
+
+        intent_result = await self._intent_classifier.classify(user_input)
+        slots = self._slot_extractor.extract(user_input)
+
+        logger.info(
+            f"[WORKFLOW:STREAM:1_INTENT] ✅ 完成 | "
+            f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f}"
+        )
+
+        # ===== 阶段 2: 消息基础存储 =====
+        logger.info(f"[WORKFLOW:STREAM:2_STORAGE] ⏳ 开始")
+
+        clean_history = self._get_conversation_history(conversation_id)
+        self._add_to_working_memory(conversation_id, "user", user_input)
+        history = self._get_conversation_history(conversation_id)
+
+        logger.info(
+            f"[WORKFLOW:STREAM:2_STORAGE] ✅ 完成 | 历史: {len(history)} 条"
+        )
+
+        # ===== 阶段 3: 上下文前置清理 =====
+        logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ⏳ 开始")
+
+        history = await self.context_guard.pre_process(history)
+
+        logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成")
+
+        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 =====
+        tool_results: Dict[str, Any] = {}
+        logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ⏳ 开始 | 意图={intent_result.intent}")
+
+        if intent_result.intent in ["itinerary", "query"]:
+            # 检查是否需要派生子Agent（复杂度 >= 5）
+            slots_dict = slots.__dict__ if hasattr(slots, '__dict__') else {}
+            session_state = self._conversation_history.get(conversation_id)
+
+            if self._subagent_orchestrator.should_spawn_subagents(slots_dict, session_state):
+                logger.info(f"[WORKFLOW:STREAM:4_TOOLS] 🔄 多Agent模式")
+
+                # 确定Agent类型
+                agent_types = []
+                if slots_dict.get("destinations") or slots_dict.get("destination"):
+                    agent_types.append(AgentType.ROUTE)
+                if slots_dict.get("need_hotel"):
+                    agent_types.append(AgentType.HOTEL)
+                if slots_dict.get("need_weather"):
+                    agent_types.append(AgentType.WEATHER)
+                if agent_types:
+                    agent_types.append(AgentType.BUDGET)
+
+                # 派生并执行
+                sessions = await self._subagent_orchestrator.spawn_subagents(
+                    agent_types=agent_types,
+                    parent_session=session_state,
+                    slots=slots_dict,
+                    llm_client=self.llm_client
+                )
+
+                # 结果冒泡
+                bubble = ResultBubble(parent_session_id=conversation_id)
+                stats = await bubble.bubble_up(sessions, tool_results)
+
+                logger.info(
+                    f"[WORKFLOW:STREAM:4_TOOLS] 多Agent完成 | 成功={stats.successful}"
+                )
+            else:
+                # 单Agent模式
+                logger.info(f"[WORKFLOW:STREAM:4_TOOLS] 🔧 单Agent模式")
+                tool_results = await self._execute_tools_by_intent(
+                    intent_result, slots, None
+                )
+        else:
+            logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具")
+
+        logger.info(
+            f"[WORKFLOW:STREAM:4_TOOLS] ✅ 完成 | 工具调用={len(tool_results)}次"
+        )
+
+        # ===== 阶段 5: 上下文构建 =====
+        logger.info(f"[WORKFLOW:STREAM:5_CONTEXT] ⏳ 开始")
+
+        context = await self._build_context(
+            user_id, tool_results, slots, None
+        )
+
+        logger.info(
+            f"[WORKFLOW:STREAM:5_CONTEXT] ✅ 完成 | 上下文长度={len(context)}字符"
+        )
+
+        # ===== 阶段 6: 流式LLM生成响应 =====
+        logger.info(f"[WORKFLOW:STREAM:6_LLM] ⏳ 开始 | 流式输出")
+
+        llm_messages = list(clean_history) if clean_history else []
+        if context:
+            llm_messages.append({"role": "user", "content": f"{context}\n\n用户: {user_input}"})
+        else:
+            llm_messages.append({"role": "user", "content": user_input})
+
+        full_response = ""
+        chunk_count = 0
+
+        # 直接yield LLM chunks，实现真正的流式输出
+        async for chunk in self._generate_response(
+            context, user_input, clean_history, None, messages=llm_messages
+        ):
+            chunk_count += 1
+            full_response += chunk
+            yield chunk  # 流式输出
+
+        logger.info(
+            f"[WORKFLOW:STREAM:6_LLM] ✅ 完成 | chunk数={chunk_count} | 响应长度={len(full_response)}"
+        )
+
+        # 更新工作记忆
+        self._add_to_working_memory(conversation_id, "assistant", full_response)
+
+        # ===== 阶段 7: 上下文后置管理 =====
+        logger.info(f"[WORKFLOW:STREAM:7_CTX_MANAGE] ⏳ 开始")
+
+        history = await self.context_guard.post_process(history)
+
+        logger.info(f"[WORKFLOW:STREAM:7_CTX_MANAGE] ✅ 完成")
+
+        # ===== 阶段 8: 异步记忆更新 =====
+        logger.info(f"[WORKFLOW:STREAM:8_MEMORY] ⏳ 开始")
+
+        task = asyncio.create_task(
+            self._update_memory_async(
+                user_id, conversation_id, user_input, full_response, slots, None
+            )
+        )
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
+
+        logger.info(f"[WORKFLOW:STREAM:8_MEMORY] ✅ 完成(后台)")
+
+        # 总耗时统计
+        total_time = (time.perf_counter() - total_start) * 1000
+
+        log_workflow_summary(
+            conversation_id=conversation_id,
+            intent=intent_result.intent,
+            tool_calls=len(tool_results),
+            total_time_ms=total_time,
+            response_length=len(full_response)
+        )
+
+        logger.info(
+            f"[WORKFLOW:STREAM] 🏁 ====== 流式工作流程完成 ====== | "
+            f"conv={conversation_id} | 总耗时={total_time:.2f}ms"
+        )
+
     async def process(
         self,
         user_input: str,
@@ -1051,15 +1235,10 @@ class QueryEngine:
         # ===== 主循环（最多5次重试） =====
         while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
             try:
-                # ===== 执行单次工作流程 =====
-                full_response, intent_result, tool_results = await self._process_single_attempt(
+                # ===== 执行流式工作流程 =====
+                async for chunk in self._process_streaming_attempt(
                     user_input, conversation_id, user_id
-                )
-
-                # 成功：重置重试计数并返回响应
-                retry_manager.reset(conversation_id)
-
-                for chunk in full_response:
+                ):
                     yield chunk
                 return
 
