@@ -9,9 +9,13 @@ from app.core.preferences.patterns import (
     MatchedPreference,
     PreferenceMatcher,
 )
+from app.core.preferences.repository import PreferenceRepository
+from app.core.preferences.extractor import PreferenceExtractor
 
 __all__ = [
     "PreferenceType",
     "MatchedPreference",
     "PreferenceMatcher",
+    "PreferenceRepository",
+    "PreferenceExtractor",
 ]
