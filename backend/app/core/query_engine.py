@@ -27,6 +27,7 @@ from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
 from .context.guard import ContextGuard
 from .context.config import ContextConfig
+from .session import SessionInitializer
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +143,8 @@ class QueryEngine:
         self,
         llm_client: Optional[LLMClient] = None,
         system_prompt: Optional[str] = None,
-        tool_registry: Optional[ToolRegistry] = None
+        tool_registry: Optional[ToolRegistry] = None,
+        config_path: Optional[Path] = None
     ):
         """Initialize QueryEngine.
 
@@ -150,6 +152,7 @@ class QueryEngine:
             llm_client: LLM 客户端实例，为 None 时创建默认实例
             system_prompt: 系统提示词，为 None 时使用默认值
             tool_registry: 工具注册表，为 None 时使用全局注册表
+            config_path: 会话配置文件路径
         """
         self.llm_client = llm_client
         self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
@@ -171,11 +174,12 @@ class QueryEngine:
             llm_client=self.llm_client,
         )
 
-        logger.info(
-            f"[QueryEngine] 🚀 初始化完成 | "
-            f"工具数量={len(self._tool_registry.list_tools())} | "
-            f"LLM客户端={'已配置' if llm_client else '未配置'}"
+        # === 会话生命周期组件初始化 ===
+        self._session_initializer = SessionInitializer(
+            config_path=config_path,
+            custom_rules=None
         )
+        self._max_total_retries = 5
 
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
@@ -183,6 +187,13 @@ class QueryEngine:
         self._phase2_init_lock = asyncio.Lock()
         self._background_tasks: set[asyncio.Task] = set()
         # 延迟初始化，不在 __init__ 中执行
+
+        logger.info(
+            f"[QueryEngine] 🚀 初始化完成 | "
+            f"工具数量={len(self._tool_registry.list_tools())} | "
+            f"LLM客户端={'已配置' if llm_client else '未配置'} | "
+            f"会话生命周期={'已启用' if self._session_initializer else '未启用'}"
+        )
 
         if self.llm_client is None:
             logger.warning("[QueryEngine] ⚠️ LLM客户端未配置，查询将失败")
@@ -732,32 +743,17 @@ class QueryEngine:
         keywords = ["去", "想", "预算", "喜欢", "推荐", "计划", "希望"]
         return any(kw in user_input for kw in keywords) or any(kw in response for kw in keywords)
 
-    async def process(
+    async def _process_single_attempt(
         self,
         user_input: str,
         conversation_id: str,
         user_id: Optional[str] = None
-    ) -> AsyncIterator[str]:
-        """统一处理流程 - 6 步工作流程
+    ) -> tuple[str, Optional[object], Optional[Dict[str, Any]]]:
+        """单次工作流程执行 (内部方法，供重试循环调用)
 
-        步骤:
-        1. 意图 & 槽位识别
-        2. 消息基础存储
-        3. 按需并行调用工具
-        4. 上下文构建
-        5. LLM 生成响应
-        6. 异步记忆更新
-
-        Args:
-            user_input: 用户输入
-            conversation_id: 会话ID
-            user_id: 用户ID
-
-        Yields:
-            响应片段
-
-        Raises:
-            AgentError: If LLM client is not configured
+        Returns:
+            (full_response, intent_result, tool_results)
+            成功时 intent_result 和 tool_results 有值，full_response 为响应文本
         """
         total_start = time.perf_counter()
         self._current_message = user_input
@@ -813,10 +809,8 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:2_STORAGE] ⏳ 开始 | conv={conversation_id}")
 
-        # 获取添加用户消息前的历史（用于传递给 LLM）
         clean_history = self._get_conversation_history(conversation_id)
         self._add_to_working_memory(conversation_id, "user", user_input)
-        # 获取包含用户消息的历史（用于 pre/post 处理）
         history = self._get_conversation_history(conversation_id)
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
@@ -881,7 +875,6 @@ class QueryEngine:
             f"上下文长度={len(context)}字符"
         )
 
-        # 构建 LLM 消息列表（使用 clean_history 副本，避免后续修改影响）
         llm_messages = list(clean_history) if clean_history else []
         if context:
             llm_messages.append({"role": "user", "content": f"{context}\n\n用户: {user_input}"})
@@ -890,7 +883,6 @@ class QueryEngine:
 
         async for chunk in self._generate_response(context, user_input, clean_history, None, messages=llm_messages):
             full_response += chunk
-            yield chunk
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
@@ -945,6 +937,73 @@ class QueryEngine:
             f"conv={conversation_id} | "
             f"总耗时={total_time:.2f}ms"
         )
+
+        return full_response, intent_result, tool_results
+
+    async def process(
+        self,
+        user_input: str,
+        conversation_id: str,
+        user_id: Optional[str] = None
+    ) -> AsyncIterator[str]:
+        """统一处理流程 - 带重试循环
+
+        主循环（最多5次重试）：
+        - 执行 6 步流程
+        - 失败时分类异常
+        - 根据策略决定重试或降级
+
+        Args:
+            user_input: 用户输入
+            conversation_id: 会话ID
+            user_id: 用户ID
+
+        Yields:
+            响应片段
+
+        Raises:
+            AgentError: If LLM client is not configured
+        """
+        total_start = time.perf_counter()
+        retry_manager = self._session_initializer.retry_manager
+
+        # 主循环（最多5次重试）
+        while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
+            try:
+                # ===== 执行单次工作流程 =====
+                full_response, intent_result, tool_results = await self._process_single_attempt(
+                    user_input, conversation_id, user_id
+                )
+
+                # 成功：重置重试计数并返回响应
+                retry_manager.reset(conversation_id)
+
+                for chunk in full_response:
+                    yield chunk
+                return
+
+            except Exception as e:
+                should_retry, count = retry_manager.should_retry(conversation_id, e)
+
+                if not should_retry:
+                    # 不允许重试，返回降级响应
+                    logger.error(f"[WORKFLOW] ❌ 不可恢复错误: {e}")
+                    fallback = self._session_initializer.fallback_handler.get_fallback(e)
+                    yield fallback.message
+                    return
+
+                # 允许重试，应用退避延迟
+                logger.info(f"[WORKFLOW] 🔄 重试 ({count}/{self._max_total_retries}) | error={type(e).__name__}")
+                await retry_manager.apply_backoff(count)
+
+        # 超过最大重试次数
+        last_error = retry_manager.get_last_error(conversation_id)
+        if last_error:
+            logger.error(f"[WORKFLOW] ❌ 超过最大重试次数: {last_error}")
+            fallback = self._session_initializer.fallback_handler.get_fallback(last_error)
+            yield fallback.message
+
+        logger.info(f"[WORKFLOW] ⚠️ 交付降级响应")
 
     async def process_simple(
         self,
