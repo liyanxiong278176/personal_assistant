@@ -12,9 +12,21 @@ import re
 from typing import Optional
 
 from app.db.postgres import get_preferences, update_preferences
-from app.services.llm_service import llm_service
+# 使用新的 LLMClient 替代旧的 llm_service
+from app.core.llm import LLMClient
 
 logger = logging.getLogger(__name__)
+
+# Global LLM client instance
+_llm_client: Optional[LLMClient] = None
+
+
+def get_llm_client() -> LLMClient:
+    """Get or create the global LLM client instance."""
+    global _llm_client
+    if _llm_client is None:
+        _llm_client = LLMClient()
+    return _llm_client
 
 
 class PreferenceService:
@@ -64,13 +76,12 @@ class PreferenceService:
 """
 
         try:
-            # Call LLM for extraction
-            response = ""
-            async for chunk in llm_service.stream_chat(
-                user_message=prompt,
-                conversation_id=None
-            ):
-                response += chunk
+            # Call LLM for extraction using LLMClient
+            llm_client = get_llm_client()
+            response = await llm_client.chat(
+                messages=[{"role": "user", "content": prompt}],
+                system_prompt="你是一个专业的旅游偏好提取助手。"
+            )
 
             # Parse JSON response
             extracted = self._parse_extraction_response(response)

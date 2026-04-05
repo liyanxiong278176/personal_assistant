@@ -12,7 +12,7 @@
 
 import type { WSMessage, WSResponse } from "../../shared/types";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/api/agent/ws/chat";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/chat";
 
 interface TransportOptions {
   onChunk?: (chunk: string) => void;
