@@ -11,6 +11,7 @@ from typing import List, Optional
 
 from app.core.preferences.patterns import MatchedPreference, PreferenceMatcher
 from app.core.preferences.repository import PreferenceRepository
+from app.core.session.structured_logger import log_event, LogLevel, SessionPhase
 
 logger = logging.getLogger(__name__)
 
