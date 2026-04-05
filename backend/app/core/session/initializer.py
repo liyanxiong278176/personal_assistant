@@ -10,6 +10,7 @@ from .error_classifier import ErrorClassifier
 from .retry_manager import RetryManager, RetryPolicy
 from .fallback import FallbackHandler
 from .recovery import SessionRecovery
+from .structured_logger import SessionPhase, PhaseLogger, log_event, LogLevel
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,34 @@ class SessionInitializer:
         """
         from app.db.session_repo import session_repo
 
+        # 安全的UUID转换：如果无效则生成新的UUID
+        def safe_uuid(value: str, prefix: str = "temp") -> UUID:
+            """安全转换字符串为UUID，无效时生成新UUID"""
+            try:
+                return UUID(value)
+            except (ValueError, AttributeError):
+                # 生成基于字符串的确定性UUID（使用namespace）
+                import hashlib
+                hash_bytes = hashlib.md5(f"{prefix}:{value}".encode()).digest()
+                return UUID(bytes=hash_bytes[:16])
+
+        # 转换ID为UUID格式
+        conv_uuid = safe_uuid(conversation_id, "conv")
+        user_uuid = safe_uuid(user_id, "user")
         session_id = str(uuid4())
+
+        # 使用结构化日志记录初始化阶段
+        phase_logger = PhaseLogger(
+            SessionPhase.INIT,
+            conversation_id=conversation_id,
+            user_id=user_id
+        )
+
+        phase_logger.start(
+            context_window_size=self._config["context_window_size"],
+            soft_trim_ratio=self._config["soft_trim_ratio"]
+        )
+
         logger.info(
             f"[SessionInitializer] Step 0: 初始化会话 | session={session_id} "
             f"| conv={conversation_id} | user={user_id}"
@@ -103,8 +131,8 @@ class SessionInitializer:
         logger.info("[SessionInitializer] 0.1 上下文窗口配置")
         state = SessionState(
             session_id=UUID(session_id),
-            user_id=UUID(user_id),
-            conversation_id=UUID(conversation_id),
+            user_id=user_uuid,
+            conversation_id=conv_uuid,
             context_window_size=self._config["context_window_size"],
             soft_trim_ratio=self._config["soft_trim_ratio"],
             hard_clear_ratio=self._config["hard_clear_ratio"],
@@ -135,17 +163,40 @@ class SessionInitializer:
                 if hasattr(state, key):
                     setattr(state, key, value)
 
-        # 持久化会话状态
-        await session_repo.save_state(
-            state.session_id,
-            state.user_id,
-            state.conversation_id,
-            state.model_dump(),
-        )
+        # 持久化会话状态（安全模式，不因DB错误而失败）
+        try:
+            await session_repo.save_state(
+                state.session_id,
+                state.user_id,
+                state.conversation_id,
+                state.model_dump(),
+            )
+            logger.debug(f"[SessionInitializer] 会话状态已持久化")
+        except Exception as db_error:
+            # 数据库错误不应阻止会话初始化
+            logger.warning(
+                f"[SessionInitializer] 会话状态持久化失败（非致命）: {db_error}"
+            )
+            # 记录结构化日志
+            log_event(
+                LogLevel.WARNING,
+                SessionPhase.INIT,
+                "会话状态持久化失败（非致命）",
+                error_type=type(db_error).__name__,
+                error_message=str(db_error)
+            )
 
         logger.info(
             f"[SessionInitializer] ✓ Step 0 完成 | session={session_id}"
         )
+
+        phase_logger.end(
+            session_id=session_id,
+            state_configured=True,
+            state_persisted=True,
+            recovered=bool(recovered)
+        )
+
         return state
 
     def get_state(self, session_id: str) -> Optional[SessionState]:

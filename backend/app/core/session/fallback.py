@@ -2,6 +2,7 @@ import logging
 from typing import Dict, Any, Optional
 
 from .state import ErrorCategory
+from .structured_logger import SessionPhase, log_event, LogLevel
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,17 @@ class FallbackHandler:
             message_key = "memory"
 
         message = self._messages.get(message_key, self._messages["default"])
+
+        # 记录结构化日志
+        log_event(
+            LogLevel.INFO,
+            SessionPhase.FALLBACK,
+            f"生成降级响应: {error_type}",
+            error_type=error_type,
+            message_key=message_key,
+            has_partial_results=bool(partial_results),
+            partial_result_keys=list(partial_results.keys()) if partial_results else []
+        )
 
         return FallbackResponse(
             should_degrade=True,

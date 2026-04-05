@@ -22,8 +22,7 @@ from app.api.itinerary import router as itinerary_router
 from app.api.routes import router as routes_router
 from app.api.memory import memory_router
 from app.api.users import users_router
-# agent_core 已集成到 chat.py，不再需要单独路由
-# from app.api.agent_core import router as agent_core_router
+from app.api.agent_core import router as agent_core_router
 from app.auth import auth_router
 from app.conversations.router import router as conversations_router
 from app.memory.router import router as memory_router_v2
@@ -82,8 +81,7 @@ app.include_router(memory_router)
 app.include_router(users_router)
 app.include_router(conversations_router)
 app.include_router(memory_router_v2)
-# agent_core 已集成到 chat.py，不再需要单独路由
-# app.include_router(agent_core_router)
+app.include_router(agent_core_router)
 
 # Health check endpoint
 @app.get("/health")
