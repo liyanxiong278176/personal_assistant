@@ -466,6 +466,14 @@ class PreferenceExtractor:
         ],
     }
 
+    def __init__(self, confidence_threshold: float = 0.7):
+        """初始化偏好提取器
+
+        Args:
+            confidence_threshold: 偏好置信度阈值，低于此值的偏好将被过滤
+        """
+        self.confidence_threshold = confidence_threshold
+
     async def extract(
         self,
         user_input: str,
@@ -915,27 +923,27 @@ class AgentEnhancementConfig:
 
     # 推理守卫配置
     enable_inference_guard: bool = field(
-        default=lambda: os.getenv("ENABLE_INFERENCE_GUARD", "true").lower() == "true"
+        default_factory=lambda: os.getenv("ENABLE_INFERENCE_GUARD", "true").lower() == "true"
     )
     max_tokens_per_response: int = field(
-        default=lambda: int(os.getenv("MAX_TOKENS_PER_RESPONSE", "4000"))
+        default_factory=lambda: int(os.getenv("MAX_TOKENS_PER_RESPONSE", "4000"))
     )
     max_total_token_budget: int = field(
-        default=lambda: int(os.getenv("MAX_TOTAL_TOKEN_BUDGET", "16000"))
+        default_factory=lambda: int(os.getenv("MAX_TOTAL_TOKEN_BUDGET", "16000"))
     )
     inference_warning_threshold: float = field(
-        default=lambda: float(os.getenv("INFERENCE_WARNING_THRESHOLD", "0.8"))
+        default_factory=lambda: float(os.getenv("INFERENCE_WARNING_THRESHOLD", "0.8"))
     )
     overlimit_strategy: str = field(
-        default=lambda: os.getenv("OVERLIMIT_STRATEGY", "truncate")
+        default_factory=lambda: os.getenv("OVERLIMIT_STRATEGY", "truncate")
     )
 
     # 偏好提取配置
     enable_preference_extraction: bool = field(
-        default=lambda: os.getenv("ENABLE_PREFERENCE_EXTRACTION", "true").lower() == "true"
+        default_factory=lambda: os.getenv("ENABLE_PREFERENCE_EXTRACTION", "true").lower() == "true"
     )
     preference_confidence_threshold: float = field(
-        default=lambda: float(os.getenv("PREFERENCE_CONFIDENCE_THRESHOLD", "0.7"))
+        default_factory=lambda: float(os.getenv("PREFERENCE_CONFIDENCE_THRESHOLD", "0.7"))
     )
 
     @classmethod
