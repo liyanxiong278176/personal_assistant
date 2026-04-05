@@ -37,6 +37,7 @@ from .summary import (
 )
 from .guard import ContextGuard
 from .enhancement_config import AgentEnhancementConfig
+from .inference_guard import InferenceGuard, OverlimitStrategy
 
 __all__ = [
     "TokenEstimator",
@@ -57,4 +58,6 @@ __all__ = [
     "DEFAULT_SUMMARY_PROMPT",
     "ContextGuard",
     "AgentEnhancementConfig",
+    "InferenceGuard",
+    "OverlimitStrategy",
 ]
