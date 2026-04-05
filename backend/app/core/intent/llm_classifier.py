@@ -5,7 +5,7 @@ import logging
 from typing import Optional
 
 from ..llm import LLMClient
-from .classifier import IntentResult, IntentType, MethodType
+from .classifier import IntentResult
 
 logger = logging.getLogger(__name__)
 
