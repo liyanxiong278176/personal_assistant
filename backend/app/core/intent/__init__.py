@@ -8,6 +8,7 @@ from .classifier import (
     intent_classifier
 )
 from .complexity import is_complex_query, ComplexityResult
+from .llm_classifier import LLMIntentClassifier, LLM_CLASSIFY_PROMPT
 
 __all__ = [
     "SlotExtractor",
@@ -19,4 +20,6 @@ __all__ = [
     "intent_classifier",
     "is_complex_query",
     "ComplexityResult",
+    "LLMIntentClassifier",
+    "LLM_CLASSIFY_PROMPT",
 ]
