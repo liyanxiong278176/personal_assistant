@@ -170,3 +170,16 @@ python -m pytest tests/core/ -v
 ## 设计文档
 
 详见：[docs/superpowers/specs/2026-04-03-unified-workflow-design.md](../../docs/superpowers/specs/2026-04-03-unified-workflow-design.md)
+
+## 增强功能
+
+Stage 4 新增了 4 个增强功能：工具循环（Tool Loop）、推理守卫（Inference Guard）、偏好提取（Preference Extraction）和统一配置系统。
+
+详见：[ENHANCEMENT.md](ENHANCEMENT.md)
+
+内容包括：
+- 功能概述与工作原理
+- 完整配置指南（环境变量 + 代码）
+- API 参考
+- 使用示例
+- 性能特性
