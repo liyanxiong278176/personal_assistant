@@ -129,11 +129,16 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
     try:
         # 连接建立后立即执行会话初始化 (Step 0)
         try:
+            # Generate valid UUIDs for anonymous users
+            temp_conversation_id = str(uuid4())
+            temp_user_id = str(uuid4())
+
             await engine._session_initializer.initialize(
-                conversation_id="temp",
-                user_id="anonymous"
+                conversation_id=temp_conversation_id,
+                user_id=temp_user_id
             )
             websocket._session_initialized = True
+            websocket._temp_conversation_id = temp_conversation_id  # Store for later use
             logger.info("[Chat] 会话初始化完成")
         except Exception as e:
             logger.warning(f"[Chat] 会话初始化失败: {e}")

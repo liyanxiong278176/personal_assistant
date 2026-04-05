@@ -1106,11 +1106,17 @@ class QueryEngine:
 
         Closes the LLM client and stops the persistence manager if initialized.
         """
-        # 等待后台任务完成
+        # Cancel all pending background tasks
+        if hasattr(self, '_background_tasks') and self._background_tasks:
+            for task in self._background_tasks:
+                if not task.done():
+                    task.cancel()
+
+        # Wait for all tasks to complete/cancel
         if hasattr(self, '_background_tasks') and self._background_tasks:
             pending = [t for t in self._background_tasks if not t.done()]
             if pending:
-                logger.info(f"[QueryEngine] ⏳ 等待 {len(pending)} 个后���任务...")
+                logger.info(f"[QueryEngine] ⏳ 等待 {len(pending)} 个后台任务...")
                 await asyncio.gather(*pending, return_exceptions=True)
                 self._background_tasks.clear()
 
