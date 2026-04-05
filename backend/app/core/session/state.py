@@ -10,6 +10,7 @@ class ErrorCategory(Enum):
     VALIDATION = "validation"    # 验证错误（参数、格式）
     PERMISSION = "permission"    # 权限错误（API密钥、访问）
     FATAL = "fatal"             # 致命错误（不可恢复）
+    RESOURCE = "resource"       # 资源错误（Token预算、内存）
 
 
 class RecoveryStrategy(Enum):

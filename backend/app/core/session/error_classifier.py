@@ -22,6 +22,14 @@ PRESET_RULES = {
     PermissionError: (ErrorCategory.PERMISSION, RecoveryStrategy.FAIL, 0),
 }
 
+# === Agent Core 增强功能错误类型 (v1.1) ===
+ENHANCEMENT_PRESET_RULES = {
+    "ToolExecutionFailed": (ErrorCategory.TRANSIENT, RecoveryStrategy.RETRY, 1),
+    "ToolTimeout": (ErrorCategory.TRANSIENT, RecoveryStrategy.RETRY_BACKOFF, 2),
+    "ToolLoopExhausted": (ErrorCategory.VALIDATION, RecoveryStrategy.DEGRADE, 0),
+    "TokenBudgetExceeded": (ErrorCategory.RESOURCE, RecoveryStrategy.DEGRADE, 0),
+}
+
 
 class ErrorClassification:
     """错误分类结果"""
@@ -54,6 +62,7 @@ class ErrorClassifier:
             custom_rules: 自定义规则 {异常类型名: (类别, 策略, 最大重试)}
         """
         self._preset_rules = dict(PRESET_RULES)
+        self._preset_rules.update(ENHANCEMENT_PRESET_RULES)  # Add this line
         self._custom_rules = custom_rules or {}
         logger.info(
             f"[ErrorClassifier] 初始化完成 | 预设规则={len(self._preset_rules)}, "
@@ -90,6 +99,8 @@ class ErrorClassifier:
 
         # 检查预设规则（包括父类）
         for rule_type, (category, strategy, max_retries) in self._preset_rules.items():
+            if not isinstance(rule_type, type):
+                continue  # skip string-keyed enhancement rules
             if isinstance(error, rule_type):
                 logger.debug(
                     f"[ErrorClassifier] 分类: {error_name} -> {category.value}/{strategy.value}"
@@ -106,6 +117,24 @@ class ErrorClassifier:
                     rule_type="preset"
                 )
                 return ErrorClassification(category, strategy, max_retries)
+
+        # 检查预设规则（字符串key，用于增强功能错误类型）
+        if error_name in self._preset_rules:
+            category, strategy, max_retries = self._preset_rules[error_name]
+            logger.debug(
+                f"[ErrorClassifier] 分类: {error_name} -> {category.value}/{strategy.value}"
+            )
+            log_event(
+                LogLevel.INFO,
+                SessionPhase.CLASSIFY,
+                f"错误分类（预设规则）: {error_name}",
+                error_type=error_name,
+                category=category.value,
+                strategy=strategy.value,
+                max_retries=max_retries,
+                rule_type="preset"
+            )
+            return ErrorClassification(category, strategy, max_retries)
 
         # 默认：临时错误，重试1次
         logger.warning(
