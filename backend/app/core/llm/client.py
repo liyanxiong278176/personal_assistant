@@ -528,6 +528,13 @@ class LLMClient:
         total_tokens = 0
         all_messages = list(messages)
 
+        logger.info(
+            f"[LLM:TOOL_LOOP] 🔄 工具循环启动 | "
+            f"max_iterations={max_iterations} | "
+            f"tools_count={len(tools)} | "
+            f"guard={'已启用' if guard else '未启用'}"
+        )
+
         while iteration < max_iterations:
             # 检查停止事件
             if stop_event is not None and stop_event.is_set():
@@ -546,6 +553,11 @@ class LLMClient:
             iteration += 1
             content_parts = []
             tool_calls: List[ToolCall] = []
+
+            logger.info(
+                f"[LLM:TOOL_LOOP] 📍 迭代 {iteration}/{max_iterations} | "
+                f"total_tokens={total_tokens}"
+            )
 
             # 调用流式聊天
             async for chunk in self.stream_chat_with_tools(
@@ -570,6 +582,11 @@ class LLMClient:
 
             # 如果没有工具调用，结束循环
             if not tool_calls:
+                logger.info(
+                    f"[LLM:TOOL_LOOP] ✅ 无更多工具调用，循环结束 | "
+                    f"iteration={iteration} | "
+                    f"content_length={len(content)}"
+                )
                 yield ToolCallResult(
                     iteration=iteration,
                     content=content,
@@ -590,6 +607,11 @@ class LLMClient:
                     for tc in tool_calls
                 ]
             all_messages.append(assistant_msg)
+
+            logger.info(
+                f"[LLM:TOOL_LOOP] 📋 LLM请求调用 {len(tool_calls)} 个工具 | "
+                f"tools={[tc.name for tc in tool_calls]}"
+            )
 
             # 执行工具调用
             tool_results: Dict[str, ToolResult] = {}
@@ -622,8 +644,23 @@ class LLMClient:
                 }
                 all_messages.append(tool_msg)
 
+            # 统计工具执行结果
+            success_count = sum(1 for tr in tool_results.values() if tr.success)
+            failed_count = len(tool_results) - success_count
+
+            logger.info(
+                f"[LLM:TOOL_LOOP] 🔧 工具执行完成 | "
+                f"成功={success_count} | 失败={failed_count} | "
+                f"iteration={iteration}"
+            )
+
             # 检查 token 限制
             if guard is not None and guard.total_budget_used >= guard.max_total_budget:
+                logger.warning(
+                    f"[LLM:TOOL_LOOP] ⚠️ Token预算超限 | "
+                    f"total_tokens={total_tokens} | "
+                    f"max_budget={guard.max_total_budget}"
+                )
                 yield ToolCallResult(
                     iteration=iteration,
                     content=content,
@@ -648,6 +685,11 @@ class LLMClient:
             )
 
         # 达到最大迭代次数
+        logger.info(
+            f"[LLM:TOOL_LOOP] 🏁 达到最大迭代次数 | "
+            f"max_iterations={max_iterations} | "
+            f"total_tokens={total_tokens}"
+        )
         yield ToolCallResult(
             iteration=iteration,
             content="".join(content_parts) if content_parts else "",

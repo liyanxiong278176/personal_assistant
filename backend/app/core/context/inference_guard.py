@@ -7,6 +7,8 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
+from ..session.structured_logger import log_event, LogLevel, SessionPhase
+
 logger = logging.getLogger(__name__)
 
 
@@ -57,20 +59,51 @@ class InferenceGuard:
 
         # 检查总预算
         if self._total_budget_used >= self.max_total_budget:
+            log_event(
+                LogLevel.WARNING,
+                SessionPhase.RETRY,
+                "总token预算超限",
+                current_tokens=self._current_tokens,
+                total_budget=self._total_budget_used,
+                max_budget=self.max_total_budget
+            )
             logger.warning("[InferenceGuard] 总token预算超限")
             return False, self._get_friendly_message("total_budget_exceeded")
 
         # 检查单次响应限制
         if self._current_tokens >= self.max_tokens_per_response:
             if self.overlimit_strategy == OverlimitStrategy.REJECT:
+                log_event(
+                    LogLevel.WARNING,
+                    SessionPhase.RETRY,
+                    "单次响应token超限-REJECT策略",
+                    current_tokens=self._current_tokens,
+                    max_tokens=self.max_tokens_per_response,
+                    strategy="reject"
+                )
                 return False, self._get_friendly_message("per_response_limit")
             else:  # TRUNCATE
+                log_event(
+                    LogLevel.WARNING,
+                    SessionPhase.RETRY,
+                    "单次响应token超限-TRUNCATE策略",
+                    current_tokens=self._current_tokens,
+                    max_tokens=self.max_tokens_per_response,
+                    strategy="truncate"
+                )
                 return False, self._get_friendly_message("truncated")
 
         # 检查警告阈值
         if not self._warning_sent:
             if self._current_tokens >= self.max_tokens_per_response * self.warning_threshold:
                 self._warning_sent = True
+                log_event(
+                    LogLevel.INFO,
+                    SessionPhase.RETRY,
+                    "达到警告阈值",
+                    current_tokens=self._current_tokens,
+                    threshold=self.max_tokens_per_response * self.warning_threshold
+                )
                 return True, self._get_friendly_message("warning")
 
         return True, None
