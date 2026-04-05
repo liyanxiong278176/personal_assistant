@@ -298,6 +298,11 @@ class InferenceGuard:
 #### 3.3.1 数据结构
 
 ```python
+from datetime import datetime
+from enum import Enum
+from dataclasses import dataclass
+from typing import Optional
+
 class ErrorLevel(Enum):
     ERROR = "error"
     WARNING = "warning"
@@ -899,13 +904,13 @@ class AgentEnhancementConfig:
 
     # 工具循环配置
     enable_tool_loop: bool = field(
-        default=lambda: os.getenv("ENABLE_TOOL_LOOP", "false").lower() == "true"
+        default_factory=lambda: os.getenv("ENABLE_TOOL_LOOP", "false").lower() == "true"
     )
     max_tool_iterations: int = field(
-        default=lambda: int(os.getenv("MAX_TOOL_ITERATIONS", "5"))
+        default_factory=lambda: int(os.getenv("MAX_TOOL_ITERATIONS", "5"))
     )
     tool_loop_token_limit: int = field(
-        default=lambda: int(os.getenv("TOOL_LOOP_TOKEN_LIMIT", "16000"))
+        default_factory=lambda: int(os.getenv("TOOL_LOOP_TOKEN_LIMIT", "16000"))
     )
 
     # 推理守卫配置
@@ -1123,5 +1128,5 @@ class QueryEngine:
 
 ---
 
-*设计文档版本: 1.0*
+*设计文档版本: 1.1*
 *最后更新: 2026-04-05*
