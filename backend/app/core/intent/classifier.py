@@ -54,6 +54,7 @@ class IntentResult(BaseModel):
     confidence: float
     method: MethodType
     reasoning: Optional[str] = None
+    need_tool: bool = False  # 是否需要调用工具
 
 
 class IntentClassifier:
@@ -91,7 +92,8 @@ class IntentClassifier:
                 intent=cached.intent,
                 confidence=cached.confidence,
                 method="cache",
-                reasoning=cached.reasoning
+                reasoning=cached.reasoning,
+                need_tool=cached.need_tool
             )
         return None
 
