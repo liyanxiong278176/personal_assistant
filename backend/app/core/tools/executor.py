@@ -28,13 +28,15 @@ class ToolExecutor:
     负责执行工具调用，支持并行执行和错误处理。
     """
 
-    def __init__(self, registry: ToolRegistry):
+    def __init__(self, registry: ToolRegistry, cache: Any = None):
         """初始化工具执行器
 
         Args:
             registry: 工具注册表
+            cache: 可选的缓存对象，需提供 get(key) 方法
         """
         self._registry = registry
+        self._cache = cache
         logger.info("[ToolExecutor] Initialized")
 
     async def execute(self, tool_name: str, **kwargs) -> Any:
@@ -108,6 +110,103 @@ class ToolExecutor:
                 results[tool_name] = result
 
         return results
+
+    async def execute_with_retry(
+        self,
+        tool_name: str,
+        max_retries: int = 1,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """带重试的工具执行
+
+        Args:
+            tool_name: 工具名称
+            max_retries: 最大重试次数
+            **kwargs: 工具参数
+
+        Returns:
+            执行结果，包含 success、data/retried 字段
+        """
+        last_error = None
+
+        for attempt in range(max_retries + 1):
+            try:
+                result = await self.execute(tool_name, **kwargs)
+                return {
+                    "success": True,
+                    "data": result,
+                    "retried": attempt > 0
+                }
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries and self._is_retryable(e):
+                    await asyncio.sleep(1)
+                    continue
+                break
+
+        return {
+            "success": False,
+            "error": str(last_error),
+            "retried": max_retries
+        }
+
+    def _is_retryable(self, error: Exception) -> bool:
+        """判断错误是否可重试
+
+        Args:
+            error: 异常对象
+
+        Returns:
+            是否可重试
+        """
+        error_str = str(error).lower()
+        retryable_keywords = ["timeout", "network", "connection", "rate limit", "429", "503"]
+        return any(kw in error_str for kw in retryable_keywords)
+
+    async def execute_with_fallback(
+        self,
+        tool_name: str,
+        cache_key: str = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """带降级的工具执行
+
+        优先执行工具，失败时尝试从缓存读取。
+
+        Args:
+            tool_name: 工具名称
+            cache_key: 缓存键，不提供时使用 tool_name
+            **kwargs: 工具参数
+
+        Returns:
+            执行结果，包含 success、data、from_cache、error 字段
+        """
+        try:
+            result = await self.execute(tool_name, **kwargs)
+            return {
+                "success": True,
+                "data": result,
+                "from_cache": False,
+                "error": None
+            }
+        except Exception as e:
+            # Graceful degradation: try cache
+            if self._cache is not None:
+                key = cache_key if cache_key is not None else tool_name
+                cached = self._cache.get(key)
+                if cached is not None:
+                    return {
+                        "success": True,
+                        "data": cached,
+                        "from_cache": True,
+                        "error": None
+                    }
+            return {
+                "success": False,
+                "data": None,
+                "from_cache": False,
+                "error": str(e)
+            }
 
     async def _execute_call(self, call: "ToolCall") -> Any:
         """执行单个工具调用
