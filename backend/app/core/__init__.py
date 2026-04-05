@@ -10,6 +10,7 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 - 上下文管理
 - Coordinator 和 Worker（多 Agent 协调）
 - 槽位提取（意图识别）
+- 增强功能：工具循环、推理守卫、偏好提取
 """
 
 from .errors import AgentError, DegradationLevel, DegradationStrategy
@@ -17,7 +18,14 @@ from .llm import LLMClient, ToolCall, ToolResult, ToolCallResult
 from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
 from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_PROMPT
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
-from .context import ContextCompressor, ContextManager, TokenEstimator
+from .context import (
+    ContextCompressor,
+    ContextManager,
+    TokenEstimator,
+    AgentEnhancementConfig,
+    InferenceGuard,
+    OverlimitStrategy,
+)
 from .memory import (
     MemoryHierarchy,
     MemoryHierarchyFactory,
@@ -44,6 +52,13 @@ from .session import (
     RetryPolicy,
     FallbackHandler,
     FallbackResponse,
+)
+from .preferences import (
+    PreferenceType,
+    MatchedPreference,
+    PreferenceMatcher,
+    PreferenceRepository,
+    PreferenceExtractor,
 )
 
 __all__ = [
@@ -93,4 +108,14 @@ __all__ = [
     "RetryPolicy",
     "FallbackHandler",
     "FallbackResponse",
+    # enhancements
+    "AgentEnhancementConfig",
+    "InferenceGuard",
+    "OverlimitStrategy",
+    # preferences
+    "PreferenceType",
+    "MatchedPreference",
+    "PreferenceMatcher",
+    "PreferenceRepository",
+    "PreferenceExtractor",
 ]
