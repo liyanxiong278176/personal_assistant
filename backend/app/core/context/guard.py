@@ -11,7 +11,9 @@ import logging
 import time
 from typing import Dict, List, Optional
 
+from ..errors import AgentError, DegradationLevel
 from ..llm.client import LLMClient
+from ..security.injection_guard import InjectionGuard, PolicyDecision
 from .config import ContextConfig, get_default_config
 from .cleaner import ContextCleaner
 from .compressor import ContextCompressor
@@ -151,6 +153,7 @@ class ContextGuard:
         self._llm_client = llm_client
         self._summary_provider: Optional[LLMSummaryProvider] = None
         self._last_conv_id: str = "unknown"
+        self._injection_guard = InjectionGuard()
 
         # 统计信息
         self._stats = {
@@ -232,6 +235,16 @@ class ContextGuard:
 
         if not messages:
             return []
+
+        # 安全检查 - Prompt Injection 检测
+        user_messages = [m for m in messages if m.get("role") == "user"]
+        if user_messages:
+            last_user = user_messages[-1].get("content", "")
+            policy = self._injection_guard.check(last_user)
+            if policy == PolicyDecision.DENY:
+                raise AgentError("Message blocked: potential injection", level=DegradationLevel.SECURITY)
+            elif policy == PolicyDecision.REVIEW:
+                logger.info(f"[Security] Sensitive action flagged in conv={self._last_conv_id}")
 
         # 调用清理器进行自动清理（软修剪 + 硬清除）
         cleaned = self.cleaner.clean(messages, mode="auto")

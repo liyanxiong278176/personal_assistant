@@ -29,6 +29,7 @@ class DegradationLevel(Enum):
     TOOL_DEGRADED = "tool_degraded"  # 工具调用失败
     MEMORY_DEGRADED = "memory_degraded"  # 记忆服务不可用
     CONTEXT_DEGRADED = "context_degraded"  # 上下文管理失败
+    SECURITY = "security"  # 安全相关降级
 
 
 class DegradationStrategy:
@@ -42,6 +43,7 @@ class DegradationStrategy:
         DegradationLevel.TOOL_DEGRADED: "抱歉，部分功能暂时无法使用，您可以继续对话。",
         DegradationLevel.MEMORY_DEGRADED: "记忆服务暂时不可用，您的偏好可能不会被保存。",
         DegradationLevel.CONTEXT_DEGRADED: "上下文加载出现问题，建议重新开始对话。",
+        DegradationLevel.SECURITY: "出于安全考虑，当前操作无法执行。",
     }
 
     @classmethod
