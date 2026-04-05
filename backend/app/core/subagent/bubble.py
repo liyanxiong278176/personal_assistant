@@ -1,4 +1,4 @@
-"""结果气泡 - 收集子Agent结果并冒泡到父上下文"""
+"""结果气泡 - 收集子Agent结果并冒泡���父上下文"""
 
 import logging
 from typing import List, Dict, Any, Optional
@@ -56,6 +56,11 @@ class ResultBubble:
         self.parent_session_id = parent_session_id
         self._sessions: List[SubAgentSession] = []
 
+        logger.debug(
+            f"[BUBBLE] 🫧 初始化 | "
+            f"parent={parent_session_id}"
+        )
+
     async def bubble_up(
         self,
         sessions: List[SubAgentSession],
@@ -74,12 +79,20 @@ class ResultBubble:
         stats = BubbleStats()
 
         logger.info(
-            f"[BUBBLE] 开始收集结果 | parent={self.parent_session_id} | "
+            f"[BUBBLE] 🫧 开始收集结果 | "
+            f"parent={self.parent_session_id} | "
             f"子Agent数={len(sessions)}"
         )
 
         for session in sessions:
             stats.total += 1
+
+            logger.debug(
+                f"[BUBBLE] 📊 处理会话 | "
+                f"type={session.agent_type.value} | "
+                f"status={session.status.value} | "
+                f"exec_time={session.execution_time}"
+            )
 
             # 统计状态
             if session.status == SubAgentStatus.COMPLETED:
@@ -101,30 +114,57 @@ class ResultBubble:
                 if isinstance(session.result, AgentResult):
                     if session.result.success:
                         stats.results[agent_key] = session.result.data
+                        logger.debug(
+                            f"[BUBBLE] ✅ 收集成功结果 | "
+                            f"agent={agent_key} | "
+                            f"keys={list(session.result.data.keys()) if isinstance(session.result.data, dict) else 'N/A'}"
+                        )
                     else:
                         stats.errors.append(
                             f"{agent_key}: {session.result.error}"
                         )
+                        logger.warning(
+                            f"[BUBBLE] ⚠️ 收集失败结果 | "
+                            f"agent={agent_key} | "
+                            f"error={session.result.error}"
+                        )
                 elif isinstance(session.result, dict):
                     stats.results[agent_key] = session.result
+                    logger.debug(
+                        f"[BUBBLE] ✅ 收集字典结果 | "
+                        f"agent={agent_key} | "
+                        f"keys={list(session.result.keys())}"
+                    )
                 else:
                     stats.results[agent_key] = {"data": session.result}
 
             # 收集错误
             if session.error:
-                stats.errors.append(
-                    f"{session.agent_type.value}: {str(session.error)}"
+                error_msg = f"{session.agent_type.value}: {str(session.error)}"
+                stats.errors.append(error_msg)
+                logger.error(
+                    f"[BUBBLE] ❌ 会话错误 | "
+                    f"agent={session.agent_type.value} | "
+                    f"error={str(session.error)}"
                 )
 
         # 合并到父上下文
         if parent_context is not None:
+            logger.debug(
+                f"[BUBBLE] 🔗 合并到父上下文 | "
+                f"结果数={len(stats.results)} | "
+                f"父上下文原有键={list(parent_context.keys())}"
+            )
             self._merge_to_parent(stats.results, parent_context)
 
         logger.info(
-            f"[BUBBLE] 结果收集完成 | "
-            f"总计={stats.total} | 成功={stats.successful} | "
-            f"失败={stats.failed} | 超时={stats.timeout} | "
-            f"耗时={stats.total_execution_time:.2f}s"
+            f"[BUBBLE] ✅ 结果收集完成 | "
+            f"总计={stats.total} | "
+            f"成功={stats.successful} | "
+            f"失败={stats.failed} | "
+            f"超时={stats.timeout} | "
+            f"耗时={stats.total_execution_time:.3f}s | "
+            f"结果键={list(stats.results.keys())}"
         )
 
         return stats
@@ -155,10 +195,19 @@ class ResultBubble:
         Returns:
             失败的会话列表
         """
-        return [
+        failed = [
             s for s in self._sessions
             if s.status in (SubAgentStatus.FAILED, SubAgentStatus.TIMEOUT)
         ]
+
+        if failed:
+            logger.warning(
+                f"[BUBBLE] ⚠️ 获取失败会话 | "
+                f"数量={len(failed)} | "
+                f"types={[s.agent_type.value for s in failed]}"
+            )
+
+        return failed
 
     def get_successful_results(self) -> Dict[str, Any]:
         """获取成功的结果
@@ -177,6 +226,13 @@ class ResultBubble:
                     results[agent_key] = session.result
                 else:
                     results[agent_key] = {"data": session.result}
+
+        logger.debug(
+            f"[BUBBLE] 📤 获取成功结果 | "
+            f"数量={len(results)} | "
+            f"types={list(results.keys())}"
+        )
+
         return results
 
     def format_for_llm(self, stats: BubbleStats) -> str:
@@ -212,7 +268,13 @@ class ResultBubble:
             for error in stats.errors:
                 lines.append(f"- {error}")
 
-        return "\n".join(lines)
+        formatted = "\n".join(lines)
+        logger.debug(
+            f"[BUBBLE] 📝 格式化完成 | "
+            f"长度={len(formatted)}字符"
+        )
+
+        return formatted
 
     async def bubble_up_with_format(
         self,
