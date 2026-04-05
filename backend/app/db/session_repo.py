@@ -35,7 +35,7 @@ class SessionRepository:
                     updated_at = NOW(),
                     last_activity = NOW()
                 """,
-                session_id, user_id, conversation_id, json.dumps(core_state)
+                session_id, user_id, conversation_id, json.dumps(core_state, default=str)
             )
 
     async def get_state(self, session_id: UUID) -> Optional[Dict[str, Any]]:
