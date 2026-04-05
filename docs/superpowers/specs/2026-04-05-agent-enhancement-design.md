@@ -33,6 +33,96 @@
 
 ---
 
+## 1.4 现有代码上下文分析
+
+在实现新功能前，需要了解现有代码的关键接口：
+
+### 1.4.1 LLMClient 现有接口
+
+```python
+# 文件: backend/app/core/llm/client.py
+
+class LLMClient:
+    """现有 LLM 客户端"""
+
+    async def stream_chat(
+        self,
+        messages: List[Dict[str, str]],
+        system_prompt: Optional[str] = None
+    ) -> AsyncIterator[str]:
+        """流式聊天（已存在）"""
+
+    async def stream_chat_with_tools(
+        self,
+        messages: List[Dict[str, str]],
+        tools: List[Dict[str, Any]],
+        system_prompt: Optional[str] = None
+    ) -> AsyncIterator[Union[str, ToolCall]]:
+        """支持工具调用的流式聊天（已存在）
+        注意：当前只支持单次工具调用，不支持循环
+        """
+
+# 现有 ToolCall 结构
+class ToolCall:
+    def __init__(self, id: str, name: str, arguments: Dict[str, Any]):
+        self.id = id
+        self.name = name
+        self.arguments = arguments
+```
+
+### 1.4.2 ContextGuard 现有结构
+
+```python
+# 文件: backend/app/core/context/guard.py (已存在)
+
+class ContextGuard:
+    """上下文守卫 - 已实现前置/后置处理"""
+
+    async def pre_process(self, messages: List[Dict]) -> List[Dict]:
+        """阶段3: 上下文前置清理"""
+
+    async def post_process(self, messages: List[Dict]) -> List[Dict]:
+        """阶段7: 上下文后置管理"""
+
+# 新的 InferenceGuard 将作为独立组件，在流式输出时使用
+# 与 ContextGuard 的关系：
+# - ContextGuard: 处理消息列表的前置/后置清理
+# - InferenceGuard: 在 LLM 流式生成过程中监控 token
+```
+
+### 1.4.3 QueryEngine 现有工作流
+
+```python
+# 文件: backend/app/core/query_engine.py
+
+class QueryEngine:
+    """QueryEngine - 8步工作流程"""
+
+    async def process(
+        self,
+        user_input: str,
+        conversation_id: str,
+        user_id: Optional[str] = None
+    ) -> AsyncIterator[str]:
+        """统一处理流程 - 已实现8步工作流"""
+```
+
+### 1.4.4 现有记忆层级
+
+```python
+# 文件: backend/app/core/memory/hierarchy.py (已存在)
+
+class MemoryHierarchy:
+    """3-tier memory hierarchy"""
+
+    def add_semantic(self, item: MemoryItem) -> None:
+        """添加语义记忆（偏好将存储在此）"""
+
+# 偏好存储将使用现有的 MemoryHierarchy + SemanticRepository
+```
+
+---
+
 ## 2. 架构设计
 
 ### 2.1 整体架构
@@ -85,17 +175,30 @@ backend/app/core/
 #### 3.1.1 数据结构
 
 ```python
+from dataclasses import dataclass
+from typing import Optional, List, Dict, Any, Union
+from enum import Enum
+import asyncio
+
+@dataclass
+class ToolResult:
+    """单个工具执行结果"""
+    success: bool
+    data: Any
+    error: Optional[str] = None
+    execution_time_ms: int = 0
+
 @dataclass
 class ToolCallResult:
     """单次工具调用的结果"""
-    iteration: int                       # 当前迭代次数
-    content: str                         # LLM生成的内容（本次）
-    tool_calls: List[ToolCall]           # 请求的工具调用
-    tool_results: Dict[str, Any]         # 工具执行结果
-    tokens_used: int                     # 本次迭代使用的token
-    total_tokens: int                    # 累计token
-    should_continue: bool                # 是否继续循环
-    stop_reason: Optional[str] = None    # 停止原因
+    iteration: int                           # 当前迭代次数
+    content: str                             # LLM生成的内容（本次）
+    tool_calls: List["ToolCall"]             # 请求的工具调用
+    tool_results: Dict[str, ToolResult]      # 工具执行结果
+    tokens_used: int                         # 本次迭代使用的token
+    total_tokens: int                        # 累计token
+    should_continue: bool                    # 是否继续循环
+    stop_reason: Optional[str] = None        # 停止原因
 ```
 
 #### 3.1.2 核心方法
@@ -234,15 +337,96 @@ class ErrorMetrics:
 #### 3.4.1 数据结构
 
 ```python
+from datetime import datetime, timezone
+from dataclasses import dataclass, field
+
 @dataclass
 class PreferenceItem:
     key: str
     value: str
     confidence: float = 1.0              # 置信度 0~1
     source: str = "rule"                 # 来源 (rule/llm/hybrid)
-    extracted_at: datetime = field(default_factory=datetime.utcnow)
+    extracted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     raw_text: Optional[str] = None       # 原始匹配片段
     embedding: Optional[List[float]] = None  # 向量表示
+```
+
+#### 3.4.4 偏好存储策略
+
+**存储后端：** 使用现有的 ChromaDB 语义记忆存储
+
+```python
+# 存储结构 (ChromaDB Collection)
+{
+    "id": "pref_{user_id}_{key}_{timestamp}",
+    "embedding": [0.1, 0.2, ...],  # 384维向量
+    "metadata": {
+        "user_id": "user123",
+        "key": "destination",
+        "value": "北京",
+        "confidence": 0.95,
+        "source": "rule",
+        "raw_text": "我想去北京",
+        "created_at": "2026-04-05T12:00:00Z"
+    },
+    "documents": "目的地偏好: 北京"
+}
+```
+
+**检索API：**
+
+```python
+class PreferenceRepository:
+    """偏好仓储 - 基于现有 SemanticRepository"""
+
+    async def get_user_preferences(
+        self,
+        user_id: str,
+        keys: Optional[List[str]] = None,
+    ) -> Dict[str, PreferenceItem]:
+        """获取用户偏好
+
+        Args:
+            user_id: 用户ID
+            keys: 可选，指定要获取的偏好键
+
+        Returns:
+            ���好字典 {key: PreferenceItem}
+        """
+
+    async def upsert_preference(
+        self,
+        user_id: str,
+        preference: PreferenceItem,
+    ) -> bool:
+        """插入或更新偏好
+
+        使用 ChromaDB 的 upsert 功能：
+        - 如果存在相同 user_id + key 的偏好，比较置信度
+        - 高置信度覆盖低置信度
+        - 同等置信度更新为最新值
+        """
+```
+
+**上下文注入：**
+
+```python
+# 在 QueryEngine._build_context() 中注入偏好
+
+async def _build_context(self, user_id: str, ...) -> str:
+    parts = []
+
+    # 获取用户偏好
+    preferences = await self._pref_repo.get_user_preferences(user_id)
+
+    if preferences:
+        pref_lines = ["## 用户偏好"]
+        for key, item in preferences.items():
+            if item.confidence >= 0.7:  # 只使用高置信度偏好
+                pref_lines.append(f"- {key}: {item.value}")
+        parts.append("\n".join(pref_lines))
+
+    return "\n\n".join(parts)
 ```
 
 #### 3.4.2 提取模式
@@ -311,7 +495,7 @@ QueryEngine.process()
     │
     ▼
 阶段4: 判断是否启用工具循环
-    if intent in ["itinerary", "query"] and config.enable_tool_loop:
+    if intent in ["itinerary", "query"] and self._config.enable_tool_loop:
         │
         ▼
 LLMClient.chat_with_tool_loop()
@@ -333,6 +517,80 @@ LLMClient.chat_with_tool_loop()
     │
     ▼
 阶段5-8: 上下文构建 → LLM最终响应 → 后置管理 → 记忆更新
+```
+
+#### 4.1.1 QueryEngine 集成代码示例
+
+```python
+# 文件: backend/app/core/query_engine.py
+
+class QueryEngine:
+    def __init__(
+        self,
+        llm_client: Optional[LLMClient] = None,
+        config: Optional[AgentEnhancementConfig] = None,
+        # ... 其他参数
+    ):
+        self.llm_client = llm_client
+        self._config = config or AgentEnhancementConfig()  # 新增配置
+        self._tool_executor = ToolExecutor(self._tool_registry)
+        # ... 其他初始化
+
+    async def _execute_tools_by_intent(
+        self,
+        intent_result,
+        slots,
+        stage_log: Optional[StageLogger] = None
+    ) -> Dict[str, Any]:
+        """根据意图执行工具 - 增强版，支持工具循环"""
+
+        # 判断是否启用工具循环
+        use_tool_loop = (
+            self._config.enable_tool_loop and
+            intent_result.intent in ["itinerary", "query"]
+        )
+
+        if not use_tool_loop:
+            # 使用原有的单次工具调用逻辑
+            return await self._original_execute_tools(intent_result, slots)
+
+        # 使用新的工具循环功能
+        tools = self._get_tools_for_llm()
+        messages = [{"role": "user", "content": self._current_message}]
+        tool_results = {}
+
+        async for loop_result in self.llm_client.chat_with_tool_loop(
+            messages=messages,
+            tools=tools,
+            system_prompt=self.system_prompt,
+            max_iterations=self._config.max_tool_iterations,
+            max_total_tokens=self._config.tool_loop_token_limit,
+        ):
+            # 处理每次循环的结果
+            if loop_result.tool_calls:
+                # 执行工具并收集结果
+                results = await self._tool_executor.execute_parallel(loop_result.tool_calls)
+                tool_results.update(results)
+                # 将工具结果添加到消息列表供下一轮使用
+                messages.append({
+                    "role": "assistant",
+                    "content": loop_result.content,
+                    "tool_calls": [
+                        {"id": tc.id, "name": tc.name, "arguments": tc.arguments}
+                        for tc in loop_result.tool_calls
+                    ]
+                })
+                messages.append({
+                    "role": "tool",
+                    "content": json.dumps(results, ensure_ascii=False)
+                })
+
+            # 检查是否需要继续
+            if not loop_result.should_continue:
+                logger.info(f"工具循环结束: {loop_result.stop_reason}")
+                break
+
+        return tool_results
 ```
 
 ### 4.2 推理守卫流程
@@ -411,6 +669,14 @@ PreferenceExtractor.add_preference()
 ### 5.2 降级响应
 
 ```python
+class DegradationLevel(Enum):
+    """降级级别枚举（已存在于 errors.py，此处为扩展）"""
+    LLM_DEGRADED = "llm_degraded"      # LLM 服务不可用
+    TOOL_DEGRADED = "tool_degraded"    # 工具调用失败
+    MEMORY_DEGRADED = "memory_degraded" # 记忆服务不可用
+    CONTEXT_DEGRADED = "context_degraded" # 上下文管理失败
+    TOKEN_EXCEEDED = "token_exceeded"  # Token 超限（新增）
+
 class DegradationStrategy:
     _MESSAGES = {
         DegradationLevel.LLM_DEGRADED: "抱歉，AI服务暂时不可用，请稍后再试。",
@@ -594,6 +860,168 @@ class AgentEnhancementConfig:
 ### 7.2 默认值
 
 所有新功能默认关闭（except inference_guard），确保向后兼容。
+
+### 7.3 配置加载机制
+
+**环境变量配置：**
+
+```bash
+# .env 文件
+# 工具循环配置
+ENABLE_TOOL_LOOP=true
+MAX_TOOL_ITERATIONS=5
+TOOL_LOOP_TOKEN_LIMIT=16000
+
+# 推理守卫配置
+ENABLE_INFERENCE_GUARD=true
+MAX_TOKENS_PER_RESPONSE=4000
+MAX_TOTAL_TOKEN_BUDGET=16000
+INFERENCE_WARNING_THRESHOLD=0.8
+OVERLIMIT_STRATEGY=truncate
+
+# 偏好提取配置
+ENABLE_PREFERENCE_EXTRACTION=true
+PREFERENCE_CONFIDENCE_THRESHOLD=0.7
+```
+
+**配置加载器：**
+
+```python
+# 文件: backend/app/core/context/config.py (修改现有文件)
+
+import os
+from dataclasses import dataclass, field
+from typing import Optional
+
+@dataclass
+class AgentEnhancementConfig:
+    """Agent功能增强配置"""
+
+    # 工具循环配置
+    enable_tool_loop: bool = field(
+        default=lambda: os.getenv("ENABLE_TOOL_LOOP", "false").lower() == "true"
+    )
+    max_tool_iterations: int = field(
+        default=lambda: int(os.getenv("MAX_TOOL_ITERATIONS", "5"))
+    )
+    tool_loop_token_limit: int = field(
+        default=lambda: int(os.getenv("TOOL_LOOP_TOKEN_LIMIT", "16000"))
+    )
+
+    # 推理守卫配置
+    enable_inference_guard: bool = field(
+        default=lambda: os.getenv("ENABLE_INFERENCE_GUARD", "true").lower() == "true"
+    )
+    max_tokens_per_response: int = field(
+        default=lambda: int(os.getenv("MAX_TOKENS_PER_RESPONSE", "4000"))
+    )
+    max_total_token_budget: int = field(
+        default=lambda: int(os.getenv("MAX_TOTAL_TOKEN_BUDGET", "16000"))
+    )
+    inference_warning_threshold: float = field(
+        default=lambda: float(os.getenv("INFERENCE_WARNING_THRESHOLD", "0.8"))
+    )
+    overlimit_strategy: str = field(
+        default=lambda: os.getenv("OVERLIMIT_STRATEGY", "truncate")
+    )
+
+    # 偏好提取配置
+    enable_preference_extraction: bool = field(
+        default=lambda: os.getenv("ENABLE_PREFERENCE_EXTRACTION", "true").lower() == "true"
+    )
+    preference_confidence_threshold: float = field(
+        default=lambda: float(os.getenv("PREFERENCE_CONFIDENCE_THRESHOLD", "0.7"))
+    )
+
+    @classmethod
+    def load(cls) -> "AgentEnhancementConfig":
+        """从环境变量加载配置"""
+        return cls()
+
+    @classmethod
+    def load_from_dict(cls, config_dict: dict) -> "AgentEnhancementConfig":
+        """从字典加载配置（用于测试）"""
+        return cls(**{
+            k: v for k, v in config_dict.items()
+            if k in cls.__dataclass_fields__
+        })
+```
+
+**QueryEngine 集成配置：**
+
+```python
+# 文件: backend/app/core/query_engine.py
+
+class QueryEngine:
+    def __init__(
+        self,
+        llm_client: Optional[LLMClient] = None,
+        system_prompt: Optional[str] = None,
+        tool_registry: Optional[ToolRegistry] = None,
+        enhancement_config: Optional[AgentEnhancementConfig] = None,  # 新增
+        config_path: Optional[Path] = None
+    ):
+        # ... 现有初始化代码 ...
+
+        # 新增：加载增强配置
+        self._config = enhancement_config or AgentEnhancementConfig.load()
+        
+        # 如果启用了推理守卫，创建实例
+        if self._config.enable_inference_guard:
+            self._inference_guard = InferenceGuard(
+                max_tokens_per_response=self._config.max_tokens_per_response,
+                max_total_budget=self._config.max_total_token_budget,
+                warning_threshold=self._config.inference_warning_threshold,
+                overlimit_strategy=InferenceGuard.OverlimitStrategy(
+                    self._config.overlimit_strategy
+                ),
+            )
+        else:
+            self._inference_guard = None
+
+        # 如果启用了偏好提取，创建实例
+        if self._config.enable_preference_extraction:
+            from .preferences.extractor import PreferenceExtractor
+            self._pref_extractor = PreferenceExtractor(
+                confidence_threshold=self._config.preference_confidence_threshold
+            )
+        else:
+            self._pref_extractor = None
+```
+
+**运行时配置更新：**
+
+```python
+class QueryEngine:
+    def update_enhancement_config(
+        self,
+        config: AgentEnhancementConfig
+    ) -> None:
+        """运行时更新配置（不需要重启服务）"""
+        self._config = config
+        
+        # 更新推理守卫
+        if config.enable_inference_guard:
+            if self._inference_guard is None:
+                self._inference_guard = InferenceGuard(
+                    max_tokens_per_response=config.max_tokens_per_response,
+                    # ...
+                )
+            else:
+                # 更新现有守卫的参数
+                self._inference_guard.max_tokens_per_response = config.max_tokens_per_response
+                # ...
+        else:
+            self._inference_guard = None
+        
+        # 更新偏好提取器
+        if config.enable_preference_extraction:
+            if self._pref_extractor is None:
+                from .preferences.extractor import PreferenceExtractor
+                self._pref_extractor = PreferenceExtractor(
+                    confidence_threshold=config.preference_confidence_threshold
+                )
+```
 
 ---
 
