@@ -7,6 +7,7 @@ from .classifier import (
     KEYWORD_RULES,
     intent_classifier
 )
+from .complexity import is_complex_query, ComplexityResult
 
 __all__ = [
     "SlotExtractor",
@@ -15,5 +16,7 @@ __all__ = [
     "IntentClassifier",
     "IntentResult",
     "KEYWORD_RULES",
-    "intent_classifier"
+    "intent_classifier",
+    "is_complex_query",
+    "ComplexityResult",
 ]
