@@ -20,6 +20,7 @@ interface TransportOptions {
   onError?: (error: string) => void;
   onItinerary?: (itinerary: any) => void;
   userId?: string;
+  imageData?: string;  // Base64 image data
 }
 
 export class ChatWebSocketTransport {
@@ -116,6 +117,7 @@ export class ChatWebSocketTransport {
   ): Promise<string> {
     console.log("[ChatTransport] sendMessage called, content:", content);
     console.log("[ChatTransport] isConnected:", this.isConnected, "ws.readyState:", this.ws?.readyState);
+    console.log("[ChatTransport] has_image:", !!options.imageData);
 
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
@@ -171,12 +173,14 @@ export class ChatWebSocketTransport {
       // Add temporary message listener
       this.ws?.addEventListener("message", responseHandler);
 
-      // Send the message
+      // Send the message with optional image
       this.send({
         type: "message",
         session_id: this.sessionId,
         conversation_id: this.conversationId || undefined,
         content,
+        has_image: !!options.imageData,
+        image_data: options.imageData,
       });
     });
   }

@@ -4,6 +4,10 @@ export interface Message {
   content: string;
   createdAt?: Date;
   itinerary?: Itinerary;
+  image?: {
+    data: string;
+    description?: string;
+  };
 }
 
 export interface Conversation {

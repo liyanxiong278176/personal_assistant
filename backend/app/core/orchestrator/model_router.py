@@ -19,6 +19,7 @@ class ModelRouter:
         self._small_client = small_client or LLMClient(model=self.SMALL_MODEL)
         self._large_client = large_client or LLMClient(model=self.LARGE_MODEL)
         self.logger = logging.getLogger(__name__)
+        logger.info(f"[ModelRouter] Initialized: small_model={self.SMALL_MODEL}, large_model={self.LARGE_MODEL}")
 
     def route(
         self,
@@ -36,9 +37,9 @@ class ModelRouter:
         """
         # 复杂规划 → 大模型
         if intent.intent == "itinerary" and is_complex:
-            self.logger.info(f"[ModelRouter] Route to LARGE model: {intent.intent}, complex={is_complex}")
+            logger.info(f"[ModelRouter] Route to LARGE model: intent={intent.intent}, complex={is_complex}, confidence={intent.confidence}")
             return self._large_client
 
         # 其他全部 → 小模型
-        self.logger.debug(f"[ModelRouter] Route to SMALL model: {intent.intent}, complex={is_complex}")
+        logger.debug(f"[ModelRouter] Route to SMALL model: intent={intent.intent}, complex={is_complex}, confidence={intent.confidence}")
         return self._small_client

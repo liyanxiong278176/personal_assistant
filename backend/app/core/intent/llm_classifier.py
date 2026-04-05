@@ -28,6 +28,7 @@ class LLMIntentClassifier:
 
     def __init__(self, llm_client: Optional[LLMClient] = None):
         self.llm_client = llm_client
+        logger.info(f"[LLMClassifier] Initialized: client={'configured' if llm_client else 'not configured'}")
 
     async def classify(
         self,
@@ -43,7 +44,12 @@ class LLMIntentClassifier:
         Returns:
             意图分类结果
         """
+        import time
+        start = time.perf_counter()
+        logger.debug(f"[LLMClassifier] Classifying: message={message[:100]!r}, has_image={has_image}")
+
         if has_image:
+            logger.info(f"[LLMClassifier] Short-circuit (has_image): intent=image, confidence=1.0")
             return IntentResult(
                 intent="image",
                 confidence=1.0,
@@ -52,6 +58,7 @@ class LLMIntentClassifier:
             )
 
         if not self.llm_client:
+            logger.warning("[LLMClassifier] LLM client not configured, falling back to default: intent=chat, confidence=0.5")
             # 降级到默认
             return IntentResult(
                 intent="chat",
@@ -68,15 +75,29 @@ class LLMIntentClassifier:
             )
 
             result = json.loads(response)
+            intent = result["intent"]
+            confidence = result.get("confidence", 0.7)
+            latency_ms = (time.perf_counter() - start) * 1000
+            logger.info(f"[LLMClassifier] Classification successful: intent={intent}, confidence={confidence}, latency={latency_ms:.1f}ms")
             return IntentResult(
-                intent=result["intent"],
+                intent=intent,
                 need_tool=result.get("need_tool", False),
-                confidence=result.get("confidence", 0.7),
+                confidence=confidence,
                 method="llm",
                 reasoning="LLM分类"
             )
+        except json.JSONDecodeError as e:
+            latency_ms = (time.perf_counter() - start) * 1000
+            logger.error(f"[LLMClassifier] JSON parse failed: response={response[:200] if 'response' in dir() else 'N/A'}, error={e}, latency={latency_ms:.1f}ms")
+            return IntentResult(
+                intent="chat",
+                confidence=0.3,
+                method="llm",
+                reasoning=f"JSON解析失败: {e}"
+            )
         except Exception as e:
-            logger.error(f"LLM分类失败: {e}")
+            latency_ms = (time.perf_counter() - start) * 1000
+            logger.error(f"[LLMClassifier] Classification failed: error={e}, latency={latency_ms:.1f}ms")
             return IntentResult(
                 intent="chat",
                 confidence=0.3,

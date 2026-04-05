@@ -25,6 +25,7 @@ from .errors import AgentError, DegradationLevel
 from .tools import ToolRegistry, global_registry
 from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
+from .intent.complexity import is_complex_query
 from .context.guard import ContextGuard
 from .context.config import ContextConfig
 from .context.enhancement_config import AgentEnhancementConfig
@@ -32,6 +33,10 @@ from .context.inference_guard import InferenceGuard, OverlimitStrategy
 from .preferences.extractor import PreferenceExtractor
 from .session import SessionInitializer
 from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
+from .orchestrator.model_router import ModelRouter
+from .orchestrator.planner import Planner, ExecutionPlan
+from .orchestrator.executor import Executor
+from .metrics.collector import global_collector
 
 logger = logging.getLogger(__name__)
 
@@ -211,6 +216,11 @@ class QueryEngine:
         # === Phase 4: 多Agent系统初始化 ===
         self._subagent_orchestrator = SubAgentOrchestrator()
 
+        # === Orchestrator 组件初始化 ===
+        self._model_router = None  # 延迟初始化，需要 LLMClient
+        self._planner = Planner(tool_registry=self._tool_registry)
+        self._executor = Executor(tool_registry=self._tool_registry)
+
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
         self._phase2_initialized = False
@@ -246,6 +256,15 @@ class QueryEngine:
         self._tool_registry = tool_registry
         self._tool_executor = ToolExecutor(tool_registry)
         logger.info(f"[QueryEngine] 🔄 工具注册表已更新 | 工具数量={len(tool_registry.list_tools())}")
+
+    def _ensure_orchestrator_initialized(self):
+        """确保 Orchestrator 组件已初始化"""
+        if self._model_router is None and self.llm_client:
+            self._model_router = ModelRouter(
+                small_client=self.llm_client,
+                large_client=LLMClient(model="deepseek-reasoner")
+            )
+            logger.info("[QueryEngine:Orchestrator] ModelRouter 已初始化")
 
     def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
         """获取 LLM 可用的工具定义
@@ -987,12 +1006,15 @@ class QueryEngine:
             f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
         )
 
-        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 =====
+        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 / Orchestrator =====
         tool_results: Dict[str, Any] = {}
         stage_start = time.perf_counter()
         logger.info(
             f"[WORKFLOW:4_TOOLS] ⏳ 开始 | conv={conversation_id} | 意图={intent_result.intent}"
         )
+
+        # === Orchestrator: 确保 ModelRouter 已初始化 ===
+        self._ensure_orchestrator_initialized()
 
         if intent_result.intent in ["itinerary", "query"]:
             # 检查是否需要派生子Agent（复杂度 >= 5）
@@ -1029,11 +1051,70 @@ class QueryEngine:
                     f"[WORKFLOW:4_TOOLS] 多Agent完成 | 成功={stats.successful} | 失败={stats.failed}"
                 )
             else:
-                # 单Agent模式：原有逻辑
-                logger.info(f"[WORKFLOW:4_TOOLS] 🔧 单Agent模式 | conv={conversation_id}")
-                tool_results = await self._execute_tools_by_intent(
-                    intent_result, slots, None
+                # === Orchestrator: 复杂度检测 + 模型路由 + Planner/Executor ===
+                complexity = is_complex_query(user_input)
+                logger.info(
+                    f"[WORKFLOW:4_TOOLS] 📊 复杂度检测 | conv={conversation_id} | "
+                    f"score={complexity.score:.2f} | is_complex={complexity.is_complex} | "
+                    f"reason={complexity.reason}"
                 )
+
+                if complexity.is_complex and self._model_router:
+                    # 复杂查询：使用 ModelRouter 路由到合适的模型
+                    routed_client = self._model_router.route(intent_result, complexity.is_complex)
+                    logger.info(
+                        f"[WORKFLOW:4_TOOLS] 🧠 Orchestrator模式 | conv={conversation_id} | "
+                        f"模型={'large' if routed_client == self._model_router._large_client else 'small'}"
+                    )
+
+                    # 使用 Planner 创建执行计划
+                    plan_start = time.perf_counter()
+                    plan = await self._planner.create_plan(intent_result, slots)
+                    plan_time = (time.perf_counter() - plan_start) * 1000
+
+                    if plan.steps:
+                        logger.info(
+                            f"[WORKFLOW:4_TOOLS] 📋 执行计划 | conv={conversation_id} | "
+                            f"步骤数={len(plan.steps)} | 计划耗时={plan_time:.2f}ms | "
+                            f"工具=[{', '.join(s.tool_name for s in plan.steps)}]"
+                        )
+
+                        # 使用 Executor 执行计划
+                        exec_start = time.perf_counter()
+                        tool_results = await self._executor.execute(plan, routed_client)
+                        exec_time = (time.perf_counter() - exec_start) * 1000
+
+                        # 记录指标到 MetricsCollector
+                        for step in plan.steps:
+                            result = tool_results.get(step.tool_name)
+                            if result:
+                                from .metrics.definitions import ToolMetric
+                                metric = ToolMetric(
+                                    tool_name=step.tool_name,
+                                    success=result.get("success", False),
+                                    latency_ms=result.get("latency_ms", 0),
+                                    used_cache=result.get("from_cache", False),
+                                    error_type=None if result.get("success") else type(result.get("error", "")).__name__
+                                )
+                                await global_collector.record_tool(metric)
+
+                        logger.info(
+                            f"[WORKFLOW:4_TOOLS] ✅ Orchestrator执行完成 | conv={conversation_id} | "
+                            f"成功={sum(1 for r in tool_results.values() if r.get('success'))} | "
+                            f"失败={sum(1 for r in tool_results.values() if not r.get('success'))} | "
+                            f"执行耗时={exec_time:.2f}ms"
+                        )
+                    else:
+                        logger.info(f"[WORKFLOW:4_TOOLS] ℹ️ Planner无执行步骤，回退到LLM工具调用 | conv={conversation_id}")
+                        tool_results = await self._execute_tools_by_intent(
+                            intent_result, slots, None
+                        )
+                else:
+                    # 简单查询：原有单Agent逻辑
+                    logger.info(f"[WORKFLOW:4_TOOLS] 🔧 单Agent模式 | conv={conversation_id}")
+                    tool_results = await self._execute_tools_by_intent(
+                        intent_result, slots, None
+                    )
         else:
             logger.info(f"[TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具调用")
 
@@ -1206,9 +1287,12 @@ class QueryEngine:
 
         logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成")
 
-        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 =====
+        # ===== 阶段 4: 按需并行调用工具 / 多Agent派生 / Orchestrator =====
         tool_results: Dict[str, Any] = {}
         logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ⏳ 开始 | 意图={intent_result.intent}")
+
+        # === Orchestrator: 确保 ModelRouter 已初始化 ===
+        self._ensure_orchestrator_initialized()
 
         if intent_result.intent in ["itinerary", "query"]:
             # 检查是否需要派生子Agent（复杂度 >= 5）
@@ -1245,11 +1329,70 @@ class QueryEngine:
                     f"[WORKFLOW:STREAM:4_TOOLS] 多Agent完成 | 成功={stats.successful}"
                 )
             else:
-                # 单Agent模式
-                logger.info(f"[WORKFLOW:STREAM:4_TOOLS] 🔧 单Agent模式")
-                tool_results = await self._execute_tools_by_intent(
-                    intent_result, slots, None
+                # === Orchestrator: 复杂度检测 + 模型路由 + Planner/Executor ===
+                complexity = is_complex_query(user_input)
+                logger.info(
+                    f"[WORKFLOW:STREAM:4_TOOLS] 📊 复杂度检测 | "
+                    f"score={complexity.score:.2f} | is_complex={complexity.is_complex} | "
+                    f"reason={complexity.reason}"
                 )
+
+                if complexity.is_complex and self._model_router:
+                    # 复杂查询：使用 ModelRouter 路由到合适的模型
+                    routed_client = self._model_router.route(intent_result, complexity.is_complex)
+                    logger.info(
+                        f"[WORKFLOW:STREAM:4_TOOLS] 🧠 Orchestrator模式 | "
+                        f"模型={'large' if routed_client == self._model_router._large_client else 'small'}"
+                    )
+
+                    # 使用 Planner 创建执行计划
+                    plan_start = time.perf_counter()
+                    plan = await self._planner.create_plan(intent_result, slots)
+                    plan_time = (time.perf_counter() - plan_start) * 1000
+
+                    if plan.steps:
+                        logger.info(
+                            f"[WORKFLOW:STREAM:4_TOOLS] 📋 执行计划 | "
+                            f"步骤数={len(plan.steps)} | 计划耗时={plan_time:.2f}ms | "
+                            f"工具=[{', '.join(s.tool_name for s in plan.steps)}]"
+                        )
+
+                        # 使用 Executor 执行计划
+                        exec_start = time.perf_counter()
+                        tool_results = await self._executor.execute(plan, routed_client)
+                        exec_time = (time.perf_counter() - exec_start) * 1000
+
+                        # 记录指标到 MetricsCollector
+                        for step in plan.steps:
+                            result = tool_results.get(step.tool_name)
+                            if result:
+                                from .metrics.definitions import ToolMetric
+                                metric = ToolMetric(
+                                    tool_name=step.tool_name,
+                                    success=result.get("success", False),
+                                    latency_ms=result.get("latency_ms", 0),
+                                    used_cache=result.get("from_cache", False),
+                                    error_type=None if result.get("success") else type(result.get("error", "")).__name__
+                                )
+                                await global_collector.record_tool(metric)
+
+                        logger.info(
+                            f"[WORKFLOW:STREAM:4_TOOLS] ✅ Orchestrator执行完成 | "
+                            f"成功={sum(1 for r in tool_results.values() if r.get('success'))} | "
+                            f"失败={sum(1 for r in tool_results.values() if not r.get('success'))} | "
+                            f"执行耗时={exec_time:.2f}ms"
+                        )
+                    else:
+                        logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ℹ️ Planner 无执行步骤，回退到 LLM 工具调用")
+                        tool_results = await self._execute_tools_by_intent(
+                            intent_result, slots, None
+                        )
+                else:
+                    # 简单查询：原有单Agent逻辑
+                    logger.info(f"[WORKFLOW:STREAM:4_TOOLS] 🔧 单Agent模式")
+                    tool_results = await self._execute_tools_by_intent(
+                        intent_result, slots, None
+                    )
         else:
             logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具")
 

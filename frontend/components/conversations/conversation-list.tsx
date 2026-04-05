@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConversationSearch } from "./conversation-search";
 import { ConversationItem } from "./conversation-item";
 import { useConversationStore } from "@/lib/store/conversation-store";
+import { useAuthStore } from "@/lib/store/auth-store";
 import type { Conversation } from "@/lib/types";
 
 interface ConversationListProps {
@@ -26,6 +27,7 @@ export function ConversationList({
   onNewConversation,
   onConversationSelect,
 }: ConversationListProps) {
+  const { isAuthenticated } = useAuthStore();
   const {
     conversations,
     activeConversationId,
@@ -37,16 +39,26 @@ export function ConversationList({
     togglePin,
     deleteConversation,
     fetchConversations,
+    clear,
   } = useConversationStore();
+
+  // Clear conversations when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      clear();
+    }
+  }, [isAuthenticated, clear]);
 
   // Load conversations on mount and when auth state changes
   useEffect(() => {
-    // Delay fetch to ensure auth headers are ready
+    // Only fetch if authenticated
     const timer = setTimeout(() => {
-      fetchConversations();
+      if (isAuthenticated) {
+        fetchConversations();
+      }
     }, 100);
     return () => clearTimeout(timer);
-  }, [fetchConversations]);
+  }, [fetchConversations, isAuthenticated]);
 
   // Group conversations by time
   const groupedConversations = useMemo(() => {
@@ -147,9 +159,9 @@ export function ConversationList({
       }
       console.log('[ConversationList] Next conversation:', nextConversation?.id || 'none');
 
-      // Delete the conversation first
+      // Delete the conversation first (this will update the store and remove from list)
       await deleteConversation(id);
-      console.log('[ConversationList] Conversation deleted');
+      console.log('[ConversationList] Conversation deleted, conversations remaining:', conversations.length - 1);
 
       // If we found a next conversation, switch to it
       if (nextConversation) {
@@ -160,12 +172,14 @@ export function ConversationList({
         console.log('[ConversationList] No next conversation, clearing messages');
         // No other conversation, clear messages (use empty session)
         // The parent component should handle clearing messages
-        onConversationSelect?.("");
+        onConversationSelect?.(null);  // Use null instead of empty string
       }
     } else {
       console.log('[ConversationList] Not active conversation, just deleting');
       // Not deleting active conversation, just delete
       await deleteConversation(id);
+      // Refresh to ensure list is up to date
+      await fetchConversations();
     }
   };
 

@@ -63,6 +63,7 @@ class Planner:
         Returns:
             执行计划
         """
+        logger.info(f"[Planner] Creating execution plan: intent={intent.intent}, destination={slots.destination}, destinations={slots.destinations}")
         steps = []
 
         if intent.intent == "query":
@@ -75,6 +76,7 @@ class Planner:
                         can_fail=True,
                         fallback_strategy=FallbackStrategy.USE_CACHE
                     ))
+                    logger.debug(f"[Planner] Added step: tool=get_weather, city={slots.destination}")
 
         elif intent.intent == "itinerary":
             # 行程规划 - 多工具
@@ -87,12 +89,14 @@ class Planner:
                         can_fail=True,
                         fallback_strategy=FallbackStrategy.USE_CACHE
                     ))
+                    logger.debug(f"[Planner] Added step: tool=get_weather, city={slots.destination}, days=3")
                 # 景点
                 steps.append(ExecutionStep(
                     tool_name="search_poi",
                     params={"keywords": "景点", "city": slots.destination},
                     can_fail=True
                 ))
+                logger.debug(f"[Planner] Added step: tool=search_poi, city={slots.destination}")
                 # 路线（如果有多个地点）
                 if slots.destinations and len(slots.destinations) > 1:
                     steps.append(ExecutionStep(
@@ -100,11 +104,15 @@ class Planner:
                         params={"destinations": slots.destinations},
                         can_fail=True
                     ))
+                    logger.debug(f"[Planner] Added step: tool=plan_route, destinations={slots.destinations}")
+
+        fallback = FallbackStrategy.CONTINUE if steps else FallbackStrategy.FAIL_FAST
+        logger.info(f"[Planner] Execution plan created: intent={intent.intent}, steps={len(steps)}, fallback_strategy={fallback.value}")
 
         return ExecutionPlan(
             intent=intent.intent,
             steps=steps,
-            fallback_strategy=FallbackStrategy.CONTINUE if steps else FallbackStrategy.FAIL_FAST
+            fallback_strategy=fallback
         )
 
     def _needs_weather(self, context: Dict[str, Any] | None) -> bool:
