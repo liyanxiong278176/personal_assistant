@@ -13,15 +13,13 @@ def test_default_config():
     assert config.enable_preference_extraction is True
 
 
-def test_config_from_env():
+def test_config_from_env(monkeypatch):
     """测试从环境变量加载"""
-    os.environ["ENABLE_TOOL_LOOP"] = "true"
-    os.environ["MAX_TOOL_ITERATIONS"] = "10"
+    monkeypatch.setenv("ENABLE_TOOL_LOOP", "true")
+    monkeypatch.setenv("MAX_TOOL_ITERATIONS", "10")
     config = AgentEnhancementConfig.load()
     assert config.enable_tool_loop is True
     assert config.max_tool_iterations == 10
-    del os.environ["ENABLE_TOOL_LOOP"]
-    del os.environ["MAX_TOOL_ITERATIONS"]
 
 
 def test_config_from_dict():

@@ -6,7 +6,6 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -55,12 +54,29 @@ class AgentEnhancementConfig:
 
     @classmethod
     def load(cls) -> "AgentEnhancementConfig":
-        """从环境变量加载配置"""
+        """从环境变量加载配置。
+
+        读取所有支持的环境变量并创建新的配置实例。
+        未设置的环境变量将使用默认值。
+
+        Returns:
+            AgentEnhancementConfig: 新的配置实例
+        """
         return cls()
 
     @classmethod
     def load_from_dict(cls, config_dict: dict) -> "AgentEnhancementConfig":
-        """从字典加载配置（用于测试）"""
+        """从字典加载配置。
+
+        仅使用字典中与数据类字段匹配的键值对。
+        未指定的字段将使用默认值。
+
+        Args:
+            config_dict: 包含配置键值对的字典
+
+        Returns:
+            AgentEnhancementConfig: 新的配置实例
+        """
         valid_fields = {
             k: v for k, v in config_dict.items()
             if k in cls.__dataclass_fields__
