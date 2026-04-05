@@ -34,6 +34,17 @@ from .coordinator import (
     create_worker,
 )
 from .intent import SlotExtractor, SlotResult, DateRange
+from .session import (
+    SessionInitializer,
+    SessionState,
+    ErrorCategory,
+    RecoveryStrategy,
+    ErrorClassifier,
+    RetryManager,
+    RetryPolicy,
+    FallbackHandler,
+    FallbackResponse,
+)
 
 __all__ = [
     "AgentError",
@@ -70,4 +81,14 @@ __all__ = [
     "SlotExtractor",
     "SlotResult",
     "DateRange",
+    # session
+    "SessionInitializer",
+    "SessionState",
+    "ErrorCategory",
+    "RecoveryStrategy",
+    "ErrorClassifier",
+    "RetryManager",
+    "RetryPolicy",
+    "FallbackHandler",
+    "FallbackResponse",
 ]
