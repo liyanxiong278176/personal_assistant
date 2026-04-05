@@ -10,6 +10,7 @@ from app.db.episodic_repo import PostgresEpisodicRepository
 from app.db.semantic_repo import ChromaDBSemanticRepository
 from app.db.vector_store import VectorStore, ChineseEmbeddings, get_chroma_client, ensure_metadata, format_search_results
 from app.db.postgres import get_recent_messages, create_message_ext, get_messages_ext, upsert_conversation_state, get_conversation_state
+from app.db.session_repo import SessionRepository, session_repo
 
 __all__ = [
     # Existing
@@ -35,4 +36,7 @@ __all__ = [
     "get_messages_ext",
     "upsert_conversation_state",
     "get_conversation_state",
+    # Phase 3
+    "SessionRepository",
+    "session_repo",
 ]

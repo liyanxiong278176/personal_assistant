@@ -349,6 +349,29 @@ class Database:
                 )
             """)
 
+            # Create session_states table (per Phase 3: 会话生命周期)
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS session_states (
+                    session_id UUID PRIMARY KEY,
+                    user_id UUID NOT NULL,
+                    conversation_id UUID NOT NULL,
+                    core_state JSONB DEFAULT '{}'::jsonb,
+                    created_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ DEFAULT NOW(),
+                    last_activity TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_session_states_user
+                ON session_states(user_id)
+            """)
+
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_session_states_conv
+                ON session_states(conversation_id)
+            """)
+
             # Fix foreign key constraints for existing tables
             # This ensures CASCADE delete works properly even for tables created before FK constraints
             await cls._ensure_foreign_key_constraints()
@@ -394,6 +417,23 @@ class Database:
         # Check and fix conversation_tags table foreign key
         await cls._fix_foreign_key(
             table_name="conversation_tags",
+            column_name="conversation_id",
+            referenced_table="conversations",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+        # Check and fix session_states table foreign keys
+        await cls._fix_foreign_key(
+            table_name="session_states",
+            column_name="user_id",
+            referenced_table="users",
+            referenced_column="id",
+            on_delete="CASCADE"
+        )
+
+        await cls._fix_foreign_key(
+            table_name="session_states",
             column_name="conversation_id",
             referenced_table="conversations",
             referenced_column="id",
