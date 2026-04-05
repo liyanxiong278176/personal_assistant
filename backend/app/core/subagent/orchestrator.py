@@ -11,7 +11,7 @@ from .agents import BaseAgent, RouteAgent, HotelAgent, WeatherAgent, BudgetAgent
 
 logger = logging.getLogger(__name__)
 
-# 复杂度阈值
+# ���杂度阈值
 COMPLEXITY_THRESHOLD = 5
 MAX_CONCURRENT_AGENTS = 5
 
@@ -33,6 +33,11 @@ class SubAgentOrchestrator:
     ):
         self.complexity_threshold = complexity_threshold
         self.max_concurrent = max_concurrent
+        logger.info(
+            f"[ORCHESTRATOR] 🎯 初始化 | "
+            f"复杂度阈值={complexity_threshold} | "
+            f"最大并发={max_concurrent}"
+        )
 
     def compute_complexity(
         self,
@@ -57,39 +62,58 @@ class SubAgentOrchestrator:
             复杂度分数 (0-10)
         """
         score = 0
+        breakdown = []
 
         # 目的地数量
         destinations = slots.get("destinations", [])
         if isinstance(destinations, list) and len(destinations) > 0:
             if len(destinations) > 1:
                 score += 2
+                breakdown.append(f"多目的地({len(destinations)}):+2")
             else:
                 score += 1
+                breakdown.append(f"单目的地:+1")
         elif slots.get("destination"):
             score += 1
+            breakdown.append("有目的地:+1")
 
         # 服务需求
         if slots.get("need_hotel"):
             score += 1
+            breakdown.append("需要酒店:+1")
         if slots.get("need_weather"):
             score += 1
+            breakdown.append("需要天气:+1")
         if slots.get("budget"):
             score += 1
+            breakdown.append("有预算要求:+1")
 
         # 天数
         days = slots.get("days", 1)
         if days > 3:
             score += 1
+            breakdown.append(f"天数({days}>3):+1")
         elif days > 1:
             score += 0.5
+            breakdown.append(f"天数({days}):+0.5")
 
         # 上下文复杂度
         if session_state:
             history_len = len(getattr(session_state, "history", []))
             if history_len > 5:
                 score += 1
+                breakdown.append(f"历史上下文({history_len}):+1")
 
-        return min(int(score), 10)
+        final_score = min(int(score), 10)
+
+        logger.debug(
+            f"[ORCHESTRATOR] 📊 复杂度计算 | "
+            f"明细={breakdown} | "
+            f"原始={score} | "
+            f"最终={final_score}"
+        )
+
+        return final_score
 
     def should_spawn_subagents(
         self,
@@ -111,13 +135,14 @@ class SubAgentOrchestrator:
 
         if should_spawn:
             logger.info(
-                f"[ORCHESTRATOR] 复杂度={complexity} >= 阈值={self.complexity_threshold}，"
-                f"启用多Agent模式"
+                f"[ORCHESTRATOR] ✨ 启用多Agent模式 | "
+                f"复杂度={complexity} >= 阈值={self.complexity_threshold} | "
+                f"slots_keys={list(slots.keys())}"
             )
         else:
-            logger.info(
-                f"[ORCHESTRATOR] 复杂度={complexity} < 阈值={self.complexity_threshold}，"
-                f"使用单Agent模式"
+            logger.debug(
+                f"[ORCHESTRATOR] 🔧 使用单Agent模式 | "
+                f"复杂度={complexity} < 阈值={self.complexity_threshold}"
             )
 
         return should_spawn
@@ -148,6 +173,11 @@ class SubAgentOrchestrator:
         if agent_types and AgentType.BUDGET not in agent_types:
             agent_types.append(AgentType.BUDGET)
 
+        logger.debug(
+            f"[ORCHESTRATOR] 🎯 确定Agent类型 | "
+            f"types={[t.value for t in agent_types]}"
+        )
+
         return agent_types
 
     async def spawn_subagents(
@@ -175,8 +205,11 @@ class SubAgentOrchestrator:
         spawn_depth = getattr(parent_session, "spawn_depth", 0) + 1
 
         logger.info(
-            f"[ORCHESTRATOR] 派生 {len(agent_types)} 个子Agent | "
-            f"parent={parent_id} | depth={spawn_depth}"
+            f"[ORCHESTRATOR] 🚀 派生子Agent | "
+            f"数量={len(agent_types)} | "
+            f"类型={[t.value for t in agent_types]} | "
+            f"parent={parent_id} | "
+            f"depth={spawn_depth}"
         )
 
         # 创建会话
@@ -189,6 +222,8 @@ class SubAgentOrchestrator:
             )
             sessions.append(session)
 
+        logger.debug(f"[ORCHESTRATOR] 📦 创建会话 | session_ids={[s.session_id for s in sessions]}")
+
         # 创建Agent并执行
         tasks = []
         for session in sessions:
@@ -196,6 +231,7 @@ class SubAgentOrchestrator:
             tasks.append(agent.execute(slots))
 
         # 并行执行
+        logger.info(f"[ORCHESTRATOR] ⏳ 并行执行开始 | 任务数={len(tasks)}")
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # 更新会话结果
@@ -210,10 +246,17 @@ class SubAgentOrchestrator:
         # 记录统计
         completed = sum(1 for s in sessions if s.status == SubAgentStatus.COMPLETED)
         failed = sum(1 for s in sessions if s.status == SubAgentStatus.FAILED)
+        timeout = sum(1 for s in sessions if s.status == SubAgentStatus.TIMEOUT)
+
+        total_time = sum(s.execution_time or 0 for s in sessions)
 
         logger.info(
-            f"[ORCHESTRATOR] 子Agent执行完成 | "
-            f"成功={completed} | 失败={failed}"
+            f"[ORCHESTRATOR] ✅ 子Agent执行完成 | "
+            f"总计={len(sessions)} | "
+            f"成功={completed} | "
+            f"失败={failed} | "
+            f"超时={timeout} | "
+            f"总耗时={total_time:.3f}s"
         )
 
         return sessions
@@ -240,6 +283,13 @@ class SubAgentOrchestrator:
         }
 
         cls = agent_classes.get(session.agent_type, RouteAgent)
+
+        logger.debug(
+            f"[ORCHESTRATOR] 🔨 创建Agent | "
+            f"type={session.agent_type.value} | "
+            f"class={cls.__name__}"
+        )
+
         return cls(session.agent_type, session, llm_client)
 
     async def spawn_subagents_auto(
@@ -259,12 +309,13 @@ class SubAgentOrchestrator:
             子Agent会话列表
         """
         if not self.should_spawn_subagents(slots, parent_session):
+            logger.debug("[ORCHESTRATOR] ℹ️ 复杂度不足，跳过派生")
             return []
 
         agent_types = self._determine_agent_types(slots)
 
         if not agent_types:
-            logger.warning("[ORCHESTRATOR] 无法确定Agent类型")
+            logger.warning("[ORCHESTRATOR] ⚠️ 无法确定Agent类型，跳过派生")
             return []
 
         return await self.spawn_subagents(
