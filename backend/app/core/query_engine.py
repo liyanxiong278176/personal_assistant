@@ -324,11 +324,7 @@ class QueryEngine:
             tools.append({
                 "name": meta.name,
                 "description": meta.description,
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "required": []
-                }
+                "parameters": tool.get_parameters()
             })
         return tools
 
@@ -655,10 +651,13 @@ class QueryEngine:
                 errors = [k for k, v in results.items() if isinstance(v, dict) and "error" in v]
                 if errors:
                     logger.warning(f"[TOOLS:LOOP] ⚠️ 部分工具失败: {errors}")
+                    # 工具失败时也将错误结果返回给 LLM，让它决定是否继续
+                    # 不要 break，继续循环
 
             except Exception as e:
-                logger.error(f"[TOOLS:LOOP] ❌ 迭代 {iteration} 失败: {e}")
-                break
+                logger.error(f"[TOOLS:LOOP] ❌ 迭代 {iteration} 失败: {e}", exc_info=True)
+                # 发生错误时也返回给 LLM，而不是直接退出
+                pass
 
         logger.info(
             f"[TOOLS:LOOP] 🏁 循环完成 | 迭代={iteration} | "
