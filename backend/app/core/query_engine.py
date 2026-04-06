@@ -2026,8 +2026,11 @@ class QueryEngine:
                 # 语义仓储
                 self._semantic_repo = ChromaDBSemanticRepository(self._vector_store)
 
-                # 混合检索器
-                self._hybrid_retriever = HybridRetriever(self._semantic_repo)
+                # 混合检索器（复用 VectorStore 的 embedding 实例，避免重复加载模型）
+                self._hybrid_retriever = HybridRetriever(
+                    self._semantic_repo,
+                    embedding_client=self._vector_store.embedding_function
+                )
 
                 # 记忆层级
                 self._memory_hierarchy = MemoryHierarchy()
