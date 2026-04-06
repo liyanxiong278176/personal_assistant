@@ -54,13 +54,46 @@ class ChineseEmbeddings:
 
     Uses paraphrase-multilingual-MiniLM-L12-v2 for multilingual support.
     Per 03-RESEARCH.md: Start with local model, migrate to DashScope API if needed.
+
+    单例模式：确保整个应用只加载一次模型，避免重复的 HuggingFace 检查。
+    模型缓存到项目目录 ./data/models/ 下，而非系统缓存。
     """
 
+    _model_instance = None
+    _model_lock = None
+    _cache_folder = None
+
     def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2"):
+        if ChineseEmbeddings._model_instance is not None:
+            self.model = ChineseEmbeddings._model_instance
+            logger.debug(f"[VectorStore] Reusing cached embedding model: {model_name}")
+            return
+
         try:
             from sentence_transformers import SentenceTransformer
-            self.model = SentenceTransformer(model_name)
-            logger.info(f"[VectorStore] Loaded embedding model: {model_name}")
+            import threading
+
+            # 设置项目本地缓存目录
+            if ChineseEmbeddings._cache_folder is None:
+                cache_path = Path("./data/models")
+                cache_path.mkdir(parents=True, exist_ok=True)
+                ChineseEmbeddings._cache_folder = str(cache_path)
+                logger.info(f"[VectorStore] Model cache directory: {cache_path.absolute()}")
+
+            # 双重检查锁定
+            if ChineseEmbeddings._model_lock is None:
+                ChineseEmbeddings._model_lock = threading.Lock()
+
+            with ChineseEmbeddings._model_lock:
+                if ChineseEmbeddings._model_instance is None:
+                    logger.info(f"[VectorStore] Loading embedding model: {model_name}")
+                    ChineseEmbeddings._model_instance = SentenceTransformer(
+                        model_name,
+                        cache_folder=ChineseEmbeddings._cache_folder
+                    )
+                    logger.info(f"[VectorStore] Embedding model cached for reuse")
+
+            self.model = ChineseEmbeddings._model_instance
         except ImportError:
             logger.warning("[VectorStore] sentence-transformers not installed, using mock embeddings")
             self.model = None
