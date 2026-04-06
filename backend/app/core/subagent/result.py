@@ -11,6 +11,7 @@ class AgentType(str, Enum):
     HOTEL = "hotel"
     WEATHER = "weather"
     BUDGET = "budget"
+    TRANSPORT = "transport"  # D1-5 修复：添加交通Agent（高铁、租车等）
 
 
 # 工具权限映射 - 放在这里避免循环导入
@@ -19,6 +20,7 @@ AGENT_TOOL_PERMISSIONS = {
     AgentType.HOTEL: ["search_hotel", "get_hotel_detail"],
     AgentType.WEATHER: ["get_weather", "get_forecast"],
     AgentType.BUDGET: ["calculate_budget", "get_price_estimate"],
+    AgentType.TRANSPORT: ["search_train", "search_flight", "get_ticket_price", "search_car_rental"],  # D1-5 修复
 }
 
 

@@ -443,6 +443,11 @@ class LLMClient:
                             except json.JSONDecodeError:
                                 arguments = {}
 
+                            logger.info(
+                                f"[LLMClient] Tool call parsed: name={call_data['name']}, "
+                                f"arguments={arguments}, raw_args={call_data.get('arguments', '')[:100]}"
+                            )
+
                             yield ToolCall(
                                 id=call_data["id"],
                                 name=call_data["name"],

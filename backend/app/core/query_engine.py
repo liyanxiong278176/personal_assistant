@@ -33,6 +33,15 @@ from .preferences.extractor import PreferenceExtractor
 from .session import SessionInitializer
 from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
 from .metrics.collector import global_collector
+from .security.injection_guard import InjectionGuard as SecurityGuard, PolicyDecision
+from .security.authorization import get_auth_manager, AuthorizationError  # UC4-1修复
+from .security.auditor import get_security_auditor, SecurityEventType  # 安全审计
+from .observability.tracing import get_tracing_manager, TraceContext  # UC5-1修复
+from .token_budget import TokenBudgetManager, get_token_budget_manager, BudgetAction  # P1修复: Token预算管理
+
+# === 集成: 灰度放量、会话快照、安全审计 ===
+from .canary import get_canary_controller
+from .session_snapshot import get_snapshot_manager
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +174,12 @@ class QueryEngine:
         self._custom_system_prompt = system_prompt  # 外部传入的可选覆盖
         self._tool_registry = tool_registry or global_registry
         self._tool_executor = ToolExecutor(self._tool_registry)
+        # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
+        self._history_lock = asyncio.Lock()  # 会话访问锁
+        self._session_locks: Dict[str, asyncio.Lock] = {}  # 单会话互斥锁
+        self._session_semaphore = asyncio.Semaphore(100)  # UC3-2: 并发数限制100
+        self._session_timestamps: Dict[str, float] = {}  # UC3-1: 会话时间戳，用于清理
 
         # === PromptBuilder 初始化，参考 Claude Code asSystemPrompt 模式 ===
         self._prompt_builder = self._init_prompt_builder()
@@ -203,6 +217,9 @@ class QueryEngine:
             llm_client=self.llm_client,
         )
 
+        # === 安全守卫初始化（PII检测、违规内容检测）===
+        self._security_guard = SecurityGuard()
+
         # === 会话生命周期组件初始化 ===
         self._session_initializer = SessionInitializer(
             config_path=config_path,
@@ -214,6 +231,18 @@ class QueryEngine:
 
         # === Phase 4: 多Agent系统初始化 ===
         self._subagent_orchestrator = SubAgentOrchestrator()
+
+        # === P1修复: Token预算管理 ===
+        self._token_budget = get_token_budget_manager()
+
+        # === 集成: 灰度放量 ===
+        self._canary = get_canary_controller()
+
+        # === 集成: 会话快照 ===
+        self._snapshot_manager = get_snapshot_manager()
+
+        # === 集成: 安全审计 ===
+        self._auditor = get_security_auditor()
 
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
@@ -391,6 +420,7 @@ class QueryEngine:
         """从数据库加载对话历史到内存
 
         确保每次新请求都能看到之前的历史（不依赖 WebSocket 长连接状态）。
+        D3-1 修复：添加总字符数限制，防止超长文档占用过多上下文。
 
         Args:
             conversation_id: Conversation identifier
@@ -405,14 +435,41 @@ class QueryEngine:
         if conversation_id in self._conversation_history:
             return self._conversation_history[conversation_id]
 
+        # D3-1 修复：配置历史加载限制
+        MAX_HISTORY_CHARS = 50000  # 最大5万字符（约12500 tokens）
+        MAX_MESSAGES = 50  # 最多50条消息
+
         try:
             from uuid import UUID
             conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
-            messages = await self._message_repo.get_by_conversation(conv_uuid, limit=20)
-            loaded = [{"role": m.role, "content": m.content} for m in reversed(messages)]
+            messages = await self._message_repo.get_by_conversation(conv_uuid, limit=MAX_MESSAGES)
+
+            # 转换为消息格式并限制总字符数
+            loaded = []
+            total_chars = 0
+            for m in reversed(messages):
+                msg_chars = len(m.content)
+                # 检查添加此消息是否会超过字符限制
+                if total_chars + msg_chars > MAX_HISTORY_CHARS:
+                    # 如果已经有一些消息，则停止添加
+                    if loaded:
+                        logger.info(
+                            f"[MEMORY] 📥 历史加载达到字符限制 | "
+                            f"conv={conversation_id} | 已加载={len(loaded)}条 | "
+                            f"字符数={total_chars}/{MAX_HISTORY_CHARS}"
+                        )
+                        break
+                    # 如果还没有消息，至少添加最近一条
+                    loaded.append({"role": m.role, "content": m.content[:MAX_HISTORY_CHARS]})
+                    total_chars = len(loaded[-1]["content"])
+                else:
+                    loaded.append({"role": m.role, "content": m.content})
+                    total_chars += msg_chars
+
             self._conversation_history[conversation_id] = loaded
             logger.info(
-                f"[MEMORY] 📥 从数据库加载历史 | conv={conversation_id} | 消息数={len(loaded)}"
+                f"[MEMORY] 📥 从数据库加载历史 | conv={conversation_id} | "
+                f"消息数={len(loaded)} | 字符数={total_chars}"
             )
             return loaded
         except Exception as e:
@@ -475,8 +532,43 @@ class QueryEngine:
             self._initialized_sessions.discard(conversation_id)
             logger.info(f"[MEMORY] 🗑️ 清空会话初始化状态 | conv={conversation_id}")
 
+        # UC3-1修复: 清理会话锁
+        if conversation_id in self._session_locks:
+            del self._session_locks[conversation_id]
+
         # 重置重试状态
         self._session_initializer.retry_manager.reset(conversation_id)
+
+        # P1修复: 重置Token预算
+        self._token_budget.reset_budget(conversation_id)
+
+    # UC3-1修复: 会话隔离辅助方法
+    def _get_session_lock(self, conversation_id: str) -> asyncio.Lock:
+        """获取单会话锁，确保同一会话的操作串行化"""
+        if conversation_id not in self._session_locks:
+            self._session_locks[conversation_id] = asyncio.Lock()
+        return self._session_locks[conversation_id]
+
+    def _update_session_timestamp(self, conversation_id: str):
+        """更新会话时间戳，用于清理过期会话"""
+        self._session_timestamps[conversation_id] = time.time()
+
+    def _cleanup_inactive_sessions(self, max_age_seconds: int = 3600):
+        """清理不活跃会话，防止内存泄漏"""
+        current_time = time.time()
+        to_remove = [
+            cid for cid, ts in self._session_timestamps.items()
+            if current_time - ts > max_age_seconds
+        ]
+        for cid in to_remove:
+            if cid in self._conversation_history:
+                del self._conversation_history[cid]
+            if cid in self._session_locks:
+                del self._session_locks[cid]
+            if cid in self._session_timestamps:
+                del self._session_timestamps[cid]
+            logger.info(f"[MEMORY] 🧹 清理不活跃会话 | conv={cid}")
+        return len(to_remove)
 
     def _add_to_working_memory(
         self,
@@ -866,6 +958,16 @@ class QueryEngine:
         try:
             logger.info(f"[MEMORY:Phase2] 🔄 开始异步记忆更新 | conv={conversation_id}")
 
+            # === PII 清洗（D4-2/D4-5 修复）===
+            # 在持久化之前清洗PII，防止敏感信息被存储
+            user_input_sanitized, pii_result = self._security_guard.redact_pii(user_input)
+            assistant_response_sanitized, _ = self._security_guard.redact_pii(assistant_response)
+
+            if pii_result["detected"]:
+                logger.warning(
+                    f"[MEMORY:Phase2] ⚠️ PII已清洗 | types={[p['type'] for p in pii_result['details']]}"
+                )
+
             # === 步骤 1: 持久化消息到 PostgreSQL ===
             try:
                 from app.core.memory.persistence import Message as PersistenceMessage
@@ -881,25 +983,25 @@ class QueryEngine:
                     if not existing:
                         await create_conversation_ext(conn, conv_uuid, "对话")
 
-                # 保存用户消息
+                # 保存用户消息（使用PII清洗后的内容）
                 user_msg = PersistenceMessage(
                     id=uuid4(),
                     conversation_id=conv_uuid,
                     user_id=user_id or "unknown",
                     role="user",
-                    content=user_input
+                    content=user_input_sanitized
                 )
 
                 await self._persistence_manager.persist_message(user_msg)
                 logger.debug(f"[MEMORY:Phase2] ✓ 用户消息已入队持久化 | conv={conversation_id}")
 
-                # 保存助手响应
+                # 保存助手响应（使用PII清洗后的内容）
                 assistant_msg = PersistenceMessage(
                     id=uuid4(),
                     conversation_id=conv_uuid,
                     user_id=user_id or "unknown",
                     role="assistant",
-                    content=assistant_response,
+                    content=assistant_response_sanitized,
                     tokens=len(assistant_response) // 4  # 粗略估算
                 )
 
@@ -916,10 +1018,10 @@ class QueryEngine:
 
                 embedder = ChineseEmbeddings()
 
-                # 检查是否包含偏好/意图信息
-                if self._should_save_as_semantic(user_input, assistant_response):
-                    # 提取用户偏好
-                    memory_content = f"用户: {user_input}\n助手: {assistant_response[:100]}..."
+                # 检查是否包含偏好/意图信息（使用清洗后的输入）
+                if self._should_save_as_semantic(user_input_sanitized, assistant_response_sanitized):
+                    # 提取用户偏好（使用清洗后的内容）
+                    memory_content = f"用户: {user_input_sanitized}\n助手: {assistant_response_sanitized[:100]}..."
 
                     memory = MemoryItem(
                         content=memory_content,
@@ -945,20 +1047,20 @@ class QueryEngine:
             except Exception as e:
                 logger.error(f"[MEMORY:Phase2] ❌ 语义记忆保存失败: {e}")
 
-            # === 步骤 3: 更新情景记忆 ===
+            # === 步骤 3: 更新情景记忆（使用清洗后的内容）===
             try:
                 from app.core.memory.hierarchy import MemoryItem, MemoryLevel
 
                 episodic_memory = MemoryItem(
-                    content=f"对话摘要: {user_input[:100]}... → {assistant_response[:100]}...",
+                    content=f"对话摘要: {user_input_sanitized[:100]}... → {assistant_response_sanitized[:100]}...",
                     level=MemoryLevel.EPISODIC,
                     memory_type=MemoryType.STATE,
                     importance=0.5,
                     metadata={
                         "user_id": user_id or "unknown",
                         "conversation_id": conversation_id,
-                        "last_message": user_input,
-                        "last_response": assistant_response[:200]
+                        "last_message": user_input_sanitized,
+                        "last_response": assistant_response_sanitized[:200]
                     }
                 )
 
@@ -1000,6 +1102,24 @@ class QueryEngine:
         # 简单规则：如果包含目的地、预算、偏好等关键词，则保存
         keywords = ["去", "想", "预算", "喜欢", "推荐", "计划", "希望"]
         return any(kw in user_input for kw in keywords) or any(kw in response for kw in keywords)
+
+    async def _generate_context_summary(self, conversation_id: str) -> str:
+        """生成上下文摘要用于快照
+
+        Args:
+            conversation_id: 会话ID
+
+        Returns:
+            上下文摘要字符串
+        """
+        messages = self._conversation_history.get(conversation_id, [])
+        if not messages:
+            return ""
+        recent = messages[-5:]
+        return (
+            f"轮次: {len(messages)}, "
+            f"最新: {recent[-1].get('content', '')[:50] if recent else ''}"
+        )
 
     async def _process_single_attempt(
         self,
@@ -1044,6 +1164,39 @@ class QueryEngine:
             f"耗时: {elapsed_ms:.2f}ms | LLM已配置"
         )
 
+        # ===== 阶段 0.5: 安全检查（D4-3/D4-4 修复）=====
+        stage_start = time.perf_counter()
+        logger.info(f"[WORKFLOW:0_SECURITY] ⏳ 开始 | conv={conversation_id}")
+
+        # 检查注入攻击和违规内容
+        security_decision = self._security_guard.check(user_input)
+        if security_decision.value == "deny":
+            elapsed_ms = (time.perf_counter() - stage_start) * 1000
+            logger.warning(
+                f"[WORKFLOW:0_SECURITY] ❌ 拒�� | conv={conversation_id} | "
+                f"耗时: {elapsed_ms:.2f}ms | 原因: 违规内容/注入攻击"
+            )
+            # 返回安全提示响应
+            return (
+                "抱歉，您的请求包含违规内容或潜在安全风险，无法处理。请避免涉及非法活动、暴力、色情等敏感话题。",
+                None,  # intent_result
+                {}      # tool_results
+            )
+
+        # 检测PII并记录警告（不阻止，但记录）
+        pii_result = self._security_guard.detect_pii(user_input)
+        if pii_result["detected"]:
+            logger.warning(
+                f"[WORKFLOW:0_SECURITY] ⚠️ PII检测到 | conv={conversation_id} | "
+                f"types: {[p['type'] for p in pii_result['details']]}"
+            )
+
+        elapsed_ms = (time.perf_counter() - stage_start) * 1000
+        logger.info(
+            f"[WORKFLOW:0_SECURITY] ✅ 完成 | conv={conversation_id} | "
+            f"耗时: {elapsed_ms:.2f}ms"
+        )
+
         # ===== 阶段 1: 意图 & 槽位识别 =====
         stage_start = time.perf_counter()
         logger.info(
@@ -1062,6 +1215,27 @@ class QueryEngine:
             f"方法={intent_result.method} | "
             f"目的地={slots.destination or '无'} | 日期={slots.start_date or '无'}"
         )
+
+        # ===== D2-1 修复：槽位完整性检查 =====
+        # 对于itinerary意图，检查必填槽位是否完整
+        if intent_result.intent == "itinerary" and not slots.has_required_slots:
+            logger.info(f"[WORKFLOW:1_INTENT] ⚠️ 槽位缺失，需要追问 | conv={conversation_id}")
+
+            # 生成追问消息
+            missing_info = []
+            dest = slots.destinations if slots.destinations else slots.destination
+            if not dest:
+                missing_info.append("目的地")
+            if not slots.days and not (slots.start_date and slots.end_date):
+                missing_info.append("出行日期或天数")
+
+            if missing_info:
+                clarification = (
+                    f"为了帮您规划行程，我还需要了解一些信息：\n"
+                    f"• {', '.join(missing_info)}\n\n"
+                    f"请告诉我这些信息，我会为您生成详细的行程方案。"
+                )
+                return (clarification, intent_result, {})
 
         # ===== 阶段 2: 消息基础存储 =====
         stage_start = time.perf_counter()
@@ -1264,23 +1438,54 @@ class QueryEngine:
         total_start = time.perf_counter()
         self._current_message = user_input
 
+        # UC5-1修复: 初始化追踪
+        tracing = get_tracing_manager()
+        trace_ctx = tracing.start_trace(conversation_id, user_id)
+        span_total = trace_ctx.create_span("process", "total")
+
         logger.info(
             f"[WORKFLOW:STREAM] 🚀 ====== 流式工作流程开始 ====== | "
             f"conv={conversation_id} | "
-            f"user={user_id or 'anonymous'}"
+            f"user={user_id or 'anonymous'} | "
+            f"trace_id={trace_ctx.trace_id}"
         )
 
         # ===== 阶段 0: 初始化检查 =====
         if self.llm_client is None:
             error = "LLM客户端未配置"
             logger.error(f"[WORKFLOW:STREAM] ❌ 失败 | {error}")
+            trace_ctx.end_span(span_total, success=False, error=error)
             raise AgentError(error, level=DegradationLevel.LLM_DEGRADED)
+
+        # === Step 0.9: 安全审计 ===
+        audit_result = self._security_guard.check(user_input)
+        if audit_result == PolicyDecision.DENY:
+            logger.warning(
+                f"[QueryEngine] 安全拦截 | conv={conversation_id} | "
+                f"message={user_input[:50]}..."
+            )
+            self._auditor.record(
+                SecurityEventType.INJECTION_DETECTED,
+                user_id=user_id or "anonymous",
+                conversation_id=conversation_id,
+                message_preview=user_input[:200],
+                severity="HIGH"
+            )
+            yield "您的输入包含敏感内容，请重新输入。"
+            return
+
+        # UC5-1修复: 追踪Step1
+        span_step1 = trace_ctx.create_span("Step1_intent", "Step1_intent")
 
         # ===== 阶段 1: 意图 & 槽位识别 =====
         logger.info(f"[WORKFLOW:STREAM:1_INTENT] ⏳ 开始 | 输入: {user_input[:50]}...")
 
         intent_result = await self._intent_classifier.classify(user_input)
         slots = self._slot_extractor.extract(user_input)
+
+        step1_latency = (time.perf_counter() - total_start) * 1000
+        trace_ctx.end_span(span_step1, success=True)
+        tracing.check_and_alert(trace_ctx, "Step1_intent", step1_latency)
 
         logger.info(
             f"[WORKFLOW:STREAM:1_INTENT] ✅ 完成 | "
@@ -1307,6 +1512,24 @@ class QueryEngine:
         # ===== 阶段 2: 消息基础存储 =====
         logger.info(f"[WORKFLOW:STREAM:2_STORAGE] ⏳ 开始")
 
+        # === Step 2.5: 恢复会话快照 ===
+        snapshot = await self._snapshot_manager.restore(conversation_id)
+        if snapshot:
+            logger.info(
+                f"[QueryEngine] 恢复会话快照 | conv={conversation_id} | "
+                f"version={snapshot.version}"
+            )
+            # 快照包含 messages, preferences, slots
+            if snapshot.messages:
+                # 合并快照消息到历史
+                existing = self._conversation_history.get(conversation_id, [])
+                for msg in snapshot.messages:
+                    # 通过内容和角色判断是否已存在
+                    msg_content = msg.get("content", "")
+                    msg_role = msg.get("role", "user")
+                    if not any(m.get("content") == msg_content and m.get("role") == msg_role for m in existing):
+                        self._add_to_working_memory(conversation_id, msg_role, msg_content)
+
         # 每次请求都从数据库加载历史（不依赖 WebSocket 长连接）
         await self._ensure_phase2_initialized()
         if self._phase2_enabled:
@@ -1316,9 +1539,52 @@ class QueryEngine:
         self._add_to_working_memory(conversation_id, "user", user_input)
         history = self._get_conversation_history(conversation_id)
 
+        # UC6-1修复: 长会话上下文压缩检查
+        history_chars = sum(len(m.get("content", "")) for m in history)
+        # 约100K tokens ≈ 400K字符
+        if history_chars > 400000 and len(history) > 20:
+            logger.warning(
+                f"[WORKFLOW:STREAM:2_STORAGE] ⚠️ 长会话检测 | "
+                f"历史字符={history_chars} | 消息数={len(history)} | 触发压缩"
+            )
+            history = await self.context_guard.force_compress(history)
+            self._conversation_history[conversation_id] = history
+            logger.info(
+                f"[WORKFLOW:STREAM:2_STORAGE] ✅ 压缩完成 | "
+                f"压缩后消息数={len(history)}"
+            )
+
         logger.info(
             f"[WORKFLOW:STREAM:2_STORAGE] ✅ 完成 | 历史: {len(history)} 条"
         )
+
+        # ===== P1修复: Token预算检查 =====
+        estimated_tokens = len(user_input) + sum(len(m.get("content", "")) for m in history)
+        budget_result = await self._token_budget.check_budget(conversation_id, estimated_tokens)
+        logger.info(
+            f"[WORKFLOW:STREAM:2_BUDGET] ⏳ Token预算检查 | "
+            f"action={budget_result.action.value} | "
+            f"预算使用={budget_result.budget_percent:.0%}"
+        )
+
+        if budget_result.action == BudgetAction.REJECT:
+            # 拒绝请求
+            logger.warning(
+                f"[WORKFLOW:STREAM:2_BUDGET] 🚨 Token预算超限 | "
+                f"conv={conversation_id} | "
+                f"拒绝请求"
+            )
+            yield "Token预算超限，请简化请求或开启新会话。"
+            return
+        elif budget_result.action == BudgetAction.COMPRESS:
+            # 强制压缩上下文
+            logger.warning(
+                f"[WORKFLOW:STREAM:2_BUDGET] ⚠️ 强制压缩 | "
+                f"conv={conversation_id}"
+            )
+            history = await self._token_budget.enforce_limit(conversation_id, history)
+            self._conversation_history[conversation_id] = history
+            clean_history = list(history)  # 更新clean_history
 
         # ===== 阶段 3: 上下文前置清理 =====
         logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ⏳ 开始")
@@ -1326,6 +1592,9 @@ class QueryEngine:
         history = await self.context_guard.pre_process(history)
 
         logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成")
+
+        # UC5-1修复: 追踪Step4
+        span_step4 = trace_ctx.create_span("Step4_tools", "Step4_tools")
 
         # ===== 阶段 4: 工具调用决策（统一复杂度判断） =====
         tool_results: Dict[str, Any] = {}
@@ -1385,6 +1654,11 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:4_TOOLS] ✅ 完成 | 工具调用={len(tool_results)}次"
         )
 
+        # UC5-1修复: Step4追踪完成
+        step4_latency = (time.perf_counter() - total_start) * 1000 - step1_latency
+        trace_ctx.end_span(span_step4, success=True)
+        tracing.check_and_alert(trace_ctx, "Step4_tools", step4_latency)
+
         # ===== 阶段 5: 上下文构建 =====
         logger.info(f"[WORKFLOW:STREAM:5_CONTEXT] ⏳ 开始")
 
@@ -1395,6 +1669,9 @@ class QueryEngine:
         logger.info(
             f"[WORKFLOW:STREAM:5_CONTEXT] ✅ 完成 | 上下文长度={len(context)}字符"
         )
+
+        # UC5-1修复: 追踪Step6
+        span_step6 = trace_ctx.create_span("Step6_llm", "Step6_llm")
 
         # ===== 阶段 6: 流式LLM生成响应 =====
         logger.info(f"[WORKFLOW:STREAM:6_LLM] ⏳ 开始 | 流式输出")
@@ -1420,6 +1697,11 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:6_LLM] ✅ 完成 | chunk数={chunk_count} | 响应长度={len(full_response)}"
         )
 
+        # UC5-1修复: Step6追踪完成
+        step6_latency = (time.perf_counter() - total_start) * 1000 - step1_latency - step4_latency
+        trace_ctx.end_span(span_step6, success=True)
+        tracing.check_and_alert(trace_ctx, "Step6_llm", step6_latency)
+
         # 更新工作记忆
         self._add_to_working_memory(conversation_id, "assistant", full_response)
 
@@ -1443,8 +1725,31 @@ class QueryEngine:
 
         logger.info(f"[WORKFLOW:STREAM:8_MEMORY] ✅ 完成(后台)")
 
+        # === Step 8.5: 创建会话快照 ===
+        await self._snapshot_manager.create_snapshot(
+            conversation_id=conversation_id,
+            messages=list(self._conversation_history.get(conversation_id, [])),
+            preferences=self._user_preferences.get(conversation_id, {}) if hasattr(self, '_user_preferences') else {},
+            slots=self._current_slots.get(conversation_id, {}) if hasattr(self, '_current_slots') else {},
+            context_summary=await self._generate_context_summary(conversation_id)
+        )
+
+        # P1修复: 记录Token使用
+        estimated_input_tokens = len(user_input) // 4 + len(str(context)) // 4 if context else len(user_input) // 4
+        estimated_output_tokens = len(full_response) // 4
+        await self._token_budget.record_usage(conversation_id, estimated_input_tokens, is_input=True)
+        await self._token_budget.record_usage(conversation_id, estimated_output_tokens, is_input=False)
+        logger.info(
+            f"[WORKFLOW:STREAM:8_BUDGET] ✅ Token使用记录 | "
+            f"input≈{estimated_input_tokens} | output≈{estimated_output_tokens}"
+        )
+
         # 总耗时统计
         total_time = (time.perf_counter() - total_start) * 1000
+
+        # UC5-1修复: 结束总追踪
+        trace_ctx.end_span(span_total, success=True)
+        tracing.end_trace(trace_ctx)
 
         log_workflow_summary(
             conversation_id=conversation_id,
@@ -1456,7 +1761,8 @@ class QueryEngine:
 
         logger.info(
             f"[WORKFLOW:STREAM] 🏁 ====== 流式工作流程完成 ====== | "
-            f"conv={conversation_id} | 总耗时={total_time:.2f}ms"
+            f"conv={conversation_id} | 总耗时={total_time:.2f}ms | "
+            f"trace_id={trace_ctx.trace_id}"
         )
 
     async def process(
@@ -1488,68 +1794,118 @@ class QueryEngine:
         total_start = time.perf_counter()
         retry_manager = self._session_initializer.retry_manager
 
-        # ===== Phase 3 Step 0: 会话初始化（仅首次） =====
-        if conversation_id not in self._initialized_sessions:
-            logger.info(
-                f"[WORKFLOW:STEP_0] 🚀 会话初始化 | "
-                f"conv={conversation_id} | user={user_id or 'anonymous'}"
-            )
-            try:
-                # 如果没有提供 user_id，生成一个临时的
-                if user_id is None:
-                    from uuid import uuid4
-                    user_id = str(uuid4())
-                    logger.info(f"[WORKFLOW:STEP_0] 生成临时用户ID: {user_id}")
+        # UC3-2修复: 并发数限制
+        await self._session_semaphore.acquire()
 
-                session_state = await self._session_initializer.initialize(
-                    conversation_id=conversation_id,
-                    user_id=user_id
-                )
+        # UC3-1修复: 初始化锁引用（用于finally释放）
+        session_lock = None
 
-                # 标记会话已初始化
-                self._initialized_sessions.add(conversation_id)
+        try:
+            # UC3-1修复: 获取会话锁，确保同一会话的操作串行化
+            session_lock = self._get_session_lock(conversation_id)
+            await session_lock.acquire()
 
-                logger.info(
-                    f"[WORKFLOW:STEP_0] ✅ 会话初始化完成 | "
-                    f"session={session_state.session_id} | "
-                    f"context_window={session_state.context_window_size}"
-                )
-            except Exception as e:
-                logger.warning(f"[WORKFLOW:STEP_0] ⚠️ 初始化失败（非致命）: {e}")
-                # 初始化失败不阻止工作流程继续
-
-        # ===== 主循环（最多5次重试） =====
-        while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
-            try:
-                # ===== 执行流式工作流程 =====
-                async for chunk in self._process_streaming_attempt(
-                    user_input, conversation_id, user_id
-                ):
-                    yield chunk
-                return
-
-            except Exception as e:
-                should_retry, count = retry_manager.should_retry(conversation_id, e)
-
-                if not should_retry:
-                    # 不允许重试，返回降级响应
-                    logger.error(f"[WORKFLOW] ❌ 不可恢复错误: {e}")
-                    fallback = self._session_initializer.fallback_handler.get_fallback(e)
-                    yield fallback.message
+            # UC4-1修复: 越权校验 - 确保用户只能访问自己的会话
+            auth_manager = get_auth_manager()
+            if user_id:
+                try:
+                    auth_manager.validate_access(conversation_id, user_id)
+                except AuthorizationError as auth_err:
+                    logger.warning(
+                        f"[WORKFLOW] 🚨 越权访问拒绝 | "
+                        f"conv={conversation_id[:16]}... | user={user_id[:8]}..."
+                    )
+                    yield "抱歉，您没有权限访问此会话。"
+                    session_lock.release()
+                    self._session_semaphore.release()
                     return
 
-                # 允许重试，应用退避延迟
-                logger.info(f"[WORKFLOW] 🔄 重试 ({count}/{self._max_total_retries}) | error={type(e).__name__}")
-                await retry_manager.apply_backoff(count)
+            # UC3-1修复: 更新会话时间戳
+            self._update_session_timestamp(conversation_id)
 
-        # 超过最大重试次数
-        last_error = retry_manager.get_last_error(conversation_id)
-        if last_error:
-            logger.error(f"[WORKFLOW] ❌ 超过最大重试次数: {last_error}")
-            fallback = self._session_initializer.fallback_handler.get_fallback(last_error)
-            yield fallback.message
+            # === Step 0.5: 灰度版本决策 ===
+            canary_result = self._canary.decide_version(user_id or conversation_id)
+            if canary_result.is_canary:
+                logger.info(
+                    f"[QueryEngine] 灰度版本 | version={canary_result.version} | "
+                    f"user={user_id[:8] if user_id else 'anonymous'}"
+                )
+                # 设置追踪属性
+                tracing = get_tracing_manager()
+                tracing.set_attribute("canary_version", canary_result.version)
 
-        logger.info(f"[WORKFLOW] ⚠️ 交付降级响应")
+            # ===== Phase 3 Step 0: 会话初始化（仅首次） =====
+            if conversation_id not in self._initialized_sessions:
+                logger.info(
+                    f"[WORKFLOW:STEP_0] 🚀 会话初始化 | "
+                    f"conv={conversation_id} | user={user_id or 'anonymous'}"
+                )
+                try:
+                    # 如果没有提供 user_id，生成一个临时的
+                    if user_id is None:
+                        from uuid import uuid4
+                        user_id = str(uuid4())
+                        logger.info(f"[WORKFLOW:STEP_0] 生成临时用户ID: {user_id}")
+
+                    session_state = await self._session_initializer.initialize(
+                        conversation_id=conversation_id,
+                        user_id=user_id
+                    )
+
+                    # 标记会话已初始化
+                    self._initialized_sessions.add(conversation_id)
+
+                    logger.info(
+                        f"[WORKFLOW:STEP_0] ✅ 会话初始化完成 | "
+                        f"session={session_state.session_id} | "
+                        f"context_window={session_state.context_window_size}"
+                    )
+                except Exception as e:
+                    logger.warning(f"[WORKFLOW:STEP_0] ⚠️ 初始化失败（非致命）: {e}")
+                    # 初始化失败不阻止工作流程继续
+
+            # ===== 主循环（最多5次重试） =====
+            while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
+                try:
+                    # ===== 执行流式工作流程 =====
+                    async for chunk in self._process_streaming_attempt(
+                        user_input, conversation_id, user_id
+                    ):
+                        yield chunk
+                    return
+
+                except Exception as e:
+                    should_retry, count = retry_manager.should_retry(conversation_id, e)
+
+                    if not should_retry:
+                        # 不允许重试，返回降级响应
+                        logger.error(f"[WORKFLOW] ❌ 不可恢复错误: {e}")
+                        fallback = self._session_initializer.fallback_handler.get_fallback(e)
+                        yield fallback.message
+                        return
+
+                    # 允许重试，应用退避延迟
+                    logger.info(f"[WORKFLOW] 🔄 重试 ({count}/{self._max_total_retries}) | error={type(e).__name__}")
+                    await retry_manager.apply_backoff(count)
+
+            # 超过最大重试次数
+            last_error = retry_manager.get_last_error(conversation_id)
+            if last_error:
+                logger.error(f"[WORKFLOW] ❌ 超过最大重试次数: {last_error}")
+                fallback = self._session_initializer.fallback_handler.get_fallback(last_error)
+                yield fallback.message
+
+            logger.info(f"[WORKFLOW] ⚠️ 交付降级响应")
+
+        finally:
+            # UC3-1/UC3-2修复: 确保锁和信号量总是被释放
+            if session_lock is not None:
+                try:
+                    session_lock.release()
+                except RuntimeError:
+                    pass  # 锁可能已释放
+            self._session_semaphore.release()
+            logger.debug(f"[WORKFLOW] 🔓 释放会话锁和信号量 | conv={conversation_id}")
 
     async def process_simple(
         self,

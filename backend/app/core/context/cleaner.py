@@ -23,6 +23,13 @@ TRIM_KEEP_CHARS = 1500  # 软修剪时保留的首尾字符数
 CLEARED_PLACEHOLDER = "[Old result cleared]"  # 硬清除时使用的占位符
 TRIM_INDICATOR = "...[trimmed]..."  # 软修剪时插入的指示符
 
+# TTL配置：7天（D1-3 修复：与文档要求一致）
+DEFAULT_TTL_SECONDS = 7 * 24 * 60 * 60  # 604800秒 = 7天
+
+# 消息长度限制：约2000 tokens（D1-4 修复：与文档要求一致）
+# 假设 1 token ≈ 4 字符（中文），2000 tokens ≈ 8000 字符
+DEFAULT_MAX_CHARS = 8000
+
 
 # ============================================================
 # 结构化日志宏
@@ -82,19 +89,19 @@ class ContextCleaner:
 
     def __init__(
         self,
-        ttl_seconds: int = 300,
-        max_result_chars: int = 4000,
+        ttl_seconds: int = None,
+        max_result_chars: int = None,
         protected_roles: Set[str] | None = None,
     ):
         """初始化上下文清理器
 
         Args:
-            ttl_seconds: 工具结果的生存时间（秒），默认 300（5 分钟）
-            max_result_chars: 单条工具结果的最大字符数，超过此值触发软修剪
+            ttl_seconds: 工具结果的生存时间（秒），默认 7天（604800秒）
+            max_result_chars: 单条消息的最大字符数，默认 8000（约2000 tokens）
             protected_roles: 受保护的消息角色集合，默认 {"user", "system"}
         """
-        self.ttl_seconds = ttl_seconds
-        self.max_result_chars = max_result_chars
+        self.ttl_seconds = ttl_seconds if ttl_seconds is not None else DEFAULT_TTL_SECONDS
+        self.max_result_chars = max_result_chars if max_result_chars is not None else DEFAULT_MAX_CHARS
         self.protected_roles = (
             set(protected_roles) if protected_roles else {"user", "system"}
         )
@@ -214,7 +221,7 @@ class ContextCleaner:
         return result
 
     def _check_ttl(self, message: Dict[str, str]) -> bool:
-        """检查工具结果是否过期
+        """检查消息是否过期（D3-2 修复：扩展到所有消息类型）
 
         Args:
             message: 消息字典
@@ -222,13 +229,20 @@ class ContextCleaner:
         Returns:
             True 如果消息已过期，False 否则
         """
-        # 只有工具结果需要检查 TTL
-        if message.get("role") != "tool":
+        role = message.get("role", "unknown")
+
+        # D3-2 修复：不同角色使用不同的TTL
+        # - tool消息: 使用配置的TTL（默认7天）
+        # - user/assistant消息: 也使用相同TTL（历史上下文过期）
+        # - system消息: 永不过期
+        if role == "system":
             return False
 
-        # 没有时间戳的消息视为新鲜
+        # 没有时间戳的消息视为新鲜（向后兼容）
         timestamp = message.get("_timestamp")
         if timestamp is None:
+            # 对于user/assistant消息，检查是否有其他时间标识
+            # 如果都没有，视为不过期
             return False
 
         # 检查是否过期
@@ -236,10 +250,11 @@ class ContextCleaner:
         age = current_time - timestamp
         is_expired = age >= self.ttl_seconds
 
-        _log_cleaner_ttl_check(
-            message.get("role", "unknown"),
-            is_expired, age, self.ttl_seconds
-        )
+        if is_expired:
+            _log_cleaner_ttl_check(
+                role,
+                is_expired, age, self.ttl_seconds
+            )
 
         return is_expired
 

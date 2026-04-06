@@ -7,10 +7,11 @@ from datetime import datetime
 
 from .session import SubAgentSession, SubAgentStatus
 from .result import AgentResult, AgentType
+from .circuit_breaker import get_circuit_breaker_registry, CircuitBreaker
 
 logger = logging.getLogger(__name__)
-MAX_RETRY_ATTEMPTS = 2
-RETRYABLE_ERRORS = (asyncio.TimeoutError, TimeoutError)
+MAX_RETRY_ATTEMPTS = 3  # UC1-3修复: 增加到3次重试
+RETRYABLE_ERRORS = (asyncio.TimeoutError, TimeoutError, ConnectionError, OSError)
 
 
 class BaseAgent:
@@ -32,7 +33,23 @@ class BaseAgent:
         self.llm_client = llm_client
 
     async def execute(self, slots: Dict[str, Any]) -> AgentResult:
-        """执行Agent任务（含超时和重试）"""
+        """执行Agent任务（含超时、重试、熔断保护）"""
+        # UC1-2修复: 熔断检查
+        breaker = get_circuit_breaker_registry().get_breaker(
+            f"agent_{self.agent_type.value}"
+        )
+
+        if not breaker.allow_request():
+            self.session.mark_failed(Exception("熔断中，请求被拒绝"))
+            logger.warning(
+                f"[AGENT:{self.agent_type.value.upper()}] 🚫 熔断拒绝 | "
+                f"session={self.session.session_id}"
+            )
+            return AgentResult.from_error(
+                self.agent_type,
+                Exception("熔断中，服务暂时不可用")
+            )
+
         self.session.mark_started()
 
         logger.info(
@@ -44,10 +61,13 @@ class BaseAgent:
 
         try:
             result = await asyncio.wait_for(
-                self._execute_with_retry(slots),
+                self._execute_with_retry(slots, breaker),
                 timeout=self.session.timeout
             )
             self.session.mark_completed(result)
+
+            # UC1-2修复: 记录成功到熔断器
+            breaker.record_success(result.execution_time * 1000)
 
             logger.info(
                 f"[AGENT:{self.agent_type.value.upper()}] ✅ 执行成功 | "
@@ -58,17 +78,19 @@ class BaseAgent:
             return result
         except asyncio.TimeoutError:
             self.session.mark_timeout()
+            error = TimeoutError(f"执行超时: {self.session.timeout}秒")
+            # UC1-2修复: 记录失败到熔断器
+            breaker.record_failure(error)
             logger.error(
                 f"[AGENT:{self.agent_type.value.upper()}] ⏱️ 执行超时 | "
                 f"session={self.session.session_id} | "
                 f"timeout={self.session.timeout}s"
             )
-            return AgentResult.from_error(
-                self.agent_type,
-                TimeoutError(f"执行超时: {self.session.timeout}秒")
-            )
+            return AgentResult.from_error(self.agent_type, error)
         except Exception as e:
             self.session.mark_failed(e)
+            # UC1-2修复: 记录失败到熔断器
+            breaker.record_failure(e)
             logger.error(
                 f"[AGENT:{self.agent_type.value.upper()}] ❌ 执行失败 | "
                 f"session={self.session.session_id} | "
@@ -76,13 +98,30 @@ class BaseAgent:
             )
             return AgentResult.from_error(self.agent_type, e)
 
-    async def _execute_with_retry(self, slots: Dict[str, Any]) -> AgentResult:
-        """带重试的执行"""
+    async def _execute_with_retry(
+        self,
+        slots: Dict[str, Any],
+        breaker: CircuitBreaker = None
+    ) -> AgentResult:
+        """带重试的执行（UC1-2/UC1-3修复）
+
+        Args:
+            slots: 槽位数据
+            breaker: 熔断器（可选）
+        """
         retry_count = 0
         last_error = None
 
         while retry_count <= MAX_RETRY_ATTEMPTS:
             try:
+                # UC1-2修复: 每次重试前检查熔断状态
+                if breaker and not breaker.allow_request():
+                    logger.warning(
+                        f"[AGENT:{self.agent_type.value.upper()}] 🚫 熔断中，停止重试 | "
+                        f"retry={retry_count}"
+                    )
+                    break
+
                 start_time = asyncio.get_event_loop().time()
                 data = await self._execute_impl(slots)
                 elapsed = asyncio.get_event_loop().time() - start_time
@@ -104,7 +143,8 @@ class BaseAgent:
                 self.session.retry_count = retry_count
 
                 if retry_count <= MAX_RETRY_ATTEMPTS:
-                    delay = 2 ** retry_count
+                    # UC1-2修复: 指数退避，最大30秒
+                    delay = min(2 ** retry_count, 30)
                     logger.warning(
                         f"[AGENT:{self.agent_type.value.upper()}] 🔄 重试 | "
                         f"次数={retry_count}/{MAX_RETRY_ATTEMPTS} | "
@@ -112,6 +152,10 @@ class BaseAgent:
                         f"原因={str(e)}"
                     )
                     await asyncio.sleep(delay)
+
+        # UC1-2修复: 重试耗尽时记录到熔断器
+        if breaker and last_error:
+            breaker.record_failure(last_error)
 
         logger.error(
             f"[AGENT:{self.agent_type.value.upper()}] ❌ 重试耗尽 | "
@@ -270,7 +314,68 @@ class BudgetAgent(BaseAgent):
         }
 
         logger.debug(
-            f"[BUDGET] 📤 预算计算完成 | "
+            f"[BUDGET] 📤 预算计���完成 | "
             f"总计={result['total_estimate']}元"
+        )
+        return result
+
+
+class TransportAgent(BaseAgent):
+    """交通查询Agent（D1-5 修复）
+
+    职责：
+    - 查询高铁/火车票信息
+    - 查询航班信息
+    - 查询租车信息
+    - 返回价格和班次
+    """
+
+    async def _execute_impl(self, slots: Dict[str, Any]) -> Dict[str, Any]:
+        """查询交通信息
+
+        TODO: 集成12306、航空公司API、租车API
+        """
+        origin = slots.get("origin", "广州")  # 默认出发地
+        destinations = slots.get("destinations", slots.get("destination", []))
+        if isinstance(destinations, str):
+            destinations = [destinations]
+
+        logger.info(
+            f"[TRANSPORT] 🚄 ��询交通 | "
+            f"出发地={origin} | 目的地={destinations}"
+        )
+
+        # 模拟高铁查询结果
+        result = {
+            "origin": origin,
+            "destinations": destinations,
+            "trains": [
+                {
+                    "type": "高铁",
+                    "number": "G1234",
+                    "from": origin,
+                    "to": d,
+                    "departure": "08:00",
+                    "arrival": "14:00",
+                    "duration": "6小时",
+                    "price": {"first": 800, "second": 500}
+                }
+                for d in (destinations if isinstance(destinations, list) else [destinations])
+            ],
+            "car_rental": {
+                "available": True,
+                "price_per_day": 200,
+                "companies": ["神州租车", "一嗨租车"]
+            },
+            "summary": {
+                "train_available": True,
+                "estimated_cost": 500 * len(destinations) if isinstance(destinations, list) else 500,
+                "recommendation": "高铁出行，经济便捷"
+            }
+        }
+
+        logger.debug(
+            f"[TRANSPORT] 📤 交通查询完成 | "
+            f"班次数={len(result['trains'])}"
         )
         return result
