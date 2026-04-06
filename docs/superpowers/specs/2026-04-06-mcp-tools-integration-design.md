@@ -111,10 +111,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, Optional, Any
 import asyncio
+import uuid
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from .exceptions import MCPError
-from .schema import mcp_to_openai_schema
+from .schema import mcp_to_openai_schema, extract_mcp_result
 
 
 @dataclass
@@ -140,13 +141,25 @@ class MCPClientManager:
         self._lock = asyncio.Lock()
 
     async def get_session(self, user_id: str = None) -> MCPSession:
-        """获取或创建会话（轻量级，不创建连接）"""
-        import uuid
-        session_id = str(uuid.uuid4())
-
+        """获取或创建会话（优化：按 user_id 复用）"""
         # 检查全局 Server 连接是否已初始化
         await self._ensure_servers_initialized()
 
+        # 无 user_id：每次创建新 session（匿名请求）
+        if not user_id:
+            session_id = str(uuid.uuid4())
+            session = MCPSession(session_id=session_id)
+            self._sessions[session_id] = session
+            return session
+
+        # 有 user_id：查找并复用现有 session
+        for session in self._sessions.values():
+            if session.user_id == user_id:
+                session.last_used = datetime.utcnow()
+                return session
+
+        # 不存在则创建
+        session_id = str(uuid.uuid4())
         session = MCPSession(session_id=session_id, user_id=user_id)
         self._sessions[session_id] = session
         return session
@@ -181,7 +194,8 @@ class MCPClientManager:
 
         try:
             result = await client_session.call_tool(tool_name, arguments)
-            return result
+            # 统一提取结果
+            return extract_mcp_result(result)
         except Exception as e:
             from .exceptions import MCPExecutionError
             raise MCPExecutionError(f"Tool '{tool_name}' failed: {e}") from e
@@ -196,7 +210,7 @@ class MCPClientManager:
 
 ### 2. Server Registry (`backend/app/core/mcp/registry.py`)
 
-管理全局共享的 MCP Server 连接。
+管理全局共享的 MCP Server 连接，支持 stdio 和 SSE 两种传输模式。
 
 ```python
 from enum import Enum
@@ -219,7 +233,7 @@ class ServerStatus(Enum):
 class MCPServerConfig:
     """MCP Server 配置"""
     name: str
-    command: list[str]  # stdio 模式：启动命令
+    command: list[str] = None  # stdio 模式：启动命令
     env: dict[str, str] = None
     url: str = None  # SSE 模式：服务 URL
     health_check_interval: int = 30  # 秒
@@ -241,20 +255,27 @@ class MCPServer:
             self._lock = asyncio.Lock()
 
     async def initialize(self) -> ClientSession:
-        """初始化 Server 连接（MCP 协议握手）"""
+        """初始化 Server 连接（MCP 协议握手）
+        
+        支持 stdio 和 SSE 两种传输模式。
+        """
         from mcp.client.stdio import stdio_client
+        from mcp.client.sse import sse_client
 
         async with self._lock:
             if self.is_initialized:
                 return self.client_session
 
-            # 启动 stdio 连接
-            stdio_params = StdioServerParameters(
-                command=self.config.command,  # 必须是 list，不能是字符串
-                env=self.config.env or {}
-            )
-
-            read_stream, write_stream = await stdio_client(stdio_params)
+            # ========== SSE 模式（第三方 Server）==========
+            if self.config.url:
+                read_stream, write_stream = await sse_client(self.config.url)
+            # ========== stdio 模式（进程内 Server）==========
+            else:
+                stdio_params = StdioServerParameters(
+                    command=self.config.command,  # 必须是 list
+                    env=self.config.env or {}
+                )
+                read_stream, write_stream = await stdio_client(stdio_params)
 
             # 创建 ClientSession
             session = ClientSession(read_stream, write_stream)
@@ -514,10 +535,11 @@ class SchemaCache:
 
 ### 5. Schema 转换 (`backend/app/core/mcp/schema.py`)
 
-将 MCP 工具 Schema 转换为 OpenAI function calling 格式。
+将 MCP 工具 Schema 转换为 OpenAI function calling 格式，并统一提取 MCP 工具返回值。
 
 ```python
 from typing import Any, Dict
+import json
 
 
 def mcp_to_openai_schema(mcp_tool: Dict[str, Any]) -> Dict[str, Any]:
@@ -539,6 +561,38 @@ def openai_to_mcp_arguments(openai_params: Dict[str, Any]) -> Dict[str, Any]:
     """将 OpenAI 格式的参数转换为 MCP 格式"""
     # 通常格式兼容，直接返回
     return openai_params
+
+
+def extract_mcp_result(result: Any) -> dict:
+    """统一提取 MCP 工具返回值
+    
+    MCP SDK 返回的 CallToolResult 包含 content 列表，
+    需要提取实际的业务数据。
+    
+    Args:
+        result: MCP call_tool() 返回值
+        
+    Returns:
+        标准化的字典格式结果
+    """
+    try:
+        # 处理 CallToolResult 类型
+        if hasattr(result, 'content') and result.content:
+            content_list = result.content
+            if content_list and len(content_list) > 0:
+                first_content = content_list[0]
+                # TextContent 类型
+                if hasattr(first_content, 'text'):
+                    return json.loads(first_content.text)
+                # 其他类型转为字符串
+                return {"data": str(first_content)}
+        # 直接是字典
+        if isinstance(result, dict):
+            return result
+        # 其他类型
+        return {"data": str(result)}
+    except (json.JSONDecodeError, TypeError, AttributeError) as e:
+        return {"error": f"结果解析失败: {e}"}
 ```
 
 ### 6. 统一错误处理 (`backend/app/core/mcp/exceptions.py`)
@@ -1092,7 +1146,8 @@ async def _ensure_mcp_initialized(self) -> None:
     from .mcp.registry import MCPServerConfig
     amap_config = MCPServerConfig(
         name="amap",
-        command=["python", "-m", "app.mcp_servers.amap.server"],
+        # 使用完整模块路径，避免找不到文件
+        command=["python", "-m", "app.core.mcp_servers.amap.server"],
         env={"AMAP_API_KEY": os.getenv("AMAP_API_KEY")}
     )
     self._mcp_registry.register(amap_config)
@@ -1231,6 +1286,12 @@ openai>=1.0.0
 6. 与现有 QueryEngine 的 SubAgent、多轮工具循环兼容
 
 ## 设计变更记录
+
+### v2.1 (2026-04-06)
+- **修复**: MCPServer.initialize() 添加 SSE 传输模式支持
+- **优化**: MCPClientManager.get_session() 按 user_id 复用 session，减少创建开销
+- **新增**: extract_mcp_result() 统一函数提取 MCP 工具返回值
+- **修正**: Server 启动命令使用完整模块路径 `app.core.mcp_servers.amap.server`
 
 ### v2.0 (2026-04-06)
 - 基于 MCP SDK v1.27.0 实际 API 重写
