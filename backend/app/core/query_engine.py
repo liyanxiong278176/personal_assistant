@@ -391,6 +391,38 @@ class QueryEngine:
 
         return "\n".join(parts)
 
+    async def _load_history_from_db(self, conversation_id: str) -> List[Dict[str, str]]:
+        """从数据库加载对话历史到内存
+
+        确保每次新请求都能看到之前的历史（不依赖 WebSocket 长连接状态）。
+
+        Args:
+            conversation_id: Conversation identifier
+
+        Returns:
+            加载的消息列表
+        """
+        if not hasattr(self, '_phase2_enabled') or not self._phase2_enabled:
+            return []
+
+        # 检查是否已经加载过（避免重复加载）
+        if conversation_id in self._conversation_history:
+            return self._conversation_history[conversation_id]
+
+        try:
+            from uuid import UUID
+            conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
+            messages = await self._message_repo.get_messages(conv_uuid, limit=20)
+            loaded = [{"role": m.role, "content": m.content} for m in reversed(messages)]
+            self._conversation_history[conversation_id] = loaded
+            logger.info(
+                f"[MEMORY] 📥 从数据库加载历史 | conv={conversation_id} | 消息数={len(loaded)}"
+            )
+            return loaded
+        except Exception as e:
+            logger.warning(f"[MEMORY] ⚠️ 加载历史失败: {e}")
+            return []
+
     def _get_conversation_history(
         self, conversation_id: str
     ) -> List[Dict[str, str]]:
@@ -1029,6 +1061,11 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:2_STORAGE] ⏳ 开始 | conv={conversation_id}")
 
+        # 每次请求都从数据库加载历史（不依赖 WebSocket 长连接）
+        await self._ensure_phase2_initialized()
+        if self._phase2_enabled:
+            await self._load_history_from_db(conversation_id)
+
         clean_history = self._get_conversation_history(conversation_id)
         self._add_to_working_memory(conversation_id, "user", user_input)
         history = self._get_conversation_history(conversation_id)
@@ -1263,6 +1300,11 @@ class QueryEngine:
 
         # ===== 阶段 2: 消息基础存储 =====
         logger.info(f"[WORKFLOW:STREAM:2_STORAGE] ⏳ 开始")
+
+        # 每次请求都从数据库加载历史（不依赖 WebSocket 长连接）
+        await self._ensure_phase2_initialized()
+        if self._phase2_enabled:
+            await self._load_history_from_db(conversation_id)
 
         clean_history = self._get_conversation_history(conversation_id)
         self._add_to_working_memory(conversation_id, "user", user_input)
