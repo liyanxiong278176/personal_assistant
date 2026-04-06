@@ -442,8 +442,20 @@ travel-assistant/
 │   │   │   ├── rollback.py             # 版本回滚 (新)
 │   │   │   ├── tracing.py              # 全链路追踪 (新)
 │   │   │   ├── token_budget.py        # Token预算 (新)
-│   │   │   └── session_snapshot.py     # 会话快照 (新)
-│   │   │
+│   │   │   ├── session_snapshot.py     # 会话快照 (新)
+│   │   │   │
+│   │   │   ├── mcp/                    # MCP 工具调用 (计划中)
+│   │   │   │   ├── exceptions.py       # MCP 异常定义
+│   │   │   │   ├── schema.py           # Schema 转换
+│   │   │   │   ├── router.py           # 工具路由器
+│   │   │   │   ├── registry.py         # Server 注册表
+│   │   │   │   ├── cache.py            # Schema 缓存
+│   │   │   │   └── client.py           # 客户端管理器
+│   │   │   │
+│   │   │   ├── mcp_servers/            # MCP Servers (计划中)
+│   │   │   │   └── amap/               # 高德地图 Server
+│   │   │   │       └── server.py       # FastMCP Server
+│   │   │   │
 │   │   ├── api/                       # API 路由
 │   │   ├── services/                  # 业务服务
 │   │   ├── db/                        # 数据层
@@ -597,6 +609,12 @@ cat tests/production_test_report.md
 
 ### 进行中
 
+- [ ] **MCP 工具集成** (2026-04-06)
+  - [ ] Phase 0: 环境准备
+  - [ ] Phase 1: MCP 核心模块 (exceptions, schema, router, registry, cache, client)
+  - [ ] Phase 2: Amap MCP Server (FastMCP)
+  - [ ] Phase 3: QueryEngine 集成
+  - [ ] Phase 4: 测试与清理
 - [ ] 前端地图可视化
 - [ ] 图片识别与生成
 
@@ -625,6 +643,9 @@ cat tests/production_test_report.md
 
 ### 5. Token预算保护
 > "我实现了TokenBudgetManager，在LLM调用前检查会话预算：80%发出警告、95%强制压缩上下文。防止单用户Token消耗超限导致的API成本超支。配合会话快照实现长会话的状态恢复。"
+
+### 6. MCP 标准化工具调用 (计划中)
+> "我正在迁移工具调用系统到 MCP (Model Context Protocol) 标准，使用 FastMCP 构建 Server。架构支持 stdio（核心工具）和 SSE（第三方工具）两种传输模式，全局共享 Server 连接但 Session 状态隔离，配合健康检查和 Schema 缓存优化性能。"
 
 ---
 

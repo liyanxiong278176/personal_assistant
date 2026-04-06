@@ -1,0 +1,132 @@
+[VectorStore] sentence-transformers not installed, using mock embeddings
+INFO:     Started server process [9908]
+INFO:     Waiting for application startup.
+2026-04-06 16:21:14,070 - app.main - INFO - ==================================================
+2026-04-06 16:21:14,070 - app.main - INFO - AI Travel Assistant Backend Starting
+2026-04-06 16:21:14,070 - app.main - INFO - ==================================================
+2026-04-06 16:21:14,235 - app.main - INFO - [Startup] \u2713 Database connected
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-04-06 16:21:15,762 - app.core.tools.executor - INFO - [ToolExecutor] Initialized
+2026-04-06 16:21:15,764 - app.core.security.injection_guard - INFO - [Security] InjectionGuard initialized: patterns=6, sensitive_actions=7, pii_patterns=5, illegal_patterns=11
+2026-04-06 16:21:15,766 - app.core.context.guard - INFO - [CTX_GUARD] \U0001f3d7\ufe0f 初始化完成 | 窗口=128000 | 压缩阈值=0.75 | TTL=300s | LLM=已配置 | 规则缓存=0个文件
+2026-04-06 16:21:15,766 - app.core.security.injection_guard - INFO - [Security] InjectionGuard initialized: patterns=6, sensitive_actions=7, pii_patterns=5, illegal_patterns=11
+2026-04-06 16:21:15,766 - app.core.session.error_classifier - INFO - [ErrorClassifier] 初始化完成 | 预设规则=8, 自定义=0
+2026-04-06 16:21:15,766 - app.core.session.fallback - INFO - [FallbackHandler] 初始化完成 | 三层降级策略已启用
+2026-04-06 16:21:15,766 - app.core.session.initializer - INFO - [SessionInitializer] 初始化完成
+2026-04-06 16:21:15,766 - app.core.subagent.orchestrator - INFO - [ORCHESTRATOR] \U0001f3af 初始化 | 复杂度阈值=5 | 最大并发=5 | 熔断器已集成
+2026-04-06 16:21:15,766 - app.core.token_budget - INFO - [TOKEN_BUDGET] 初始化 | default_budget=128000 | warning=80% | critical=95%
+2026-04-06 16:21:15,766 - app.core.canary - INFO - [CANARY] 初始化完成 | stable=stable | default_canary_ratio=0.1
+2026-04-06 16:21:15,766 - app.core.session_snapshot - INFO - [SNAPSHOT] 初始化 | max_per_conv=5 | ttl=24h
+2026-04-06 16:21:15,766 - app.core.security.auditor - INFO - [SECURITY_AUDITOR] 初始化完成 | max_events=50000
+2026-04-06 16:21:15,766 - app.core.query_engine - INFO - [QueryEngine] \U0001f680 初始化完成 | 工具数量=4 | LLM客户端=已配置 | 会话生命周期=已启用
+2026-04-06 16:21:15,766 - app.api.agent_core - INFO - [AgentCore] QueryEngine initialized
+[OK] Database 'travel_assistant' already exists
+[OK] Database tables initialized
+INFO:     127.0.0.1:51654 - "GET /api/agent/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51666 - "GET /api/agent/status HTTP/1.1" 200 OK
+2026-04-06 16:22:02,798 - app.core.security.authorization - INFO - [Auth] ConversationAuthorization initialized
+2026-04-06 16:22:02,798 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \U0001f680 会话初始化 | conv=test-e2e-001 | user=test-user-001
+2026-04-06 16:22:02,798 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.798022", "level": "INFO", "phase": "INIT", "message": "阶段开始: INIT", "session_id": null, "conversation_id": "test-e2e-001", "user_id": "test-user-001", "elapsed_ms": null, "error": null, "context_window_size": 128000, "soft_trim_ratio": 0.3}
+2026-04-06 16:22:02,798 - app.core.session.structured_logger - INFO - [INIT] conv=test-e2e-001 | 阶段开始: INIT | context_window_size=128000, soft_trim_ratio=0.3
+2026-04-06 16:22:02,798 - app.core.session.initializer - INFO - [SessionInitializer] Step 0: 初始化会话 | session=7e601cf2-337d-4ab1-810f-12cf0dbe0ba4 | conv=test-e2e-001 | user=test-user-001
+2026-04-06 16:22:02,799 - app.core.session.initializer - INFO - [SessionInitializer] 0.1 上下文窗口配置
+2026-04-06 16:22:02,799 - app.core.session.initializer - INFO - [SessionInitializer] 0.2 核心文件注入 (待实现)
+2026-04-06 16:22:02,799 - app.core.session.initializer - INFO - [SessionInitializer] 0.3 创建隔离会话
+2026-04-06 16:22:02,799 - app.core.session.initializer - INFO - [SessionInitializer] 0.4 核心组件已就绪
+2026-04-06 16:22:02,799 - app.core.session.initializer - INFO - [SessionInitializer] 0.5 尝试会话恢复
+2026-04-06 16:22:02,799 - app.core.session.recovery - WARNING - [SessionRecovery] 恢复失败: badly formed hexadecimal UUID string
+2026-04-06 16:22:02,821 - app.core.session.initializer - WARNING - [SessionInitializer] 会话状态持久化失败（非致命）: 插入或更新表 "session_states" 违反外键约束 "fk_session_states_user_id"
+DETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表"users"中出现.
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.821132", "level": "WARNING", "phase": "INIT", "message": "会话状态持久化失败（非致命）", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "ForeignKeyViolationError", "error_message": "插入或更新表 \"session_states\" 违反外键约束 \"fk_session_states_user_id\"\nDETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表\"users\"中出现."}
+2026-04-06 16:22:02,821 - app.core.session.initializer - INFO - [SessionInitializer] \u2713 Step 0 完成 | session=7e601cf2-337d-4ab1-810f-12cf0dbe0ba4
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.821132", "level": "INFO", "phase": "INIT", "message": "阶段完成: INIT", "session_id": null, "conversation_id": "test-e2e-001", "user_id": "test-user-001", "elapsed_ms": 23.02, "error": null, "state_configured": true, "state_persisted": true, "recovered": false}
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [INIT] conv=test-e2e-001 | 阶段完成: INIT | elapsed_ms=23.02, state_configured=True, state_persisted=True, recovered=False
+2026-04-06 16:22:02,821 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \u2705 会话初始化完成 | session=7e601cf2-337d-4ab1-810f-12cf0dbe0ba4 | context_window=128000
+2026-04-06 16:22:02,821 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.821132", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:22:02,821 - app.core.session.retry_manager - INFO - [RetryManager] 允许重试: 1/1
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.821132", "level": "INFO", "phase": "RETRY", "message": "允许重试", "session_id": null, "conversation_id": "test-e2e-001", "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "max_allowed": 1, "strategy": "retry", "should_retry": true}
+2026-04-06 16:22:02,821 - app.core.query_engine - INFO - [WORKFLOW] \U0001f504 重试 (1/5) | error=NameError
+2026-04-06 16:22:02,821 - app.core.session.retry_manager - INFO - [RetryManager] 退避延迟: 1.0s
+2026-04-06 16:22:02,821 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:02.821132", "level": "INFO", "phase": "RETRY", "message": "应用退避延迟: 1.0s", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "delay_seconds": 1.0}
+2026-04-06 16:22:03,834 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:22:03,834 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:03.834232", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:22:03,834 - app.core.session.retry_manager - WARNING - [RetryManager] 达到最大重试次数: 1 >= 1
+2026-04-06 16:22:03,834 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:03.834232", "level": "WARNING", "phase": "RETRY", "message": "达到最大重试次数", "session_id": null, "conversation_id": "test-e2e-001", "user_id": null, "elapsed_ms": null, "error": null, "current_count": 1, "max_allowed": 1, "should_retry": false}
+2026-04-06 16:22:03,834 - app.core.query_engine - ERROR - [WORKFLOW] \u274c 不可恢复错误: name 'uuid4' is not defined
+2026-04-06 16:22:03,834 - app.core.session.fallback - INFO - [FallbackHandler] 生成降级响应 | level=1 | message_key=partial
+2026-04-06 16:22:03,834 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:03.834232", "level": "INFO", "phase": "FALLBACK", "message": "生成降级响应: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "message_key": "partial", "degradation_level": 1, "has_partial_results": false, "partial_result_keys": []}
+INFO:     127.0.0.1:51687 - "POST /api/agent/chat HTTP/1.1" 200 OK
+2026-04-06 16:22:05,881 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \U0001f680 会话初始化 | conv=test-e2e-002 | user=test-user-001
+2026-04-06 16:22:05,881 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.881119", "level": "INFO", "phase": "INIT", "message": "阶段开始: INIT", "session_id": null, "conversation_id": "test-e2e-002", "user_id": "test-user-001", "elapsed_ms": null, "error": null, "context_window_size": 128000, "soft_trim_ratio": 0.3}
+2026-04-06 16:22:05,881 - app.core.session.structured_logger - INFO - [INIT] conv=test-e2e-002 | 阶段开始: INIT | context_window_size=128000, soft_trim_ratio=0.3
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] Step 0: 初始化会话 | session=214d4438-ca1e-4275-aa04-15866e9958e6 | conv=test-e2e-002 | user=test-user-001
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] 0.1 上下文窗口配置
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] 0.2 核心文件注入 (待实现)
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] 0.3 创建隔离会话
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] 0.4 核心组件已就绪
+2026-04-06 16:22:05,881 - app.core.session.initializer - INFO - [SessionInitializer] 0.5 尝试会话恢复
+2026-04-06 16:22:05,882 - app.core.session.recovery - WARNING - [SessionRecovery] 恢复失败: badly formed hexadecimal UUID string
+2026-04-06 16:22:05,882 - app.core.session.initializer - WARNING - [SessionInitializer] 会话状态持久化失败（非致命）: 插入或更新表 "session_states" 违反外键约束 "fk_session_states_user_id"
+DETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表"users"中出现.
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.882835", "level": "WARNING", "phase": "INIT", "message": "会话状态持久化失败（非致命）", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "ForeignKeyViolationError", "error_message": "插入或更新表 \"session_states\" 违反外键约束 \"fk_session_states_user_id\"\nDETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表\"users\"中出现."}
+2026-04-06 16:22:05,882 - app.core.session.initializer - INFO - [SessionInitializer] \u2713 Step 0 完成 | session=214d4438-ca1e-4275-aa04-15866e9958e6
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.882835", "level": "INFO", "phase": "INIT", "message": "阶段完成: INIT", "session_id": null, "conversation_id": "test-e2e-002", "user_id": "test-user-001", "elapsed_ms": 1.82, "error": null, "state_configured": true, "state_persisted": true, "recovered": false}
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [INIT] conv=test-e2e-002 | 阶段完成: INIT | elapsed_ms=1.82, state_configured=True, state_persisted=True, recovered=False
+2026-04-06 16:22:05,882 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \u2705 会话初始化完成 | session=214d4438-ca1e-4275-aa04-15866e9958e6 | context_window=128000
+2026-04-06 16:22:05,882 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.882835", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:22:05,882 - app.core.session.retry_manager - INFO - [RetryManager] 允许重试: 1/1
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.882835", "level": "INFO", "phase": "RETRY", "message": "允许重试", "session_id": null, "conversation_id": "test-e2e-002", "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "max_allowed": 1, "strategy": "retry", "should_retry": true}
+2026-04-06 16:22:05,882 - app.core.query_engine - INFO - [WORKFLOW] \U0001f504 重试 (1/5) | error=NameError
+2026-04-06 16:22:05,882 - app.core.session.retry_manager - INFO - [RetryManager] 退避延迟: 1.0s
+2026-04-06 16:22:05,882 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:05.882835", "level": "INFO", "phase": "RETRY", "message": "应用退避延迟: 1.0s", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "delay_seconds": 1.0}
+2026-04-06 16:22:06,892 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:22:06,892 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:06.892734", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:22:06,892 - app.core.session.retry_manager - WARNING - [RetryManager] 达到最大重试次数: 1 >= 1
+2026-04-06 16:22:06,892 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:06.892734", "level": "WARNING", "phase": "RETRY", "message": "达到最大重试次数", "session_id": null, "conversation_id": "test-e2e-002", "user_id": null, "elapsed_ms": null, "error": null, "current_count": 1, "max_allowed": 1, "should_retry": false}
+2026-04-06 16:22:06,892 - app.core.query_engine - ERROR - [WORKFLOW] \u274c 不可恢复错误: name 'uuid4' is not defined
+2026-04-06 16:22:06,893 - app.core.session.fallback - INFO - [FallbackHandler] 生成降级响应 | level=1 | message_key=partial
+2026-04-06 16:22:06,893 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:22:06.893955", "level": "INFO", "phase": "FALLBACK", "message": "生成降级响应: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "message_key": "partial", "degradation_level": 1, "has_partial_results": false, "partial_result_keys": []}
+INFO:     127.0.0.1:51693 - "POST /api/agent/chat HTTP/1.1" 200 OK
+2026-04-06 16:24:23,779 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \U0001f680 会话初始化 | conv=test-full-001 | user=test-user-001
+2026-04-06 16:24:23,779 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.779630", "level": "INFO", "phase": "INIT", "message": "阶段开始: INIT", "session_id": null, "conversation_id": "test-full-001", "user_id": "test-user-001", "elapsed_ms": null, "error": null, "context_window_size": 128000, "soft_trim_ratio": 0.3}
+2026-04-06 16:24:23,779 - app.core.session.structured_logger - INFO - [INIT] conv=test-full-001 | 阶段开始: INIT | context_window_size=128000, soft_trim_ratio=0.3
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] Step 0: 初始化会话 | session=746ab2d0-182e-457a-b794-0bd12b0289fc | conv=test-full-001 | user=test-user-001
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] 0.1 上下文窗口配置
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] 0.2 核心文件注入 (待实现)
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] 0.3 创建隔离会话
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] 0.4 核心组件已就绪
+2026-04-06 16:24:23,779 - app.core.session.initializer - INFO - [SessionInitializer] 0.5 尝试会话恢复
+2026-04-06 16:24:23,779 - app.core.session.recovery - WARNING - [SessionRecovery] 恢复失败: badly formed hexadecimal UUID string
+2026-04-06 16:24:23,781 - app.core.session.initializer - WARNING - [SessionInitializer] 会话状态持久化失败（非致命）: 插入或更新表 "session_states" 违反外键约束 "fk_session_states_user_id"
+DETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表"users"中出现.
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.781239", "level": "WARNING", "phase": "INIT", "message": "会话状态持久化失败（非致命）", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "ForeignKeyViolationError", "error_message": "插入或更新表 \"session_states\" 违反外键约束 \"fk_session_states_user_id\"\nDETAIL:  键值对(user_id)=(694c241e-52d9-beec-c0a5-4fbbacf49aac)没有在表\"users\"中出现."}
+2026-04-06 16:24:23,781 - app.core.session.initializer - INFO - [SessionInitializer] \u2713 Step 0 完成 | session=746ab2d0-182e-457a-b794-0bd12b0289fc
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.781239", "level": "INFO", "phase": "INIT", "message": "阶段完成: INIT", "session_id": null, "conversation_id": "test-full-001", "user_id": "test-user-001", "elapsed_ms": 2.36, "error": null, "state_configured": true, "state_persisted": true, "recovered": false}
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [INIT] conv=test-full-001 | 阶段完成: INIT | elapsed_ms=2.36, state_configured=True, state_persisted=True, recovered=False
+2026-04-06 16:24:23,781 - app.core.query_engine - INFO - [WORKFLOW:STEP_0] \u2705 会话初始化完成 | session=746ab2d0-182e-457a-b794-0bd12b0289fc | context_window=128000
+2026-04-06 16:24:23,781 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.781239", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:24:23,781 - app.core.session.retry_manager - INFO - [RetryManager] 允许重试: 1/1
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.781239", "level": "INFO", "phase": "RETRY", "message": "允许重试", "session_id": null, "conversation_id": "test-full-001", "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "max_allowed": 1, "strategy": "retry", "should_retry": true}
+2026-04-06 16:24:23,781 - app.core.query_engine - INFO - [WORKFLOW] \U0001f504 重试 (1/5) | error=NameError
+2026-04-06 16:24:23,781 - app.core.session.retry_manager - INFO - [RetryManager] 退避延迟: 1.0s
+2026-04-06 16:24:23,781 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:23.781239", "level": "INFO", "phase": "RETRY", "message": "应用退避延迟: 1.0s", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "retry_count": 1, "delay_seconds": 1.0}
+2026-04-06 16:24:24,804 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:24:24,804 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:24.804140", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:24:24,804 - app.core.session.retry_manager - WARNING - [RetryManager] 达到最大重试次数: 1 >= 1
+2026-04-06 16:24:24,804 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:24.804140", "level": "WARNING", "phase": "RETRY", "message": "达到最大重试次数", "session_id": null, "conversation_id": "test-full-001", "user_id": null, "elapsed_ms": null, "error": null, "current_count": 1, "max_allowed": 1, "should_retry": false}
+2026-04-06 16:24:24,804 - app.core.query_engine - ERROR - [WORKFLOW] \u274c 不可恢复错误: name 'uuid4' is not defined
+2026-04-06 16:24:24,804 - app.core.session.fallback - INFO - [FallbackHandler] 生成降级响应 | level=1 | message_key=partial
+2026-04-06 16:24:24,804 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:24:24.804140", "level": "INFO", "phase": "FALLBACK", "message": "生成降级响应: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "message_key": "partial", "degradation_level": 1, "has_partial_results": false, "partial_result_keys": []}
+INFO:     127.0.0.1:63532 - "POST /api/agent/chat HTTP/1.1" 200 OK
+2026-04-06 16:25:13,836 - app.core.session.error_classifier - WARNING - [ErrorClassifier] 未知异常类型: NameError, 使用默认分类
+2026-04-06 16:25:13,836 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:25:13.836709", "level": "WARNING", "phase": "CLASSIFY", "message": "未知异常类型，使用默认分类: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "category": "transient", "strategy": "retry", "max_retries": 1, "rule_type": "default"}
+2026-04-06 16:25:13,836 - app.core.session.retry_manager - WARNING - [RetryManager] 达到最大重试次数: 1 >= 1
+2026-04-06 16:25:13,836 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:25:13.836709", "level": "WARNING", "phase": "RETRY", "message": "达到最大重试次数", "session_id": null, "conversation_id": "test-full-001", "user_id": null, "elapsed_ms": null, "error": null, "current_count": 1, "max_allowed": 1, "should_retry": false}
+2026-04-06 16:25:13,836 - app.core.query_engine - ERROR - [WORKFLOW] \u274c 不可恢复错误: name 'uuid4' is not defined
+2026-04-06 16:25:13,836 - app.core.session.fallback - INFO - [FallbackHandler] 生成降级响应 | level=1 | message_key=partial
+2026-04-06 16:25:13,838 - app.core.session.structured_logger - INFO - [STRUCTURED_LOG] {"timestamp": "2026-04-06T08:25:13.836709", "level": "INFO", "phase": "FALLBACK", "message": "生成降级响应: NameError", "session_id": null, "conversation_id": null, "user_id": null, "elapsed_ms": null, "error": null, "error_type": "NameError", "message_key": "partial", "degradation_level": 1, "has_partial_results": false, "partial_result_keys": []}
+INFO:     127.0.0.1:63580 - "POST /api/agent/chat HTTP/1.1" 200 OK

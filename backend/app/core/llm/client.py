@@ -391,7 +391,8 @@ class LLMClient:
                         return
 
                     # 收集工具调用（流式情况下需要累积）
-                    accumulated_tool_calls: Dict[str, Dict] = {}
+                    # 使用 index 来关联同一工具调用的不同部分（不是 call_id）
+                    accumulated_tool_calls: Dict[int, Dict] = {}
 
                     async for line in response.aiter_lines():
                         if not line or not line.startswith("data:"):
@@ -410,26 +411,35 @@ class LLMClient:
                             if content:
                                 yield content
 
-                            # 提取工具调用
+                            # 提取工具调用（必须在 if content 外执行）
                             choice = chunk_data.get("choices", [{}])[0]
                             delta = choice.get("delta", {})
                             tool_calls_delta = delta.get("tool_calls", [])
 
                             for tc in tool_calls_delta:
+                                # 使用 index 来关联��一工具调用的不同部分
+                                index = tc.get("index", 0)
                                 call_id = tc.get("id", "")
                                 function = tc.get("function", {})
 
-                                if call_id:
-                                    if call_id not in accumulated_tool_calls:
-                                        accumulated_tool_calls[call_id] = {
-                                            "id": call_id,
-                                            "name": function.get("name", ""),
-                                            "arguments": ""
-                                        }
+                                if index not in accumulated_tool_calls:
+                                    accumulated_tool_calls[index] = {
+                                        "id": call_id,  # 保存第一个出现的 id
+                                        "name": "",
+                                        "arguments": ""
+                                    }
 
-                                    # 累积参数字符串
-                                    if "arguments" in function:
-                                        accumulated_tool_calls[call_id]["arguments"] += function["arguments"]
+                                # 更新 id（如果存在）
+                                if call_id:
+                                    accumulated_tool_calls[index]["id"] = call_id
+
+                                # 更新 name（如果存在）
+                                if "name" in function:
+                                    accumulated_tool_calls[index]["name"] = function["name"]
+
+                                # 累积参数字符串
+                                if "arguments" in function:
+                                    accumulated_tool_calls[index]["arguments"] += function["arguments"]
 
                         except json.JSONDecodeError:
                             logger.debug(f"[LLMClient] Failed to parse chunk: {data}")
