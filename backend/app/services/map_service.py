@@ -51,9 +51,23 @@ class AmapService:
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(10.0),
-                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+                event_hooks={"response": [self._log_response]}
             )
         return self._client
+
+    async def _log_response(self, response: httpx.Response) -> None:
+        """统一 HTTP 响应日志，格式与 httpx 默认一致"""
+        try:
+            status = response.status_code
+            method = response.request.method
+            url = str(response.request.url)
+            elapsed = response.elapsed.total_seconds() * 1000
+            logger.info(
+                f"[TOOL:HTTP] {method} {url} \"HTTP/1.1 {status}\" | {elapsed:.0f}ms"
+            )
+        except Exception:
+            pass
 
     async def close(self):
         """Close the HTTP client."""
