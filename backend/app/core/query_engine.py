@@ -770,7 +770,9 @@ class QueryEngine:
         user_id: Optional[str],
         tool_results: Dict[str, Any],
         slots,
-        stage_log: Optional[StageLogger] = None
+        stage_log: Optional[StageLogger] = None,
+        conversation_id: Optional[str] = None,
+        user_input: Optional[str] = None,
     ) -> str:
         """构建完整上下文
 
@@ -779,12 +781,61 @@ class QueryEngine:
             tool_results: 工具执行结果
             slots: 槽位信息
             stage_log: 阶段日志记录器（可选）
+            conversation_id: 会话ID（用于语义记忆检索）
+            user_input: 用户输入（用于语义记忆检索查询）
 
         Returns:
             格式化的上下文字符串（工具结果、槽位信息等）
         """
         parts = []
         context_parts = []
+
+        # 语义记忆检索（Phase 2: ChromaDB向量检索）
+        if self._phase2_enabled and self._hybrid_retriever and user_id and conversation_id:
+            try:
+                # 构建查询：优先使用目的地，其次使用用户输入
+                query = slots.destination or user_input or ""
+                if query:
+                    import uuid
+                    semantic_memories = await self._hybrid_retriever.retrieve(
+                        query=query,
+                        user_id=user_id,
+                        conversation_id=uuid.UUID(conversation_id) if conversation_id else uuid.UUID(int=0),
+                        limit=3
+                    )
+                    if semantic_memories:
+                        parts.append("## 相关记忆")
+                        context_parts.append("## 相关记忆")
+                        for mem in semantic_memories:
+                            mem_type = mem.memory_type.value if mem.memory_type else "记忆"
+                            parts.append(f"- [{mem_type}] {mem.content}")
+                            context_parts.append(f"- [{mem_type}] {mem.content}")
+                        logger.debug(
+                            f"[CONTEXT] ✅ 语义记忆已注入 | 数量={len(semantic_memories)} | "
+                            f"查询={query[:30]}"
+                        )
+            except Exception as e:
+                logger.warning(f"[CONTEXT] ⚠️ 语义记忆检索失败: {e}")
+
+        # 情景记忆检索（当前会话的短期记忆）
+        if self._phase2_enabled and self._memory_hierarchy:
+            try:
+                episodic_memories = self._memory_hierarchy.get_episodic(
+                    limit=5,
+                    min_importance=0.3
+                )
+                if episodic_memories:
+                    parts.append("## 当前会话记忆")
+                    context_parts.append("## 当前会话记忆")
+                    for mem in episodic_memories:
+                        mem_type = mem.memory_type.value if mem.memory_type else "记忆"
+                        parts.append(f"- [{mem_type}] {mem.content}")
+                        context_parts.append(f"- [{mem_type}] {mem.content}")
+                    logger.debug(
+                        f"[CONTEXT] ✅ 情景记忆已注入 | 数量={len(episodic_memories)}"
+                    )
+            except Exception as e:
+                logger.warning(f"[CONTEXT] ⚠️ 情景记忆检索失败: {e}")
 
         # 用户偏好（如果启用偏好提取）
         if self._config.enable_preference_extraction and self._pref_extractor and user_id:
@@ -1338,7 +1389,7 @@ class QueryEngine:
         logger.info(f"[WORKFLOW:5_CONTEXT] ⏳ 开始 | conv={conversation_id}")
 
         context = await self._build_context(
-            user_id, tool_results, slots, None
+            user_id, tool_results, slots, None, conversation_id, user_input
         )
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
@@ -1650,8 +1701,14 @@ class QueryEngine:
         else:
             logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具")
 
+        # 统计成功的工具调用
+        successful_count = sum(1 for v in tool_results.values() if isinstance(v, dict) and "error" not in v)
+        failed_tools = [k for k, v in tool_results.items() if isinstance(v, dict) and "error" in v]
+
         logger.info(
-            f"[WORKFLOW:STREAM:4_TOOLS] ✅ 完成 | 工具调用={len(tool_results)}次"
+            f"[WORKFLOW:STREAM:4_TOOLS] ✅ 完成 | "
+            f"工具调用={len(tool_results)}次 | 成功={successful_count}次 | "
+            f"失败={failed_tools if failed_tools else '无'}"
         )
 
         # UC5-1修复: Step4追踪完成
@@ -1663,7 +1720,7 @@ class QueryEngine:
         logger.info(f"[WORKFLOW:STREAM:5_CONTEXT] ⏳ 开始")
 
         context = await self._build_context(
-            user_id, tool_results, slots, None
+            user_id, tool_results, slots, None, conversation_id, user_input
         )
 
         logger.info(
@@ -1863,6 +1920,9 @@ class QueryEngine:
                 except Exception as e:
                     logger.warning(f"[WORKFLOW:STEP_0] ⚠️ 初始化失败（非致命）: {e}")
                     # 初始化失败不阻止工作流程继续
+
+            # ===== Phase 2: 持久化组件初始化（语义记忆检索） =====
+            await self._ensure_phase2_initialized()
 
             # ===== 主循环（最多5次重试） =====
             while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
