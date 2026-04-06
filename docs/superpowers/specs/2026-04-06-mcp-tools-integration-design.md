@@ -250,8 +250,8 @@ class MCPServer:
 
             # 启动 stdio 连接
             stdio_params = StdioServerParameters(
-                command=" ".join(self.config.command),
-                env=self.config.env
+                command=self.config.command,  # 必须是 list，不能是字符串
+                env=self.config.env or {}
             )
 
             read_stream, write_stream = await stdio_client(stdio_params)
