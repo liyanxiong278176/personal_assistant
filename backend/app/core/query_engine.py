@@ -20,7 +20,7 @@ from enum import Enum
 from pathlib import Path
 
 from .llm import LLMClient, ToolCall
-from .prompts import DEFAULT_SYSTEM_PROMPT
+from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
 from .errors import AgentError, DegradationLevel
 from .tools import ToolRegistry, global_registry
 from .tools.executor import ToolExecutor
@@ -162,10 +162,13 @@ class QueryEngine:
             enhancement_config: 增强功能配置，为 None 时加载默认配置
         """
         self.llm_client = llm_client
-        self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
+        self._custom_system_prompt = system_prompt  # 外部传入的可选覆盖
         self._tool_registry = tool_registry or global_registry
         self._tool_executor = ToolExecutor(self._tool_registry)
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
+
+        # === PromptBuilder 初始化，参考 Claude Code asSystemPrompt 模式 ===
+        self._prompt_builder = self._init_prompt_builder()
 
         # === 增强功能配置 ===
         self._config = enhancement_config or AgentEnhancementConfig.load()
@@ -246,7 +249,68 @@ class QueryEngine:
         """
         self._tool_registry = tool_registry
         self._tool_executor = ToolExecutor(tool_registry)
+        # 工具注册表变更时，重新构建工具描述
+        self._prompt_builder = self._init_prompt_builder()
         logger.info(f"[QueryEngine] 🔄 工具注册表已更新 | 工具数量={len(tool_registry.list_tools())}")
+
+    def _init_prompt_builder(self) -> PromptBuilder:
+        """初始化 PromptBuilder，参考 Claude Code asSystemPrompt 模式
+
+        支持四层组装：
+        1. OVERRIDE: 外部传入的自定义提示词（完全替换）
+        2. DEFAULT: 默认系统提示词（角色定义）
+        3. MEMORY: 记忆文件层（CLAUDE.md 等），参考 Claude Code memoryMechanicsPrompt
+        4. APPEND: 工具描述等（总是追加）
+
+        Returns:
+            配置好的 PromptBuilder 实例
+        """
+        builder = PromptBuilder()
+
+        # 如果外部传入了自定义提示词，使用它替换默认提示词
+        if self._custom_system_prompt:
+            builder.add_layer(
+                name="CUSTOM",
+                content=self._custom_system_prompt,
+                layer=PromptLayer.OVERRIDE,
+            )
+        else:
+            # 默认提示词层
+            builder.add_layer(
+                name="DEFAULT",
+                content=DEFAULT_SYSTEM_PROMPT,
+                layer=PromptLayer.DEFAULT,
+            )
+
+        # 记忆文件层，参考 Claude Code memoryMechanicsPrompt
+        memory_content = load_memory_files(Path.cwd())
+        if memory_content:
+            builder.add_layer(
+                name="MEMORY",
+                content=memory_content,
+                layer=PromptLayer.MEMORY,
+            )
+
+        # 工具描述追加层
+        tools_desc = self._tool_registry.get_descriptions()
+        if tools_desc:
+            builder.add_layer(
+                name="TOOLS",
+                content=APPEND_TOOL_DESCRIPTION.format(tools=tools_desc),
+                layer=PromptLayer.APPEND,
+            )
+
+        return builder
+
+    def get_system_prompt(self) -> str:
+        """获取当前系统提示词（PromptBuilder 组装结果）
+
+        参考 Claude Code asSystemPrompt() 模式。
+
+        Returns:
+            组装后的完整系统提示词
+        """
+        return self._prompt_builder.build()
 
     def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
         """获取 LLM 可用的工具定义
@@ -454,7 +518,7 @@ class QueryEngine:
             content, tool_calls = await self.llm_client.chat_with_tools(
                 messages=messages,
                 tools=tools,
-                system_prompt=self.system_prompt
+                system_prompt=self.get_system_prompt()
             )
 
             if tool_calls:
@@ -521,7 +585,7 @@ class QueryEngine:
                 content, tool_calls = await self.llm_client.chat_with_tools(
                     messages=messages,
                     tools=tools,
-                    system_prompt=self.system_prompt
+                    system_prompt=self.get_system_prompt()
                 )
 
                 # 估算 token 使用
@@ -702,7 +766,7 @@ class QueryEngine:
 
         async for chunk in self.llm_client.stream_chat(
             messages=llm_messages,
-            system_prompt=self.system_prompt,
+            system_prompt=self.get_system_prompt(),
             guard=self._inference_guard
         ):
             chunk_count += 1
@@ -1465,7 +1529,7 @@ class QueryEngine:
             )
 
         messages = [{"role": "user", "content": user_input}]
-        prompt = system_prompt or self.system_prompt
+        prompt = system_prompt or self.get_system_prompt()
 
         return await self.llm_client.chat(messages, system_prompt=prompt)
 

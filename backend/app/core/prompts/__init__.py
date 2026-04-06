@@ -4,7 +4,7 @@
 """
 
 from .layers import PromptLayer, PromptLayerDef
-from .builder import PromptBuilder, DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION
+from .builder import PromptBuilder, DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, load_memory_files
 
 __all__ = [
     "PromptLayer",
@@ -12,4 +12,5 @@ __all__ = [
     "PromptBuilder",
     "DEFAULT_SYSTEM_PROMPT",
     "APPEND_TOOL_DESCRIPTION",
+    "load_memory_files",
 ]
