@@ -26,6 +26,26 @@ class SessionRepository:
             core_state: Session state data
         """
         async with Database.connection() as conn:
+            # 确保用户存在（避免外键约束错误）
+            await conn.execute(
+                """
+                INSERT INTO users (id, created_at, updated_at)
+                VALUES ($1, NOW(), NOW())
+                ON CONFLICT (id) DO NOTHING
+                """,
+                user_id
+            )
+
+            # 确保对话存在
+            await conn.execute(
+                """
+                INSERT INTO conversations (id, title, created_at, updated_at)
+                VALUES ($1, '新对话', NOW(), NOW())
+                ON CONFLICT (id) DO NOTHING
+                """,
+                conversation_id
+            )
+
             await conn.execute(
                 """
                 INSERT INTO session_states (session_id, user_id, conversation_id, core_state)

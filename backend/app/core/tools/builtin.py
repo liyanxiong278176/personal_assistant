@@ -80,6 +80,24 @@ class WeatherTool(Tool):
                 return tip
         return "适宜出行"
 
+    def get_parameters(self) -> dict:
+        """返回工具参数定义（供LLM Function Calling使用）"""
+        return {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "description": "城市名称，如'北京''上海''广州'等"
+                },
+                "days": {
+                    "type": "integer",
+                    "description": "预报天数，默认4天，最多4天",
+                    "default": 4
+                }
+            },
+            "required": ["city"]
+        }
+
 
 class POISearchTool(Tool):
     """景点搜索工具 - 使用高德地图POI搜索API"""
@@ -135,6 +153,28 @@ class POISearchTool(Tool):
             "keywords": keywords,
             "count": len(pois),
             "results": pois
+        }
+
+    def get_parameters(self) -> dict:
+        """返回工具参数定义（供LLM Function Calling使用）"""
+        return {
+            "type": "object",
+            "properties": {
+                "keywords": {
+                    "type": "string",
+                    "description": "搜索关键词，如'故宫''天安门''博物馆''景点'等"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "城市名称，如'北京''上海''广州'等"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量，默认10，最多25",
+                    "default": 10
+                }
+            },
+            "required": ["keywords", "city"]
         }
 
 
@@ -215,6 +255,24 @@ class RoutePlanTool(Tool):
         logger.info(f"[RoutePlanTool] ✓ 路线规划成功: {result['summary']}")
         return result
 
+    def get_parameters(self) -> dict:
+        """返回工具参数定义（供LLM Function Calling使用）"""
+        return {
+            "type": "object",
+            "properties": {
+                "destinations": {
+                    "type": "array",
+                    "description": "目的地列表，至少包含2个地点，如['北京''天津']",
+                    "items": {"type": "string"}
+                },
+                "origin": {
+                    "type": "string",
+                    "description": "起点城市，可选，默认使用第一个目的地"
+                }
+            },
+            "required": ["destinations"]
+        }
+
 
 class GeocodeTool(Tool):
     """地理编码工具 - 将地址转换为坐标"""
@@ -249,6 +307,23 @@ class GeocodeTool(Tool):
 
         logger.info(f"[GeocodeTool] ✓ 成功: {result['formatted_address']} -> ({result['location']['lng']}, {result['location']['lat']})")
         return result
+
+    def get_parameters(self) -> dict:
+        """返回工具参数定义（供LLM Function Calling使用）"""
+        return {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "description": "地址或地名，如'故宫''天安门广场''北京站'等"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "城市名称，可选，如'北京''上海'等，用于提高精度"
+                }
+            },
+            "required": ["address"]
+        }
 
 
 def register_builtin_tools():

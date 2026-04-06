@@ -364,3 +364,28 @@ async def get_status():
         "llm_configured": engine.llm_client is not None,
         "engine": "QueryEngine (Agent Core)"
     }
+
+
+# UC5-2 改进: Prometheus 指标端点
+@router.get("/metrics")
+async def get_metrics():
+    """Prometheus metrics endpoint.
+
+    Returns all collected metrics in Prometheus format.
+    """
+    from fastapi import Response
+    from app.core.observability.prometheus_exporter import get_metrics_collector
+
+    collector = get_metrics_collector()
+
+    # 更新并发会话数
+    try:
+        engine = get_query_engine()
+        collector.record_concurrent_sessions(len(engine._conversation_history))
+    except Exception:
+        pass
+
+    return Response(
+        content=collector.get_metrics(),
+        media_type=collector.get_content_type()
+    )

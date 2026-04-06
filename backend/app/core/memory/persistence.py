@@ -3,13 +3,16 @@
 Phase 2: 异步持久化管理器
 
 Uses existing @with_retry decorator from utils/retry.py.
+
+UC2-1 修复: 添加幂等键机制，防止重复写入
 """
 import asyncio
+import hashlib
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Set
 from uuid import UUID, uuid4
 
 import aiofiles
@@ -33,10 +36,20 @@ class Message:
     content: str
     tokens: int = 0
     created_at: datetime = None
+    # UC2-1修复: 幂等键，用于去重
+    idempotency_key: Optional[str] = None
 
     def __post_init__(self):
         if self.created_at is None:
             self.created_at = datetime.utcnow()
+        # UC2-1修复: 如果没有幂等键，自动生成
+        if self.idempotency_key is None:
+            self.idempotency_key = self._generate_idempotency_key()
+
+    def _generate_idempotency_key(self) -> str:
+        """生成幂等键: conversation_id + role + content_hash"""
+        content_hash = hashlib.sha256(self.content.encode()).hexdigest()[:16]
+        return f"{self.conversation_id}:{self.role}:{content_hash}"
 
     def to_dict(self) -> dict:
         return {
@@ -86,6 +99,10 @@ class AsyncPersistenceManager:
         self._running = False
         self._pending_tasks: set[asyncio.Task] = set()
 
+        # UC2-1修复: 幂等键去重集合
+        self._idempotency_keys: Set[str] = set()
+        self._idempotency_lock = asyncio.Lock()
+
         logger.info(
             f"[Phase2:PersistenceManager] ✅ 初始化完成 | "
             f"max_retries={self._max_retries} | "
@@ -134,10 +151,24 @@ class AsyncPersistenceManager:
         )
 
     async def persist_message(self, message: Message) -> None:
-        """Persist message (returns immediately, non-blocking)."""
+        """Persist message (returns immediately, non-blocking).
+
+        UC2-1 修复: 添加幂等键检查，防止重复写入
+        """
         if not self._running:
             logger.warning("[Phase2:PersistenceManager] ⚠️ 未启动，消息未持久化")
             return
+
+        # UC2-1修复: 幂等键检查
+        async with self._idempotency_lock:
+            if message.idempotency_key in self._idempotency_keys:
+                logger.info(
+                    f"[Phase2:PersistenceManager] 🔄 幂等跳过 | "
+                    f"key={message.idempotency_key[:32]}... | "
+                    f"msg={message.id}"
+                )
+                return
+            self._idempotency_keys.add(message.idempotency_key)
 
         logger.debug(
             f"[Phase2:PersistenceManager] 📤 非阻塞持久化 | "

@@ -7,7 +7,8 @@ from uuid import UUID
 
 from .result import AgentType, AGENT_TOOL_PERMISSIONS
 from .session import SubAgentSession, SubAgentStatus
-from .agents import BaseAgent, RouteAgent, HotelAgent, WeatherAgent, BudgetAgent
+from .agents import BaseAgent, RouteAgent, HotelAgent, WeatherAgent, BudgetAgent, TransportAgent
+from .circuit_breaker import get_circuit_breaker_registry, CircuitState
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +34,13 @@ class SubAgentOrchestrator:
     ):
         self.complexity_threshold = complexity_threshold
         self.max_concurrent = max_concurrent
+        # P1修复: 集成熔断器注册表
+        self._breaker_registry = get_circuit_breaker_registry()
         logger.info(
             f"[ORCHESTRATOR] 🎯 初始化 | "
             f"复杂度阈值={complexity_threshold} | "
-            f"最大并发={max_concurrent}"
+            f"最大并发={max_concurrent} | "
+            f"熔断器已集成"
         )
 
     def compute_complexity(
@@ -169,6 +173,11 @@ class SubAgentOrchestrator:
         if slots.get("need_weather"):
             agent_types.append(AgentType.WEATHER)
 
+        # D1-5 修复：交通需求检测
+        # 检查槽位或原始消息中是否包含交通关键词
+        if self._has_transport_need(slots):
+            agent_types.append(AgentType.TRANSPORT)
+
         # 如果有目的地或其他Agent，通常需要预算
         if agent_types and AgentType.BUDGET not in agent_types:
             agent_types.append(AgentType.BUDGET)
@@ -179,6 +188,30 @@ class SubAgentOrchestrator:
         )
 
         return agent_types
+
+    def _has_transport_need(self, slots: Dict[str, Any]) -> bool:
+        """检查是否需要交通Agent（D1-5 修复）
+
+        Args:
+            slots: 意图槽位值
+
+        Returns:
+            是否需要交通Agent
+        """
+        # 检查显式标志
+        if slots.get("need_transport"):
+            return True
+
+        # 检查原始消息中的交通关键词
+        # 注意：这里需要访问原始用户消息，但当前slots中不包含
+        # 作为简化，我们只在有明确目的地时默认添加交通信息
+        if slots.get("destinations") or slots.get("destination"):
+            # 对于多目的地行程，通常需要交通规划
+            destinations = slots.get("destinations", [])
+            if isinstance(destinations, list) and len(destinations) > 1:
+                return True
+
+        return False
 
     async def spawn_subagents(
         self,
@@ -203,6 +236,21 @@ class SubAgentOrchestrator:
 
         parent_id = getattr(parent_session, "session_id", None)
         spawn_depth = getattr(parent_session, "spawn_depth", 0) + 1
+
+        # P1修复: 熔断器检查 - 过滤掉已熔断的Agent类型
+        available_agent_types = []
+        for agent_type in agent_types:
+            breaker_name = f"subagent_{agent_type.value}"
+            breaker = self._breaker_registry.get_breaker(breaker_name)
+            if breaker.allow_request():
+                available_agent_types.append(agent_type)
+            else:
+                logger.warning(
+                    f"[ORCHESTRATOR] 🚫 Agent已熔断 | "
+                    f"type={agent_type.value} | state={breaker.state.value}"
+                )
+
+        agent_types = available_agent_types
 
         logger.info(
             f"[ORCHESTRATOR] 🚀 派生子Agent | "
@@ -238,10 +286,22 @@ class SubAgentOrchestrator:
         for session, result in zip(sessions, results):
             if isinstance(result, Exception):
                 session.mark_failed(result)
+                # P1修复: 记录失败到熔断器
+                breaker_name = f"subagent_{session.agent_type.value}"
+                breaker = self._breaker_registry.get_breaker(breaker_name)
+                breaker.record_failure(result)
             elif isinstance(result, dict):
                 session.mark_completed(result)
+                # P1修复: 记录成功到熔断器
+                breaker_name = f"subagent_{session.agent_type.value}"
+                breaker = self._breaker_registry.get_breaker(breaker_name)
+                breaker.record_success(latency_ms=session.execution_time * 1000 if session.execution_time else 0)
             else:
                 session.mark_completed(result)
+                # P1修复: 记录成功到熔断器
+                breaker_name = f"subagent_{session.agent_type.value}"
+                breaker = self._breaker_registry.get_breaker(breaker_name)
+                breaker.record_success(latency_ms=session.execution_time * 1000 if session.execution_time else 0)
 
         # 记录统计
         completed = sum(1 for s in sessions if s.status == SubAgentStatus.COMPLETED)
@@ -280,6 +340,7 @@ class SubAgentOrchestrator:
             AgentType.HOTEL: HotelAgent,
             AgentType.WEATHER: WeatherAgent,
             AgentType.BUDGET: BudgetAgent,
+            AgentType.TRANSPORT: TransportAgent,  # D1-5 修复
         }
 
         cls = agent_classes.get(session.agent_type, RouteAgent)

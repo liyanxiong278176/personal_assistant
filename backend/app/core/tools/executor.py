@@ -218,6 +218,7 @@ class ToolExecutor:
             工具执行结果
         """
         tool_name = call.name
+        logger.info(f"[ToolExecutor] Calling {tool_name} with arguments: {call.arguments}")
         try:
             return await self.execute(tool_name, **call.arguments)
         except (ToolExecutionError, ValueError) as e:
