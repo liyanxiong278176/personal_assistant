@@ -640,12 +640,19 @@ class QueryEngine:
                 # 合并结果
                 all_results.update(results)
 
-                # 将结果添加到消息中
+                # 将结果添加到消息中（每个工具调用一条消息，带 tool_call_id）
                 messages.append({"role": "assistant", "content": content})
-                messages.append({
-                    "role": "tool",
-                    "content": json.dumps(results, ensure_ascii=False)
-                })
+                for tc, result in zip(tool_calls, [results.get(tc.name, {}) for tc in tool_calls]):
+                    if isinstance(result, dict) and "error" in result:
+                        content_str = json.dumps(result, ensure_ascii=False)
+                    else:
+                        content_str = json.dumps(result, ensure_ascii=False) if isinstance(result, (dict, list)) else str(result)
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tc.id,
+                        "name": tc.name,
+                        "content": content_str
+                    })
 
                 # 检查是否有错误
                 errors = [k for k, v in results.items() if isinstance(v, dict) and "error" in v]
