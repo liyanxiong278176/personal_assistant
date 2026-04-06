@@ -412,7 +412,7 @@ class QueryEngine:
         try:
             from uuid import UUID
             conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
-            messages = await self._message_repo.get_messages(conv_uuid, limit=20)
+            messages = await self._message_repo.get_by_conversation(conv_uuid, limit=20)
             loaded = [{"role": m.role, "content": m.content} for m in reversed(messages)]
             self._conversation_history[conversation_id] = loaded
             logger.info(
