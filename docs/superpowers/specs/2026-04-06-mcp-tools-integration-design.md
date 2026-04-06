@@ -730,18 +730,345 @@ if __name__ == "__main__":
     amap_server.run()
 ```
 
-## QueryEngine 适配
+## QueryEngine 工作流程集成
+
+### 与现有工作流程的兼容性
+
+现有 QueryEngine 的工作流程是：
+```
+阶段4: 工具调用 → 阶段5: 上下文构建 → 阶段6: LLM生成
+```
+
+MCP 集成需要保持这一流程，仅替换底层工具调用实现。
+
+### 关键集成点
+
+#### 1. 替换 `_get_tools_for_llm()` 方法
 
 ```python
-from .mcp.client import MCPClientManager
-from .mcp.registry import MCPServerRegistry, MCPServerConfig
-from .mcp.cache import SchemaCache
-from .mcp.schema import mcp_to_openai_schema
+# 原实现（基于 ToolRegistry）
+def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
+    tools = []
+    for tool in self._tool_registry.list_tools():
+        meta = tool.metadata
+        tools.append({
+            "name": meta.name,
+            "description": meta.description,
+            "parameters": tool.get_parameters()
+        })
+    return tools
+
+# 新实现（基于 MCP）
+async def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
+    """获取 LLM 可用的工具定义（从 MCP）"""
+    # 创建临时 session（仅用于获取工具列表）
+    session = await self._mcp_client.get_session()
+    try:
+        mcp_tools = await self._mcp_client.list_tools(session)
+        # 转换为 OpenAI 格式
+        tools = []
+        for mcp_tool in mcp_tools:
+            tools.append({
+                "name": mcp_tool["name"],
+                "description": mcp_tool["description"],
+                "parameters": mcp_tool["inputSchema"]
+            })
+        return tools
+    finally:
+        await self._mcp_client.release_session(session.session_id)
+```
+
+#### 2. 替换 `_execute_tool_calls()` 方法
+
+```python
+# 原实现（基于 ToolExecutor）
+async def _execute_tool_calls(
+    self,
+    tool_calls: List[ToolCall]
+) -> Dict[str, Any]:
+    results = {}
+    for call in tool_calls:
+        try:
+            result = await self._tool_executor.execute(
+                call.name,
+                **call.arguments
+            )
+            results[call.name] = result
+        except Exception as e:
+            results[call.name] = {"error": str(e)}
+    return results
+
+# 新实现（基于 MCP）
+async def _execute_tool_calls(
+    self,
+    tool_calls: List[ToolCall]
+) -> Dict[str, Any]:
+    """执行工具调用（通过 MCP）
+
+    确保调用成功并返回标准化结果，供 _build_context() 使用。
+    """
+    results = {}
+    session = await self._mcp_client.get_session()
+
+    try:
+        for call in tool_calls:
+            try:
+                logger.info(f"[MCP:TOOL] 📤 执行工具: {call.name} | 参数: {call.arguments}")
+
+                # 通过 MCP 调用工具
+                mcp_result = await self._mcp_client.call_tool(
+                    session=session,
+                    tool_name=call.name,
+                    arguments=call.arguments
+                )
+
+                # MCP 返回格式：CallToolResult(content=[TextContent|ImageContent...])
+                # 提取实际数据
+                if hasattr(mcp_result, 'content'):
+                    # FastMCP 返回的结果可能是 TextContent 列表
+                    content_list = mcp_result.content
+                    if content_list and len(content_list) > 0:
+                        first_content = content_list[0]
+                        if hasattr(first_content, 'text'):
+                            # TextContent 类型
+                            extracted_result = json.loads(first_content.text)
+                        else:
+                            extracted_result = {"data": str(first_content)}
+                    else:
+                        extracted_result = {}
+                else:
+                    # 直接是字典
+                    extracted_result = mcp_result
+
+                results[call.name] = extracted_result
+                logger.info(f"[MCP:TOOL] ✅ 工具完成: {call.name}")
+
+            except Exception as e:
+                logger.error(f"[MCP:TOOL] ❌ 工具失败: {call.name} | 错误: {e}")
+                # 错误结果也返回，让 _build_context() 处理
+                results[call.name] = {"error": str(e)}
+
+    finally:
+        await self._mcp_client.release_session(session.session_id)
+
+    return results
+```
+
+#### 3. 保持 `_build_context()` 不变
+
+现有的 `_build_context()` 方法直接处理 `tool_results` 字典，MCP 集成后返回相同格式的字典，无需修改：
+
+```python
+# 现有代码（无需修改）
+async def _build_context(
+    self,
+    user_id: Optional[str],
+    tool_results: Dict[str, Any],
+    slots,
+    stage_log: Optional[StageLogger] = None
+) -> str:
+    parts = []
+
+    # 工具结果 - MCP 返回的格式与原工具系统兼容
+    if tool_results:
+        parts.append("## 工具调用结果")
+        for name, result in tool_results.items():
+            if isinstance(result, dict) and "error" in result:
+                parts.append(f"{name}: 错误 - {result['error']}")
+            else:
+                result_str = json.dumps(result, ensure_ascii=False)
+                parts.append(f"{name}: {result_str}")
+
+    return "\n\n".join(parts)
+```
+
+#### 4. 工具循环模式适配
+
+现有的 `_execute_tools_with_loop()` 支持多轮工具调用，MCP 集成需要适配：
+
+```python
+async def _execute_tools_with_loop(
+    self,
+    tools: List[Dict[str, Any]],
+    stage_log: Optional[StageLogger] = None
+) -> Dict[str, Any]:
+    """使用工具循环模式执行工具（MCP 版本）"""
+    max_iterations = self._config.max_tool_iterations
+    token_limit = self._config.tool_loop_token_limit
+
+    messages = [{"role": "user", "content": self._current_message}]
+    all_results: Dict[str, Any] = {}
+    iteration = 0
+    session = await self._mcp_client.get_session()
+
+    try:
+        while iteration < max_iterations:
+            iteration += 1
+            logger.info(f"[MCP:LOOP] 📍 迭代 {iteration}/{max_iterations}")
+
+            content, tool_calls = await self.llm_client.chat_with_tools(
+                messages=messages,
+                tools=tools,  # MCP 工具定义
+                system_prompt=self.get_system_prompt()
+            )
+
+            if not tool_calls:
+                logger.info(f"[MCP:LOOP] ✅ LLM 完成工具调用")
+                break
+
+            # 执行工具（通过 MCP）
+            results = {}
+            for call in tool_calls:
+                try:
+                    mcp_result = await self._mcp_client.call_tool(
+                        session=session,
+                        tool_name=call.name,
+                        arguments=call.arguments
+                    )
+                    # 提取结果（同上）
+                    results[call.name] = self._extract_mcp_result(mcp_result)
+                except Exception as e:
+                    results[call.name] = {"error": str(e)}
+
+            all_results.update(results)
+
+            # 构造 tool messages（带 tool_call_id）
+            messages.append({"role": "assistant", "content": content})
+            for tc, result in zip(tool_calls, [results.get(tc.name, {}) for tc in tool_calls]):
+                content_str = json.dumps(result, ensure_ascii=False)
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "name": tc.name,
+                    "content": content_str
+                })
+
+    finally:
+        await self._mcp_client.release_session(session.session_id)
+
+    return all_results
 
 
+def _extract_mcp_result(self, mcp_result) -> Any:
+    """提取 MCP 工具调用的实际结果"""
+    if hasattr(mcp_result, 'content'):
+        content_list = mcp_result.content
+        if content_list and len(content_list) > 0:
+            first = content_list[0]
+            if hasattr(first, 'text'):
+                return json.loads(first.text)
+        return {}
+    return mcp_result
+```
+
+### 数据流验证
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    QueryEngine 工作流程                              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  用户输入                                                            │
+│     │                                                                │
+│     ▼                                                                │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ 阶段4: 工具调用                                                │   │
+│  │                                                                │   │
+│  │   _execute_tools_by_intent()                                  │   │
+│  │       │                                                        │   │
+│  │       ▼                                                        │   │
+│  │   _get_tools_for_llm() ──────► MCP Client Manager              │   │
+│  │       │                            │                            │   │
+│  │       │                            ▼                            │   │
+│  │       │                       SchemaCache                       │   │
+│  │       │                            │                            │   │
+│  │       ▼                            ▼                            │   │
+│  │   LLM.chat_with_tools() ────► list_tools()                    │   │
+│  │       │                            │                            │   │
+│  │       ▼                            ▼                            │   │
+│  │   tool_calls ───────────────► call_tool()                     │   │
+│  │       │                            │                            │   │
+│  │       ▼                            ▼                            │   │
+│  │   _execute_tool_calls() ────► MCP Server                       │   │
+│  │       │                            │                            │   │
+│  │       ▼                            ▼                            │   │
+│  │   tool_results ◄───────────── CallToolResult                   │   │
+│  │       │                        (标准化格式)                       │   │
+│  └───────│────────────────────────────────────────────────────────┘   │
+│          │                                                            │
+│          ▼                                                            │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ 阶段5: 上下文构建                                              │   │
+│  │                                                                │   │
+│  │   _build_context(tool_results)                                │   │
+│  │       │                                                        │   │
+│  │       ▼                                                        │   │
+│  │   格式化为:                                                    │   │
+│  │   ## 工具调用结果                                              │   │
+│  │   get_weather: {...}                                          │   │
+│  │   search_poi: {...}                                           │   │
+│  └───────│────────────────────────────────────────────────────────┘   │
+│          │                                                            │
+│          ▼                                                            │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ 阶段6: LLM 生成                                                │   │
+│  │                                                                │   │
+│  │   _generate_response(context + user_input)                     │   │
+│  │       │                                                        │   │
+│  │       ▼                                                        │   │
+│  │   流式输出响应                                                  │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### MCP 工具结果格式标准化
+
+为了确保与现有 `_build_context()` 兼容，MCP 工具返回的结果必须标准化：
+
+```python
+# MCP Server 端确保返回标准格式
+@amap_server.tool()
+async def get_weather(city: str, days: int = 4) -> dict:
+    """返回标准格式的结果"""
+    result = await weather_service.get_weather_forecast(city, days)
+
+    # 确保返回 dict，不包含 MCP 特有的类型
+    if isinstance(result, dict):
+        return result
+    return {"data": result}
+
+# 或者显式处理 MCP 返回类型
+from mcp.types import TextContent
+
+@amap_server.tool()
+async def get_weather(city: str, days: int = 4) -> str:
+    """返回 JSON 字符串"""
+    result = await weather_service.get_weather_forecast(city, days)
+    return json.dumps(result, ensure_ascii=False)
+```
+
+### 初始化集成
+
+在 QueryEngine `__init__` 中初始化 MCP 组件：
+
+```python
 class QueryEngine:
-    def __init__(self):
-        # MCP 组件
+    def __init__(
+        self,
+        llm_client: Optional[LLMClient] = None,
+        system_prompt: Optional[str] = None,
+        # 保留旧参数用于向后兼容（但不再使用）
+        tool_registry: Optional[ToolRegistry] = None,
+        ...
+    ):
+        self.llm_client = llm_client
+
+        # MCP 组件初始化
+        from .mcp.registry import MCPServerRegistry
+        from .mcp.cache import SchemaCache
+        from .mcp.client import MCPClientManager
+
         self._mcp_registry = MCPServerRegistry()
         self._mcp_cache = SchemaCache()
         self._mcp_cache.set_registry(self._mcp_registry)
@@ -749,53 +1076,76 @@ class QueryEngine:
             server_registry=self._mcp_registry,
             schema_cache=self._mcp_cache
         )
-        self._llm = ChatOpenAI(...)  # LangChain 仅负责 LLM 调用
 
-    async def initialize(self):
-        """初始化 MCP servers"""
-        # 注册 Amap MCP Server (进程内 stdio)
-        amap_config = MCPServerConfig(
-            name="amap",
-            command=["python", "-m", "app.mcp_servers.amap.server"],
-            env={
-                "AMAP_API_KEY": os.getenv("AMAP_API_KEY")
-            }
-        )
-        self._mcp_registry.register(amap_config)
+        # 其他组件初始化...
+```
 
-        # 启动健康检查
-        await self._mcp_registry.start_health_check()
+### 异步初始化 MCP Servers
 
-    async def query(self, user_id: str, message: str) -> str:
-        """处理查询"""
-        # 获取会话（复用全局连接）
-        session = await self._mcp_client.get_session(user_id)
+```python
+async def _ensure_mcp_initialized(self) -> None:
+    """确保 MCP Servers 已初始化（延迟初始化）"""
+    if hasattr(self, '_mcp_initialized') and self._mcp_initialized:
+        return
 
-        try:
-            # 获取工具列表（优先读缓存）
-            mcp_tools = await self._mcp_client.list_tools(session)
-            openai_tools = [mcp_to_openai_schema(t) for t in mcp_tools]
+    # 注册 Amap MCP Server
+    from .mcp.registry import MCPServerConfig
+    amap_config = MCPServerConfig(
+        name="amap",
+        command=["python", "-m", "app.mcp_servers.amap.server"],
+        env={"AMAP_API_KEY": os.getenv("AMAP_API_KEY")}
+    )
+    self._mcp_registry.register(amap_config)
 
-            # 调用 LLM
-            response = await self._llm.ainvoke(
-                message,
-                tools=openai_tools
-            )
+    # 启动健康检查
+    await self._mcp_registry.start_health_check()
 
-            # 处理工具调用
-            if response.tool_calls:
-                for call in response.tool_calls:
-                    result = await self._mcp_client.call_tool(
-                        session,
-                        tool_name=call.name,
-                        arguments=call.arguments
-                    )
-                    # ... 处理结果
+    self._mcp_initialized = True
+    logger.info("[QueryEngine:MCP] ✅ MCP 组件已初始化")
+```
 
-            return response.content
-        finally:
-            # 释放会话（不关闭连接）
-            await self._mcp_client.release_session(session.session_id)
+### 向后兼容性
+
+为了平滑迁移，可以保留旧的 `ToolRegistry` 作为 fallback：
+
+```python
+async def _execute_tool_calls(
+    self,
+    tool_calls: List[ToolCall]
+) -> Dict[str, Any]:
+    """执行工具调用（MCP 优先，降级到旧系统）"""
+    results = {}
+
+    # 优先尝试 MCP
+    try:
+        session = await self._mcp_client.get_session()
+        for call in tool_calls:
+            try:
+                result = await self._mcp_client.call_tool(
+                    session, call.name, call.arguments
+                )
+                results[call.name] = self._extract_mcp_result(result)
+            except Exception as e:
+                # MCP 失败，降级到旧系统
+                logger.warning(f"[MCP] ⚠️ 降级到旧工具系统: {call.name}")
+                result = await self._tool_executor.execute(
+                    call.name, **call.arguments
+                )
+                results[call.name] = result
+        await self._mcp_client.release_session(session.session_id)
+    except Exception as e:
+        # MCP 完全失败，使用旧系统
+        logger.error(f"[MCP] ❌ MCP 不可用，使用旧工具系统: {e}")
+        for call in tool_calls:
+            try:
+                result = await self._tool_executor.execute(
+                    call.name, **call.arguments
+                )
+                results[call.name] = result
+            except Exception as e2:
+                results[call.name] = {"error": str(e2)}
+
+    return results
 ```
 
 ## 迁移策略
