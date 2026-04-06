@@ -1,7 +1,8 @@
 """工具系统基类"""
 
+import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, get_type_hints
 from pydantic import BaseModel
 
 
@@ -78,6 +79,55 @@ class Tool(ABC):
     def metadata(self) -> ToolMetadata:
         """获取工具元数据"""
         return self._metadata
+
+    def get_parameters(self) -> Dict[str, Any]:
+        """从 execute 方法签名提取参数定义，供 LLM Function Calling 使用
+
+        Returns:
+            OpenAI 格式的 parameters 定义
+        """
+        try:
+            sig = inspect.signature(self.execute)
+            properties = {}
+            required = []
+
+            for name, param in sig.parameters.items():
+                if name in ("self", "kwargs", "args"):
+                    continue
+
+                # 推断类型
+                type_map = {
+                    "str": "string",
+                    "int": "integer",
+                    "float": "number",
+                    "bool": "boolean",
+                    "list": "array",
+                    "dict": "object",
+                }
+                type_str = type_map.get(param.annotation.__name__, "string")
+
+                # 默认值
+                default = param.default
+                if default is inspect.Parameter.empty:
+                    required.append(name)
+                    default_val = None
+                else:
+                    default_val = default if not callable(default) else None
+
+                properties[name] = {
+                    "type": type_str,
+                    "description": f"参数 {name}",
+                }
+                if default_val is not None:
+                    properties[name]["default"] = default_val
+
+            return {
+                "type": "object",
+                "properties": properties,
+                "required": required
+            }
+        except Exception:
+            return {"type": "object", "properties": {}, "required": []}
 
     def validate_input(self, data: Dict[str, Any]) -> bool:
         """验证输入参数（子类可覆盖）"""

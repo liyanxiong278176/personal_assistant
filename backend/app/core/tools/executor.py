@@ -104,7 +104,7 @@ class ToolExecutor:
                     original_error = result.original_error
                 results[tool_name] = {
                     "error": str(result),
-                    "original_error": original_error,
+                    "original_error": repr(original_error),
                 }
             else:
                 results[tool_name] = result
