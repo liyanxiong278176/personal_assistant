@@ -89,6 +89,30 @@ class MetricsCollector:
         logger.debug(f"[Metrics] Task stats retrieved: total={total}, completion_rate={stats['completion_rate']:.2%}")
         return stats
 
+    def get_statistics(self, prefix: str) -> Dict:
+        """Get unified statistics by prefix
+
+        This method provides a unified API for accessing stats.
+        Delegates to existing get_*_stats methods.
+
+        Args:
+            prefix: "intent", "tool", or "task"
+
+        Returns:
+            Dict with aggregated statistics
+
+        Raises:
+            ValueError: If prefix is not one of "intent", "tool", or "task"
+        """
+        if prefix == "intent":
+            return self.get_intent_stats()
+        elif prefix == "tool":
+            return self.get_tool_stats()
+        elif prefix == "task":
+            return self.get_task_stats()
+        else:
+            raise ValueError(f"Unknown prefix: {prefix}")
+
     def reset(self):
         """清空所有指标 - 主要用于测试"""
         logger.info("[Metrics] Resetting all metrics")
