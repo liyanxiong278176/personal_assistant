@@ -22,7 +22,9 @@ Usage:
 """
 
 from .base import IIntentStrategy
+from .rule import RuleStrategy
 
 __all__ = [
     "IIntentStrategy",
+    "RuleStrategy",
 ]
