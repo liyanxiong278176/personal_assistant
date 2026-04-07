@@ -24,7 +24,7 @@ from app.core.prompts import PromptBuilder, PromptLayer, DEFAULT_SYSTEM_PROMPT
 from app.core.memory import MemoryHierarchy, MemoryItem, MemoryLevel
 from app.core.memory.injection import MemoryInjector
 from app.core.memory.promoter import MemoryPromoter
-from app.core.context import ContextManager, TokenEstimator, ContextCompressor
+from app.core.context_mgmt import ContextManager, TokenEstimator, ContextCompressor
 from app.core.coordinator import Coordinator, create_worker
 from app.core.query_engine import QueryEngine
 

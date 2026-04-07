@@ -18,7 +18,7 @@ from .llm import LLMClient, ToolCall, ToolResult, ToolCallResult
 from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
 from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_PROMPT
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
-from .context import (
+from .context_mgmt import (
     ContextCompressor,
     ContextManager,
     TokenEstimator,
@@ -26,6 +26,7 @@ from .context import (
     InferenceGuard,
     OverlimitStrategy,
 )
+from .context import RequestContext
 from .memory import (
     MemoryHierarchy,
     MemoryHierarchyFactory,
@@ -112,6 +113,8 @@ __all__ = [
     "AgentEnhancementConfig",
     "InferenceGuard",
     "OverlimitStrategy",
+    # shared context
+    "RequestContext",
     # preferences
     "PreferenceType",
     "MatchedPreference",

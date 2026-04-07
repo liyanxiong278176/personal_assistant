@@ -1,5 +1,5 @@
 import pytest
-from app.core.context.inference_guard import InferenceGuard, OverlimitStrategy
+from app.core.context_mgmt.inference_guard import InferenceGuard, OverlimitStrategy
 
 
 @pytest.fixture

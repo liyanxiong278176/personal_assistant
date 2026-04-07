@@ -220,7 +220,7 @@ class TestPhase2Integration:
             "app.core.subagent.circuit_breaker",
             "app.core.subagent.orchestrator",
             "app.core.intent",
-            "app.core.context.manager",
+            "app.core.context_mgmt.manager",
             "app.core.memory.hierarchy",
         ]
 

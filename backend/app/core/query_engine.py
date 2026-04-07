@@ -25,10 +25,10 @@ from .errors import AgentError, DegradationLevel
 from .tools import ToolRegistry, global_registry
 from .tools.executor import ToolExecutor
 from .intent import IntentClassifier, SlotExtractor, intent_classifier
-from .context.guard import ContextGuard
-from .context.config import ContextConfig
-from .context.enhancement_config import AgentEnhancementConfig
-from .context.inference_guard import InferenceGuard, OverlimitStrategy
+from .context_mgmt.guard import ContextGuard
+from .context_mgmt.config import ContextConfig
+from .context_mgmt.enhancement_config import AgentEnhancementConfig
+from .context_mgmt.inference_guard import InferenceGuard, OverlimitStrategy
 from .preferences.extractor import PreferenceExtractor
 from .session import SessionInitializer
 from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
