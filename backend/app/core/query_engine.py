@@ -14,10 +14,14 @@ import json
 import logging
 import time
 import traceback
-from typing import AsyncIterator, Optional, List, Dict, Any, Union
+from typing import AsyncIterator, Optional, List, Dict, Any, Union, TYPE_CHECKING
 from enum import Enum
 
 from pathlib import Path
+
+if TYPE_CHECKING:
+    from .intent.router import IntentRouter
+    from .prompts.service import PromptService
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
@@ -159,7 +163,10 @@ class QueryEngine:
         system_prompt: Optional[str] = None,
         tool_registry: Optional[ToolRegistry] = None,
         config_path: Optional[Path] = None,
-        enhancement_config: Optional[AgentEnhancementConfig] = None
+        enhancement_config: Optional[AgentEnhancementConfig] = None,
+        intent_router: Optional["IntentRouter"] = None,
+        prompt_service: Optional["PromptService"] = None,
+        memory_service: Optional[Any] = None,
     ):
         """Initialize QueryEngine.
 
@@ -169,11 +176,20 @@ class QueryEngine:
             tool_registry: 工具注册表，为 None 时使用全局注册表
             config_path: 会话配置文件路径
             enhancement_config: 增强功能配置，为 None 时加载默认配置
+            intent_router: 意图路由器（可选），用于新的意图识别流程
+            prompt_service: 提示词服务（可选），用于新的提示词渲染流程
+            memory_service: 记忆服务（可选，P0 可为 None）
         """
         self.llm_client = llm_client
         self._custom_system_prompt = system_prompt  # 外部传入的可选覆盖
         self._tool_registry = tool_registry or global_registry
         self._tool_executor = ToolExecutor(self._tool_registry)
+
+        # Phase 5.1: 新服务集成
+        self._intent_router = intent_router  # 新的 IntentRouter（可选）
+        self._prompt_service = prompt_service  # 新的 PromptService（可选）
+        self._memory_service = memory_service  # 记忆服务（可选，P0 可为 None）
+
         # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
         self._history_lock = asyncio.Lock()  # 会话访问锁
@@ -206,6 +222,9 @@ class QueryEngine:
         # 意图分类器和槽位提取器
         self._intent_classifier = intent_classifier
         self._slot_extractor = SlotExtractor()
+
+        # 兼容legacy: 保留原有意图分类器作为降级fallback
+        self._legacy_intent = self._intent_classifier
 
         # === 上下文守卫初始化 ===
         rules_cache = ContextConfig.load_rules_at_startup(
