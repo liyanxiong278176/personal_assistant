@@ -23,8 +23,10 @@ Usage:
 
 from .base import IIntentStrategy
 from .rule import RuleStrategy
+from .llm_fallback import LLMFallbackStrategy
 
 __all__ = [
     "IIntentStrategy",
     "RuleStrategy",
+    "LLMFallbackStrategy",
 ]
