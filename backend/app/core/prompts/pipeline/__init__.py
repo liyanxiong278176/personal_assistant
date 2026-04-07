@@ -4,10 +4,12 @@
 """
 
 from .base import IPromptFilter
+from .compressor import TokenCompressor
 from .security import SecurityFilter, SecurityFilterConfig
 
 __all__ = [
     "IPromptFilter",
     "SecurityFilter",
     "SecurityFilterConfig",
+    "TokenCompressor",
 ]
