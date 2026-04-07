@@ -9,6 +9,8 @@ from .classifier import (
 )
 from .complexity import is_complex_query, ComplexityResult
 from .llm_classifier import LLMIntentClassifier, LLM_CLASSIFY_PROMPT
+from .config import IntentRouterConfig
+from .router import ClarificationResult, IntentRouter, RouterStatistics
 
 __all__ = [
     "SlotExtractor",
@@ -22,4 +24,8 @@ __all__ = [
     "ComplexityResult",
     "LLMIntentClassifier",
     "LLM_CLASSIFY_PROMPT",
+    "IntentRouterConfig",
+    "IntentRouter",
+    "ClarificationResult",
+    "RouterStatistics",
 ]
