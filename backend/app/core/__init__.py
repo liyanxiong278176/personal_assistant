@@ -13,6 +13,7 @@ Agent Core 是整个 Agent 系统的核心基础设施，提供：
 - 增强功能：工具循环、推理守卫、偏好提取
 """
 
+from .container import DIContainer, CircularDependencyError, ServiceDescriptor
 from .errors import AgentError, DegradationLevel, DegradationStrategy
 from .llm import LLMClient, ToolCall, ToolResult, ToolCallResult
 from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
@@ -63,6 +64,11 @@ from .preferences import (
 )
 
 __all__ = [
+    # container
+    "DIContainer",
+    "CircularDependencyError",
+    "ServiceDescriptor",
+    # errors
     "AgentError",
     "DegradationLevel",
     "DegradationStrategy",
