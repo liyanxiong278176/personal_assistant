@@ -224,33 +224,149 @@ class IntentRouterConfig(BaseModel):
     max_clarification_rounds: int = 2
 
 class DynamicTuner:
-    """动态调优器 - 基于Metrics调整配置"""
+    """动态调优器 - 基于Metrics调整配置（线程安全版）"""
+    
+    def __init__(self, metrics: MetricsCollector, config: IntentRouterConfig):
+        self._metrics = metrics
+        self._config = config
+        self._lock = asyncio.Lock()  # 防止并发更新的锁
     
     async def tune(self):
-        """定期执行调优（每5分钟）"""
+        """定期执行调优（每5分钟）- 线程安全"""
         
-        # 1. 获取各策略命中率
-        stats = await self._metrics.get_statistics()
-        
-        # 2. 规则命中率过低，迁移部分规则到轻量模型
-        if stats["rule_hit_rate"] < self._config.rule_hit_rate_threshold:
-            self._config.rule_traffic_ratio -= 0.1
-            self._config.model_traffic_ratio += 0.1
-        
-        # 3. 保存到配置中心
-        await self._config_repo.update(self._config)
+        # 使用锁防止并发更新
+        async with self._lock:
+            # 1. 获取各策略命中率
+            stats = await self._metrics.get_statistics()
+            
+            # 2. 规则命中率过低，迁移部分规则到轻量模型
+            if stats["rule_hit_rate"] < self._config.rule_hit_rate_threshold:
+                # 先验证新配置，避免无效配置
+                new_rule_ratio = max(0.3, self._config.rule_traffic_ratio - 0.1)
+                new_model_ratio = min(0.6, self._config.model_traffic_ratio + 0.1)
+                
+                # 配置验证：比例总和应为1.0
+                if abs((new_rule_ratio + new_model_ratio + self._config.llm_traffic_ratio) - 1.0) > 0.01:
+                    logger.warning(
+                        f"配置验证失败，跳过调优: "
+                        f"rule={new_rule_ratio}, model={new_model_ratio}"
+                    )
+                    return
+                
+                # 更新配置
+                self._config.rule_traffic_ratio = new_rule_ratio
+                self._config.model_traffic_ratio = new_model_ratio
+            
+            # 3. 保存到配置中心（带版本号，支持回滚）
+            new_version = await self._config_repo.update_with_version(
+                self._config,
+                previous_version=self._config.version
+            )
+            
+            self._config.version = new_version
+            
+            logger.info(
+                f"[DynamicTuner] 配置已更新 | version={new_version} | "
+                f"rule_ratio={self._config.rule_traffic_ratio:.2f}, "
+                f"model_ratio={self._config.model_traffic_ratio:.2f}"
+            )
 ```
 
-### 3.4 澄清管理器
+### 3.4 RequestContext定义
+
+```python
+class RequestContext(BaseModel):
+    """请求上下文 - 贯穿所有模块的上下文对象"""
+    
+    # 核心信息
+    message: str
+    user_id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    
+    # 提取的信息
+    slots: Optional[SlotResult] = None
+    history: List[Dict[str, str]] = []
+    
+    # 记忆数据
+    memories: List[MemoryItem] = []
+    
+    # 澄清状态
+    clarification_count: int = 0
+    max_clarification_rounds: int = 2
+    
+    # 配置
+    max_tokens: int = 16000
+    
+    # 工具结果
+    tool_results: Dict[str, Any] = {}
+    
+    def update(self, **kwargs) -> 'RequestContext':
+        """创建更新后的上下文"""
+        return self.copy(update=kwargs)
+
+class SlotResult(BaseModel):
+    """槽位提取结果（保持与现有代码兼容）"""
+    destination: Optional[str] = None
+    destinations: Optional[List[str]] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    days: Optional[int] = None
+    travelers: Optional[int] = None
+    budget: Optional[str] = None
+    budget_amount: Optional[int] = None
+    need_hotel: bool = False
+    need_weather: bool = False
+    need_route: bool = False
+    need_food: bool = False
+    interests: Optional[List[str]] = None
+    
+    @property
+    def has_required_slots(self) -> bool:
+        dest = self.destinations if self.destinations else self.destination
+        date_info = self.days or (self.start_date and self.end_date)
+        return bool(dest and date_info)
+```
+
+### 3.5 澄清管理器（带Redis Fallback）
 
 ```python
 class ClarificationManager:
-    """澄清引导管理器 - 防止无限循环"""
+    """澄清引导管理器 - 防止无限循环 + Redis高可用"""
     
-    def __init__(self, templates: ClarificationTemplates, max_rounds: int = 2):
+    def __init__(
+        self, 
+        templates: ClarificationTemplates, 
+        max_rounds: int = 2,
+        redis_client: Optional[Redis] = None,
+        fallback_store: Optional[Dict] = None  # 内存fallback
+    ):
         self._templates = templates
         self._max_rounds = max_rounds
-        self._redis = Redis()
+        
+        # Redis主节点 + 备用节点
+        self._redis_primary = redis_client
+        self._redis_replica = None  # 复制节点
+        
+        # 内存fallback（Redis不可用时）
+        self._fallback_store = fallback_store or {}
+    
+    async def _redis_operation(self, operation: str, *args):
+        """Redis操作带重试和fallback"""
+        try:
+            if self._redis_primary:
+                return await getattr(self._redis_primary, operation)(*args)
+        except (RedisError, ConnectionError) as e:
+            logger.warning(f"[Redis] 主节点失败，尝试副本: {e}")
+            if self._redis_replica:
+                try:
+                    return await getattr(self._redis_replica, operation)(*args)
+                except Exception as e2:
+                    logger.error(f"[Redis] 副本节点也失败，使用内存fallback: {e2}")
+            # 使用内存fallback
+            return await self._get_fallback(operation, *args)
+        except Exception as e:
+            logger.error(f"[Redis] 操作失败，使用内存fallback: {e}")
+            return await self._get_fallback(operation, *args)
     
     async def can_clarify(self, context: RequestContext) -> bool:
         """是否可以继续澄清"""
@@ -433,7 +549,17 @@ def _route_retrieval(self, query: str, context: RequestContext) -> List[MemorySt
 
 ```python
 class PIIEncryptor:
-    """敏感信息可逆脱敏"""
+    """敏感信息可逆脱敏 - 安全加固版"""
+    
+    # 加密参数规范
+    AES_KEY_SIZE = 256  # bits
+    AES_MODE = "GCM"
+    NONCE_SIZE = 12  # bytes
+    
+    # KMS集成
+    def __init__(self, kms_client: KMSClient):
+        self._kms = kms_client
+        self._local_cache = {}  # 密钥缓存
     
     PII_PATTERNS = {
         "phone": r'1[3-9]\d{9}',
@@ -443,18 +569,149 @@ class PIIEncryptor:
     
     async def encrypt(self, content: str, pii_fields: List[str]) -> Tuple[str, str]:
         """加密敏感内容"""
-        # 1. 标记化：提取敏感字段
-        # 2. AES-GCM加密
-        # 3. 生成token替换
-        # 4. 存储加密映射
+        # 1. 从KMS获取或生成密钥
+        key_id = await self._kms.get_or_create_key()
+        key = await self._get_encryption_key(key_id)
+        
+        # 2. AES-GCM加密（生成随机nonce）
+        cipher = AES.new(key, AES.MODE_GCM)
+        nonce = get_random_bytes(self.NONCE_SIZE)
+        
+        # 3. 标记化：提取敏感字段并加密
+        encrypted_mappings = {}
+        encrypted_content = content
+        
+        for field_type in set(pii_fields):
+            pattern = self.PII_PATTERNS[field_type]
+            for match in re.finditer(pattern, content):
+                original = match.group()
+                ciphertext, tag = cipher.encrypt_and_digest(
+                    original.encode(),
+                    nonce
+                )
+                # 生成token
+                token = f"[PII:{field_type}:{base64.b64encode(ciphertext).decode()[:16]}]"
+                encrypted_mappings[token] = {
+                    "nonce": base64.b64encode(nonce).decode(),
+                    "tag": base64.b64encode(tag).decode(),
+                    "key_id": key_id,
+                }
+                encrypted_content = encrypted_content.replace(original, token)
+        
+        # 4. 存储加密映射到数据库（使用参数化查询）
+        mapping_id = str(uuid4())
+        async with self._db.acquire() as conn:
+            await conn.execute(
+                """INSERT INTO pii_encryption_mappings 
+                   (id, mappings, created_at) 
+                   VALUES ($1, $2, NOW())""",
+                mapping_id,
+                json.dumps(encrypted_mappings),
+            )
+        
         return encrypted_content, mapping_id
     
-    async def decrypt(self, encrypted_content: str, key_id: str, user_id: str) -> str:
-        """解密敏感内容"""
-        # 1. 权限检查
-        # 2. 获取加密映射
+    async def decrypt(
+        self, 
+        encrypted_content: str, 
+        key_id: str,
+        requesting_user_id: str
+    ) -> str:
+        """解密敏感内容 - 带授权检查"""
+        
+        # 1. 授权检查：用户只能解密自己的数据
+        if not await self._can_user_decrypt(
+            requesting_user_id, 
+            encrypted_content
+        ):
+            raise PermissionError(
+                f"用户 {requesting_user_id} 无权解密此内容"
+            )
+        
+        # 2. 获取加密映射（参数化查询，防SQL注入）
+        mappings = await self._get_encryption_mappings(key_id)
+        
         # 3. 解密token
-        return decrypted_content
+        content = encrypted_content
+        for token, data in mappings.items():
+            key = await self._get_encryption_key(data["key_id"])
+            nonce = base64.b64decode(data["nonce"])
+            tag = base64.b64decode(data["tag"])
+            ciphertext = token.split(":")[2][:16]  # 提取cipher部分
+            cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+            
+            try:
+                decrypted = cipher.decrypt_and_verify(
+                    base64.b64decode(ciphertext + "=="),
+                    tag
+                ).decode()
+                content = content.replace(token, decrypted)
+            except DecryptionError:
+                logger.warning(f"解密失败: {token}")
+        
+        return content
+    
+    async def _can_user_decrypt(
+        self, 
+        user_id: str, 
+        encrypted_content: str
+    ) -> bool:
+        """检查用户是否有权解密此内容"""
+        # 检查内容是否属于该用户
+        # 参数化查询防止SQL注入
+        async with self._db.acquire() as conn:
+            result = await conn.fetchrow(
+                """SELECT 1 FROM pii_encryption_mappings 
+                   WHERE id = $1 
+                   AND user_id = $2""",
+                encrypted_content.split("[PII:")[1].split(":")[1][:36],  # 提取mapping_id前缀
+                user_id
+            )
+            return result is not None
+```
+
+### 5.3.1 加密密钥管理
+
+```python
+class KMSEncryptionKeyManager:
+    """KMS集成的密钥管理"""
+    
+    def __init__(self, kms_client: KMSClient):
+        self._kms = kms_client
+        self._key_cache = {}  # 缓存密钥，减少KMS调用
+        self._cache_lock = asyncio.Lock()
+    
+    async def get_or_create_key(self) -> str:
+        """获取或创建加密密钥"""
+        async with self._cache_lock:
+            # 先尝试从缓存获取
+            if "default_key" in self._key_cache:
+                return self._key_cache["default_key"]["id"]
+            
+            # 从KMS创建新密钥
+            key_spec = {
+                "KeyId": "alias/agent-pii-encryption",
+                "KeySpec": {
+                    "KeyType": "AES",
+                    "KeyUsage": "EncryptDecrypt",
+                    "KeySize": 256,
+                }
+            }
+            
+            response = await self._kms.create_key(KeySpec=key_spec)
+            key_id = response["KeyMetadata"]["KeyId"]
+            
+            # 缓存密钥
+            self._key_cache["default_key"] = {"id": key_id}
+            
+            return key_id
+    
+    async def get_key_data(self, key_id: str) -> bytes:
+        """从KMS获取密钥数据"""
+        response = await self._kms.decrypt(
+            CiphertextBlob=encrypted_key_blob
+        )
+        return response["Plaintext"]
 ```
 
 ### 5.4 异步冲突检测
