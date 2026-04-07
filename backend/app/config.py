@@ -35,6 +35,18 @@ class Settings(BaseSettings):
         description="Fallback file for failed messages"
     )
 
+    # Redis Cache
+    redis_host: str = Field(default="localhost", description="Redis host")
+    redis_port: int = Field(default=6379, description="Redis port")
+    redis_db: int = Field(default=0, description="Redis database number")
+    redis_password: Optional[str] = Field(default=None, description="Redis password")
+    redis_pool_size: int = Field(default=20, description="Redis connection pool size")
+    redis_max_idle_time: int = Field(default=300, description="Redis max idle time (seconds)")
+
+    # Cache Circuit Breaker
+    cache_circuit_threshold: int = Field(default=5, description="Circuit breaker failure threshold")
+    cache_circuit_timeout: int = Field(default=60, description="Circuit breaker timeout (seconds)")
+
     # LLM
     llm_api_key: Optional[str] = Field(default=None, description="LLM API key")
     llm_model: str = Field(default="deepseek-chat", description="LLM model name")
