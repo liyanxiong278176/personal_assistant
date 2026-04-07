@@ -206,7 +206,7 @@ class TestPhase2CoreComponents:
     @pytest.mark.asyncio
     async def test_13_context_manager(self):
         """测试上下文管理器"""
-        from app.core.context.manager import ContextManager
+        from app.core.context_mgmt.manager import ContextManager
 
         mgr = ContextManager()
 
@@ -282,7 +282,7 @@ class TestPhase2EightStepFlow:
     @pytest.mark.asyncio
     async def test_17_step4_tool_decision(self):
         """Step4: 工具调用决策"""
-        from app.core.context.complexity import ComplexityAnalyzer
+        from app.core.context_mgmt.complexity import ComplexityAnalyzer
 
         analyzer = ComplexityAnalyzer()
         complexity = analyzer.analyze(TEST_REQUEST)
@@ -294,8 +294,8 @@ class TestPhase2EightStepFlow:
     @pytest.mark.asyncio
     async def test_18_step7_context_management(self):
         """Step7: 上下文后置管理"""
-        from app.core.context.manager import ContextManager
-        from app.core.context.cleaner import ContextCleaner
+        from app.core.context_mgmt.manager import ContextManager
+        from app.core.context_mgmt.cleaner import ContextCleaner
 
         mgr = ContextManager()
         cleaner = ContextCleaner()

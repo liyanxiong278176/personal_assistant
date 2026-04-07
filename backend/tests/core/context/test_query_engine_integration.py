@@ -7,8 +7,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.core.context.config import ContextConfig
-from app.core.context.guard import ContextGuard
+from app.core.context_mgmt.config import ContextConfig
+from app.core.context_mgmt.guard import ContextGuard
 
 
 class MockLLMClient:

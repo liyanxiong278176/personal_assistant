@@ -6,12 +6,12 @@
 
 import time
 import pytest
-from app.core.context.config import ContextConfig
-from app.core.context.guard import ContextGuard
-from app.core.context.cleaner import ContextCleaner
-from app.core.context.reinjector import RuleReinjector
-from app.core.context.summary import LLMSummaryProvider
-from app.core.context.tokenizer import TokenEstimator
+from app.core.context_mgmt.config import ContextConfig
+from app.core.context_mgmt.guard import ContextGuard
+from app.core.context_mgmt.cleaner import ContextCleaner
+from app.core.context_mgmt.reinjector import RuleReinjector
+from app.core.context_mgmt.summary import LLMSummaryProvider
+from app.core.context_mgmt.tokenizer import TokenEstimator
 
 
 class TestContextGuardWorkflow:

@@ -326,7 +326,7 @@ class WorkflowValidator:
         self.print_header(f"Step {result.step_num}: {result.step_name}")
 
         try:
-            from app.core.context.cleaner import ContextCleaner
+            from app.core.context_mgmt.cleaner import ContextCleaner
 
             cleaner = ContextCleaner()
 
@@ -503,8 +503,8 @@ class WorkflowValidator:
         self.print_header(f"Step {result.step_num}: {result.step_name}")
 
         try:
-            from app.core.context.reinjector import RuleReinjector
-            from app.core.context.config import ContextConfig
+            from app.core.context_mgmt.reinjector import RuleReinjector
+            from app.core.context_mgmt.config import ContextConfig
 
             config = ContextConfig()
             reinjector = RuleReinjector(config)
