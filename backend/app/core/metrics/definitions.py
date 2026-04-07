@@ -32,3 +32,13 @@ class TaskMetric:
     user_satisfied: bool | None
     latency_ms: float
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+@dataclass
+class CacheMetric:
+    """缓存操作指标"""
+    operation: str  # get_session, set_session, delete_session, get_slots, etc.
+    hit: bool  # True=命中, False=未命中
+    latency_ms: float
+    fallback_used: bool = False  # 是否使用了降级存储
+    error_type: str | None = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
