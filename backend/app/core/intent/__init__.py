@@ -13,6 +13,11 @@ from .config import IntentRouterConfig
 from .metrics import IntentMetricsCollector
 from .router import ClarificationResult, IntentRouter, RouterStatistics
 from .legacy_adapter import LegacyIntentAdapter
+from .strategies import (
+    IIntentStrategy,
+    RuleStrategy,
+    LLMFallbackStrategy,
+)
 
 __all__ = [
     "SlotExtractor",
@@ -32,4 +37,8 @@ __all__ = [
     "ClarificationResult",
     "RouterStatistics",
     "LegacyIntentAdapter",
+    # Strategy pattern exports
+    "IIntentStrategy",
+    "RuleStrategy",
+    "LLMFallbackStrategy",
 ]
