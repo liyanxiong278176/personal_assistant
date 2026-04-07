@@ -8,6 +8,11 @@ from .builder import PromptBuilder, DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTI
 from .pipeline import IPromptFilter
 from .service import PromptService
 from .legacy_adapter import LegacyPromptAdapter
+from .providers.base import IPromptProvider, PromptTemplate, PromptFilterResult
+from .providers.template_provider import TemplateProvider
+from .pipeline.security import SecurityFilter
+from .pipeline.validator import Validator
+from .pipeline.compressor import TokenCompressor
 
 __all__ = [
     "PromptLayer",
@@ -19,4 +24,13 @@ __all__ = [
     "IPromptFilter",
     "PromptService",
     "LegacyPromptAdapter",
+    # Provider exports
+    "IPromptProvider",
+    "PromptTemplate",
+    "PromptFilterResult",
+    "TemplateProvider",
+    # Pipeline filter exports
+    "SecurityFilter",
+    "Validator",
+    "TokenCompressor",
 ]
