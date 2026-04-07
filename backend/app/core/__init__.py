@@ -62,6 +62,8 @@ from .preferences import (
     PreferenceRepository,
     PreferenceExtractor,
 )
+from .fallback import FallbackType, UnifiedFallbackHandler
+from .observability import StructuredLogger, get_logger, MetricsCollector, MetricType, get_metrics_collector
 
 __all__ = [
     # container
@@ -114,7 +116,6 @@ __all__ = [
     "RetryManager",
     "RetryPolicy",
     "FallbackHandler",
-    "FallbackResponse",
     # enhancements
     "AgentEnhancementConfig",
     "InferenceGuard",
@@ -127,4 +128,14 @@ __all__ = [
     "PreferenceMatcher",
     "PreferenceRepository",
     "PreferenceExtractor",
+    # fallback (new)
+    "FallbackType",
+    "FallbackResponse",
+    "UnifiedFallbackHandler",
+    # observability (new)
+    "StructuredLogger",
+    "get_logger",
+    "MetricsCollector",
+    "MetricType",
+    "get_metrics_collector",
 ]
