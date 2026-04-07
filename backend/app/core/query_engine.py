@@ -22,6 +22,7 @@ from pathlib import Path
 if TYPE_CHECKING:
     from .intent.router import IntentRouter
     from .prompts.service import PromptService
+    from .context import RequestContext
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
@@ -189,6 +190,23 @@ class QueryEngine:
         self._intent_router = intent_router  # 新的 IntentRouter（可选）
         self._prompt_service = prompt_service  # 新的 PromptService（可选）
         self._memory_service = memory_service  # 记忆服务（可选，P0 可为 None）
+
+        # 如果没有提供新的 IntentRouter，自动创建一个
+        if self._intent_router is None:
+            from .intent.router import IntentRouter
+            from .intent.strategies.rule import RuleStrategy
+            from .intent.strategies.llm_fallback import LLMFallbackStrategy
+            self._intent_router = IntentRouter(
+                strategies=[RuleStrategy(), LLMFallbackStrategy(llm_client=llm_client)]
+            )
+            logger.info("[QueryEngine] 🔄 IntentRouter 已自动创建")
+
+        # 如果没有提供新的 PromptService，自动创建一个
+        if self._prompt_service is None:
+            from .prompts.service import PromptService
+            from .prompts.providers.template_provider import TemplateProvider
+            self._prompt_service = PromptService(provider=TemplateProvider())
+            logger.info("[QueryEngine] 🔄 PromptService 已自动创建")
 
         # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
@@ -359,6 +377,32 @@ class QueryEngine:
             组装后的完整系统提示词
         """
         return self._prompt_builder.build()
+
+    def get_prompt_for_intent(self, intent: str, context: "RequestContext") -> str:
+        """使用 PromptService 渲染指定意图的提示词
+
+        Args:
+            intent: 意图类型 (itinerary, query, chat)
+            context: 请求上下文
+
+        Returns:
+            渲染后的提示词
+        """
+        if self._prompt_service is None:
+            return self.get_system_prompt()
+
+        import asyncio
+        try:
+            # 尝试同步调用（PromptService 实际上是异步的，这里做简单兼容）
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # 如果已经在事件循环中，返回默认提示词
+                return self.get_system_prompt()
+            return loop.run_until_complete(
+                self._prompt_service.render(intent, context)
+            )
+        except Exception:
+            return self.get_system_prompt()
 
     def _get_tools_for_llm(self) -> List[Dict[str, Any]]:
         """获取 LLM 可用的工具定义
@@ -1274,7 +1318,15 @@ class QueryEngine:
             f"输入: {user_input[:100]}..."
         )
 
-        intent_result = await self._intent_classifier.classify(user_input)
+        # 使用新的 IntentRouter 进行意图识别
+        from .context import RequestContext
+        request_context = RequestContext(
+            message=user_input,
+            user_id=user_id,
+            conversation_id=conversation_id,
+            clarification_count=0
+        )
+        intent_result = await self._intent_router.classify(request_context)
         slots = self._slot_extractor.extract(user_input)
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
@@ -1282,7 +1334,7 @@ class QueryEngine:
             f"[WORKFLOW:1_INTENT] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms | "
             f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f} | "
-            f"方法={intent_result.method} | "
+            f"策略={intent_result.strategy} | "
             f"目的地={slots.destination or '无'} | 日期={slots.start_date or '无'}"
         )
 
@@ -1550,7 +1602,15 @@ class QueryEngine:
         # ===== 阶段 1: 意图 & 槽位识别 =====
         logger.info(f"[WORKFLOW:STREAM:1_INTENT] ⏳ 开始 | 输入: {user_input[:50]}...")
 
-        intent_result = await self._intent_classifier.classify(user_input)
+        # 使用新的 IntentRouter 进行意图识别
+        from .context import RequestContext
+        request_context = RequestContext(
+            message=user_input,
+            user_id=user_id,
+            conversation_id=conversation_id,
+            clarification_count=0
+        )
+        intent_result = await self._intent_router.classify(request_context)
         slots = self._slot_extractor.extract(user_input)
 
         step1_latency = (time.perf_counter() - total_start) * 1000
