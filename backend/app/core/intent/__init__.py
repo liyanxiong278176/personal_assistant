@@ -10,6 +10,7 @@ from .classifier import (
 from .complexity import is_complex_query, ComplexityResult
 from .llm_classifier import LLMIntentClassifier, LLM_CLASSIFY_PROMPT
 from .config import IntentRouterConfig
+from .metrics import IntentMetricsCollector
 from .router import ClarificationResult, IntentRouter, RouterStatistics
 
 __all__ = [
@@ -26,6 +27,7 @@ __all__ = [
     "LLM_CLASSIFY_PROMPT",
     "IntentRouterConfig",
     "IntentRouter",
+    "IntentMetricsCollector",
     "ClarificationResult",
     "RouterStatistics",
 ]
