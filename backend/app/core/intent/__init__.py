@@ -12,6 +12,7 @@ from .llm_classifier import LLMIntentClassifier, LLM_CLASSIFY_PROMPT
 from .config import IntentRouterConfig
 from .metrics import IntentMetricsCollector
 from .router import ClarificationResult, IntentRouter, RouterStatistics
+from .legacy_adapter import LegacyIntentAdapter
 
 __all__ = [
     "SlotExtractor",
@@ -30,4 +31,5 @@ __all__ = [
     "IntentMetricsCollector",
     "ClarificationResult",
     "RouterStatistics",
+    "LegacyIntentAdapter",
 ]
