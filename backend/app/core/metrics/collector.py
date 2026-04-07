@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List
 from collections import defaultdict
-from .definitions import IntentMetric, ToolMetric, TaskMetric
+from .definitions import IntentMetric, ToolMetric, TaskMetric, CacheMetric
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ class MetricsCollector:
         self._intent_metrics: List[IntentMetric] = []
         self._tool_metrics: List[ToolMetric] = []
         self._task_metrics: List[TaskMetric] = []
+        self._cache_metrics: List[CacheMetric] = []
         logger.info("[Metrics] MetricsCollector initialized")
 
     async def record_intent(self, metric: IntentMetric):
@@ -37,6 +38,28 @@ class MetricsCollector:
         if len(self._task_metrics) > MAX_METRICS:
             self._task_metrics = self._task_metrics[-MAX_METRICS:]
         logger.debug(f"[Metrics] Task recorded: message_id={metric.message_id}, completed={metric.completed}, latency={metric.latency_ms:.1f}ms")
+
+    async def record_cache(self, metric: CacheMetric):
+        """记录缓存操作指标"""
+        self._cache_metrics.append(metric)
+        if len(self._cache_metrics) > MAX_METRICS:
+            self._cache_metrics = self._cache_metrics[-MAX_METRICS:]
+        status = "HIT" if metric.hit else "MISS"
+        fallback = "+FALLBACK" if metric.fallback_used else ""
+        logger.debug(f"[Metrics] Cache: {metric.operation} {status}{fallback}, latency={metric.latency_ms:.1f}ms")
+
+    def get_cache_stats(self) -> Dict:
+        """获取缓存统计"""
+        total = len(self._cache_metrics)
+        hits = sum(1 for m in self._cache_metrics if m.hit)
+        fallback_count = sum(1 for m in self._cache_metrics if m.fallback_used)
+
+        return {
+            "total": total,
+            "hit_rate": hits / total if total > 0 else 0,
+            "fallback_count": fallback_count,
+            "avg_latency_ms": sum(m.latency_ms for m in self._cache_metrics) / total if total > 0 else 0
+        }
 
     def get_intent_stats(self) -> Dict:
         """获取意图统计"""
@@ -110,6 +133,8 @@ class MetricsCollector:
             return self.get_tool_stats()
         elif prefix == "task":
             return self.get_task_stats()
+        elif prefix == "cache":
+            return self.get_cache_stats()
         else:
             raise ValueError(f"Unknown prefix: {prefix}")
 
@@ -119,6 +144,7 @@ class MetricsCollector:
         self._intent_metrics.clear()
         self._tool_metrics.clear()
         self._task_metrics.clear()
+        self._cache_metrics.clear()
 
 # 全局实例
 global_collector = MetricsCollector()
