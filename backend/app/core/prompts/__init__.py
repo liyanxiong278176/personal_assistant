@@ -6,6 +6,7 @@
 from .layers import PromptLayer, PromptLayerDef
 from .builder import PromptBuilder, DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, load_memory_files
 from .pipeline import IPromptFilter
+from .service import PromptService
 
 __all__ = [
     "PromptLayer",
@@ -15,4 +16,5 @@ __all__ = [
     "APPEND_TOOL_DESCRIPTION",
     "load_memory_files",
     "IPromptFilter",
+    "PromptService",
 ]
