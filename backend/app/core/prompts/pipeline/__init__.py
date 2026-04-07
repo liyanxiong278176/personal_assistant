@@ -4,7 +4,10 @@
 """
 
 from .base import IPromptFilter
+from .security import SecurityFilter, SecurityFilterConfig
 
 __all__ = [
     "IPromptFilter",
+    "SecurityFilter",
+    "SecurityFilterConfig",
 ]
