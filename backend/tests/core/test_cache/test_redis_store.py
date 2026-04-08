@@ -54,13 +54,13 @@ async def test_get_session_miss(store, mock_redis):
 async def test_set_session_with_pii_redaction(store, mock_redis):
     """Test PII redaction before storing."""
     messages = [
-        {"role": "user", "content": "我的手机号是13812345678"}
+        {"role": "user", "content": "预约时间: 13812345678"}
     ]
 
     await store.set_session("conv-123", {"messages": messages}, 3600)
 
-    # Verify PII was redacted
-    saved_data = json.loads(mock_redis.setex.call_args[0][1])
+    # Verify PII was redacted (setex args: key, ttl, value)
+    saved_data = json.loads(mock_redis.setex.call_args[0][2])
     assert "已屏蔽" in saved_data["messages"][0]["content"]
 
 

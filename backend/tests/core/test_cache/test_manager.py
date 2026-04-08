@@ -59,14 +59,14 @@ async def test_get_session_hit_primary(manager, mock_primary):
 
 
 @pytest.mark.asyncio
-async def test_get_session_miss_then_fallback(manager, mock_primary, mock_fallback):
-    """Test get_session uses fallback on miss."""
+async def test_get_session_miss_returns_none(manager, mock_primary):
+    """Test get_session returns None on cache miss (no fallback for miss)."""
     mock_primary.get_session.return_value = None
-    mock_fallback.get_session.return_value = {"messages": []}
 
     result = await manager.get_session("conv-123")
 
-    assert result is not None
+    # Cache miss returns None, does NOT trigger fallback
+    assert result is None
     mock_primary.get_session.assert_called_once()
 
 

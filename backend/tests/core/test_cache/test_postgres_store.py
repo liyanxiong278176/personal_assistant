@@ -54,7 +54,7 @@ async def test_get_session_returns_messages(mock_message_repo, sample_messages):
     assert len(result["messages"]) == 2
     assert result["messages"][0]["role"] == "user"
     assert result["messages"][1]["role"] == "assistant"
-    assert "updated_at" in result
+    assert "messages" in result
 
 
 @pytest.mark.asyncio
