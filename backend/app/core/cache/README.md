@@ -1,134 +1,220 @@
-# Redis Cache Layer
+# Redis 缓存层 — 数据流转指南
 
-Provides cross-instance session state sharing with circuit breaker fallback.
+## 概述
 
-## Architecture
+Redis 缓存层为 QueryEngine 提供**跨实例会话状态共享**能力。当应用部署多个实例时，用户在任意实例的会话状态都能被其他实例访问，避免会话丢失。同时通过**熔断降级机制**，确保 Redis 故障时系统仍能从 PostgreSQL 回退数据。
+
+## 核心数据流
+
+### 读取流程（GET）
 
 ```
-QueryEngine
-    |
-    v
-CacheManager (Circuit Breaker)
-    |
-    +-- RedisCacheStore (primary cache)
-    +-- PostgresCacheStore (fallback)
+用户请求
+    │
+    ▼
+QueryEngine._load_history_from_db()
+    │
+    ▼
+CacheManager.get_session(conversation_id)
+    │
+    ├─[熔断器状态检查]──────────────────────────────┐
+    │  ┌────────────────────────────────────────┐  │
+    │  │ CircuitState.CLOSED → 允许请求继续     │  │
+    │  │ CircuitState.HALF_OPEN → 允许一次探测  │  │
+    │  │ CircuitState.OPEN → 直接拒绝，走降级    │  │
+    │  └────────────────────────────────────────┘  │
+    │                                              │
+    ▼                                              ▼
+RedisCacheStore.get_session()           PostgresCacheStore.get_session()
+    │                                              │
+    │  ┌─ 命中 ────────────────────────┐           │
+    │  │ data = Redis.GET(key)        │           │
+    │  │ JSON 反序列化                 │           │
+    │  │ 返回 messages + updated_at   │           │
+    │  └───────────────────────────────┘           │
+    │  │                                              │
+    │  └─ 未命中 ───────────────────┐                │
+    │      返回 None                │                │
+    │                                ▼                │
+    └────────── 异常捕获 ──────────────────────────────────┘
+                        │
+                        ▼
+              PostgresCacheStore.get_session()
+                        │
+                        ▼
+              MessageRepository.get_by_conversation()
+                        │
+                        ▼
+              从 messages 表加载历史记录
+                        │
+                        ▼
+              组装成 {messages: [...], updated_at: timestamp}
+                        │
+                        ▼
+              返回给 QueryEngine
+                        │
+                        ▼
+              QueryEngine 填充 _conversation_history
+                        │
+                        ▼
+              (异步) asyncio.create_task(写回缓存)
+                        │
+                        ▼
+              CacheManager.set_session() → 写入 Redis
+                        │
+                        ▼
+              MetricsCollector.record_cache(hit/fallback)
 ```
 
-## Usage
+**关键点：**
+- 缓存命中时，直接从 Redis 返回，无需访问数据库
+- 缓存未命中时，从 PostgreSQL 加载，加载后**异步写回 Redis**
+- Redis 故障时，熔断器记录失败，连续 5 次失败后 OPEN，后续请求直接降级
 
-### Basic Usage
+### 写入流程（SET）
 
-```python
-from app.core.cache import get_cache_manager
-
-# Get global instance
-manager = await get_cache_manager(message_repo)
-
-# Read session
-session = await manager.get_session(conversation_id)
-
-# Write session
-await manager.set_session(conversation_id, {"messages": [...]}, ttl=3600)
+```
+用户对话结束 / 定时保存
+    │
+    ▼
+QueryEngine 保存会话状态
+    │
+    ▼
+CacheManager.set_session(conversation_id, data, ttl)
+    │
+    ├─[熔断器检查]───────────────────────────────┐
+    │  CircuitState.OPEN → 跳过写入，记录日志  │────→ 结束
+    └──────────────────────────────────────────┘
+    │
+    ▼
+RedisCacheStore.set_session()
+    │
+    ▼
+InjectionGuard.redact_pii(content)  ← PII 数据清洗
+    │
+    ▼
+JSON 序列化
+    │
+    ▼
+Redis SETEX key ttl_with_jitter(value)  ← TTL 加 ±10% 随机抖动
+    │
+    ▼
+MetricsCollector.record_cache(hit=True)
 ```
 
-### Monitoring Metrics
+**关键点：**
+- 写入前对消息内容进行 PII 清洗，防止敏感数据进入缓存
+- TTL 使用 `base_ttl ± 10%` 的随机抖动，防止缓存雪崩
+- 熔断器 OPEN 时不写入，避免向故障节点写入加重负担
 
-```python
-from app.core.metrics.collector import global_collector
+### 降级流程（Circuit Breaker）
 
-# Get cache statistics
-stats = await global_collector.get_statistics("cache")
-print(f"Hit rate: {stats['hit_rate']:.2%}")
-print(f"Fallback count: {stats['fallback_count']}")
+```
+连续失败达到阈值 (默认5次)
+    │
+    ▼
+CircuitState.CLOSED → CircuitState.OPEN
+    │
+    ▼
+所有请求直接走 PostgresCacheStore
+    │
+    ▼
+等待超时 (默认60秒)
+    │
+    ▼
+CircuitState.OPEN → CircuitState.HALF_OPEN
+    │
+    ▼
+允许一次探测请求到 Redis
+    │
+    ├─ 成功 ───────────────────────────────────┐
+    │  CircuitState.HALF_OPEN → CLOSED        │  恢复正常
+    │  重置失败计数                            │
+    ├─ 失败 ───────────────────────────────────┤
+    │  CircuitState.HALF_OPEN → OPEN           │  重新熔断
+    │  重新计时                               │
+    └──────────────────────────────────────────┘
 ```
 
-### Circuit Breaker State
+## 三类数据的存储路径
 
-```python
-# Get circuit breaker state
-state = manager.get_circuit_state()
-stats = manager.get_circuit_stats()
+| 数据类型 | Redis Key 模式 | TTL | PostgreSQL 来源 |
+|---------|--------------|-----|---------------|
+| 会话数据 | `{env}:session:{conversation_id}` | 1h ±10% | messages 表 |
+| 槽位数据 | `{env}:slots:{conversation_id}` | 30min ±10% | messages 表（内嵌） |
+| 用户偏好 | `{env}:prefs:{user_id}` | 7d ±10% | semantic_memory 表 |
 
-print(f"State: {state}")  # closed, open, half_open
-print(f"Failure count: {stats['failure_count']}")
+## 数据流向总览图
+
+```
+                    用户发起请求
+                         │
+                         ▼
+            ┌────────────────────────┐
+            │     QueryEngine        │
+            │  (_conversation_history)│
+            └──────────┬─────────────┘
+                       │ _load_history_from_db()
+                       ▼
+            ┌────────────────────────┐
+            │     CacheManager       │
+            │  (熔断器 + 指标记录)   │
+            └──────────┬─────────────┘
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+          ▼            ▼            ▼
+   ┌──────────┐  ┌──────────┐  ┌──────────┐
+   │ Redis    │  │ Postgres │  │ Metrics  │
+   │ Cache    │  │ Fallback │  │Collector │
+   └──────────┘  └──────────┘  └──────────┘
+        │              │              │
+        ▼              ▼              ▼
+   Redis Server   messages表    内存中的指标
+   (会话数据)      (持久存储)    缓冲区
 ```
 
-## Configuration
+## PII 清洗流程
 
-Environment variables (in `.env`):
+```
+消息内容: "我的手机号是13812345678，预约明天下午3点"
+    │
+    ▼
+InjectionGuard.redact_pii(content)
+    │
+    ├── 手机号正则匹配 → 已屏蔽
+    ├── 身份证号正则匹配 → 已屏蔽
+    ├── 邮箱正则匹配 → 已屏蔽
+    └── 其他内容保持不变
+    │
+    ▼
+清洗后: "我的手机号是【已屏蔽】，预约明天下午3点"
+    │
+    ▼
+JSON 序列化后写入 Redis
+```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `REDIS_HOST` | localhost | Redis host |
-| `REDIS_PORT` | 6379 | Redis port |
-| `REDIS_PASSWORD` | None | Redis password |
-| `REDIS_DB` | 0 | Redis database number |
-| `REDIS_POOL_SIZE` | 20 | Connection pool size |
-| `CACHE_CIRCUIT_THRESHOLD` | 5 | Failure threshold for circuit breaker |
-| `CACHE_CIRCUIT_TIMEOUT` | 60 | Circuit breaker timeout (seconds) |
+## 指标记录流
 
-## TTL Values
+每个缓存操作完成后，向 MetricsCollector 推送数据：
 
-| Data Type | TTL | Description |
-|-----------|-----|-------------|
-| Session | 3600s (1 hour) | Conversation history |
-| Slots | 1800s (30 min) | Intent slots |
-| User Prefs | 604800s (7 days) | User preferences |
-
-All TTLs include ±10% random jitter to prevent cache stampede.
-
-## Components
-
-### ICacheStore
-Abstract interface for cache stores. All stores must implement:
-- `get_session()`, `set_session()`, `delete_session()`
-- `get_slots()`, `set_slots()`, `delete_slots()`
-- `get_user_prefs()`, `set_user_prefs()`, `delete_user_prefs()`
-- `health_check()`
-
-### RedisCacheStore
-Primary cache store using Redis.
-- Connection pooling
-- PII data redaction before storage
-- TTL with jitter
-
-### PostgresCacheStore
-Fallback store using existing MessageRepository.
-- Read-only (writes go through existing persistence)
-- Used when Redis is unavailable
-
-### CacheManager
-Unified cache entry point with circuit breaker.
-- Automatic failover to Postgres
-- Circuit breaker prevents cascading failures
-- Metrics collection
-
-### CircuitBreaker
-Implements circuit breaker pattern.
-- **CLOSED**: Normal operation, requests pass through
-- **OPEN**: Failures exceeded threshold, requests blocked
-- **HALF_OPEN**: Testing if Redis has recovered
-
-## Error Handling
-
-```python
-from app.core.cache.errors import (
-    CacheConnectionError,    # Triggers fallback
-    CacheSerializationError,  # Triggers fallback
-    CircuitOpenError,         # Uses fallback
-    AllStoresFailedError,     # Critical error
+```
+CacheMetric(
+    operation="get_session" | "set_session" | ...
+    hit=True | False        ← 对 Redis 操作而言
+    latency_ms=xxx           ← 操作耗时
+    fallback_used=True | False  ← 是否走了降级
+    error_type=xxx | None   ← 错误类型（如有）
 )
+    │
+    ▼
+MetricsCollector._cache_metrics.append()
+    │
+    ├─ 超过 MAX_METRICS(1000) → 丢弃最旧记录
+    └─ 保留在内存缓冲区
 ```
 
-## Testing
-
-Run tests:
-```bash
-cd backend
-pytest tests/core/test_cache/ -v
-```
-
-With coverage:
-```bash
-pytest tests/core/test_cache/ -v --cov=app/core/cache --cov-report=term-missing
-```
+通过 `global_collector.get_statistics("cache")` 可获取：
+- 命中率 (`hit_rate`)
+- 降级次数 (`fallback_count`)
+- 平均延迟 (`avg_latency_ms`)
