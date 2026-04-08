@@ -22,6 +22,29 @@ services:
       - travel-network
     restart: unless-stopped
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: travel-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-default_redis_password}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-default_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - travel-network
+    restart: unless-stopped
+
   # Backend API (FastAPI + Gunicorn)
   backend:
     build:
@@ -31,6 +54,10 @@ services:
     environment:
       # Database
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_assistant}
+      # Redis Cache
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-default_redis_password}
       # Gunicorn workers (2 for student servers, override in .env)
       WORKERS: ${WORKERS:-2}
       # API Keys (from environment)
@@ -42,6 +69,8 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-production}
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - travel-network
@@ -68,4 +97,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
