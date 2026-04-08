@@ -286,6 +286,7 @@ class QueryEngine:
         self._phase2_initialized = False
         self._phase2_init_lock = asyncio.Lock()
         self._background_tasks: set[asyncio.Task] = set()
+        self._cache_manager = None  # 缓存管理器，延迟初始化
         # 延迟初始化，不在 __init__ 中执行
 
         logger.info(
@@ -480,8 +481,9 @@ class QueryEngine:
         return "\n".join(parts)
 
     async def _load_history_from_db(self, conversation_id: str) -> List[Dict[str, str]]:
-        """从数据库加载对话历史到内存
+        """从缓存或数据库加载对话历史到内存
 
+        优先使用Redis缓存，未命中时降级到PostgreSQL。
         确保每次新请求都能看到之前的历史（不依赖 WebSocket 长连接状态）。
         D3-1 修复：添加总字符数限制，防止超长文档占用过多上下文。
 
@@ -497,6 +499,39 @@ class QueryEngine:
         # 检查是否已经加载过（避免重复加载）
         if conversation_id in self._conversation_history:
             return self._conversation_history[conversation_id]
+
+        # 尝试从缓存加载
+        if self._cache_manager:
+            try:
+                cached = await self._cache_manager.get_session(conversation_id)
+                if cached and cached.get("messages"):
+                    loaded = []
+                    total_chars = 0
+                    MAX_HISTORY_CHARS = 50000
+
+                    for m in cached["messages"]:
+                        msg_chars = len(m.get("content", ""))
+                        if total_chars + msg_chars > MAX_HISTORY_CHARS:
+                            if loaded:
+                                break
+                            loaded.append({"role": m["role"], "content": m["content"][:MAX_HISTORY_CHARS]})
+                            total_chars = len(loaded[-1]["content"])
+                        else:
+                            loaded.append({"role": m["role"], "content": m["content"]})
+                            total_chars += msg_chars
+
+                    self._conversation_history[conversation_id] = loaded
+                    logger.info(
+                        f"[Cache] ✅ HIT session:{conversation_id[:16]}... | "
+                        f"messages={len(loaded)} | chars={total_chars}"
+                    )
+                    return loaded
+
+            except Exception as e:
+                logger.warning(f"[Cache] ⚠️ Cache load failed: {e}, falling back to DB")
+
+        # 缓存未命中，从PostgreSQL加载
+        logger.info(f"[Cache] MISS session:{conversation_id[:16]}..., loading from DB")
 
         # D3-1 修复：配置历史加载限制
         MAX_HISTORY_CHARS = 50000  # 最大5万字符（约12500 tokens）
@@ -534,6 +569,27 @@ class QueryEngine:
                 f"[MEMORY] 📥 从数据库加载历史 | conv={conversation_id} | "
                 f"消息数={len(loaded)} | 字符数={total_chars}"
             )
+
+            # 异步写回Redis缓存
+            if self._cache_manager:
+                async def writeback_cache():
+                    try:
+                        session_data = {
+                            "messages": [
+                                {"role": m["role"], "content": m["content"]}
+                                for m in loaded
+                            ],
+                            "updated_at": time.time()
+                        }
+                        from app.core.cache.ttl import CacheTTL
+                        await self._cache_manager.set_session(
+                            conversation_id, session_data, ttl=CacheTTL.SESSION
+                        )
+                    except Exception as e:
+                        logger.warning(f"[Cache] ⚠️ Writeback failed: {e}")
+
+                asyncio.create_task(writeback_cache())
+
             return loaded
         except Exception as e:
             logger.warning(f"[MEMORY] ⚠️ 加载历史失败: {e}")
@@ -2126,6 +2182,14 @@ class QueryEngine:
                 # 启动持久化管理器
                 await self._persistence_manager.start()
 
+                # 缓存管理器（使用 message_repo 创建降级存储）
+                from app.core.cache import get_cache_manager
+                self._cache_manager = await get_cache_manager(
+                    message_repo=self._message_repo,
+                    force_refresh=False
+                )
+                logger.info("[QueryEngine:Phase2]   - CacheManager: 已配置")
+
                 self._phase2_enabled = True
                 self._phase2_initialized = True
 
@@ -2171,6 +2235,17 @@ class QueryEngine:
                 logger.info("[QueryEngine:Phase2] 🛑 持久化管理器已停止")
             except Exception as e:
                 logger.error(f"[QueryEngine:Phase2] ❌ 停止持久化管理器失败: {e}")
+
+        # 关闭缓存层连接
+        if hasattr(self, '_cache_manager') and self._cache_manager:
+            try:
+                # 关闭Redis连接
+                primary = self._cache_manager._primary
+                if hasattr(primary, 'close'):
+                    await primary.close()
+                logger.info("[QueryEngine:Cache] 🔒 缓存连接已关闭")
+            except Exception as e:
+                logger.error(f"[QueryEngine:Cache] ❌ 关闭缓存失败: {e}")
 
         # 关闭 LLM 客户端
         if self.llm_client is not None:
