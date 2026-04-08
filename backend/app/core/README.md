@@ -430,6 +430,9 @@ sequenceDiagram
     participant U as 用户
     participant QE as QueryEngine
     participant RC as RequestContext
+    participant Cache as CacheManager
+    participant Redis as Redis缓存
+    participant PG as PostgreSQL
     participant IR as IntentRouter
     participant PS as PromptService
     participant TR as ToolRegistry
@@ -442,6 +445,19 @@ sequenceDiagram
     Note over QE,RC: Step 0: 创建上下文
     QE->>RC: RequestContext(message, user_id, conv_id)
     RC-->>QE: 统一上下文对象
+
+    Note over QE,Cache: Step 0.5: 加载历史（优先缓存）
+    QE->>Cache: get_session(conversation_id)
+    Cache->>Redis: 尝试从Redis读取
+    alt Redis命中
+        Redis-->>Cache: 返回缓存数据
+        Cache-->>QE: 历史消息（快速）
+    else Redis未命中/失败
+        Cache->>PG: 从PostgreSQL加载
+        PG-->>Cache: 返回数据库记录
+        Cache->>Redis: 异步写回缓存
+        Cache-->>QE: 历史消息（降级）
+    end
 
     Note over QE,IR: Step 1: 意图识别
     QE->>IR: classify(context)
@@ -471,7 +487,34 @@ sequenceDiagram
 
     Note over QE: Step 6: 记忆更新（异步）
     QE->>MH: update_memory_async()
+    QE->>Cache: set_session(更新缓存)
 ```
+
+### 缓存层工作流程
+
+```mermaid
+graph LR
+    A[QueryEngine请求历史] --> B{CacheManager}
+    B -->|正常| C[Redis缓存]
+    B -->|熔断/失败| D[PostgreSQL降级]
+
+    C -->|命中| E[返回缓存数据]
+    C -->|未命中| D
+
+    D --> F[异步写回Redis]
+    F --> G[下次请求命中]
+
+    style C fill:#90EE90
+    style D fill:#FFB6C1
+    style E fill:#87CEEB
+```
+
+**缓存层特性：**
+- **优先读取 Redis**：毫秒级响应，减少数据库压力
+- **自动降级**：Redis 不可用时自动使用 PostgreSQL
+- **熔断保护**：连续失败 5 次后打开熔断器，避免反复尝试
+- **异步写回**：数据库加载后自动更新缓存
+- **PII 清洗**：存储前自动脱敏敏感信息
 
 ## v2.0 核心组件
 
@@ -597,6 +640,45 @@ result = await filter_obj.process(
 
 if not result.success:
     print(f"Blocked: {result.error}")
+```
+
+### 6. CacheManager（缓存管理器）
+
+统一的缓存入口，支持 Redis 主存储 + PostgreSQL 降级。
+
+```python
+from app.core.cache import get_cache_manager
+
+# 获取全局实例（在 QueryEngine 中自动初始化）
+manager = await get_cache_manager(message_repo)
+
+# 读取会话历史（优先 Redis，失败降级到 PG）
+session = await manager.get_session(conversation_id)
+
+# 写入会话（带 TTL）
+await manager.set_session(conversation_id, {"messages": [...]}, ttl=3600)
+
+# 获取熔断器状态
+state = manager.get_circuit_state()  # closed, open, half_open
+stats = manager.get_circuit_stats()
+
+# 健康检查
+health = await manager.health_check()
+# {"primary": true, "fallback": true, "circuit_state": "closed"}
+```
+
+**缓存配置（环境变量）：**
+
+```bash
+# Redis 连接
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_password
+REDIS_DB=0
+
+# 熔断器配置
+CACHE_CIRCUIT_THRESHOLD=5    # 失败阈值
+CACHE_CIRCUIT_TIMEOUT=60     # 超时时间（秒）
 ```
 
 ## 增强功能
