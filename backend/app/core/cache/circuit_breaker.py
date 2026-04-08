@@ -92,7 +92,7 @@ class CircuitBreaker:
         self._config = config or CircuitBreakerConfig()
         self._state = CircuitState.CLOSED
         self._stats = CircuitBreakerStats()
-        self _lock = asyncio.Lock()
+        self._lock = asyncio.Lock()
 
     @property
     def state(self) -> CircuitState:
