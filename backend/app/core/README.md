@@ -105,6 +105,13 @@ graph TB
             MC[MetricsCollector<br/>指标收集]
         end
 
+        subgraph "缓存层"
+            CM[CacheManager<br/>缓存管理器]
+            RCS[RedisCacheStore<br/>Redis存储]
+            PCS[PostgresCacheStore<br/>降级存储]
+            CB[CircuitBreaker<br/>熔断器]
+        end
+
         subgraph "依赖注入"
             DIC[DIContainer<br/>容器]
         end
@@ -113,7 +120,7 @@ graph TB
     subgraph "数据层"
         PG[(PostgreSQL<br/>结构化数据)]
         CH[(ChromaDB<br/>向量存储)]
-        CACHE[(Redis Cache<br/>缓存)]
+        REDIS[(Redis<br/>缓存)]
     end
 
     subgraph "外部API"
@@ -136,6 +143,12 @@ graph TB
     QE --> PMT
     QE --> SI
     QE --> SAO
+    QE --> CacheMgr[CacheManager]
+
+    CacheMgr --> RCS
+    CacheMgr --> PCS
+    CacheMgr --> CB
+    RCS --> REDIS
 
     IR --> RS
     IR --> LS
@@ -319,6 +332,16 @@ backend/app/core/
 │   ├── __init__.py
 │   ├── definitions.py             # 指标定义
 │   └── collector.py               # 指标收集
+│
+├── cache/                         # 缓存层
+│   ├── __init__.py                # 包导出和工厂函数
+│   ├── base.py                    # ICacheStore 接口
+│   ├── manager.py                 # CacheManager 统一入口
+│   ├── redis_store.py             # Redis 主存储
+│   ├── postgres_store.py          # PostgreSQL 降级存储
+│   ├── circuit_breaker.py         # 熔断器实现
+│   ├── ttl.py                     # TTL 常量定义
+│   └── errors.py                  # 缓存专用错误
 │
 ├── observability/                 # 可观测性
 │   ├── __init__.py
