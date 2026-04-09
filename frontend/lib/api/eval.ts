@@ -1,19 +1,16 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function getHeaders(): HeadersInit {
+function getAuthHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("auth-storage");
-  if (!token) return {};
-  try {
-    const parsed = JSON.parse(token);
-    return {
-      Authorization: `Bearer ${parsed.state?.token || parsed.token}`,
-    };
-  } catch {
-    return {};
-  }
+  const token = localStorage.getItem("auth-storage")
+    ? JSON.parse(localStorage.getItem("auth-storage")!).state.token
+    : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/**
+ * Evaluation metrics returned by the eval API
+ */
 export interface EvalMetrics {
   intent_accuracy: number | null;
   intent_basic_accuracy: number | null;
@@ -30,6 +27,9 @@ export interface EvalMetrics {
   memory_recall_rate: number | null;
 }
 
+/**
+ * A single trajectory record from the eval system
+ */
 export interface Trajectory {
   trace_id: string;
   conversation_id: string;
@@ -50,44 +50,73 @@ export interface Trajectory {
   iteration_count: number;
 }
 
+/**
+ * Chart data for visualizations
+ */
 export interface ChartsData {
   token_trend: Array<{ date: string; avg_before: number; avg_after: number; count: number }>;
   intent_distribution: Array<{ name: string; value: number }>;
   daily_volume: Array<{ date: string; count: number }>;
 }
 
-export async function getEvalMetrics(days = 7): Promise<EvalMetrics> {
-  const res = await fetch(`${API_BASE}/api/v1/eval/metrics?days=${days}`, {
-    headers: getHeaders(),
-  });
-  if (!res.ok) {
-    if (res.status === 401) throw new Error("UNAUTHORIZED");
-    throw new Error("Failed to fetch metrics");
-  }
-  const data = await res.json();
-  return data.data;
+/**
+ * API response wrapper for eval endpoints
+ */
+interface EvalApiResponse<T> {
+  status: string;
+  data: T;
 }
 
-export async function getTrajectories(days = 7, limit = 50): Promise<Trajectory[]> {
-  const res = await fetch(`${API_BASE}/api/v1/eval/trajectories?days=${days}&limit=${limit}`, {
-    headers: getHeaders(),
-  });
-  if (!res.ok) {
-    if (res.status === 401) throw new Error("UNAUTHORIZED");
-    throw new Error("Failed to fetch trajectories");
+async function handleEvalResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("UNAUTHORIZED");
+    }
+    const error = await response.json().catch(() => ({ detail: "Request failed" }));
+    throw new Error(error.detail || "Request failed");
   }
-  const data = await res.json();
-  return data.data;
+  const result = (await response.json()) as EvalApiResponse<T>;
+  return result.data;
 }
 
-export async function getChartsData(days = 7): Promise<ChartsData> {
-  const res = await fetch(`${API_BASE}/api/v1/eval/charts?days=${days}`, {
-    headers: getHeaders(),
-  });
-  if (!res.ok) {
-    if (res.status === 401) throw new Error("UNAUTHORIZED");
-    throw new Error("Failed to fetch charts data");
-  }
-  const data = await res.json();
-  return data.data;
-}
+export const evalApi = {
+  /**
+   * Get evaluation metrics for a time period
+   * @param days - Number of days to look back (default: 7)
+   * @returns Evaluation metrics including accuracy, token stats, and memory metrics
+   */
+  async getMetrics(days = 7): Promise<EvalMetrics> {
+    const response = await fetch(`${API_BASE}/api/v1/eval/metrics?days=${days}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleEvalResponse<EvalMetrics>(response);
+  },
+
+  /**
+   * Get trajectory records for a time period
+   * @param days - Number of days to look back (default: 7)
+   * @param limit - Maximum number of records to return (default: 50)
+   * @returns Array of trajectory records
+   */
+  async getTrajectories(days = 7, limit = 50): Promise<Trajectory[]> {
+    const response = await fetch(
+      `${API_BASE}/api/v1/eval/trajectories?days=${days}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return handleEvalResponse<Trajectory[]>(response);
+  },
+
+  /**
+   * Get chart data for visualizations
+   * @param days - Number of days to look back (default: 7)
+   * @returns Chart data including token trends, intent distribution, and daily volume
+   */
+  async getChartsData(days = 7): Promise<ChartsData> {
+    const response = await fetch(`${API_BASE}/api/v1/eval/charts?days=${days}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleEvalResponse<ChartsData>(response);
+  },
+};
