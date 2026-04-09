@@ -1,25 +1,20 @@
-"""评估系统 Dashboard API — FastAPI 路由"""
+"""评估系统 Dashboard API — 带用户认证的 FastAPI 路由"""
 import asyncio
 import json
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import aiosqlite
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 
+from app.auth.dependencies import require_auth
+from app.auth.models import UserInfo
 from app.eval.storage import EvalStorage
 from app.eval.evaluators import TokenEvaluator
 
-router = APIRouter(prefix="/eval", tags=["evaluation"])
+router = APIRouter(prefix="/api/v1/eval", tags=["evaluation"])
 
-# 模板目录
-templates_dir = Path(__file__).parent
-templates = Jinja2Templates(directory=str(templates_dir))
-
-# 全局存储实例
 _storage = None
 _storage_lock = asyncio.Lock()
 
@@ -35,252 +30,190 @@ async def get_storage() -> EvalStorage:
     return _storage
 
 
-@router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    """Dashboard 主页"""
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
-            "title": "Agent 评估系统 Dashboard",
-        }
-    )
-
-
-@router.get("/api/metrics/summary")
-async def get_metrics_summary(days: int = 7) -> JSONResponse:
-    """获取评估指标摘要
-
-    Args:
-        days: 查询最近几天的数据，默认 7 天
-
-    Returns:
-        JSON 包含所有评估器的指标摘要
-    """
-    storage = await get_storage()
-
-    # 获取最近的评估结果
-    async def get_latest_results() -> Dict[str, Any]:
-        """获取各类评估器的最新结果"""
-
-        results = {}
-
-        async with aiosqlite.connect(storage.db_path) as db:
-            db.row_factory = aiosqlite.Row
-
-            # 获取意图评估结果
-            cursor = await db.execute("""
-                SELECT * FROM evaluation_results
-                WHERE evaluator_name LIKE '%意图%' OR details LIKE '%intent%'
-                ORDER BY created_at DESC LIMIT 1
-            """)
-            row = await cursor.fetchone()
-            if row:
-                details = json.loads(row["details"]) if row.get("details") else {}
-                results["intent"] = {
-                    "accuracy": row["score"],
-                    "total": details.get("intent_total", 0),
-                    "correct": details.get("intent_correct", 0),
-                    "basic_accuracy": details.get("intent_basic_accuracy", 0.0),
-                    "edge_accuracy": details.get("intent_edge_accuracy", 0.0),
-                    "updated_at": row["created_at"],
-                }
-
-            # 获取 Token 评估结果
-            cursor = await db.execute("""
-                SELECT * FROM evaluation_results
-                WHERE evaluator_name LIKE '%Token%' OR details LIKE '%token%'
-                ORDER BY created_at DESC LIMIT 1
-            """)
-            row = await cursor.fetchone()
-            if row:
-                details = json.loads(row["details"]) if row.get("details") else {}
-                results["token"] = {
-                    "reduction_rate": row["score"],
-                    "avg_before": details.get("avg_tokens_before", 0.0),
-                    "avg_after": details.get("avg_tokens_after", 0.0),
-                    "overflow_count": details.get("overflow_count", 0),
-                    "total_trajectories": details.get("total_trajectories", 0),
-                    "updated_at": row["created_at"],
-                }
-
-            # 获取验证通过率（从 verification_logs）
-            cursor = await db.execute("""
-                SELECT
-                    COUNT(*) as total,
-                    SUM(CASE WHEN passed = 1 THEN 1 ELSE 0 END) as passed
-                FROM verification_logs
-                WHERE datetime(created_at) >= datetime('now', '-' || ? || ' days')
-            """, (days,))
-            row = await cursor.fetchone()
-            if row and row["total"] > 0:
-                results["verification"] = {
-                    "pass_rate": row["passed"] / row["total"],
-                    "total": row["total"],
-                    "passed": row["passed"],
-                }
-            else:
-                results["verification"] = {
-                    "pass_rate": 0.0,
-                    "total": 0,
-                    "passed": 0,
-                }
-
-            # 获取记忆召回率（从 trajectories 的 iteration_count）
-            cursor = await db.execute("""
-                SELECT
-                    COUNT(*) as total,
-                    SUM(CASE WHEN iteration_count > 0 THEN 1 ELSE 0 END) as with_iterations
-                FROM trajectories
-                WHERE datetime(started_at) >= datetime('now', '-' || ? || ' days')
-            """, (days,))
-            row = await cursor.fetchone()
-            if row and row["total"] > 0:
-                # 记忆召回率 = 有迭代次数的比例（简化定义）
-                results["memory"] = {
-                    "recall_rate": row["with_iterations"] / row["total"],
-                    "total": row["total"],
-                    "with_iterations": row["with_iterations"],
-                }
-            else:
-                results["memory"] = {
-                    "recall_rate": 0.0,
-                    "total": 0,
-                    "with_iterations": 0,
-                }
-
-        return results
-
-    summary = await get_latest_results()
-
-    return JSONResponse(
-        {
-            "status": "ok",
-            "data": summary,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-        }
-    )
-
-
-@router.get("/api/metrics/token")
-async def get_token_metrics(days: int = 7) -> JSONResponse:
-    """获取 Token 评估详细指标
-
-    Args:
-        days: 查询最近几天的数据，默认 7 天
-
-    Returns:
-        JSON 包含 Token 压缩效果的详细数据
-    """
+@router.get("/metrics")
+async def get_metrics(
+    days: int = Query(default=7, ge=1, le=90),
+    user: UserInfo = Depends(require_auth),
+) -> JSONResponse:
+    """获取评估指标摘要（当前登录用户）"""
     storage = await get_storage()
     evaluator = TokenEvaluator(storage=storage)
-    metrics = await evaluator.evaluate(days=days)
+    metrics = await evaluator.evaluate(days=days, user_id=user.user_id)
 
-    return JSONResponse(
-        {
+    # 从 trajectories 中按 user_id 筛选
+    trajectories = await storage.get_trajectories_by_user(user.user_id, days=days)
+    total = len(trajectories)
+    if total == 0:
+        return JSONResponse({
             "status": "ok",
             "data": {
-                "total_trajectories": metrics.total,
-                "compressed_trajectories": metrics.correct,
-                "avg_tokens_before": metrics.avg_before,
-                "avg_tokens_after": metrics.avg_after,
-                "reduction_rate": metrics.reduction_rate,
-                "overflow_count": metrics.overflow_count,
-                "by_intent": metrics.by_intent,
+                "intent_accuracy": None,
+                "intent_basic_accuracy": None,
+                "intent_edge_accuracy": None,
+                "token_reduction_rate": 0.0,
+                "token_avg_before": 0,
+                "token_avg_after": 0,
+                "overflow_count": 0,
+                "total_trajectories": 0,
+                "compressed_count": 0,
+                "intent_distribution": {},
+                "verification_pass_rate": None,
+                "verification_total": 0,
+                "memory_recall_rate": None,
             },
             "generated_at": datetime.now(timezone.utc).isoformat(),
-        }
+        })
+
+    # Token 压缩统计
+    compressed = [t for t in trajectories if t.is_compressed]
+    n = len(compressed)
+    avg_b = sum(t.tokens_before_compress or 0 for t in compressed) / n if n else 0
+    avg_a = sum(t.tokens_after_compress or 0 for t in compressed) / n if n else 0
+    reduction = (avg_b - avg_a) / avg_b if avg_b > 0 else 0
+
+    # 意图分布统计
+    intent_counts: Dict[str, int] = {}
+    for t in trajectories:
+        if t.intent_type:
+            intent_counts[t.intent_type] = intent_counts.get(t.intent_type, 0) + 1
+
+    # 验证通过率
+    verified = [t for t in trajectories if t.verification_passed is not None]
+    verified_passed = sum(1 for t in verified if t.verification_passed)
+    verified_pass_rate = verified_passed / len(verified) if verified else None
+
+    # 记忆召回率
+    with_memory = sum(1 for t in trajectories if t.iteration_count > 0)
+    memory_recall = with_memory / total if total > 0 else None
+
+    # 超限次数
+    overflow_count = sum(
+        1 for t in trajectories
+        if t.tokens_before_compress and t.tokens_after_compress
+        and t.tokens_after_compress >= t.tokens_before_compress
     )
 
+    return JSONResponse({
+        "status": "ok",
+        "data": {
+            "intent_accuracy": None,
+            "intent_basic_accuracy": None,
+            "intent_edge_accuracy": None,
+            "intent_distribution": intent_counts,
+            "token_reduction_rate": round(reduction * 100, 1),
+            "token_avg_before": round(avg_b),
+            "token_avg_after": round(avg_a),
+            "overflow_count": overflow_count,
+            "total_trajectories": total,
+            "compressed_count": n,
+            "verification_pass_rate": round(verified_pass_rate * 100, 1) if verified_pass_rate else None,
+            "verification_total": len(verified),
+            "memory_recall_rate": round(memory_recall * 100, 1) if memory_recall else None,
+        },
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    })
 
-@router.post("/api/metrics/refresh")
-async def refresh_metrics(days: int = 7) -> JSONResponse:
-    """触发重新评估并更新指标
 
-    Args:
-        days: 评估最近几天的数据，默认 7 天
-
-    Returns:
-        JSON 包含更新后的指标
-    """
+@router.get("/trajectories")
+async def get_trajectories(
+    days: int = Query(default=7, ge=1, le=90),
+    limit: int = Query(default=50, ge=1, le=200),
+    user: UserInfo = Depends(require_auth),
+) -> JSONResponse:
+    """获取当前用户的轨迹列表"""
     storage = await get_storage()
-    evaluator = TokenEvaluator(storage=storage)
+    trajectories = await storage.get_trajectories_by_user(user.user_id, days=days)
 
-    # 执行评估
-    metrics = await evaluator.evaluate(days=days)
-
-    # 保存结果
-    result = {
-        "trace_id": f"token_eval_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}",
-        "eval_type": "token",
-        "eval_name": "Token 成本压缩率",
-        "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        "total_trajectories": metrics.total,
-        "compressed_trajectories": metrics.correct,
-        "avg_tokens_before": metrics.avg_before,
-        "avg_tokens_after": metrics.avg_after,
-        "reduction_rate": metrics.reduction_rate,
-        "overflow_count": metrics.overflow_count,
-        "score": metrics.reduction_rate,
-        "passed": metrics.reduction_rate > 0.1,
-        "by_intent": metrics.by_intent,
-    }
-    await storage.save_evaluation_result(result)
-
-    return JSONResponse(
-        {
-            "status": "ok",
-            "message": "Metrics refreshed successfully",
-            "data": {
-                "total_trajectories": metrics.total,
-                "compressed_trajectories": metrics.correct,
-                "avg_tokens_before": metrics.avg_before,
-                "avg_tokens_after": metrics.avg_after,
-                "reduction_rate": metrics.reduction_rate,
-                "overflow_count": metrics.overflow_count,
-            },
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-        }
-    )
-
-
-@router.get("/api/trajectories")
-async def get_trajectories(days: int = 7, limit: int = 100) -> JSONResponse:
-    """获取轨迹列表
-
-    Args:
-        days: 查询最近几天的数据，默认 7 天
-        limit: 返回最大数量，默认 100
-
-    Returns:
-        JSON 包含轨迹列表
-    """
-    storage = await get_storage()
-    trajectories = await storage.get_all_trajectories(days=days)
-
-    # 转换为字典并限制数量
     result = [
         {
             "trace_id": t.trace_id,
             "conversation_id": t.conversation_id,
-            "user_id": t.user_id,
             "started_at": t.started_at.isoformat() if t.started_at else None,
+            "completed_at": t.completed_at.isoformat() if t.completed_at else None,
+            "duration_ms": t.duration_ms,
             "success": t.success,
-            "user_message": t.user_message[:100] + "..." if len(t.user_message or "") > 100 else t.user_message,
+            "user_message": (t.user_message or "")[:100],
             "intent_type": t.intent_type,
+            "intent_confidence": t.intent_confidence,
             "tokens_input": t.tokens_input,
             "tokens_output": t.tokens_output,
             "tokens_before_compress": t.tokens_before_compress,
             "tokens_after_compress": t.tokens_after_compress,
             "is_compressed": t.is_compressed,
+            "verification_score": t.verification_score,
+            "verification_passed": t.verification_passed,
+            "iteration_count": t.iteration_count,
         }
         for t in trajectories[:limit]
     ]
 
-    return JSONResponse(
-        {
+    return JSONResponse({
+        "status": "ok",
+        "count": len(result),
+        "data": result,
+    })
+
+
+@router.get("/charts")
+async def get_charts_data(
+    days: int = Query(default=7, ge=1, le=90),
+    user: UserInfo = Depends(require_auth),
+) -> JSONResponse:
+    """获取图表数据（趋势图、分布图）"""
+    storage = await get_storage()
+    trajectories = await storage.get_trajectories_by_user(user.user_id, days=days)
+
+    if not trajectories:
+        return JSONResponse({
             "status": "ok",
-            "count": len(result),
-            "data": result,
-        }
-    )
+            "data": {
+                "token_trend": [],
+                "intent_distribution": [],
+                "daily_volume": [],
+            },
+        })
+
+    # 按天聚合
+    daily: Dict[str, list] = {}
+    for t in trajectories:
+        if t.started_at:
+            day = t.started_at.strftime("%Y-%m-%d")
+            if day not in daily:
+                daily[day] = []
+            daily[day].append(t)
+
+    token_trend = []
+    for day in sorted(daily.keys()):
+        ts = daily[day]
+        compressed = [t for t in ts if t.is_compressed]
+        n = len(compressed)
+        if n > 0:
+            avg_b = sum(t.tokens_before_compress or 0 for t in compressed) / n
+            avg_a = sum(t.tokens_after_compress or 0 for t in compressed) / n
+        else:
+            avg_b = 0
+            avg_a = 0
+        token_trend.append({
+            "date": day,
+            "avg_before": round(avg_b),
+            "avg_after": round(avg_a),
+            "count": len(ts),
+        })
+
+    intent_dist: Dict[str, int] = {}
+    for t in trajectories:
+        key = t.intent_type or "unknown"
+        intent_dist[key] = intent_dist.get(key, 0) + 1
+
+    daily_volume = [{"date": day, "count": len(ts)} for day, ts in sorted(daily.items())]
+
+    return JSONResponse({
+        "status": "ok",
+        "data": {
+            "token_trend": token_trend,
+            "intent_distribution": [
+                {"name": k, "value": v} for k, v in intent_dist.items()
+            ],
+            "daily_volume": daily_volume,
+        },
+    })
