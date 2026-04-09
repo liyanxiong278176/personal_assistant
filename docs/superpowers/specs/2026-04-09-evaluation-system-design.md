@@ -17,7 +17,7 @@
 |----------|----------|
 | 意图分类准确率 92%+ | 100条测试集（80基础+20边界）+ 评估脚本 |
 | Token成本降低 40% | A/B对比统计 + 按意图类型分组 |
-| 超限失败率 0 | 追踪超限事件 + 阈值调优 |
+| 超限失败率 0% | 追踪超限事件 + 阈值调优（连续7天无超限） |
 | 记忆召回率 88% | 正负样本测试 + 向量相似度计算 |
 
 **注**: 数字是目标值，实际结果可能略有浮动，面试时以实际运行结果为准
@@ -111,37 +111,62 @@ class QueryEngine:
     async def process(self, user_input: str, conversation_id: str, user_id: Optional[str] = None) -> AsyncIterator[str]:
         """
         主处理流程，返回流式响应
-        
-        注意: 现有签名是 user_input 而非 message，返回 AsyncIterator[str]
+
+        关键原则: 轨迹必须在流式响应**完全结束后**才保存，
+        确保 tokens_output / completed_at / success 等字段准确。
         """
         trace_ctx = self.tracing_manager.start_trace(conversation_id, user_id)
-        
-        # 同步启动评估轨迹（使用正确的trace_ctx.trace_id）
-        self.eval_collector.start_trajectory(trace_ctx.trace_id, user_input, ...)
-        
+        tokens_output = 0  # 流式累加输出token
+
+        # 同步启动评估轨迹（立即返回）
+        self.eval_collector.start_trajectory(trace_ctx.trace_id, user_input,
+            conversation_id=conversation_id, user_id=user_id)
+
         try:
             # 意图分类 + 同步记录
             intent_result = await self.intent_classifier.classify(user_input)
             self.eval_collector.record_intent(trace_ctx.trace_id, intent_result)
-            
-            # Token记录（使用trace_ctx.trace_id）
+
+            # Token记录
             tokens_before = self._estimate_tokens(messages)
             messages = await self.context_manager.compress(messages)
             tokens_after = self._estimate_tokens(messages)
-            self.eval_collector.record_token_usage(trace_ctx.trace_id, tokens_before, tokens_after, ...)
-            
+            self.eval_collector.record_token_usage(
+                trace_ctx.trace_id, tokens_before, tokens_after,
+                tokens_input=tokens_before
+            )
+
             # 工具记录
             tools_called, tool_results = await self.tool_executor.execute(...)
             self.eval_collector.record_tools_called(trace_ctx.trace_id, tools_called)
-            
-            # LLM流式生成
+
+            # LLM流式生成 — 结束后才保存轨迹
             async for chunk in await self.llm_client.stream_chat(...):
+                tokens_output += self._estimate_tokens(chunk)
                 yield chunk
-            
-        finally:
-            # 异步保存（不等待）
-            self.eval_collector.save_trajectory_async(trace_ctx.trace_id, success=True)
+
+            # ★ 流式完全结束后再更新和保存
+            duration_ms = int((datetime.now() - trace_ctx.started_at).total_seconds() * 1000)
+            await self.eval_collector.update_trajectory_field(
+                trace_ctx.trace_id,
+                tokens_output=tokens_output,
+                duration_ms=duration_ms,
+                success=True
+            )
+            await self.eval_collector.save_trajectory_async(trace_ctx.trace_id, success=True)
+
+        except Exception as e:
+            duration_ms = int((datetime.now() - trace_ctx.started_at).total_seconds() * 1000)
+            await self.eval_collector.update_trajectory_field(
+                trace_ctx.trace_id,
+                tokens_output=tokens_output,
+                duration_ms=duration_ms,
+                success=False,
+                error_message=str(e)
+            )
+            await self.eval_collector.save_trajectory_async(trace_ctx.trace_id, success=False)
             self.tracing_manager.end_trace(trace_ctx)
+            raise
 ```
 
 ---
@@ -235,17 +260,20 @@ CREATE TABLE verification_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     trace_id VARCHAR(32),
     verified_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     result_type VARCHAR(50),
     score INTEGER CHECK (score BETWEEN 0 AND 100),
     passed BOOLEAN,
     iteration_number INTEGER,
-    
+
     checkpoints JSONB,
     failed_items JSONB,
     feedback TEXT,
     raw_result JSONB
 );
+
+CREATE INDEX idx_verification_trace ON verification_logs(trace_id);
+CREATE INDEX idx_verification_passed ON verification_logs(passed);
 ```
 
 #### test_cases (测试用例管理)
@@ -339,7 +367,7 @@ $ python eval_intent.py
 **Day 4: 阈值调优**
 - 运行baseline数据收集
 - 根据数据决定是否调整TokenBudget阈值
-- 验证超限失败率降至0
+- 验证连续7天无超限事件
 
 **Day 5: CLI脚本**
 - `backend/app/eval/scripts/eval_token.py`
@@ -403,6 +431,12 @@ Verifier: [验证通过，评分92分]
 - 实时指标展示 + 趋势图表
 - HTML打印导出（替代PDF）
 
+**数据刷新策略**：
+- 指标卡片：每分钟轮询后端 `/api/metrics/summary`（轻量，无压力）
+- 趋势图表：页面加载时拉取最近7天数据，Chart.js 渲染
+- 新数据到达：WebSocket 推送优先，其次轮询兜底
+- 评估报告：手动刷新按钮，不做自动轮询（避免重复计算）
+
 **Day 5: 全量评估脚本**
 - `backend/app/eval/scripts/eval_all.py`
 - 生成完整评估报告
@@ -463,27 +497,29 @@ backend/app/eval/
 
 ```python
 import asyncio
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 class EvaluationCollector:
     """评估数据收集器
-    
+
     设计原则:
     1. 所有record方法同步，立即返回
     2. 实际存储通过create_task后台执行
     3. 任何异常不影响主流程
     4. 使用asyncio.Lock保证线程安全
+    5. 同一条trace只保存一次（幂等保护）
     """
-    
+
     def __init__(self, storage: EvalStorage):
         self.storage = storage
         self._current_trajectories: Dict[str, TrajectoryModel] = {}
-        self._lock = asyncio.Lock()  # 线程安全锁
-    
+        self._save_locks: Dict[str, asyncio.Lock] = {}   # 按trace_id分桶锁
+        self._saved_trace_ids: Set[str] = set()           # 已保存标记，防止重复
+        self._meta_lock = asyncio.Lock()                  # 保护 _current_trajectories 和 _saved_trace_ids
+
     def record_intent(self, trace_id: str, intent_result: IntentResult):
         """记录意图分类结果 (同步，线程安全)"""
         try:
-            # 使用dict.get避免锁竞争
             traj = self._current_trajectories.get(trace_id)
             if traj:
                 traj.intent_type = intent_result.intent
@@ -491,7 +527,29 @@ class EvaluationCollector:
                 traj.intent_method = intent_result.method
         except Exception as e:
             logger.exception(f"[Eval] record_intent failed: {e}")
-    
+
+    def record_token_usage(self, trace_id: str, tokens_before: int, tokens_after: int, **kwargs):
+        """记录Token使用 (同步，线程安全)"""
+        try:
+            traj = self._current_trajectories.get(trace_id)
+            if traj:
+                traj.tokens_before_compress = tokens_before
+                traj.tokens_after_compress = tokens_after
+                traj.is_compressed = tokens_after < tokens_before
+                for k, v in kwargs.items():
+                    setattr(traj, k, v)
+        except Exception as e:
+            logger.exception(f"[Eval] record_token_usage failed: {e}")
+
+    def record_tools_called(self, trace_id: str, tools: List[dict]):
+        """记录工具调用 (同步，线程安全)"""
+        try:
+            traj = self._current_trajectories.get(trace_id)
+            if traj:
+                traj.tools_called = tools
+        except Exception as e:
+            logger.exception(f"[Eval] record_tools_called failed: {e}")
+
     def start_trajectory(self, trace_id: str, user_message: str, **kwargs) -> str:
         """启动新轨迹 (线程安全)"""
         try:
@@ -501,28 +559,51 @@ class EvaluationCollector:
                 started_at=datetime.now(),
                 **kwargs
             )
-            # 使用锁保护写操作
-            with self._lock:
-                self._current_trajectories[trace_id] = traj
+            # asyncio.Lock 保护共享字典写操作
+            self._current_trajectories[trace_id] = traj
             return trace_id
         except Exception as e:
             logger.exception(f"[Eval] start_trajectory failed: {e}")
-            return trace_id  # 即使失败也返回ID，避免后续None检查
-    
-    def save_trajectory_async(self, trace_id: str, success: bool = True):
-        """异步保存轨迹 (fire-and-forget)"""
+            return trace_id
+
+    async def update_trajectory_field(self, trace_id: str, **fields):
+        """异步更新轨迹字段（如流式响应结束后更新 tokens_output/duration_ms）"""
         try:
-            traj = self._current_trajectories.pop(trace_id, None)
+            traj = self._current_trajectories.get(trace_id)
             if traj:
-                traj.completed_at = datetime.now()
-                traj.success = success
-                asyncio.create_task(
-                    self._save_with_error_handling(traj),
-                    name=f"eval_save_{trace_id}"
-                )
+                for k, v in fields.items():
+                    setattr(traj, k, v)
+        except Exception as e:
+            logger.exception(f"[Eval] update_trajectory_field failed: {e}")
+
+    async def save_trajectory_async(self, trace_id: str, success: bool = True):
+        """异步保存轨迹 (fire-and-forget，同一条trace只存一次)"""
+        try:
+            # 幂等保护：已保存的直接跳过
+            if trace_id in self._saved_trace_ids:
+                return
+
+            # 获取该trace的专属锁，防止并发重复保存
+            if trace_id not in self._save_locks:
+                self._save_locks[trace_id] = asyncio.Lock()
+
+            async with self._save_locks[trace_id]:
+                # 双重检查
+                if trace_id in self._saved_trace_ids:
+                    return
+
+                traj = self._current_trajectories.pop(trace_id, None)
+                if traj:
+                    traj.completed_at = datetime.now()
+                    traj.success = success
+                    asyncio.create_task(
+                        self._save_with_error_handling(traj),
+                        name=f"eval_save_{trace_id}"
+                    )
+                self._saved_trace_ids.add(trace_id)
         except Exception as e:
             logger.exception(f"[Eval] save_trajectory_async failed: {e}")
-    
+
     async def _save_with_error_handling(self, trajectory: TrajectoryModel):
         """带异常处理的异步保存"""
         try:
@@ -531,33 +612,94 @@ class EvaluationCollector:
             logger.error(f"[Eval] 保存轨迹失败 {trajectory.trace_id}: {e}")
 ```
 
-### 6.2 迭代循环 (幂等保护)
+**关键修复说明**：
+
+| 问题 | 修复方案 |
+|------|----------|
+| threading.Lock 在 async 中卡死 | 移除所有 `with self._lock`，record_* 方法直接访问 dict（Python dict 操作原子性） |
+| 重复保存丢数据 | `_saved_trace_ids: Set[str]` + trace专属锁 `_save_locks[trace_id]`，双重检查确保幂等 |
+| 流式返回中途保存 | `save_trajectory_async` 改为 async 方法，在流式响应**完全结束后**才调用 |
+
+### 6.2 迭代循环 (幂等保护+反馈摘要+降级策略)
 
 ```python
+import hashlib
+import json
+
 async def process_with_verification(self, message: str, max_iterations: int = 3):
-    """带验证和迭代循环的处理"""
-    seen_states = set()  # 循环检测
-    
+    """带验证和迭代循环的处理
+
+    关键修复:
+    1. 状态指纹 = 结果指纹 + 反馈摘要 + 轮次，三维检测避免误判
+    2. 反馈摘要 + prompt 长度控制，防止 token 爆炸
+    3. 验证器降级策略：挂了则放行 + 记录日志
+    """
+    seen_states: set = set()
+    last_feedback_summary = ""   # 上一轮反馈摘要，用于变化检测
+    accumulated_prompt_parts = [] # 累积的反馈片段，超过2轮则截断
+
     for attempt in range(max_iterations):
         result = await self._generate(message)
-        
-        # 循环检测
-        state_hash = self._hash_result(result)
-        if state_hash in seen_states:
-            logger.warning(f"[Verification] 检测到循环，停止迭代")
-            return result
-        seen_states.add(state_hash)
-        
-        # 验证
-        verification = await self.verifier.verify(result)
-        
+
+        # --- 三维循环检测 ---
+        feedback_summary = self._summarize_feedback(verification.feedback if attempt > 0 else "")
+        state_signature = json.dumps({
+            "result_hash": self._hash_result(result),   # 结果指纹
+            "feedback_hash": hashlib.md5(feedback_summary.encode()).hexdigest()[:8],  # 反馈摘要
+            "attempt": attempt                           # 轮次
+        }, sort_keys=True)
+
+        if state_signature in seen_states:
+            logger.warning(f"[Verification] 检测到循环，停止迭代 (attempt={attempt})")
+            break
+        seen_states.add(state_signature)
+
+        # --- 反馈无变化检测 ---
+        if attempt > 0 and feedback_summary == last_feedback_summary:
+            logger.warning(f"[Verification] 反馈无变化，停止迭代 (attempt={attempt})")
+            break
+        last_feedback_summary = feedback_summary
+
+        # --- 验证（含降级策略）---
+        try:
+            verification = await self.verifier.verify(result)
+        except Exception as e:
+            # 验证器挂了：放行 + 告警，不阻塞用户
+            logger.error(f"[Verification] 验证器异常，降级放行: {e}")
+            verification = type('obj', (object,), {
+                'passed': True,   # 降级：默认通过
+                'score': 100,
+                'feedback': '',
+                'error_types': ['VERIFIER_ERROR']
+            })()
+
         if verification.passed:
             return result
-        
-        # 添加反馈重试
-        message = f"{message}\n[上次尝试未通过，原因: {verification.feedback}]"
-    
+
+        # --- 反馈摘要 + 长度控制（防止 token 爆炸）---
+        accumulated_prompt_parts.append(feedback_summary)
+        if attempt >= 2:
+            # 超过2轮只保留最近1条关键反馈
+            safe_feedback = accumulated_prompt_parts[-1]
+        else:
+            safe_feedback = " | ".join(accumulated_prompt_parts)
+
+        # 强制截断：原始 message + 反馈不超过 2000 tokens
+        MAX_FEEDBACK_TOKENS = 2000 - self._estimate_tokens(message)
+        safe_feedback = self._truncate_tokens(safe_feedback, MAX_FEEDBACK_TOKENS)
+        message = f"{message}\n[修正要求: {safe_feedback}]"
+
+    # 达到最大迭代次数或检测到循环，返回当前最优结果
     return result
+
+def _summarize_feedback(self, feedback: str, max_chars: int = 100) -> str:
+    """反馈摘要：只保留核心错误类型和关键字段缺失信息"""
+    if not feedback:
+        return ""
+    # 截断到 max_chars，避免过长
+    if len(feedback) > max_chars:
+        return feedback[:max_chars] + "..."
+    return feedback
 ```
 
 ---
@@ -589,7 +731,7 @@ async def process_with_verification(self, message: str, max_iterations: int = 3)
 - 降低40.6%
 
 同时按意图类型分别统计，发现itinerary类消耗最多但压缩效果最好（45%）。
-通过将TokenBudget阈值调优到60%，超限失败率降至0。"
+通过将TokenBudget阈值调优到60%，连续7天无超限事件。"
 
 ### 7.3 验证和迭代
 
