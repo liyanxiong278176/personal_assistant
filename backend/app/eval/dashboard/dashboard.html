@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 评估系统 Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+
+        .refresh-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #2563eb;
+        }
+
+        .refresh-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+        }
+
+        .last-update {
+            color: #71717a;
+            font-size: 13px;
+        }
+
+        /* Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-label {
+            color: #a1a1aa;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .metric-value.success { color: #22c55e; }
+        .metric-value.warning { color: #eab308; }
+        .metric-value.error { color: #ef4444; }
+        .metric-value.neutral { color: #3b82f6; }
+
+        .metric-subtitle {
+            color: #71717a;
+            font-size: 12px;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        /* Table */
+        .table-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: #a1a1aa;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .status-pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+
+        /* Loading */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agent 评估系统 Dashboard</h1>
+            <p class="subtitle">实时监控 Agent 性能指标</p>
+            <div class="refresh-info">
+                <button class="refresh-btn" onclick="refreshMetrics()" id="refreshBtn">
+                    刷新数据
+                </button>
+                <span class="last-update" id="lastUpdate">加载中...</span>
+            </div>
+        </header>
+
+        <div id="errorContainer"></div>
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">意图识别准确率</div>
+                <div class="metric-value neutral" id="intentAccuracy">--</div>
+                <div class="metric-subtitle" id="intentSubtitle">等待数据...</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Token 压缩率</div>
+                <div class="metric-value neutral" id="tokenReduction">--</div>
+                <div class="metric-subtitle" id="tokenSubtitle">等待数据...</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Token 超限次数</div>
+                <div class="metric-value neutral" id="overflowCount">--</div>
+                <div class="metric-subtitle">压缩后反而更大的次数</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">验证通过率</div>
+                <div class="metric-value neutral" id="verificationRate">--</div>
+                <div class="metric-subtitle" id="verificationSubtitle">等待数据...</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">记忆召回率</div>
+                <div class="metric-value neutral" id="memoryRecall">--</div>
+                <div class="metric-subtitle" id="memorySubtitle">等待数据...</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Token 压缩对比</div>
+                <div class="chart-container">
+                    <canvas id="tokenChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">按意图分组的压缩效果</div>
+                <div class="chart-container">
+                    <canvas id="intentChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Trajectories -->
+        <div class="table-card">
+            <div class="table-title">最近轨迹</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>用户消息</th>
+                        <th>意图</th>
+                        <th>Token 压缩</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="trajectoriesTable">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #71717a;">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let tokenChart = null;
+        let intentChart = null;
+
+        // Initialize charts
+        function initCharts() {
+            const tokenCtx = document.getElementById('tokenChart').getContext('2d');
+            tokenChart = new Chart(tokenCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['压缩前', '压缩后'],
+                    datasets: [{
+                        label: '平均 Token 数',
+                        data: [0, 0],
+                        backgroundColor: ['rgba(59, 130, 246, 0.6)', 'rgba(34, 197, 94, 0.6)'],
+                        borderColor: ['rgba(59, 130, 246, 1)', 'rgba(34, 197, 94, 1)'],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#a1a1aa' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#a1a1aa' }
+                        }
+                    }
+                }
+            });
+
+            const intentCtx = document.getElementById('intentChart').getContext('2d');
+            intentChart = new Chart(intentCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '压缩率 (%)',
+                        data: [],
+                        backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: {
+                                color: '#a1a1aa',
+                                callback: value => value + '%'
+                            }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#a1a1aa' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch metrics
+        async function fetchMetrics() {
+            try {
+                const response = await fetch('/eval/api/metrics/summary?days=7');
+                const result = await response.json();
+
+                if (result.status !== 'ok') {
+                    throw new Error('API returned error status');
+                }
+
+                updateMetrics(result.data);
+                updateLastUpdate(result.generated_at);
+                document.getElementById('errorContainer').innerHTML = '';
+            } catch (error) {
+                console.error('Failed to fetch metrics:', error);
+                showError('无法加载指标数据: ' + error.message);
+            }
+        }
+
+        // Fetch token metrics for charts
+        async function fetchTokenMetrics() {
+            try {
+                const response = await fetch('/eval/api/metrics/token?days=7');
+                const result = await response.json();
+
+                if (result.status !== 'ok') {
+                    throw new Error('API returned error status');
+                }
+
+                updateTokenChart(result.data);
+                updateIntentChart(result.data);
+            } catch (error) {
+                console.error('Failed to fetch token metrics:', error);
+            }
+        }
+
+        // Fetch trajectories
+        async function fetchTrajectories() {
+            try {
+                const response = await fetch('/eval/api/trajectories?days=7&limit=10');
+                const result = await response.json();
+
+                if (result.status !== 'ok') {
+                    throw new Error('API returned error status');
+                }
+
+                updateTrajectoriesTable(result.data);
+            } catch (error) {
+                console.error('Failed to fetch trajectories:', error);
+                document.getElementById('trajectoriesTable').innerHTML =
+                    '<tr><td colspan="5" style="text-align: center; color: #ef4444;">加载失败</td></tr>';
+            }
+        }
+
+        // Update metric cards
+        function updateMetrics(data) {
+            // Intent Accuracy
+            const intentData = data.intent;
+            if (intentData) {
+                const accuracy = (intentData.accuracy * 100).toFixed(1);
+                document.getElementById('intentAccuracy').textContent = accuracy + '%';
+                document.getElementById('intentAccuracy').className =
+                    'metric-value ' + (intentData.accuracy >= 0.8 ? 'success' : intentData.accuracy >= 0.6 ? 'warning' : 'error');
+                document.getElementById('intentSubtitle').textContent =
+                    `${intentData.correct}/${intentData.total} 正确`;
+            }
+
+            // Token Reduction
+            const tokenData = data.token;
+            if (tokenData) {
+                const reduction = (tokenData.reduction_rate * 100).toFixed(1);
+                document.getElementById('tokenReduction').textContent = reduction + '%';
+                document.getElementById('tokenReduction').className =
+                    'metric-value ' + (tokenData.reduction_rate > 0.1 ? 'success' : tokenData.reduction_rate > 0 ? 'warning' : 'error');
+                document.getElementById('tokenSubtitle').textContent =
+                    `${tokenData.avg_before.toFixed(0)} -> ${tokenData.avg_after.toFixed(0)} tokens`;
+                document.getElementById('overflowCount').textContent = tokenData.overflow_count;
+                document.getElementById('overflowCount').className =
+                    'metric-value ' + (tokenData.overflow_count === 0 ? 'success' : tokenData.overflow_count < 5 ? 'warning' : 'error');
+            }
+
+            // Verification Rate
+            const verificationData = data.verification;
+            if (verificationData) {
+                const rate = (verificationData.pass_rate * 100).toFixed(1);
+                document.getElementById('verificationRate').textContent = rate + '%';
+                document.getElementById('verificationRate').className =
+                    'metric-value ' + (verificationData.pass_rate >= 0.9 ? 'success' : verificationData.pass_rate >= 0.7 ? 'warning' : 'error');
+                document.getElementById('verificationSubtitle').textContent =
+                    `${verificationData.passed}/${verificationData.total} 通过`;
+            }
+
+            // Memory Recall
+            const memoryData = data.memory;
+            if (memoryData) {
+                const rate = (memoryData.recall_rate * 100).toFixed(1);
+                document.getElementById('memoryRecall').textContent = rate + '%';
+                document.getElementById('memoryRecall').className =
+                    'metric-value ' + (memoryData.recall_rate >= 0.5 ? 'success' : 'warning');
+                document.getElementById('memorySubtitle').textContent =
+                    `${memoryData.with_iterations}/${memoryData.total} 有迭代`;
+            }
+        }
+
+        // Update token chart
+        function updateTokenChart(data) {
+            if (!tokenChart || !data) return;
+
+            tokenChart.data.datasets[0].data = [
+                data.avg_tokens_before || 0,
+                data.avg_tokens_after || 0
+            ];
+            tokenChart.update();
+        }
+
+        // Update intent chart
+        function updateIntentChart(data) {
+            if (!intentChart || !data.by_intent) return;
+
+            const intents = Object.entries(data.by_intent)
+                .sort((a, b) => b[1].reduction - a[1].reduction)
+                .slice(0, 8);
+
+            intentChart.data.labels = intents.map(([name]) => name);
+            intentChart.data.datasets[0].data = intents.map(([, d]) => (d.reduction * 100).toFixed(2));
+            intentChart.update();
+        }
+
+        // Update trajectories table
+        function updateTrajectoriesTable(trajectories) {
+            const tbody = document.getElementById('trajectoriesTable');
+
+            if (!trajectories || trajectories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #71717a;">暂无数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = trajectories.map(t => {
+                const date = new Date(t.started_at).toLocaleString('zh-CN');
+                const tokenInfo = t.is_compressed ?
+                    `${t.tokens_before_compress} -> ${t.tokens_after_compress}` :
+                    '-';
+                const statusClass = t.success ? 'status-success' : 'status-error';
+                const statusText = t.success ? '成功' : '失败';
+
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${t.user_message}</td>
+                        <td>${t.intent_type || '-'}</td>
+                        <td>${tokenInfo}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update last update time
+        function updateLastUpdate(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+
+            let text;
+            if (diff < 60) {
+                text = '刚刚更新';
+            } else if (diff < 3600) {
+                text = `${Math.floor(diff / 60)} 分钟前更新`;
+            } else {
+                text = date.toLocaleTimeString('zh-CN');
+            }
+
+            document.getElementById('lastUpdate').textContent = text;
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('errorContainer').innerHTML =
+                `<div class="error-message">${message}</div>`;
+        }
+
+        // Refresh all data
+        async function refreshMetrics() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.textContent = '刷新中...';
+
+            try {
+                // Trigger refresh on server
+                await fetch('/eval/api/metrics/refresh?days=7', { method: 'POST' });
+
+                // Fetch all data
+                await Promise.all([
+                    fetchMetrics(),
+                    fetchTokenMetrics(),
+                    fetchTrajectories()
+                ]);
+            } catch (error) {
+                console.error('Refresh failed:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '刷新数据';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            fetchMetrics();
+            fetchTokenMetrics();
+            fetchTrajectories();
+
+            // Auto-refresh every 60 seconds
+            setInterval(() => {
+                fetchMetrics();
+                fetchTokenMetrics();
+                fetchTrajectories();
+            }, 60000);
+        });
+    </script>
+</body>
+</html>
