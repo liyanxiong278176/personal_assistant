@@ -212,6 +212,33 @@ class EvalStorage:
             logger.error(f"[EvalStorage] Failed to get trajectories: {e}")
             return []
 
+    async def get_trajectories_by_user(
+        self, user_id: str, days: int = 7
+    ) -> List[TrajectoryModel]:
+        """获取指定用户最近N天的轨迹
+
+        Args:
+            user_id: 用户ID
+            days: 天数，默认7天
+
+        Returns:
+            轨迹列表
+        """
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                db.row_factory = aiosqlite.Row
+                cursor = await db.execute("""
+                    SELECT * FROM trajectories
+                    WHERE user_id = ?
+                    AND datetime(started_at) >= datetime('now', '-' || ? || ' days')
+                    ORDER BY started_at DESC
+                """, (user_id, days))
+                rows = await cursor.fetchall()
+                return [TrajectoryModel.from_dict(dict(row)) for row in rows]
+        except Exception as e:
+            logger.error(f"[EvalStorage] Failed to get trajectories by user: {e}")
+            return []
+
     async def save_evaluation_result(
         self,
         result: Optional[Dict[str, Any]] = None,
