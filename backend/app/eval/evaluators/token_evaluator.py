@@ -1,5 +1,5 @@
 """Token 成本评估器 — 离线从 SQLite 读取轨迹，计算压缩效果"""
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 import logging
 
@@ -34,17 +34,21 @@ class TokenEvaluator(BaseEvaluator):
         """
         self.storage = storage
 
-    async def evaluate(self, days: int = 7, **kwargs) -> TokenMetrics:
+    async def evaluate(self, days: int = 7, user_id: Optional[str] = None, **kwargs) -> TokenMetrics:
         """评估 Token 压缩效果
 
         Args:
             days: 分析最近几天的数据，默认 7 天
+            user_id: 可选，按用户ID筛选轨迹
             **kwargs: 其他可选参数
 
         Returns:
             TokenMetrics: Token 压缩效果指标
         """
-        rows = await self.storage.get_all_trajectories(days=days)
+        if user_id:
+            rows = await self.storage.get_trajectories_by_user(user_id, days)
+        else:
+            rows = await self.storage.get_all_trajectories(days=days)
 
         if not rows:
             logger.warning(f"[TokenEvaluator] No trajectories found in last {days} days")
