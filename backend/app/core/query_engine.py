@@ -289,6 +289,13 @@ class QueryEngine:
         self._cache_manager = None  # 缓存管理器，延迟初始化
         # 延迟初始化，不在 __init__ 中执行
 
+        # === EVAL: 评估钩子初始化 ===
+        self._eval_enabled = False
+        self._eval_collector = None
+        self._eval_storage = None
+        self._eval_init_lock = asyncio.Lock()
+        # 延迟初始化，不在 __init__ 中执行
+
         logger.info(
             f"[QueryEngine] 🚀 初始化完成 | "
             f"工具数量={len(self._tool_registry.list_tools())} | "
@@ -1678,6 +1685,20 @@ class QueryEngine:
             f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f}"
         )
 
+        # === EVAL: 初始化并记录轨迹和意图 ===
+        await self._ensure_eval_initialized()
+        if self._eval_enabled and self._eval_collector:
+            try:
+                self._eval_collector.start_trajectory(
+                    trace_ctx.trace_id,
+                    user_input,
+                    conversation_id=conversation_id,
+                    user_id=user_id
+                )
+                self._eval_collector.record_intent(trace_ctx.trace_id, intent_result)
+            except Exception:
+                pass
+
         # ===== 偏好提取（如果启用） =====
         if self._config.enable_preference_extraction and self._pref_extractor and user_id:
             try:
@@ -1778,6 +1799,21 @@ class QueryEngine:
         history = await self.context_guard.pre_process(history)
 
         logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成")
+
+        # === EVAL: 记录 Token 使用（上下文压缩后）===
+        if self._eval_enabled and self._eval_collector:
+            try:
+                tokens_before = estimated_tokens
+                tokens_after = len(user_input) + sum(len(m.get("content", "")) for m in history)
+                self._eval_collector.record_token_usage(
+                    trace_ctx.trace_id,
+                    tokens_before=tokens_before,
+                    tokens_after=tokens_after,
+                    tokens_input=tokens_before,
+                    tokens_output=0  # 将在流结束后更新
+                )
+            except Exception:
+                pass
 
         # UC5-1修复: 追踪Step4
         span_step4 = trace_ctx.create_span("Step4_tools", "Step4_tools")
@@ -1938,6 +1974,22 @@ class QueryEngine:
 
         # 总耗时统计
         total_time = (time.perf_counter() - total_start) * 1000
+
+        # === EVAL: 保存轨迹 ===
+        if self._eval_enabled and self._eval_collector:
+            try:
+                # 更新最终 token 使用（包含输出）
+                estimated_input_tokens = len(user_input) // 4 + len(str(context)) // 4 if context else len(user_input) // 4
+                estimated_output_tokens = len(full_response) // 4
+                await self._eval_collector.update_trajectory_field(
+                    trace_ctx.trace_id,
+                    tokens_input=estimated_input_tokens,
+                    tokens_output=estimated_output_tokens
+                )
+                # 保存轨迹
+                await self._eval_collector.save_trajectory_async(trace_ctx.trace_id, success=True)
+            except Exception:
+                pass
 
         # UC5-1修复: 结束总追踪
         trace_ctx.end_span(span_total, success=True)
@@ -2208,6 +2260,37 @@ class QueryEngine:
                 logger.error(f"[QueryEngine:Phase2] ❌ Phase 2 初始化失败: {e}")
                 self._phase2_enabled = False
                 self._phase2_initialized = True  # 标记为已尝试初始化
+
+    async def _ensure_eval_initialized(self):
+        """确保 Eval 组件已初始化（延迟初始化）"""
+        if self._eval_enabled:
+            return
+
+        async with self._eval_init_lock:
+            # 双重检查
+            if self._eval_enabled:
+                return
+
+            try:
+                from app.eval.collector import EvaluationCollector
+                from app.eval.storage import EvalStorage
+                from pathlib import Path
+
+                # 数据库路径相对于 backend/ 目录
+                db_path = "data/eval.db"
+                eval_storage = EvalStorage(db_path=db_path)
+                await eval_storage.init_db()
+
+                self._eval_storage = eval_storage
+                self._eval_collector = EvaluationCollector(eval_storage)
+                self._eval_enabled = True
+
+                logger.info("[QueryEngine:Eval] ✅ Eval hooks enabled")
+            except Exception as e:
+                self._eval_enabled = False
+                self._eval_collector = None
+                self._eval_storage = None
+                logger.warning(f"[QueryEngine:Eval] ⚠️ Eval hooks disabled: {e}")
 
     async def close(self) -> None:
         """Clean up resources.
