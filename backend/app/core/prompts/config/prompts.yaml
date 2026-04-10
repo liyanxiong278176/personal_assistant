@@ -1,0 +1,70 @@
+# Prompt Configuration for Travel Assistant
+# 意图到模板的映射配置
+
+# 意图映射配置
+mapping:
+  # 行程规划意图
+  itinerary:
+    template: templates/itinerary.md
+    enabled: true
+    priority: 1
+
+  # 信息查询意图
+  query:
+    template: templates/query.md
+    enabled: true
+    priority: 2
+
+  # 通用对话意图
+  chat:
+    template: templates/chat.md
+    enabled: true
+    priority: 8
+
+  # 图片识别意图
+  image:
+    template: templates/image.md
+    enabled: true
+    priority: 3
+
+  # 酒店推荐意图
+  hotel:
+    template: templates/hotel.md
+    enabled: true
+    priority: 4
+
+  # 美食推荐意图
+  food:
+    template: templates/food.md
+    enabled: true
+    priority: 5
+
+  # 预算规划意图
+  budget:
+    template: templates/budget.md
+    enabled: true
+    priority: 6
+
+  # 交通出行意图
+  transport:
+    template: templates/transport.md
+    enabled: true
+    priority: 7
+
+# 全局设置
+settings:
+  # 配置文件监听间隔（秒）
+  watch_interval: 1
+
+  # 模板缓存时间（秒）
+  cache_ttl: 60
+
+  # 默认系统提示词模板
+  default_system_template: templates/system.md
+
+# 模板变量说明
+# 以下变量会在运行时注入到模板中：
+# - {user_message}: 用户输入的消息
+# - {slots}: 从用户消息中提取的结构化信息（如目的地、日期等）
+# - {memories}: 关于用户的历史偏好和上下文
+# - {tool_results}: 工具调用返回的结果
