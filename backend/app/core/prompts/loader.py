@@ -177,7 +177,8 @@ class PromptConfigLoader:
 
         # 获取模板路径
         template_name = intent_config.get("template", f"templates/{intent}.md")
-        templates_dir = self.config_path.parent
+        # config路径是 prompts/config/prompts.yaml，templates在 prompts/templates/
+        templates_dir = self.config_path.parent.parent
         template_path = templates_dir / template_name
 
         # 检查模板文件是否需要重载
