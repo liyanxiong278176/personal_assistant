@@ -13,6 +13,7 @@ from .providers.template_provider import TemplateProvider
 from .pipeline.security import SecurityFilter
 from .pipeline.validator import Validator
 from .pipeline.compressor import TokenCompressor
+from .loader import PromptConfigLoader
 
 __all__ = [
     "PromptLayer",
@@ -33,4 +34,6 @@ __all__ = [
     "SecurityFilter",
     "Validator",
     "TokenCompressor",
+    # Config loader exports
+    "PromptConfigLoader",
 ]
