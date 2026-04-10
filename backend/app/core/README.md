@@ -12,6 +12,64 @@
 | **DIContainer** | 依赖注入容器，自动管理组件生命周期 |
 | **SecurityFilter** | 内置的提示词注入检测和防护 |
 
+## Intent System（意图识别系统）
+
+The intent system supports **8 intent types** for comprehensive query classification:
+
+| Intent | Description | Example Keywords |
+|--------|-------------|------------------|
+| `itinerary` | 行程规划 | 规划, 行程, 路线, 旅游 |
+| `query` | 信息查询 | 天气, 门票, 价格, 地址 |
+| `chat` | 普通对话 | 你好, 在吗, 谢谢 |
+| `image` | 图片识别 | 图片, 照片, 识别 |
+| `hotel` | 酒店预订 | 酒店, 住宿, 民宿, 宾馆 |
+| `food` | 美食推荐 | 美食, 小吃, 餐厅, 菜 |
+| `budget` | 预算规划 | 预算, 多少钱, 花费, 便宜 |
+| `transport` | 交通出行 | 怎么去, 交通, 飞机, 高铁 |
+
+**Keyword definitions:** Centralized in `app/core/intent/keywords.py`
+
+**Pattern matching:** Regex patterns for 6 intent types enhance accuracy
+
+## Prompt Templates（提示词模板）
+
+Templates are stored in `backend/app/core/prompts/templates/` and configured via `prompts.yaml`.
+
+### Hot-Reload Support
+
+Templates are automatically reloaded when files are modified. No server restart required.
+
+**Configuration file:** `backend/app/core/prompts/config/prompts.yaml`
+
+```yaml
+mapping:
+  hotel:
+    template: templates/hotel.md
+    enabled: true
+    priority: 10
+    cache_ttl: 300
+  # ... other intents
+```
+
+**Usage:**
+```python
+from app.core.prompts import PromptConfigLoader
+
+loader = PromptConfigLoader()
+template = loader.get_template("hotel")  # Auto-reloads if file changed
+```
+
+### Template Variables
+
+All templates support these variables:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `{user_message}` | The original user message | "帮我找北京的酒店" |
+| `{slots}` | Formatted slot extraction results | destination: 北京, days: 3 |
+| `{memories}` | Formatted memory items | User prefers quiet hotels |
+| `{tool_results}` | Formatted tool execution results | Weather: 25°C, Places: [...] |
+
 ## 架构概览
 
 ### 系统架构图
