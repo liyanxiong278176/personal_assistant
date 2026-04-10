@@ -1,44 +1,53 @@
-"""Intent module for slot extraction and intent classification"""
+"""Intent module for slot extraction and intent routing."""
 
 from .slot_extractor import SlotExtractor, SlotResult, DateRange
-from .classifier import (
-    IntentClassifier,
-    IntentResult,
-    KEYWORD_RULES,
-    intent_classifier
-)
-from .complexity import is_complex_query, ComplexityResult
-from .llm_classifier import LLMIntentClassifier, LLM_CLASSIFY_PROMPT
+from .router import IntentRouter, ClarificationResult, RouterStatistics
 from .config import IntentRouterConfig
 from .metrics import IntentMetricsCollector
-from .router import ClarificationResult, IntentRouter, RouterStatistics
-from .legacy_adapter import LegacyIntentAdapter
+from .keywords import (
+    ALL_INTENT_KEYWORDS,
+    ALL_INTENT_PATTERNS,
+    ITINERARY_KEYWORDS,
+    QUERY_KEYWORDS,
+    CHAT_KEYWORDS,
+    IMAGE_KEYWORDS,
+    HOTEL_KEYWORDS,
+    FOOD_KEYWORDS,
+    BUDGET_KEYWORDS,
+    TRANSPORT_KEYWORDS,
+)
 from .strategies import (
     IIntentStrategy,
+    CacheStrategy,
+    ClassificationCache,
     RuleStrategy,
-    LLMFallbackStrategy,
+    LLMStrategy,
 )
 
 __all__ = [
     "SlotExtractor",
     "SlotResult",
     "DateRange",
-    "IntentClassifier",
-    "IntentResult",
-    "KEYWORD_RULES",
-    "intent_classifier",
-    "is_complex_query",
-    "ComplexityResult",
-    "LLMIntentClassifier",
-    "LLM_CLASSIFY_PROMPT",
-    "IntentRouterConfig",
     "IntentRouter",
-    "IntentMetricsCollector",
     "ClarificationResult",
     "RouterStatistics",
-    "LegacyIntentAdapter",
+    "IntentRouterConfig",
+    "IntentMetricsCollector",
+    # Keyword exports
+    "ALL_INTENT_KEYWORDS",
+    "ALL_INTENT_PATTERNS",
+    "ITINERARY_KEYWORDS",
+    "QUERY_KEYWORDS",
+    "CHAT_KEYWORDS",
+    "IMAGE_KEYWORDS",
+    "HOTEL_KEYWORDS",
+    "FOOD_KEYWORDS",
+    "BUDGET_KEYWORDS",
+    "TRANSPORT_KEYWORDS",
     # Strategy pattern exports
     "IIntentStrategy",
+    "CacheStrategy",
+    "ClassificationCache",
     "RuleStrategy",
-    "LLMFallbackStrategy",
+    "LLMStrategy",
 ]
