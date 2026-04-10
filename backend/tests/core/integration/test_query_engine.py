@@ -175,6 +175,62 @@ async def send_and_collect(engine, msg):
     return "".join(result)
 
 
+# =============================================================================
+# Intent Enhancement Tests - 4 New Intent Types
+# =============================================================================
+
+from app.core.context import RequestContext
+from app.core.intent import IntentRouter, RuleStrategy
+
+
+@pytest.mark.asyncio
+async def test_intent_classification_hotel():
+    """Test hotel intent classification."""
+    router = IntentRouter(strategies=[RuleStrategy()])
+    context = RequestContext(message="帮我找北京的酒店", user_id="test")
+
+    result = await router.classify(context)
+
+    assert result.intent == "hotel"
+    assert result.confidence >= 0.3
+
+
+@pytest.mark.asyncio
+async def test_intent_classification_food():
+    """Test food intent classification."""
+    router = IntentRouter(strategies=[RuleStrategy()])
+    context = RequestContext(message="成都有什么好吃的", user_id="test")
+
+    result = await router.classify(context)
+
+    assert result.intent == "food"
+    assert result.confidence >= 0.3
+
+
+@pytest.mark.asyncio
+async def test_intent_classification_budget():
+    """Test budget intent classification."""
+    router = IntentRouter(strategies=[RuleStrategy()])
+    context = RequestContext(message="去北京大概多少钱", user_id="test")
+
+    result = await router.classify(context)
+
+    assert result.intent == "budget"
+    assert result.confidence >= 0.3
+
+
+@pytest.mark.asyncio
+async def test_intent_classification_transport():
+    """Test transport intent classification."""
+    router = IntentRouter(strategies=[RuleStrategy()])
+    context = RequestContext(message="怎么去上海", user_id="test")
+
+    result = await router.classify(context)
+
+    assert result.intent == "transport"
+    assert result.confidence >= 0.3
+
+
 @pytest.mark.asyncio
 async def test_query_engine_fallback_no_tools():
     """测试没有工具时的回退行为"""
