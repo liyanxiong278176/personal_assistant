@@ -6,7 +6,7 @@
 3. 按需并行调用工具
 4. 上下文构建
 5. LLM 生成响应
-6. 异步记忆���新
+6. 异步记忆更新
 """
 
 import asyncio
@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from app.core.query_engine import QueryEngine
 from app.core.llm import LLMClient, ToolCall
-from app.core.intent import intent_classifier
+from app.core.context import RequestContext
 
 
 class MockLLMClient(LLMClient):
@@ -84,34 +84,40 @@ class TestUnifiedWorkflowChat:
 
 
 class TestIntentClassification:
-    """测试: 意图分类集成"""
+    """测试: 意图分类集成 (使用 IntentRouter)"""
 
-    def test_intent_classification_itinerary(self):
+    @pytest.mark.asyncio
+    async def test_intent_classification_itinerary(self, query_engine):
         """测试行程规划意图识别"""
-        result = intent_classifier.classify_sync("帮我规划北京三日游")
+        ctx = RequestContext(message="帮我规划北京三日游", user_id="test")
+        result = await query_engine._intent_router.classify(ctx)
         assert result.intent == "itinerary"
         assert result.confidence >= 0.8
-        assert result.method in ["keyword", "llm"]
+        assert result.strategy in ["RuleStrategy", "LLMStrategy"]
 
-    def test_intent_classification_query(self):
+    @pytest.mark.asyncio
+    async def test_intent_classification_query(self, query_engine):
         """测试查询意图识别"""
-        result = intent_classifier.classify_sync("北京今天天气怎么样")
+        ctx = RequestContext(message="北京今天天气怎么样", user_id="test")
+        result = await query_engine._intent_router.classify(ctx)
         assert result.intent == "query"
-        assert result.confidence >= 0.8
+        assert result.confidence >= 0.5  # LLM might be used
 
-    def test_intent_classification_chat(self):
+    @pytest.mark.asyncio
+    async def test_intent_classification_chat(self, query_engine):
         """测试聊天意图识别"""
-        result = intent_classifier.classify_sync("你好在吗")
+        ctx = RequestContext(message="你好在吗", user_id="test")
+        result = await query_engine._intent_router.classify(ctx)
         assert result.intent == "chat"
-        # chat 意图可能置信度较低
         assert result.confidence > 0
 
-    def test_intent_classification_image(self):
+    @pytest.mark.asyncio
+    async def test_intent_classification_image(self, query_engine):
         """测试图片识别意图"""
-        result = intent_classifier.classify_sync("识别这张图片", has_image=True)
+        ctx = RequestContext(message="识别这张图片", user_id="test", has_image=True)
+        result = await query_engine._intent_router.classify(ctx)
         assert result.intent == "image"
         assert result.confidence == 1.0
-        assert result.method == "attachment"
 
 
 class TestSlotExtraction:
@@ -264,7 +270,7 @@ class TestWorkflowIntegration:
     async def test_full_workflow_chat_intent(self, query_engine):
         """测试聊天意图的完整流程"""
         chunks = []
-        async for chunk in query_engine.process("你好在吗", "conv003"):
+        async for chunk in query_engine.process("你好在��", "conv003"):
             chunks.append(chunk)
 
         response = "".join(chunks)

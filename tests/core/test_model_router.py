@@ -1,6 +1,6 @@
 import pytest
 from app.core.orchestrator.model_router import ModelRouter
-from app.core.intent.classifier import IntentResult
+from app.core.context import IntentResult
 
 @pytest.mark.asyncio
 async def test_simple_chat_uses_small_model():

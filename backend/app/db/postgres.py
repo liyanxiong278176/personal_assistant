@@ -566,20 +566,34 @@ class Database:
 
 
 # Conversation operations
-async def create_conversation_ext(conn: asyncpg.Connection, conv_id: UUID, title: str = "新对话") -> None:
+async def create_conversation_ext(
+    conn: asyncpg.Connection,
+    conv_id: UUID,
+    title: str = "新对话",
+    user_id: str = None
+) -> None:
     """Create a conversation with a specific ID (for external use).
 
     Args:
         conn: Database connection
         conv_id: Conversation ID to use
         title: Conversation title
+        user_id: Optional user ID to associate with conversation
     """
-    await conn.execute(
-        """INSERT INTO conversations (id, title, created_at, updated_at)
-           VALUES ($1, $2, $3, $3)
-           ON CONFLICT (id) DO UPDATE SET updated_at = $3""",
-        conv_id, title, datetime.utcnow()
-    )
+    if user_id:
+        await conn.execute(
+            """INSERT INTO conversations (id, title, user_id, created_at, updated_at)
+               VALUES ($1, $2, $3, $4, $4)
+               ON CONFLICT (id) DO UPDATE SET updated_at = $4""",
+            conv_id, title, user_id, datetime.utcnow()
+        )
+    else:
+        await conn.execute(
+            """INSERT INTO conversations (id, title, created_at, updated_at)
+               VALUES ($1, $2, $3, $3)
+               ON CONFLICT (id) DO UPDATE SET updated_at = $3""",
+            conv_id, title, datetime.utcnow()
+        )
 
 
 async def get_conversation_ext(conn: asyncpg.Connection, conv_id: UUID) -> Optional[dict]:
@@ -596,16 +610,31 @@ async def get_conversation_ext(conn: asyncpg.Connection, conv_id: UUID) -> Optio
     return dict(row) if row else None
 
 
-async def create_conversation(title: str = "新对话") -> UUID:
-    """Create a new conversation."""
+async def create_conversation(title: str = "新对话", user_id: str = None) -> UUID:
+    """Create a new conversation.
+
+    Args:
+        title: Conversation title
+        user_id: Optional user ID to associate with conversation
+
+    Returns:
+        Created conversation UUID
+    """
     conn = await Database.get_connection()
     try:
         conv_id = uuid4()
-        await conn.execute(
-            """INSERT INTO conversations (id, title, created_at, updated_at)
-               VALUES ($1, $2, $3, $3)""",
-            conv_id, title, datetime.utcnow()
-        )
+        if user_id:
+            await conn.execute(
+                """INSERT INTO conversations (id, title, user_id, created_at, updated_at)
+                   VALUES ($1, $2, $3, $4, $4)""",
+                conv_id, title, user_id, datetime.utcnow()
+            )
+        else:
+            await conn.execute(
+                """INSERT INTO conversations (id, title, created_at, updated_at)
+                   VALUES ($1, $2, $3, $3)""",
+                conv_id, title, datetime.utcnow()
+            )
         return conv_id
     finally:
         await Database.release_connection(conn)

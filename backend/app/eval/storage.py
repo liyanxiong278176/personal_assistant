@@ -11,15 +11,26 @@ from .models import TrajectoryModel
 logger = logging.getLogger(__name__)
 
 
+def _get_default_db_path() -> str:
+    """获取默认数据库路径（绝对路径）"""
+    # 从当前文件位置找到 backend 目录
+    backend_dir = Path(__file__).parent.parent.parent
+    db_dir = backend_dir / "data"
+    db_dir.mkdir(exist_ok=True)
+    return str(db_dir / "eval.db")
+
+
 class EvalStorage:
     """评估数据存储管理器"""
 
-    def __init__(self, db_path: str = "data/eval.db"):
+    def __init__(self, db_path: Optional[str] = None):
         """初始化存储管理器
 
         Args:
-            db_path: 数据库文件路径
+            db_path: 数据库文件路径，为 None 时使用默认路径
         """
+        if db_path is None:
+            db_path = _get_default_db_path()
         self.db_path = db_path
         self._lock = asyncio.Lock()
         logger.info(f"[EvalStorage] Initialized with db_path={db_path}")

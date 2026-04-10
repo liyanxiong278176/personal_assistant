@@ -178,6 +178,7 @@ export class ChatWebSocketTransport {
         type: "message",
         session_id: this.sessionId,
         conversation_id: this.conversationId || undefined,
+        user_id: this.userId || undefined,  // Include user_id for eval tracking
         content,
         has_image: !!options.imageData,
         image_data: options.imageData,

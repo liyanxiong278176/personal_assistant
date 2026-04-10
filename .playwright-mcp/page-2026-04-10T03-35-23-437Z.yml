@@ -1,0 +1,63 @@
+- generic [active] [ref=e1]:
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - button [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+        - generic [ref=e16]:
+          - img [ref=e18]
+          - heading "AI Travel Assistant" [level=1] [ref=e22]
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - link "评估体系" [ref=e25] [cursor=pointer]:
+            - /url: /eval
+            - img [ref=e26]
+            - text: 评估体系
+          - generic [ref=e29]: "2"
+          - generic [ref=e30]: "2781764566"
+        - button "账号" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+          - generic [ref=e35]: 账号
+        - link "设置" [ref=e36] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e37]
+          - generic [ref=e40]: 设置
+    - generic [ref=e43]:
+      - paragraph [ref=e47]: 测试会话ID保持
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - img [ref=e53]
+          - generic [ref=e57]: AI 助手
+        - paragraph [ref=e58]: 你好！很高兴再次为你服务！😊 看起来我们之前的对话已经重置了，现在是一个全新的开始。不过不用担心，我依然是你的专业旅游助手AI，随时准备为你提供旅行相关的帮助。 **我能为你做什么：** 1. **🗺️ 行程规划** - 帮你设计合理的旅行路线，安排景点顺序 2. **🏛️ 景点推荐** - 根据你的兴趣推荐合适的景点、餐厅、酒店等 3. **🌤️ 天气查询** - 提供目的地的天气情况和预报 4. **🚗 交通信息** - 规划路线、查询交通方式 5. **💡 个性化建议** - 根据你的偏好给出定制化建议 有什么旅行方面的问题需要我帮忙吗？比如你想去哪里旅行？或者有什么特定的需求？
+      - paragraph [ref=e62]: 这是第二条消息
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - img [ref=e68]
+          - generic [ref=e72]: AI 助手
+        - paragraph [ref=e73]: 你好！感谢你的第二条消息！😊 看起来我们正在测试会话的连续性。虽然之前的对话内容可能没有完全保留，但我依然在这里为你提供帮助。 **关于会话记忆：** - 我能看到这是我们的对话在继续 - 我可以根据当前对话内容为你提供连贯的服务 - 如果你有具体的旅行需求，我会全力协助 **现在我能为你做什么？** - 你想了解某个城市的旅游信息吗？ - 需要规划一个旅行行程？ - 或者有其他旅行相关的问题？ 请告诉我你的具体需求，我会为你提供专业的旅游建议和帮助！
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - button "上传图片" [ref=e79] [cursor=pointer]:
+          - img [ref=e80]
+        - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e85]
+        - button "发送" [disabled] [ref=e88]:
+          - img [ref=e89]
+      - generic [ref=e92]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - generic [ref=e97] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e98]:
+      - img [ref=e99]
+    - generic [ref=e102]:
+      - button "Open issues overlay" [ref=e103]:
+        - generic [ref=e104]:
+          - generic [ref=e105]: "1"
+          - generic [ref=e106]: "2"
+        - generic [ref=e107]:
+          - text: Issue
+          - generic [ref=e108]: s
+      - button "Collapse issues badge" [ref=e109]:
+        - img [ref=e110]
+  - alert [ref=e112]

@@ -13,8 +13,7 @@ Priority ranges:
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.core.context import RequestContext
-from app.core.intent.classifier import IntentResult
+from app.core.context import RequestContext, IntentResult
 
 
 class IIntentStrategy(ABC):

@@ -1,0 +1,28 @@
+[     890ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[    1427ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:56
+[    1451ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    1451ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    1452ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[    1452ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[    6433ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[    6433ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    6434ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    6434ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[    6435ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[    6436ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/users/3a76b790-c20e-45f1-8d49-3b2c351e9d6d/preferences:0
+[    6436ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[    6451ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[    6452ms] [LOG] [Chat] User ID set to transport: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:94
+[    6751ms] [LOG] [Fast Refresh] done in 300ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[   21936ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   21941ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[   21961ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   42960ms] [LOG] [ChatTransport] WebSocket disconnected 1012  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   42960ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   42960ms] [LOG] [ChatTransport] WebSocket disconnected 1012  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   42961ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   43011ms] [LOG] [Auth] Synced user ID to userManager: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./lib/store/auth-store.ts:97
+[   72560ms] [LOG] [ChatTransport] sendMessage called, content: 北京明天天气怎么样 @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:81
+[   72560ms] [LOG] [ChatTransport] isConnected: false ws.readyState: 0 @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:82
+[   72561ms] [LOG] [ChatTransport] has_image: false @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:83
+[   72561ms] [LOG] [ChatTransport] Not connected, connecting first... @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:88

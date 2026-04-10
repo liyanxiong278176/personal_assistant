@@ -21,7 +21,7 @@ from app.core.prompts.service import PromptService
 from app.core.prompts.providers.template_provider import TemplateProvider
 from app.core.prompts.pipeline.security import SecurityFilter
 from app.core.context import RequestContext
-from app.core.intent.classifier import IntentResult
+from app.core.context import IntentResult
 
 
 # =============================================================================

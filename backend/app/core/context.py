@@ -28,6 +28,28 @@ class IntentType(str):
     FALLBACK = "fallback"
 
 
+# Intent result data class
+class IntentResult(BaseModel):
+    """Intent classification result.
+
+    Attributes:
+        intent: Intent type (itinerary, query, image, chat)
+        confidence: Confidence score 0.0-1.0
+        method: Classification method (cache, rule, llm, attachment, default)
+        reasoning: Optional explanation of classification
+        need_tool: Whether tool calling is needed
+        clarification: Optional clarification info
+        strategy: Name of the strategy that produced this result
+    """
+    intent: str
+    confidence: float
+    method: str = "unknown"
+    reasoning: Optional[str] = None
+    need_tool: bool = False
+    clarification: Optional[dict] = None
+    strategy: Optional[str] = None  # Name of the strategy that produced this result
+
+
 class RequestContext(BaseModel):
     """Request context - flows through all modules
 
@@ -59,6 +81,12 @@ class RequestContext(BaseModel):
 
     # Tool results
     tool_results: Dict[str, Any] = {}
+
+    # Image flag - whether the message contains an image
+    has_image: bool = False
+
+    # Complexity flag - whether the request is complex
+    is_complex: bool = False
 
     def update(self, **kwargs) -> "RequestContext":
         """Create updated context copy"""

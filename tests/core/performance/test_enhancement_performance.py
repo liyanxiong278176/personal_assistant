@@ -584,7 +584,10 @@ class TestOverallThroughput:
 
     async def test_concurrent_intent_classification(self):
         """Test concurrent intent classification performance."""
-        from app.core.intent import IntentClassifier, intent_classifier
+        from app.core.intent import IntentRouter, RuleStrategy, LLMStrategy
+        from app.core.context import RequestContext
+
+        router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
 
         test_inputs = [
             "帮我规划去北京的行程",
@@ -597,7 +600,7 @@ class TestOverallThroughput:
         # Measure: Concurrent classification
         start = time.perf_counter()
         results = await asyncio.gather(*[
-            intent_classifier.classify(inp) for inp in test_inputs
+            router.classify(RequestContext(message=inp)) for inp in test_inputs
         ])
         elapsed = time.perf_counter() - start
 

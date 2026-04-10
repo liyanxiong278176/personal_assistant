@@ -68,6 +68,15 @@ class UserManager {
   }
 
   /**
+   * Set user ID (for login sync).
+   * Updates the stored user ID when user logs in.
+   */
+  setUserId(userId: string): void {
+    this.userId = userId;
+    localStorage.setItem(USER_ID_KEY, userId);
+  }
+
+  /**
    * Get current preferences from cache.
    */
   getPreferences(): UserPreferences {

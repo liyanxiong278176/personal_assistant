@@ -2,6 +2,7 @@
 import asyncio
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import aiosqlite
@@ -19,13 +20,24 @@ _storage = None
 _storage_lock = asyncio.Lock()
 
 
+def _get_eval_db_path() -> str:
+    """获取评估数据库路径（与 QueryEngine 保持一致）"""
+    # 使用与 QueryEngine 相同的路径计算方式
+    backend_dir = Path(__file__).parent.parent.parent
+    db_dir = backend_dir / "data"
+    db_dir.mkdir(exist_ok=True)
+    return str(db_dir / "eval.db")
+
+
 async def get_storage() -> EvalStorage:
     """获取存储实例（单例模式）"""
     global _storage
     if _storage is None:
         async with _storage_lock:
             if _storage is None:
-                _storage = EvalStorage()
+                # 使用统一的数据库路径
+                db_path = _get_eval_db_path()
+                _storage = EvalStorage(db_path=db_path)
                 await _storage.init_db()
     return _storage
 

@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+        - generic [ref=e9]:
+          - img [ref=e11]
+          - heading "AI Travel Assistant" [level=1] [ref=e15]
+      - generic [ref=e16]:
+        - generic [ref=e124]:
+          - link "评估体系" [ref=e125] [cursor=pointer]:
+            - /url: /eval
+            - img [ref=e126]
+            - text: 评估体系
+          - generic [ref=e129]: "2"
+          - generic [ref=e130]: "2781764566"
+        - button "账号" [ref=e131] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e21]: 账号
+        - link "设置" [ref=e22] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e23]
+          - generic [ref=e26]: 设置
+    - generic [ref=e29]:
+      - paragraph [ref=e136]: 测试会话ID保持
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - img [ref=e145]
+          - generic [ref=e149]: AI 助手
+        - paragraph [ref=e150]: 你好！很高兴再次为你服务！😊 看起来我们之前的对话已经重置了，现在是一个全新的开始。不过不用担心，我依然是你的专业旅游助手AI，随时准备为你提供旅行相关的帮助。 **我能为你做什么：** 1. **🗺️ 行程规划** - 帮你设计合理的旅行路线，安排景点顺序 2. **🏛️ 景点推荐** - 根据你的兴趣推荐合适的景点、餐厅、酒店等 3. **🌤️ 天气查询** - 提供目的地的天气情况和预报 4. **🚗 交通信息** - 规划路线、查询交通方式 5. **💡 个性化建议** - 根据你的偏好给出定制化建议 有什么旅行方面的问题需要我帮忙吗？比如你想去哪里旅行？或者有什么特定的需求？
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - button "上传图片" [ref=e85] [cursor=pointer]:
+          - img [ref=e86]
+        - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e91]
+        - button "发送" [disabled] [ref=e151]:
+          - img [ref=e152]
+      - generic [ref=e98]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e100] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e101]
+    - text: Deerflow
+  - generic [ref=e109] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e110]:
+      - img [ref=e111]
+    - generic [ref=e114]:
+      - button "Open issues overlay" [ref=e115]:
+        - generic [ref=e116]:
+          - generic [ref=e117]: "1"
+          - generic [ref=e118]: "2"
+        - generic [ref=e119]:
+          - text: Issue
+          - generic [ref=e120]: s
+      - button "Collapse issues badge" [ref=e121]:
+        - img [ref=e122]
+  - alert [ref=e104]

@@ -1,0 +1,16 @@
+[     419ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[     851ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:8000/api/v1/auth/me:0
+[    3139ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[    3280ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[    3282ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:56
+[    3283ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[    3298ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    3299ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    3299ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[    3299ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[    3463ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[    3466ms] [LOG] [Chat] User ID set to transport: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:94
+[    3474ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[    3591ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[    4626ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   12231ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630

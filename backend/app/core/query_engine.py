@@ -26,10 +26,12 @@ if TYPE_CHECKING:
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
+from .prompts.providers.base import IPromptProvider, PromptTemplate
+from .prompts.loader import PromptConfigLoader
 from .errors import AgentError, DegradationLevel
 from .tools import ToolRegistry, global_registry
 from .tools.executor import ToolExecutor
-from .intent import IntentClassifier, SlotExtractor, intent_classifier
+from .intent import SlotExtractor
 from .context_mgmt.guard import ContextGuard
 from .context_mgmt.config import ContextConfig
 from .context_mgmt.enhancement_config import AgentEnhancementConfig
@@ -49,6 +51,92 @@ from .canary import get_canary_controller
 from .session_snapshot import get_snapshot_manager
 
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# _LoaderProvider: Adapter bridging PromptConfigLoader to IPromptProvider
+# =============================================================================
+
+class _LoaderProvider(IPromptProvider):
+    """Adapter that bridges PromptConfigLoader to IPromptProvider interface.
+
+    This enables QueryEngine to use the hot-reload PromptConfigLoader
+    through the existing IPromptProvider abstraction.
+    """
+
+    def __init__(self, loader: PromptConfigLoader):
+        """Initialize the adapter.
+
+        Args:
+            loader: PromptConfigLoader instance for hot-reload templates
+        """
+        self._loader = loader
+
+    async def get_template(self, intent: str, version: str = "latest") -> PromptTemplate:
+        """Get template from PromptConfigLoader.
+
+        Args:
+            intent: Intent identifier (e.g., 'itinerary', 'query')
+            version: Template version (ignored by loader, uses latest)
+
+        Returns:
+            PromptTemplate object with loaded content
+
+        Raises:
+            KeyError: When intent is not found in configuration
+        """
+        template_content = self._loader.get_template(intent)
+
+        # Extract variables from template content
+        variables = self._extract_variables(template_content)
+
+        return PromptTemplate(
+            intent=intent,
+            version=version,
+            template=template_content,
+            variables=variables,
+            metadata={"source": "PromptConfigLoader", "hot_reload": True}
+        )
+
+    def _extract_variables(self, template: str) -> List[str]:
+        """Extract variable placeholders from template.
+
+        Args:
+            template: Template string
+
+        Returns:
+            List of variable names (without braces)
+        """
+        import re
+        pattern = r'\{(\w+)\}'
+        return list(set(re.findall(pattern, template)))
+
+    async def update_template(self, intent: str, template: str) -> str:
+        """Update template (not supported by loader).
+
+        The PromptConfigLoader is read-only from YAML files.
+        This raises NotImplementedError.
+
+        Raises:
+            NotImplementedError: Always, as loader is read-only
+        """
+        raise NotImplementedError(
+            "PromptConfigLoader is read-only. Update template files directly."
+        )
+
+    async def list_templates(self) -> List[str]:
+        """List available intents from configuration.
+
+        Returns:
+            List of intent identifiers that have templates configured
+        """
+        config = self._loader.get_config()
+        mapping = config.get("mapping", {})
+        return [
+            intent
+            for intent, cfg in mapping.items()
+            if cfg.get("enabled", True)
+        ]
 
 
 class WorkflowStage(Enum):
@@ -168,6 +256,7 @@ class QueryEngine:
         intent_router: Optional["IntentRouter"] = None,
         prompt_service: Optional["PromptService"] = None,
         memory_service: Optional[Any] = None,
+        prompt_config_path: Optional[str] = None,
     ):
         """Initialize QueryEngine.
 
@@ -180,6 +269,7 @@ class QueryEngine:
             intent_router: 意图路由器（可选），用于新的意图识别流程
             prompt_service: 提示词服务（可选），用于新的提示词渲染流程
             memory_service: 记忆服务（可选，P0 可为 None）
+            prompt_config_path: 提示词配置文件路径（可选），启用热更新功能
         """
         self.llm_client = llm_client
         self._custom_system_prompt = system_prompt  # 外部传入的可选覆盖
@@ -194,19 +284,37 @@ class QueryEngine:
         # 如果没有提供新的 IntentRouter，自动创建一个
         if self._intent_router is None:
             from .intent.router import IntentRouter
-            from .intent.strategies.rule import RuleStrategy
-            from .intent.strategies.llm_fallback import LLMFallbackStrategy
+            from .intent.strategies import CacheStrategy, RuleStrategy, LLMStrategy
             self._intent_router = IntentRouter(
-                strategies=[RuleStrategy(), LLMFallbackStrategy(llm_client=llm_client)]
+                strategies=[
+                    CacheStrategy(),
+                    RuleStrategy(),
+                    LLMStrategy(llm_client=llm_client),
+                ]
             )
-            logger.info("[QueryEngine] 🔄 IntentRouter 已自动创建")
+            logger.info("[QueryEngine] IntentRouter 已自动创建（含CacheStrategy）")
 
         # 如果没有提供新的 PromptService，自动创建一个
         if self._prompt_service is None:
             from .prompts.service import PromptService
             from .prompts.providers.template_provider import TemplateProvider
-            self._prompt_service = PromptService(provider=TemplateProvider())
-            logger.info("[QueryEngine] 🔄 PromptService 已自动创建")
+
+            # 使用 PromptConfigLoader 启用热更新（如果提供了配置路径）
+            if prompt_config_path:
+                loader = PromptConfigLoader(config_path=prompt_config_path)
+                provider = _LoaderProvider(loader)
+                self._prompt_service = PromptService(provider=provider)
+                self._prompt_loader = loader  # 保存引用以便访问缓存统计
+                logger.info(
+                    f"[QueryEngine] 🔄 PromptService 已创建（热更新模式）| "
+                    f"config={prompt_config_path}"
+                )
+            else:
+                self._prompt_service = PromptService(provider=TemplateProvider())
+                self._prompt_loader = None
+                logger.info("[QueryEngine] 🔄 PromptService 已自动创建")
+        else:
+            self._prompt_loader = None  # 外部传入的 service 没有 loader
 
         # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
@@ -237,12 +345,8 @@ class QueryEngine:
         else:
             self._pref_extractor = None
 
-        # 意图分类器和槽位提取器
-        self._intent_classifier = intent_classifier
+        # 槽位提取器
         self._slot_extractor = SlotExtractor()
-
-        # 兼容legacy: 保留原有意图分类器作为降级fallback
-        self._legacy_intent = self._intent_classifier
 
         # === 上下文守卫初始化 ===
         rules_cache = ContextConfig.load_rules_at_startup(
@@ -293,7 +397,7 @@ class QueryEngine:
         self._eval_enabled = False
         self._eval_collector = None
         self._eval_storage = None
-        self._eval_init_lock = asyncio.Lock()
+        self._eval_init_lock = None  # 懒创建，确保在 async context 中
         # 延迟初始化，不在 __init__ 中执行
 
         logger.info(
@@ -1158,7 +1262,9 @@ class QueryEngine:
                 async with self._message_repo._get_db_connection() as conn:
                     existing = await get_conversation_ext(conn, conv_uuid)
                     if not existing:
-                        await create_conversation_ext(conn, conv_uuid, "对话")
+                        # Only pass user_id if it's a valid UUID (not None and not "anonymous")
+                        conv_user_id = user_id if user_id and user_id != "anonymous" else None
+                        await create_conversation_ext(conn, conv_uuid, "对话", user_id=conv_user_id)
 
                 # 保存用户消息（使用PII清洗后的内容）
                 user_msg = PersistenceMessage(
@@ -1678,7 +1784,7 @@ class QueryEngine:
 
         step1_latency = (time.perf_counter() - total_start) * 1000
         trace_ctx.end_span(span_step1, success=True)
-        tracing.check_and_alert(trace_ctx, "Step1_intent", step1_latency)
+        asyncio.create_task(tracing.check_and_alert(trace_ctx, "Step1_intent", step1_latency))
 
         logger.info(
             f"[WORKFLOW:STREAM:1_INTENT] ✅ 完成 | "
@@ -1696,8 +1802,9 @@ class QueryEngine:
                     user_id=user_id
                 )
                 self._eval_collector.record_intent(trace_ctx.trace_id, intent_result)
-            except Exception:
-                pass
+                logger.debug(f"[Eval] Trajectory started: trace_id={trace_ctx.trace_id[:16]}...")
+            except Exception as e:
+                logger.error(f"[Eval] Failed to start trajectory: {e}", exc_info=True)
 
         # ===== 偏好提取（如果启用） =====
         if self._config.enable_preference_extraction and self._pref_extractor and user_id:
@@ -1812,8 +1919,9 @@ class QueryEngine:
                     tokens_input=tokens_before,
                     tokens_output=0  # 将在流结束后更新
                 )
-            except Exception:
-                pass
+                logger.debug(f"[Eval] Token usage recorded: before={tokens_before}, after={tokens_after}")
+            except Exception as e:
+                logger.error(f"[Eval] Failed to record token usage: {e}", exc_info=True)
 
         # UC5-1修复: 追踪Step4
         span_step4 = trace_ctx.create_span("Step4_tools", "Step4_tools")
@@ -1885,7 +1993,7 @@ class QueryEngine:
         # UC5-1修复: Step4追踪完成
         step4_latency = (time.perf_counter() - total_start) * 1000 - step1_latency
         trace_ctx.end_span(span_step4, success=True)
-        tracing.check_and_alert(trace_ctx, "Step4_tools", step4_latency)
+        asyncio.create_task(tracing.check_and_alert(trace_ctx, "Step4_tools", step4_latency))
 
         # ===== 阶段 5: 上下文构建 =====
         logger.info(f"[WORKFLOW:STREAM:5_CONTEXT] ⏳ 开始")
@@ -1928,7 +2036,7 @@ class QueryEngine:
         # UC5-1修复: Step6追踪完成
         step6_latency = (time.perf_counter() - total_start) * 1000 - step1_latency - step4_latency
         trace_ctx.end_span(span_step6, success=True)
-        tracing.check_and_alert(trace_ctx, "Step6_llm", step6_latency)
+        asyncio.create_task(tracing.check_and_alert(trace_ctx, "Step6_llm", step6_latency))
 
         # 更新工作记忆
         self._add_to_working_memory(conversation_id, "assistant", full_response)
@@ -1988,8 +2096,9 @@ class QueryEngine:
                 )
                 # 保存轨迹
                 await self._eval_collector.save_trajectory_async(trace_ctx.trace_id, success=True)
-            except Exception:
-                pass
+                logger.info(f"[Eval] Trajectory saved: trace_id={trace_ctx.trace_id[:16]}...")
+            except Exception as e:
+                logger.error(f"[Eval] Failed to save trajectory: {e}", exc_info=True)
 
         # UC5-1修复: 结束总追踪
         trace_ctx.end_span(span_total, success=True)
@@ -2110,6 +2219,9 @@ class QueryEngine:
 
             # ===== Phase 2: 持久化组件初始化（语义记忆检索） =====
             await self._ensure_phase2_initialized()
+
+            # ===== EVAL: 评估钩子初始化 =====
+            await self._ensure_eval_initialized()
 
             # ===== 主循环（最多5次重试） =====
             while retry_manager.get_retry_count(conversation_id) < self._max_total_retries:
@@ -2263,12 +2375,18 @@ class QueryEngine:
 
     async def _ensure_eval_initialized(self):
         """确保 Eval 组件已初始化（延迟初始化）"""
-        if self._eval_enabled:
+        # 使用 _eval_initialized 而不是 _eval_enabled 来跟踪初始化状态
+        # 这样即使初始化失败，也会在下次调用时重试
+        if getattr(self, '_eval_initialized', False):
             return
+
+        # 懒创建锁（确保在 async context 中创建）
+        if not hasattr(self, '_eval_init_lock') or self._eval_init_lock is None:
+            self._eval_init_lock = asyncio.Lock()
 
         async with self._eval_init_lock:
             # 双重检查
-            if self._eval_enabled:
+            if getattr(self, '_eval_initialized', False):
                 return
 
             try:
@@ -2276,21 +2394,30 @@ class QueryEngine:
                 from app.eval.storage import EvalStorage
                 from pathlib import Path
 
-                # 数据库路径相对于 backend/ 目录
-                db_path = "data/eval.db"
+                # 使用绝对路径，确保数据库目录存在
+                backend_dir = Path(__file__).parent.parent
+                db_dir = backend_dir / "data"
+                db_dir.mkdir(exist_ok=True)
+                db_path = str(db_dir / "eval.db")
+
+                logger.info(f"[QueryEngine:Eval] Initializing with db_path={db_path}")
+
                 eval_storage = EvalStorage(db_path=db_path)
                 await eval_storage.init_db()
 
                 self._eval_storage = eval_storage
                 self._eval_collector = EvaluationCollector(eval_storage)
                 self._eval_enabled = True
+                self._eval_initialized = True
 
                 logger.info("[QueryEngine:Eval] ✅ Eval hooks enabled")
             except Exception as e:
+                # 不要设置为 False，允许下次重试
                 self._eval_enabled = False
+                self._eval_initialized = False  # 允许重试
                 self._eval_collector = None
                 self._eval_storage = None
-                logger.warning(f"[QueryEngine:Eval] ⚠️ Eval hooks disabled: {e}")
+                logger.error(f"[QueryEngine:Eval] ⚠️ Eval hooks initialization failed (will retry): {e}", exc_info=True)
 
     async def close(self) -> None:
         """Clean up resources.

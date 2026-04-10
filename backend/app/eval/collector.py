@@ -118,7 +118,10 @@ class EvaluationCollector:
     # === 异步保存（幂等）===
 
     async def save_trajectory_async(self, trace_id: str, success: bool = True) -> None:
-        """异步保存轨迹 — 在工作流完成后调用（幂等，同一条只存一次）"""
+        """异步保存轨迹 — 在工作流完成后调用（幂等，同一条只存一次）
+
+        注意：为了确保数据被保存，这里使用同步等待而非 fire-and-forget。
+        """
         try:
             # 幂等检查
             if trace_id in self._saved_trace_ids:
@@ -138,17 +141,8 @@ class EvaluationCollector:
                     from datetime import datetime, timezone
                     traj.completed_at = datetime.now(timezone.utc)
                     traj.success = success
-                    asyncio.create_task(
-                        self._save_with_error_handling(traj),
-                        name=f"eval_save_{trace_id}"
-                    )
+                    # 同步等待保存完成，确保 HTTP 请求返回前数据已保存
+                    await self.storage.save_trajectory(traj)
                 self._saved_trace_ids.add(trace_id)
         except Exception as e:
             logger.exception(f"[Eval] save_trajectory_async failed: {e}")
-
-    async def _save_with_error_handling(self, trajectory: Any) -> None:
-        """后台保存，异常不传播"""
-        try:
-            await self.storage.save_trajectory(trajectory)
-        except Exception as e:
-            logger.error(f"[Eval] 保存轨迹失败 {trajectory.trace_id}: {e}")

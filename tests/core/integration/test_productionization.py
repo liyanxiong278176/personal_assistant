@@ -13,7 +13,8 @@ where actual LLM clients are not configured.
 
 import pytest
 
-from app.core.intent.classifier import IntentClassifier, IntentResult
+from app.core.context import IntentResult
+from app.core.intent import IntentRouter, RuleStrategy, LLMStrategy
 from app.core.intent.complexity import is_complex_query, ComplexityResult
 from app.core.intent.slot_extractor import SlotResult
 from app.core.orchestrator.model_router import ModelRouter
@@ -29,11 +30,11 @@ from app.core.metrics.definitions import IntentMetric
 @pytest.mark.asyncio
 async def test_hybrid_intent_classification_keyword():
     """Test hybrid intent classification uses keyword matching for simple queries."""
-    classifier = IntentClassifier()
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
 
     # Simple greeting - should match via keyword rules
-    result = await classifier.classify("你好")
-    assert result.method in ("keyword", "default", "cache")
+    result = await router.classify(RequestContext(message="你好"))
+    assert result.strategy in ("RuleStrategy", "LLMStrategy", "CacheStrategy", "default")
     assert result.intent == "chat"
     assert result.need_tool is False
 
@@ -41,11 +42,11 @@ async def test_hybrid_intent_classification_keyword():
 @pytest.mark.asyncio
 async def test_hybrid_intent_classification_itinerary():
     """Test itinerary keyword matching for travel queries."""
-    classifier = IntentClassifier()
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
 
     # Travel query with keywords - should match itinerary via keyword rules
-    result = await classifier.classify("规划云南7天自驾游预算5000元")
-    assert result.method in ("keyword", "llm", "default")
+    result = await router.classify(RequestContext(message="规划云南7天自驾游预算5000元"))
+    assert result.strategy in ("RuleStrategy", "LLMStrategy", "default")
     assert result.intent in ("itinerary", "chat")
     assert result.need_tool is True or result.intent == "itinerary"
 
@@ -53,14 +54,14 @@ async def test_hybrid_intent_classification_itinerary():
 @pytest.mark.asyncio
 async def test_hybrid_intent_classification_complex_flag():
     """Test is_complex flag influences classification."""
-    classifier = IntentClassifier()
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
 
     # Simple query without complex flag
-    result1 = await classifier.classify("北京天气", is_complex=False)
+    result1 = await router.classify(RequestContext(message="北京天气", is_complex=False))
     assert result1.method in ("keyword", "default")
 
     # Same query with complex flag (may trigger LLM path if configured)
-    result2 = await classifier.classify("北京天气", is_complex=True)
+    result2 = await router.classify(RequestContext(message="北京天气", is_complex=True))
     # With complex flag set externally, the classifier may route to LLM
     assert result2.intent in ("query", "chat", "itinerary")
 
@@ -71,10 +72,10 @@ async def test_hybrid_intent_classification_cache():
     classifier = IntentClassifier(llm_client=None)
 
     # First classification
-    result1 = await classifier.classify("你好", is_complex=False)
+    result1 = await router.classify(RequestContext(message="你好", is_complex=False))
 
     # Second classification of same message should hit cache
-    result2 = await classifier.classify("你好", is_complex=False)
+    result2 = await router.classify(RequestContext(message="你好", is_complex=False))
     assert result2.method == "cache"
     assert result2.intent == result1.intent
 
@@ -398,8 +399,8 @@ async def test_metrics_latency_tracking():
 async def test_full_pipeline_simple_query():
     """Test the full pipeline: classify -> route -> plan -> metrics."""
     # Step 1: Classify intent
-    classifier = IntentClassifier()
-    intent = await classifier.classify("北京天气怎么样", is_complex=False)
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
+    intent = await router.classify(RequestContext(message="北京天气怎么样", is_complex=False))
     assert intent.intent in ("query", "chat")
 
     # Step 2: Detect complexity
@@ -437,7 +438,7 @@ async def test_full_pipeline_simple_query():
 async def test_full_pipeline_complex_itinerary():
     """Test full pipeline for complex itinerary planning."""
     # Step 1: Classify intent (complex query)
-    classifier = IntentClassifier()
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
     intent = await classifier.classify(
         "规划云南7天自驾游预算5000元包含酒店推荐",
         is_complex=True
@@ -495,8 +496,8 @@ async def test_full_pipeline_complex_itinerary():
 async def test_full_pipeline_chat():
     """Test full pipeline for simple chat message."""
     # Step 1: Classify
-    classifier = IntentClassifier()
-    intent = await classifier.classify("你好", is_complex=False)
+    router = IntentRouter(strategies=[RuleStrategy(), LLMStrategy()])
+    intent = await router.classify(RequestContext(message="你好", is_complex=False))
     assert intent.intent == "chat"
     assert intent.need_tool is False
 

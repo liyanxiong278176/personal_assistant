@@ -8,8 +8,8 @@ from collections import defaultdict
 from threading import Lock
 from typing import Any, Dict, Optional
 
+from ..context import IntentResult
 from ..observability.metrics import MetricsCollector
-from .classifier import IntentResult
 
 
 class IntentMetricsCollector:

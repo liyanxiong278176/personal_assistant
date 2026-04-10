@@ -1,0 +1,78 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - heading "对话列表" [level=2] [ref=e182]
+          - generic [ref=e183]:
+            - img [ref=e184]
+            - textbox "搜索对话..." [ref=e187]
+        - generic [ref=e189]:
+          - heading "今天" [level=3] [ref=e190]
+          - generic [ref=e193] [cursor=pointer]:
+            - generic [ref=e194]: 新对话
+            - generic [ref=e195]: 06:46
+            - button "更多选项" [ref=e196]:
+              - img [ref=e197]
+        - button "新建对话" [ref=e200] [cursor=pointer]:
+          - img [ref=e201]
+          - text: 新建对话
+    - main [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e23]:
+          - img [ref=e25]
+          - heading "AI Travel Assistant" [level=1] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e202]:
+            - link "评估体系" [ref=e203] [cursor=pointer]:
+              - /url: /eval
+              - img [ref=e204]
+              - text: 评估体系
+            - generic [ref=e207]: "2"
+            - generic [ref=e208]: "2781764566"
+          - button "账号" [ref=e209] [cursor=pointer]:
+            - img [ref=e32]
+            - generic [ref=e35]: 账号
+          - link "设置" [ref=e36] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e37]
+            - generic [ref=e40]: 设置
+      - generic [ref=e43]:
+        - paragraph [ref=e214]: 帮我规划一个杭州3天2夜的旅行行程
+        - generic [ref=e220]:
+          - generic [ref=e221]:
+            - img [ref=e223]
+            - generic [ref=e227]: AI 助手
+          - paragraph [ref=e228]: "我来帮您规划一个杭州3天2夜的旅行行程。杭州以西湖美景、龙井茶文化和历史古迹闻名，是一个非常适合休闲度假的城市。 ## 📅 **杭州3天2夜行程概览** ### **第一天：西湖核心景区** **上午**： - **抵达杭州**：建议早上到达，入住酒店（推荐西湖周边或河坊街附近） - **西湖游船**：从湖滨码头乘船游览西湖，欣赏三潭印月、苏堤春晓等经典景观 **下午**： - **断桥残雪** → **白堤** → **孤山**：步行游览西湖北线 - **浙江省博物馆**（孤山馆区）：了解浙江历史文化（免费参观） **晚上**： - **湖滨步行街**：晚餐+欣赏西湖音乐喷泉（需查询当天演出时间） - **夜游西湖**：灯光下的西湖别有一番韵味 ### **第二天：灵隐寺与龙井茶文化** **上午**： - **灵隐寺**：杭州最著名的佛教寺院，参观飞来峰石刻造像 - **永福寺**：紧邻灵隐，环境清幽 **下午**： - **龙井村**：体验茶文化，品尝正宗龙井茶 - **九溪烟树**：徒步欣赏溪流、茶园和枫树（秋季特别美） **晚上**： - **河坊街** + **南宋御街**：逛古街、品尝杭州小吃（定胜糕、葱包桧等） ### **第三天：西溪湿地与现代杭州** **上午**： - **西溪国家湿地公园**：乘船游览“城市之肾”，感受自然生态 - **可选择**：深潭口、秋雪庵等景点 **下午**： - **中国丝绸博物馆** 或 **杭州博物馆**（根据兴趣选择） - **购买特产**：龙井茶、丝绸制品、藕粉等 - **返程** ## 🏨 **住宿建议** 1. **西湖周边**：交通便利，风景优美，价格相对较高 2. **河坊街附近**：美食多，夜生活丰富，性价比高 3. **武林广场**：商业中心，购物方便 ## 🍜 **美食推荐** - **杭帮菜**：西湖醋鱼、龙井虾仁、东坡肉、叫化鸡 - **推荐餐厅**：楼外楼、知味观、外婆家、绿茶餐厅 - **小吃**：片儿川、猫耳朵、定胜糕 ## 💡 **实用贴士** 1. **交通**：杭州地铁覆盖主要景点，公交也很方便，建议下载“杭州地铁”APP 2. **门票**：西湖大部分区域免费，灵隐寺需门票（含飞来峰） 3. **最佳季节**：春季（3-5月）和秋季（9-11月） 4. **预算参考**：中等消费约800-1500元/人（不含往返交通） ## 🔍 **需要我帮您查询的具体信息** 1. 您计划什么时候出行？我可以查询当时的天气情况 2. 您的旅行偏好是什么？（历史文化、自然风光、美食体验等） 3. 预算范围是多少？ 4. 是否需要我查询具体的酒店、餐厅或景点开放信息？ 请告诉我这些信息，我可以为您进一步优化行程安排！"
+        - paragraph [ref=e235]: 杭州明天天气怎么样？
+        - generic [ref=e241]:
+          - generic [ref=e242]:
+            - img [ref=e244]
+            - generic [ref=e248]: AI 助手
+          - paragraph [ref=e249]: "根据查询到的天气信息，**杭州明天（2026年4月11日，周六）的天气情况如下**： ## 🌧️ **明日天气详情** - **天气**：大雨转小雨 - **温度**：12°C ~ 17°C（比今天明显降温） - **风力**：东风1-3级 - **出行建议**：有雨，请带雨具 ## 📝 **对您行程的影响与建议** 考虑到您计划的是杭州3天2夜旅行，明天正好是行程的**第一天或第二天**（取决于您"
+      - generic [ref=e97]:
+        - generic [ref=e98]:
+          - button "上传图片" [disabled] [ref=e99]:
+            - img [ref=e100]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e105]
+          - button "停止生成" [ref=e236] [cursor=pointer]:
+            - img [ref=e237]
+        - generic [ref=e112]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e114] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e115]
+    - text: Deerflow
+  - generic [ref=e165] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e166]:
+      - img [ref=e167]
+    - generic [ref=e170]:
+      - button "Open issues overlay" [ref=e171]:
+        - generic [ref=e172]:
+          - generic [ref=e173]: "1"
+          - generic [ref=e174]: "2"
+        - generic [ref=e175]:
+          - text: Issue
+          - generic [ref=e176]: s
+      - button "Collapse issues badge" [ref=e177]:
+        - img [ref=e178]
+  - alert [ref=e118]
