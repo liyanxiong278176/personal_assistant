@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from app.core.intent.router import IntentRouter
-    from app.core.intent.classifier import IntentClassifier
     from app.core.context import RequestContext
 
 

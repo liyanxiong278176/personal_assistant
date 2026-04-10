@@ -1,33 +1,27 @@
-"""IntentRouter - Strategy chain orchestration for intent classification.
+"""IntentRouter - Simplified strategy chain orchestration.
 
-Orchestrates multiple classification strategies in priority order, applying
-confidence-based routing logic to determine when to accept results, trigger
-clarification, or fall back to the next strategy.
+Design principles:
+    - Unified confidence thresholds (0.8 high, 0.5 mid)
+    - No二次判断 - trust each strategy's output
+    - Cache-first for performance
+    - Simple flow: cache → rule → llm → fallback
 
-Architecture:
-    - Strategies sorted by priority (lowest first)
-    - High confidence (>=0.9): Accept immediately
-    - Medium confidence (0.7-0.9): Trigger clarification if enabled
-    - Low confidence (<0.7): Try next strategy
-    - No strategies succeed: Return fallback result
-
-Usage:
-    from app.core.intent import IntentRouter, IntentRouterConfig
-    from app.core.intent.strategies import RuleStrategy, LLMFallbackStrategy
-
-    config = IntentRouterConfig()
-    strategies = [RuleStrategy(), LLMFallbackStrategy()]
-    router = IntentRouter(strategies, config, metrics)
-
-    result = await router.classify(context)
+Flow:
+    1. Check cache → hit → return
+    2. Try rule strategy (simple queries only)
+       - confidence ≥ 0.8 → return, cache
+       - confidence < 0.8 → continue
+    3. Try LLM strategy
+       - confidence ≥ 0.5 → return, cache
+       - confidence < 0.5 → fallback
+    4. Fallback → return chat with 0.5 confidence
 """
 
 import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from app.core.context import RequestContext
-from app.core.intent.classifier import IntentResult
+from app.core.context import RequestContext, IntentResult
 from app.core.intent.config import IntentRouterConfig
 from app.core.intent.strategies.base import IIntentStrategy
 
@@ -44,7 +38,6 @@ class ClarificationResult:
         original_intent: The original intent that triggered clarification
         suggested_followup: Suggested follow-up questions
     """
-
     needs_clarification: bool
     question: str = ""
     original_intent: str = ""
@@ -62,44 +55,33 @@ class ClarificationResult:
 
 @dataclass
 class RouterStatistics:
-    """Statistics collected by IntentRouter.
-
-    Attributes:
-        total_classifications: Total number of classification requests
-        strategy_counts: Number of times each strategy was used
-        confidence_distribution: Distribution of confidence scores
-        clarification_count: Number of clarifications triggered
-        fallback_count: Number of times fallback was used
-    """
-
+    """Statistics collected by IntentRouter."""
     total_classifications: int = 0
     strategy_counts: Dict[str, int] = field(default_factory=dict)
     confidence_distribution: Dict[str, int] = field(default_factory=lambda: {
-        "high": 0,
-        "mid": 0,
-        "low": 0,
+        "high": 0,  # ≥ 0.8
+        "mid": 0,   # 0.5 - 0.8
+        "low": 0,   # < 0.5
     })
     clarification_count: int = 0
     fallback_count: int = 0
+    cache_stats: Dict[str, Any] = field(default_factory=dict)
 
 
 class IntentRouter:
-    """Orchestrates intent classification through a chain of strategies.
+    """Simplified intent router with unified confidence thresholds.
 
-    The router manages multiple classification strategies and applies
-    confidence-based routing logic to determine the best result.
+    Strategy order (by priority):
+        0. CacheStrategy - check for cached results
+        10. RuleStrategy - keyword matching (simple queries only)
+        100. LLMStrategy - LLM classification (fallback)
 
-    Strategy Priority:
-        - Lower priority values execute first
-        - Rule-based: 0-9 (fast, zero cost)
-        - Model-based: 10-49 (lightweight ML)
-        - LLM-based: 50-99 (expensive, high accuracy)
-        - Fallback: 100 (catch-all)
+    Confidence handling (unified across all strategies):
+        - ≥ 0.8: High confidence, accept immediately
+        - 0.5 - 0.8: Mid confidence, can trigger clarification
+        - < 0.5: Low confidence, try next strategy
 
-    Confidence Handling:
-        - High (>=0.9): Accept immediately, stop chain
-        - Medium (0.7-0.9): Trigger clarification if enabled
-        - Low (<0.7): Continue to next strategy
+    No二次判断 - each strategy's confidence is trusted.
     """
 
     def __init__(
@@ -121,26 +103,32 @@ class IntentRouter:
         self._metrics = metrics_collector
         self._stats = RouterStatistics()
 
+        # Extract cache strategy if present
+        self._cache_strategy = None
+        for s in self._strategies:
+            if s.__class__.__name__ == "CacheStrategy":
+                self._cache_strategy = s
+                break
+
         logger.debug(
             f"[IntentRouter] Initialized with {len(self._strategies)} strategies: "
             f"{[s.__class__.__name__ for s in self._strategies]}"
         )
 
     async def classify(self, context: RequestContext) -> IntentResult:
-        """Classify intent using the strategy chain.
+        """Classify intent using the simplified strategy chain.
 
-        Execution flow:
-        1. Try each strategy in priority order
-        2. For high confidence: Accept and return immediately
-        3. For medium confidence: Trigger clarification or accept
-        4. For low confidence: Continue to next strategy
-        5. If all strategies fail: Return fallback result
+        Simplified flow:
+        1. Try cache → hit → return
+        2. Try rule → high conf → return, cache
+        3. Try LLM → mid/high conf → return, cache
+        4. Fallback → return chat
 
         Args:
             context: Request context containing message and metadata
 
         Returns:
-            IntentResult: Best classification result from the strategy chain
+            IntentResult: Best classification result
         """
         self._stats.total_classifications += 1
 
@@ -150,30 +138,41 @@ class IntentRouter:
                 labels={"conversation_id": context.conversation_id or "unknown"},
             )
 
+        # Update cache stats
+        if self._cache_strategy:
+            self._stats.cache_stats = self._cache_strategy.cache.get_stats()
+
         best_result: Optional[IntentResult] = None
         best_confidence = 0.0
+        best_strategy: str = "unknown"
 
         # Try each strategy in priority order
         for strategy in self._strategies:
             strategy_name = strategy.__class__.__name__
+
+            # CacheStrategy: check cache first
+            if strategy_name == "CacheStrategy":
+                cached = await strategy.classify(context)
+                if cached:
+                    cached.strategy = "CacheStrategy"
+                    self._stats.strategy_counts["CacheStrategy"] = (
+                        self._stats.strategy_counts.get("CacheStrategy", 0) + 1
+                    )
+                    self._stats.cache_stats = self._cache_strategy.cache.get_stats()
+                    return cached
+                continue
 
             # Check if strategy can handle this request
             if not await strategy.can_handle(context):
                 logger.debug(f"[IntentRouter] {strategy_name} cannot handle, skipping")
                 continue
 
-            logger.debug(
-                f"[IntentRouter] Trying {strategy_name} (priority={strategy.priority})"
-            )
-
             # Perform classification
             try:
                 result = await strategy.classify(context)
+                result.strategy = strategy_name
             except Exception as e:
-                logger.error(
-                    f"[IntentRouter] {strategy_name} failed: {e}",
-                    exc_info=True,
-                )
+                logger.error(f"[IntentRouter] {strategy_name} failed: {e}", exc_info=True)
                 if self._metrics:
                     self._metrics.increment(
                         "intent_router_strategy_error",
@@ -186,15 +185,20 @@ class IntentRouter:
                 self._stats.strategy_counts.get(strategy_name, 0) + 1
             )
 
-            # Record confidence
+            # Get confidence
             confidence = result.confidence
+
+            # High confidence: accept immediately
             if self._config.is_high_confidence(confidence):
                 self._stats.confidence_distribution["high"] += 1
-                logger.debug(
+                logger.info(
                     f"[IntentRouter] High confidence ({confidence:.2f}) from {strategy_name}"
                 )
+                # Cache and return
+                self._cache_result(context, result)
                 return self._record_success(result, strategy_name)
 
+            # Mid confidence: can trigger clarification
             elif self._config.is_mid_confidence(confidence):
                 self._stats.confidence_distribution["mid"] += 1
 
@@ -202,23 +206,25 @@ class IntentRouter:
                 if self._config.can_clarify(context.clarification_count):
                     self._stats.clarification_count += 1
                     clarification = self._generate_clarification(result, context)
-                    logger.debug(
-                        f"[IntentRouter] Medium confidence ({confidence:.2f}), "
+                    logger.info(
+                        f"[IntentRouter] Mid confidence ({confidence:.2f}), "
                         f"triggering clarification"
                     )
-                    # Return result with clarification flag
-                    result.reasoning = (
-                        f"{result.reasoning or ''} (clarification: {clarification.question})"
-                    )
+                    # Attach clarification to result
+                    result.clarification = clarification
+                    # Cache and return
+                    self._cache_result(context, result)
                     return self._record_success(result, strategy_name)
 
                 # Accept medium confidence if clarification not available
-                logger.debug(
-                    f"[IntentRouter] Medium confidence ({confidence:.2f}), "
+                logger.info(
+                    f"[IntentRouter] Mid confidence ({confidence:.2f}), "
                     f"clarification limit reached, accepting"
                 )
+                self._cache_result(context, result)
                 return self._record_success(result, strategy_name)
 
+            # Low confidence: track best and continue
             else:
                 self._stats.confidence_distribution["low"] += 1
                 logger.debug(
@@ -229,24 +235,44 @@ class IntentRouter:
             if confidence > best_confidence:
                 best_result = result
                 best_confidence = confidence
+                best_strategy = strategy_name
 
-        # All strategies exhausted, return best or fallback
+        # All strategies exhausted
         if best_result:
-            logger.debug(
+            logger.info(
                 f"[IntentRouter] All strategies exhausted, returning best "
                 f"(confidence={best_confidence:.2f})"
             )
+            best_result.strategy = best_strategy
+            # Cache and return best effort
+            self._cache_result(context, best_result)
             return self._record_success(best_result, "best_effort")
 
         # Fallback to default
         self._stats.fallback_count += 1
         logger.warning("[IntentRouter] All strategies failed, returning fallback")
-        return IntentResult(
-            intent="chat",
-            confidence=0.5,
-            method="default",  # Use valid MethodType value
+        fallback = IntentResult(
+            intent=self._config.fallback_intent,
+            confidence=self._config.fallback_confidence,
+            method="default",
             reasoning="All strategies failed, using fallback",
+            strategy="default",
         )
+        # Cache even fallback results
+        self._cache_result(context, fallback)
+        return fallback
+
+    def _cache_result(self, context: RequestContext, result: IntentResult) -> None:
+        """Cache a classification result if cache is available.
+
+        Args:
+            context: Request context
+            result: Result to cache
+        """
+        if self._cache_strategy:
+            self._cache_strategy.cache.put(
+                context.message, context.has_image, result
+            )
 
     def _record_success(
         self, result: IntentResult, strategy_name: str
@@ -270,6 +296,7 @@ class IntentRouter:
                 result.confidence * 100,
                 labels={"strategy": strategy_name},
             )
+
         return result
 
     def _generate_clarification(
@@ -288,51 +315,39 @@ class IntentRouter:
 
         # Generate intent-specific clarifications
         questions = {
-            "itinerary": (
-                "I'd like to help plan your trip. Could you provide more details "
-                "like your destination, travel dates, and trip duration?"
-            ),
-            "query": (
-                "I can help you find that information. Are you asking about "
-                "weather, transportation, tickets, or something else?"
-            ),
-            "chat": (
-                "I'm here to help with travel planning. Would you like to plan "
-                "a trip or ask a travel-related question?"
-            ),
-            "image": (
-                "I can help identify that location. Would you like to know "
-                "more about this place or plan a visit?"
-            ),
+            "itinerary": "请告诉我目的地、出行日期和天数",
+            "query": "您想查询天气、交通还是门票信息？",
+            "chat": "您是想规划行程还是咨询旅行问题？",
+            "image": "您想了解这个地点的什么信息？",
         }
 
         # Suggested follow-ups per intent
         followups = {
             "itinerary": [
-                "What's your destination?",
-                "How many days are you planning?",
-                "What's your budget range?",
+                "您的目的地是哪里？",
+                "计划出行几天？",
+                "大概的预算范围？",
             ],
             "query": [
-                "What information do you need?",
-                "Is this for a specific location?",
-                "When are you planning to go?",
+                "需要查询什么信息？",
+                "是针对哪个地点？",
+                "计划什么时候去？",
             ],
             "chat": [
-                "Plan a trip",
-                "Ask a travel question",
-                "Identify a location",
+                "规划行程",
+                "咨询问题",
+                "识别地点",
             ],
             "image": [
-                "Where is this?",
-                "Tell me about this place",
-                "How do I get there?",
+                "这是哪里？",
+                "介绍一下这个地方",
+                "怎么去这里？",
             ],
         }
 
         return ClarificationResult(
             needs_clarification=True,
-            question=questions.get(intent, "Could you please provide more details?"),
+            question=questions.get(intent, "请提供更多详细信息"),
             original_intent=intent,
             suggested_followup=followups.get(intent, []),
         )
@@ -341,19 +356,23 @@ class IntentRouter:
         """Get classification statistics.
 
         Returns:
-            Dictionary with classification stats including total counts,
-            strategy usage, confidence distribution, and clarification/fallback counts
+            Dictionary with classification stats
         """
+        # Update cache stats
+        if self._cache_strategy:
+            self._stats.cache_stats = self._cache_strategy.cache.get_stats()
+
         return {
             "total_classifications": self._stats.total_classifications,
             "strategy_counts": self._stats.strategy_counts.copy(),
             "confidence_distribution": self._stats.confidence_distribution.copy(),
             "clarification_count": self._stats.clarification_count,
             "fallback_count": self._stats.fallback_count,
+            "cache_stats": self._stats.cache_stats.copy(),
             "strategies": [s.__class__.__name__ for s in self._strategies],
             "config": {
-                "high_threshold": self._config.high_confidence_threshold,
-                "mid_threshold": self._config.mid_confidence_threshold,
+                "high_threshold": self._config.high_confidence,
+                "mid_threshold": self._config.mid_confidence,
                 "clarification_enabled": self._config.enable_clarification,
                 "max_clarification_rounds": self._config.max_clarification_rounds,
             },
@@ -362,3 +381,5 @@ class IntentRouter:
     def reset_statistics(self) -> None:
         """Reset all statistics counters."""
         self._stats = RouterStatistics()
+        if self._cache_strategy:
+            self._cache_strategy.cache.clear()

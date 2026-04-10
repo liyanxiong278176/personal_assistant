@@ -26,7 +26,7 @@ export default function ChatPage() {
   const streamingMessageRef = useRef<string>("");
   const activeConversationRef = useRef<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
-  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations } = useConversationStore();
+  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations, fetchConversations } = useConversationStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -74,16 +74,64 @@ export default function ChatPage() {
     }
   }, [userId]);
 
+  // Sync auth user ID to userManager and transport when user logs in
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      // Sync user ID to userManager
+      const currentUserId = userManager.getUserId();
+      if (currentUserId !== user.id) {
+        userManager.setUserId(user.id);
+        console.log('[Chat] Synced auth user ID to userManager:', user.id);
+
+        // Update transport with new user ID
+        if (transportRef.current) {
+          transportRef.current.setUserId(user.id);
+          console.log('[Chat] Updated transport user ID:', user.id);
+        }
+
+        // Update local state
+        setUserId(user.id);
+      }
+
+      // Fetch conversations on mount when user is authenticated
+      // This ensures the sidebar shows all conversations after refresh
+      fetchConversations().catch(err => {
+        console.warn('[Chat] Failed to fetch conversations:', err);
+      });
+    }
+  }, [isAuthenticated, user?.id]);
+
+  // Initialize from store on mount (after user is loaded)
+  // This handles page refresh by restoring the active conversation
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;  // Wait for user to be loaded
+
+    // Only initialize if we don't have a local conversation ID
+    if (!currentConversationId && storeActiveConversationId) {
+      console.log('[Chat] Initializing from store:', storeActiveConversationId);
+      setCurrentConversationId(storeActiveConversationId);
+      activeConversationRef.current = storeActiveConversationId;
+      loadConversationMessages(storeActiveConversationId);
+      // Set transport conversation ID
+      if (transportRef.current) {
+        transportRef.current.setConversationId(storeActiveConversationId);
+      }
+    }
+  }, [isAuthenticated, userId, currentConversationId, storeActiveConversationId]);
+
   // Load messages for active conversation from store (after refresh)
   useEffect(() => {
     if (storeActiveConversationId && storeActiveConversationId !== currentConversationId) {
       // Store has active conversation but local state doesn't match
+      console.log('[Chat] Store conversation changed:', storeActiveConversationId);
       setCurrentConversationId(storeActiveConversationId);
       activeConversationRef.current = storeActiveConversationId;  // Update ref
       loadConversationMessages(storeActiveConversationId);
+      // Update transport conversation ID
+      if (transportRef.current) {
+        transportRef.current.setConversationId(storeActiveConversationId);
+      }
     }
-    // Only run when storeActiveConversationId changes, not on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeActiveConversationId]);
 
   // Helper function to load conversation messages
@@ -184,8 +232,12 @@ export default function ChatPage() {
             return;
           }
           const convId = transport.getConversationId();
-          if (convId && !currentConversationId) {
+          // Always update conversation ID from transport
+          if (convId) {
             setCurrentConversationId(convId);
+            activeConversationRef.current = convId;
+            // Also sync with store
+            setActiveConversation(convId);
           }
         },
         onError: (error: string) => {

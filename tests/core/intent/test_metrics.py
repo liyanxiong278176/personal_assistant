@@ -6,7 +6,7 @@ and rule hit rate calculation.
 
 from unittest.mock import MagicMock
 
-from app.core.intent.classifier import IntentResult
+from app.core.context import IntentResult
 from app.core.intent.metrics import IntentMetricsCollector
 
 

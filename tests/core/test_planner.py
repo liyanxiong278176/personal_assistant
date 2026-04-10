@@ -1,6 +1,6 @@
 import pytest
 from app.core.orchestrator.planner import Planner, ExecutionPlan, ExecutionStep, FallbackStrategy
-from app.core.intent.classifier import IntentResult
+from app.core.context import IntentResult
 from app.core.intent.slot_extractor import SlotResult
 
 

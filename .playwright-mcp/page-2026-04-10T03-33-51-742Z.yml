@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+        - generic [ref=e9]:
+          - img [ref=e11]
+          - heading "AI Travel Assistant" [level=1] [ref=e15]
+      - generic [ref=e16]:
+        - button "登录" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e21]: 登录
+        - link "设置" [ref=e22] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e23]
+          - generic [ref=e26]: 设置
+    - generic [ref=e30]:
+      - img [ref=e34]
+      - heading "开启你的旅行冒险" [level=2] [ref=e37]
+      - paragraph [ref=e38]:
+        - text: 无论你想探索未知的目的地，还是优化下一次行程，
+        - text: 我都能为你量身定制完美的旅行计划
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - img [ref=e41]
+          - text: 智能行程规划
+        - generic [ref=e43]:
+          - img [ref=e44]
+          - text: 实时景点推荐
+        - generic [ref=e46]:
+          - img [ref=e47]
+          - text: 预算优化建议
+        - generic [ref=e49]:
+          - img [ref=e50]
+          - text: 图片识别景点
+      - generic [ref=e52]:
+        - generic [ref=e54] [cursor=pointer]:
+          - img [ref=e56]
+          - generic [ref=e59]: 帮我规划一个北京3日游行程
+        - generic [ref=e61] [cursor=pointer]:
+          - img [ref=e63]
+          - generic [ref=e66]: 推荐一些适合亲子旅行的目的地
+        - generic [ref=e68] [cursor=pointer]:
+          - img [ref=e70]
+          - generic [ref=e72]: 我想去日本赏樱，有什么建议？
+        - generic [ref=e74] [cursor=pointer]:
+          - img [ref=e76]
+          - generic [ref=e79]: 周末从上海出发，适合2天的小众旅行
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - button "上传图片" [ref=e85] [cursor=pointer]:
+          - img [ref=e86]
+        - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e91]
+        - button "发送" [disabled] [ref=e94]:
+          - img [ref=e95]
+      - generic [ref=e98]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e100] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e101]
+    - text: Deerflow
+  - alert [ref=e104]

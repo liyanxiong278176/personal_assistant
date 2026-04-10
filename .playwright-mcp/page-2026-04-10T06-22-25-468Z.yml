@@ -1,0 +1,80 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e172]:
+        - generic [ref=e173]:
+          - heading "对话列表" [level=2] [ref=e174]
+          - generic [ref=e175]:
+            - img [ref=e176]
+            - textbox "搜索对话..." [ref=e179]
+        - img [ref=e182]
+        - button "新建对话" [ref=e185] [cursor=pointer]:
+          - img [ref=e186]
+          - text: 新建对话
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "AI Travel Assistant" [level=1] [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e187]:
+            - link "评估体系" [ref=e188] [cursor=pointer]:
+              - /url: /eval
+              - img [ref=e189]
+              - text: 评估体系
+            - generic [ref=e192]: "2"
+            - generic [ref=e193]: "2781764566"
+          - button "账号" [ref=e194] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]: 账号
+          - link "设置" [ref=e43] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e44]
+            - generic [ref=e47]: 设置
+      - generic [ref=e51]:
+        - img [ref=e55]
+        - heading "开启你的旅行冒险" [level=2] [ref=e58]
+        - paragraph [ref=e59]:
+          - text: 无论你想探索未知的目的地，还是优化下一次行程，
+          - text: 我都能为你量身定制完美的旅行计划
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - text: 智能行程规划
+          - generic [ref=e64]:
+            - img [ref=e65]
+            - text: 实时景点推荐
+          - generic [ref=e67]:
+            - img [ref=e68]
+            - text: 预算优化建议
+          - generic [ref=e70]:
+            - img [ref=e71]
+            - text: 图片识别景点
+        - generic [ref=e73]:
+          - generic [ref=e75] [cursor=pointer]:
+            - img [ref=e77]
+            - generic [ref=e80]: 帮我规划一个北京3日游行程
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e87]: 推荐一些适合亲子旅行的目的地
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e91]
+            - generic [ref=e93]: 我想去日本赏樱，有什么建议？
+          - generic [ref=e95] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e100]: 周末从上海出发，适合2天的小众旅行
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - button "上传图片" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e112]
+          - button "发送" [disabled] [ref=e115]:
+            - img [ref=e116]
+        - generic [ref=e119]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - button "Open Next.js Dev Tools" [ref=e125] [cursor=pointer]:
+    - img [ref=e126]
+  - alert [ref=e129]

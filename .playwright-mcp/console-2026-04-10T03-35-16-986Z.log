@@ -1,0 +1,62 @@
+[     529ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[    1210ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[    1212ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:56
+[    1215ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[    1225ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    1226ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[    1227ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[    1227ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[    1270ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[    1270ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[    1293ms] [LOG] [Chat] User ID set to transport: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:94
+[    1538ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[    2554ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   28343ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   28435ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[   28437ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:56
+[   28439ms] [LOG] [Chat] Store conversation changed: 580bd3af-13c3-4604-893b-0a7c18859997 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:128
+[   28443ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   28443ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   28444ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   28444ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   28463ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[   28468ms] [LOG] [Chat] User initialized: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:51
+[   28472ms] [LOG] [Chat] User ID set to transport: 3a76b790-c20e-45f1-8d49-3b2c351e9d6d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:94
+[   28753ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   29749ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   70928ms] [LOG] [ChatTransport] WebSocket disconnected 1012  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   70929ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   70929ms] [LOG] [ChatTransport] WebSocket disconnected 1012  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   70929ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   74276ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   74277ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   74278ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   74278ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   74279ms] [LOG] [ChatTransport] Reconnecting... (2/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   76325ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   76325ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   76325ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   76325ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   76325ms] [LOG] [ChatTransport] Reconnecting... (2/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   78630ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   78631ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   78631ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   78632ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   78632ms] [LOG] [ChatTransport] Reconnecting... (3/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   80687ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   80688ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   80689ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   80703ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   80704ms] [LOG] [ChatTransport] Reconnecting... (3/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   84000ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   84001ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   84005ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   84006ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   84007ms] [LOG] [ChatTransport] Reconnecting... (4/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   86118ms] [ERROR] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:23
+[   86118ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   86118ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   86119ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:36
+[   86119ms] [LOG] [ChatTransport] Reconnecting... (4/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:41
+[   88333ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[   90453ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25

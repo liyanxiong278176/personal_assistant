@@ -1,0 +1,8 @@
+- generic [active] [ref=e1]:
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - button "Open Next.js Dev Tools" [ref=e14] [cursor=pointer]:
+    - img [ref=e15]
+  - alert [ref=e18]

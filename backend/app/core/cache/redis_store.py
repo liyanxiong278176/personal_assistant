@@ -12,6 +12,14 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
+# Check if redis module is available at import time
+try:
+    import redis as _redis_check
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    logger.info("[RedisCacheStore] Redis module not available, cache store will be disabled")
+
 
 class RedisCacheStore(ICacheStore):
     """Redis cache store implementation.
@@ -20,6 +28,7 @@ class RedisCacheStore(ICacheStore):
     - Connection pool management
     - PII data redaction before storage
     - TTL with jitter to prevent cache stampede
+    - Graceful degradation when redis module is not installed
     """
 
     # Redis key prefix (using environment to separate dev/prod)
@@ -36,6 +45,14 @@ class RedisCacheStore(ICacheStore):
         Args:
             redis_url: Redis connection URL. If None, built from settings.
         """
+        self._available = REDIS_AVAILABLE
+        self._disabled_reason = None
+
+        if not self._available:
+            self._disabled_reason = "redis module not installed"
+            logger.warning("[RedisCacheStore] Disabled: redis module not installed")
+            return
+
         if redis_url is None:
             password_part = f":{settings.redis_password}@" if settings.redis_password else ""
             redis_url = f"redis://{password_part}{settings.redis_host}:{settings.redis_port}/{settings.redis_db}"
@@ -61,6 +78,9 @@ class RedisCacheStore(ICacheStore):
         Raises:
             CacheConnectionError: If connection fails.
         """
+        if not self._available:
+            raise CacheConnectionError(self._disabled_reason or "Redis not available")
+
         if self._redis is None:
             try:
                 # Import redis asyncio module
@@ -89,6 +109,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             Session data dict if found, None otherwise.
         """
+        if not self._available:
+            raise CacheConnectionError(self._disabled_reason or "Redis not available")
+
         start = time.perf_counter()
         try:
             redis = await self._ensure_connection()
@@ -132,6 +155,9 @@ class RedisCacheStore(ICacheStore):
             data: Session data dictionary.
             ttl: Time-to-live in seconds.
         """
+        if not self._available:
+            raise CacheConnectionError(self._disabled_reason or "Redis not available")
+
         start = time.perf_counter()
         try:
             redis = await self._ensure_connection()
@@ -174,6 +200,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             True if deleted, False otherwise.
         """
+        if not self._available:
+            return False
+
         try:
             redis = await self._ensure_connection()
             key = self.SESSION_KEY % conversation_id
@@ -194,6 +223,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             Slot data dict if found, None otherwise.
         """
+        if not self._available:
+            return None
+
         try:
             redis = await self._ensure_connection()
             key = self.SLOTS_KEY % conversation_id
@@ -216,6 +248,9 @@ class RedisCacheStore(ICacheStore):
             slots: Slot data dictionary.
             ttl: Time-to-live in seconds.
         """
+        if not self._available:
+            raise CacheConnectionError(self._disabled_reason or "Redis not available")
+
         try:
             redis = await self._ensure_connection()
             key = self.SLOTS_KEY % conversation_id
@@ -236,6 +271,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             True if deleted, False otherwise.
         """
+        if not self._available:
+            return False
+
         try:
             redis = await self._ensure_connection()
             key = self.SLOTS_KEY % conversation_id
@@ -255,6 +293,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             User preferences dict if found, None otherwise.
         """
+        if not self._available:
+            return None
+
         try:
             redis = await self._ensure_connection()
             key = self.USER_PREFS_KEY % user_id
@@ -277,6 +318,9 @@ class RedisCacheStore(ICacheStore):
             prefs: Preferences dictionary.
             ttl: Time-to-live in seconds.
         """
+        if not self._available:
+            raise CacheConnectionError(self._disabled_reason or "Redis not available")
+
         try:
             redis = await self._ensure_connection()
             key = self.USER_PREFS_KEY % user_id
@@ -297,6 +341,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             True if deleted, False otherwise.
         """
+        if not self._available:
+            return False
+
         try:
             redis = await self._ensure_connection()
             key = self.USER_PREFS_KEY % user_id
@@ -313,6 +360,9 @@ class RedisCacheStore(ICacheStore):
         Returns:
             True if Redis is responsive, False otherwise.
         """
+        if not self._available:
+            return False
+
         try:
             redis = await self._ensure_connection()
             await redis.ping()
@@ -322,6 +372,9 @@ class RedisCacheStore(ICacheStore):
 
     async def close(self) -> None:
         """Close Redis connection pool."""
+        if not self._available or not self._pool:
+            return
+
         if self._pool:
             await self._pool.close()
             self._redis = None

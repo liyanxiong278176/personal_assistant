@@ -1,0 +1,97 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - heading "对话列表" [level=2] [ref=e182]
+          - generic [ref=e183]:
+            - img [ref=e184]
+            - textbox "搜索对话..." [ref=e187]
+        - generic [ref=e189]:
+          - heading "今天" [level=3] [ref=e190]
+          - generic [ref=e193] [cursor=pointer]:
+            - generic [ref=e194]: 新对话
+            - generic [ref=e195]: 06:46
+            - button "更多选项" [ref=e196]:
+              - img [ref=e197]
+        - button "新建对话" [ref=e200] [cursor=pointer]:
+          - img [ref=e201]
+          - text: 新建对话
+    - main [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e23]:
+          - img [ref=e25]
+          - heading "AI Travel Assistant" [level=1] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e202]:
+            - link "评估体系" [ref=e203] [cursor=pointer]:
+              - /url: /eval
+              - img [ref=e204]
+              - text: 评估体系
+            - generic [ref=e207]: "2"
+            - generic [ref=e208]: "2781764566"
+          - button "账号" [ref=e209] [cursor=pointer]:
+            - img [ref=e32]
+            - generic [ref=e35]: 账号
+          - link "设置" [ref=e36] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e37]
+            - generic [ref=e40]: 设置
+      - generic [ref=e44]:
+        - img [ref=e48]
+        - heading "开启你的旅行冒险" [level=2] [ref=e51]
+        - paragraph [ref=e52]:
+          - text: 无论你想探索未知的目的地，还是优化下一次行程，
+          - text: 我都能为你量身定制完美的旅行计划
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - img [ref=e55]
+            - text: 智能行程规划
+          - generic [ref=e57]:
+            - img [ref=e58]
+            - text: 实时景点推荐
+          - generic [ref=e60]:
+            - img [ref=e61]
+            - text: 预算优化建议
+          - generic [ref=e63]:
+            - img [ref=e64]
+            - text: 图片识别景点
+        - generic [ref=e66]:
+          - generic [ref=e68] [cursor=pointer]:
+            - img [ref=e70]
+            - generic [ref=e73]: 帮我规划一个北京3日游行程
+          - generic [ref=e75] [cursor=pointer]:
+            - img [ref=e77]
+            - generic [ref=e80]: 推荐一些适合亲子旅行的目的地
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: 我想去日本赏樱，有什么建议？
+          - generic [ref=e88] [cursor=pointer]:
+            - img [ref=e90]
+            - generic [ref=e93]: 周末从上海出发，适合2天的小众旅行
+      - generic [ref=e97]:
+        - generic [ref=e98]:
+          - button "上传图片" [ref=e99] [cursor=pointer]:
+            - img [ref=e100]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [active] [ref=e105]
+          - button "发送" [disabled] [ref=e108]:
+            - img [ref=e109]
+        - generic [ref=e112]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e114] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e115]
+    - text: Deerflow
+  - generic [ref=e165] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e166]:
+      - img [ref=e167]
+    - generic [ref=e170]:
+      - button "Open issues overlay" [ref=e171]:
+        - generic [ref=e172]:
+          - generic [ref=e173]: "1"
+          - generic [ref=e174]: "2"
+        - generic [ref=e175]:
+          - text: Issue
+          - generic [ref=e176]: s
+      - button "Collapse issues badge" [ref=e177]:
+        - img [ref=e178]
+  - alert [ref=e118]

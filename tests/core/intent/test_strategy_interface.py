@@ -6,7 +6,7 @@ Tests the contract that all intent strategies must implement.
 import pytest
 
 from app.core.context import RequestContext
-from app.core.intent.classifier import IntentResult
+from app.core.context import IntentResult
 from app.core.intent.strategies.base import IIntentStrategy
 
 

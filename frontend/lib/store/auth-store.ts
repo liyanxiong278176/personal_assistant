@@ -60,11 +60,20 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           const backendUser = await response.json();
+          const user = normalizeUser(backendUser);
+
           set({
-            user: normalizeUser(backendUser),
+            user: user,
             isAuthenticated: true,
             isLoading: false,
           });
+
+          // Sync user ID to userManager for eval tracking
+          if (user.id) {
+            const { userManager } = await import("../user-manager");
+            userManager.setUserId(user.id);
+            console.log('[Auth] Synced user ID to userManager on init:', user.id);
+          }
         } catch (error) {
           get().clearAuth();
           set({ isLoading: false });
@@ -86,13 +95,22 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           const data = await response.json();
+          const user = normalizeUser(data.user);
+
           set({
-            user: normalizeUser(data.user),
+            user: user,
             token: data.access_token,
             refreshToken: data.refresh_token,
             isAuthenticated: true,
             isLoading: false,
           });
+
+          // Sync user ID to userManager for eval tracking
+          if (user.id) {
+            const { userManager } = await import("../user-manager");
+            userManager.setUserId(user.id);
+            console.log('[Auth] Synced user ID to userManager:', user.id);
+          }
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -114,14 +132,23 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           const result = await response.json();
+          const user = normalizeUser(result.user);
+
           // Set auth state after successful registration
           set({
-            user: normalizeUser(result.user),
+            user: user,
             token: result.access_token,
             refreshToken: result.refresh_token,
             isAuthenticated: true,
             isLoading: false,
           });
+
+          // Sync user ID to userManager for eval tracking
+          if (user.id) {
+            const { userManager } = await import("../user-manager");
+            userManager.setUserId(user.id);
+            console.log('[Auth] Synced user ID to userManager:', user.id);
+          }
         } catch (error) {
           set({ isLoading: false });
           throw error;

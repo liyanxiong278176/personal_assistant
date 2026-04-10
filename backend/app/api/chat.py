@@ -185,17 +185,24 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 stop_event = manager.get_stop_event(websocket)
                 stop_event.clear()
 
+                # Get user_id - only use valid UUIDs, otherwise None
+                raw_user_id = msg.user_id
+                user_id = None
+                if raw_user_id and raw_user_id != "anonymous":
+                    # Validate UUID format (basic check)
+                    if len(raw_user_id) >= 32:  # UUID string length
+                        user_id = raw_user_id
+
                 conversation_id = msg.conversation_id
                 if not conversation_id:
-                    conversation_id = str(await create_conversation())
-
-                user_id = msg.user_id or "anonymous"
+                    # Pass user_id (may be None) when creating conversation
+                    conversation_id = str(await create_conversation(user_id=user_id))
 
                 message_id = str(uuid4())
                 full_response = ""
 
                 logger.info("=" * 60)
-                logger.info(f">>> [QueryEngine] 处理消息 | conv={conversation_id} | user={user_id}")
+                logger.info(f">>> [QueryEngine] 处理消息 | conv={conversation_id} | user={user_id or 'anonymous'}")
 
                 # === 处理图片附件 ===
                 user_content = msg.content
