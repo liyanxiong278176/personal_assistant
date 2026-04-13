@@ -192,11 +192,47 @@ class RedisShortTermMemory:
 # config.py
 
 @dataclass
+class RetrievalThresholdConfig:
+    """分场景检索阈值配置"""
+    
+    STRICT_MIN_SCORE: float = 0.75
+    NORMAL_MIN_SCORE: float = 0.65
+    FUZZY_MIN_SCORE: float = 0.50
+    DEFAULT_SCENARIO: RetrievalScenario = RetrievalScenario.NORMAL
+    
+    # ✅ 明确场景规则（写死在代码中）
+    STRICT_KEYWORDS: set = field(default_factory=lambda: {
+        # 严格场景：价格、地址、门票、多少、怎么办
+        "多少钱", "价格", "门票", "费用", "预算", "地址", "电话",
+        "营业时间", "开放时间", "怎么走", "交通", "距离", "多远",
+        "几月", "几号", "几点", "多长时间", "多久", "如何",
+        "查询", "搜索", "查找", "给我",
+    })
+    
+    FUZZY_KEYWORDS: set = field(default_factory=lambda: {
+        # 模糊场景：推荐、感觉、喜欢、怎么样
+        "推荐", "建议", "怎么样", "感觉", "觉得", "喜欢",
+        "有没有", "什么好", "哪里好", "哪个好",
+        "你喜欢", "你觉得", "感觉如何",
+        # 闲聊类
+        "你好", "在吗", "谢谢", "再见",
+    })
+    
+    def get_scenario_description(self, scenario: RetrievalScenario) -> str:
+        """获取场景描述（用于日志）"""
+        descriptions = {
+            RetrievalScenario.STRICT: "严格场景（价格/地址/门票/查询）",
+            RetrievalScenario.NORMAL: "普通场景（日常对话）",
+            RetrievalScenario.FUZZY: "模糊场景（推荐/感觉/喜欢/闲聊）",
+        }
+        return descriptions.get(scenario, "未知场景")
+
+@dataclass
 class MemoryConfig:
     """记忆系统统一配置"""
     
     # 检索配置
-    retrieval: RetrievalThresholdConfig
+    retrieval: RetrievalThresholdConfig = field(default_factory=RetrievalThresholdConfig)
     
     # 冲突检测配置
     semantic_threshold: float = 0.85
@@ -278,9 +314,82 @@ class MemoryMigrator:
     流程：
     1. 从 ChromaDB 读取所有记忆
     2. 过滤过期记忆（TTL 规则）
-    3. 去重处理（向量相似度 > 0.85）
+    3. 去重处理（向量相似度 > 0.85，保留最新的）
     4. 写回 ChromaDB
     """
+    
+    async def _deduplicate_memories(
+        self,
+        memories: List[MemoryItem]
+    ) -> List[MemoryItem]:
+        """去重记忆（使用向量相似度）
+        
+        逻辑：
+        1. 按创建时间排序（新的在后面）
+        2. 计算两两相似度
+        3. 相似度 > 0.85 的视为重复
+        4. 保留创建时间最新的
+        
+        Args:
+            memories: 记忆列表
+            
+        Returns:
+            去重后的记忆列表
+        """
+        if len(memories) <= 1:
+            return memories
+        
+        unique_memories = []
+        duplicate_count = 0
+        
+        # 按创建时间排序（新的在后面）
+        memories.sort(key=lambda m: m.created_at, reverse=True)
+        
+        # 已处理的记忆索引
+        processed_indices = set()
+        
+        for i, memory in enumerate(memories):
+            if i in processed_indices:
+                continue
+            
+            # 检查与后续记忆的相似度
+            for j in range(i + 1, len(memories)):
+                if j in processed_indices:
+                    continue
+                
+                similarity = await self._compute_similarity(
+                    memory, memories[j]
+                )
+                
+                if similarity >= 0.85:
+                    # 发现重复，跳过 j（保留 i，因为 i 更新）
+                    processed_indices.add(j)
+                    duplicate_count += 1
+            
+            unique_memories.append(memory)
+        
+        logger.info(
+            f"[Migrator] 去重完成 | "
+            f"原={len(memories)} | "
+            f"去重={duplicate_count} | "
+            f"保留={len(unique_memories)}"
+        )
+        
+        return unique_memories
+    
+    async def _compute_similarity(
+        self,
+        item1: MemoryItem,
+        item2: MemoryItem
+    ) -> float:
+        """计算两个记忆的语义相似度"""
+        emb1 = self._embedding.embed_query(item1.content)
+        emb2 = self._embedding.embed_query(item2.content)
+        
+        import numpy as np
+        return np.dot(emb1, emb2) / (
+            np.linalg.norm(emb1) * np.linalg.norm(emb2)
+        )
     
     async def migrate(
         self,
