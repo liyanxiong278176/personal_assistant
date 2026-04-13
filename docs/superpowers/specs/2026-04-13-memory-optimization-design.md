@@ -333,14 +333,58 @@ class HybridRetriever:
 **新建文件**: `backend/app/core/memory/compressor.py`
 
 ```python
+from dataclasses import dataclass
+from typing import List, Dict, Optional, Pattern
+import re
+
+@dataclass
+class SlotExtractionTemplate:
+    """槽位提取模板（可配置）"""
+    name: str           # 槽位名称
+    pattern: str        # 正则表达式模式
+    label: str          # 输出标签
+    flags: int = 0      # re flags (如 re.IGNORECASE)
+
+    def compile(self) -> Pattern:
+        """编译正则表达式"""
+        return re.compile(self.pattern, self.flags)
+
+
+# 预设模板：旅游场景
+TRAVEL_TEMPLATES = [
+    SlotExtractionTemplate("destination", r'(北京|上海|东京|巴黎|\w{2,4}国)', "目的地"),
+    SlotExtractionTemplate("date", r'(\d+月\d+日|\d+/\d+)', "时间"),
+    SlotExtractionTemplate("budget", r'(\d+)元', "预算"),
+    SlotExtractionTemplate("days", r'(\d+)天', "天数"),
+]
+
+# 预设模板：通用场景
+GENERIC_TEMPLATES = [
+    SlotExtractionTemplate("number", r'\b\d+(?:\.\d+)?\b', "数字"),
+    SlotExtractionTemplate("email", r'[\w.-]+@[\w.-]+\.\w+', "邮箱"),
+    SlotExtractionTemplate("phone", r'1[3-9]\d{9}', "手机号"),
+]
+
+
 class ConversationCompressor:
     """对话压缩器"""
 
-    def __init__(self, llm_client, llm_timeout: float = 5.0):
+    def __init__(
+        self,
+        llm_client,
+        llm_timeout: float = 5.0,
+        slot_templates: Optional[List[SlotExtractionTemplate]] = None,
+    ):
         self._llm = llm_client
         self._timeout = llm_timeout
         self._recent_limit = 5
         self._mid_limit = 20
+        # 支持自定义模板，默认使用旅游场景
+        self._slot_templates = slot_templates or TRAVEL_TEMPLATES
+        # 预编译正则表达式
+        self._compiled_templates = [
+            (t, t.compile()) for t in self._slot_templates
+        ]
 
     async def compress(self, messages: List[Dict]) -> List[Dict]:
         """分层压缩"""
@@ -380,23 +424,21 @@ class ConversationCompressor:
         return result
 
     def _extract_slots(self, content: str) -> str:
-        """提取关键槽位信息"""
-        import re
+        """使用配置模板提取槽位信息"""
         slots = []
 
-        # 目的地
-        if dest := re.search(r'(北京|上海|东京|巴黎|\w{2,4}国)', content):
-            slots.append(f"目的地: {dest.group(1)}")
-
-        # 时间
-        if date := re.search(r'(\d+月\d+日|\d+/\d+)', content):
-            slots.append(f"时间: {date.group(1)}")
-
-        # 预算
-        if budget := re.search(r'(\d+)元', content):
-            slots.append(f"预算: {budget.group(1)}元")
+        for template, pattern in self._compiled_templates:
+            if match := pattern.search(content):
+                slots.append(f"{template.label}: {match.group(1)}")
 
         return " | ".join(slots) if slots else ""
+
+    def set_slot_templates(self, templates: List[SlotExtractionTemplate]):
+        """动态更新槽位提取模板（支持不同场景切换）"""
+        self._slot_templates = templates
+        self._compiled_templates = [
+            (t, t.compile()) for t in templates
+        ]
 
     async def _summarize(self, messages: List[Dict]) -> str:
         """LLM生成摘要"""
@@ -405,7 +447,7 @@ class ConversationCompressor:
             for m in messages[-10:]
         ])
 
-        prompt = f"""将以下对话摘要为1-2句话，保留关键信息（目的地、时间、预算）：
+        prompt = f"""将以下对话摘要为1-2句话，保留关键信息：
 
 {conversation}
 
@@ -482,6 +524,15 @@ class SemanticRepository(BaseRepository, abc.ABC):
 
 ```python
 @dataclass
+class SlotExtractionTemplate:
+    """槽位提取模板配置"""
+    name: str
+    pattern: str
+    label: str
+    flags: int = 0
+
+
+@dataclass
 class MemoryConfig:
     # 现有配置...
     retrieval: RetrievalThresholdConfig = field(default_factory=RetrievalThresholdConfig)
@@ -503,6 +554,31 @@ class MemoryConfig:
     compression_recent_limit: int = 5
     compression_mid_limit: int = 20
     compression_llm_timeout: float = 5.0
+
+    # 新增：槽位模板配置（支持YAML配置）
+    compression_slot_templates: List[SlotExtractionTemplate] = field(
+        default_factory=lambda: [
+            SlotExtractionTemplate("destination", r'(北京|上海|东京|巴黎|\w{2,4}国)', "目的地"),
+            SlotExtractionTemplate("date", r'(\d+月\d+日|\d+/\d+)', "时间"),
+            SlotExtractionTemplate("budget", r'(\d+)元', "预算"),
+        ]
+    )
+```
+
+**YAML 配置示例** (`config/prompts/memory_compression.yaml`):
+
+```yaml
+compression:
+  slot_templates:
+    - name: destination
+      pattern: '(北京|上海|东京|巴黎|\w{2,4}国)'
+      label: 目的地
+    - name: date
+      pattern: '(\d+月\d+日|\d+/\d+)'
+      label: 时间
+    - name: budget
+      pattern: '(\d+)元'
+      label: 预算
 ```
 
 ---
