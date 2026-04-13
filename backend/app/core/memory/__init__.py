@@ -68,6 +68,11 @@ from .persistence import (
     AsyncPersistenceManager,
     Message as PersistenceMessage,
 )
+from .conflict_resolver import (
+    MemoryConflictResolver,
+    ConflictResolution,
+    MemoryOperation,
+)
 from .loaders import MemoryLoader
 
 __all__ = [
@@ -96,4 +101,8 @@ __all__ = [
     "AsyncPersistenceManager",
     "MemoryLoader",
     "PersistenceMessage",
+    # Conflict Resolution
+    "MemoryConflictResolver",
+    "ConflictResolution",
+    "MemoryOperation",
 ]
