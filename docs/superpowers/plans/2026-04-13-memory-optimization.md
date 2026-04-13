@@ -113,13 +113,13 @@ async def test_update_metadata():
     store = VectorStore()
     repo = ChromaDBSemanticRepository(store)
 
-    # 先添加一个记忆
-    await repo.add("测试内容", [0.1]*384, {"user_id": "test", "temp": "old"})
+    # 先添加一个记忆，捕获返回的 ID
+    item_id = await repo.add("测试内容", [0.1]*384, {"user_id": "test", "temp": "old"})
+    assert item_id, "add() should return a non-empty ID"
 
-    # 更新 metadata
+    # 使用 add() 返回的真实 ID 更新 metadata
     success = await repo.update_metadata(
-        # 假设我们知道ID（实际需要从add返回）
-        "test_123456",
+        item_id,
         {"temp": "new", "added": True}
     )
 
@@ -282,10 +282,14 @@ class LLMMemoryPromoter:
         return 0.5  # Neutral fallback
 ```
 
-- [ ] **Step 2: 在 MemoryPromoter 中集成 LLM 评估**
+- [ ] **Step 2: 在 MemoryPromoter 中集成 LLM 评估（替换 stub）**
+
+> **迁移说明**：现有 `MemoryPromoter._evaluate_with_llm()` 是返回 0.5 的 stub。本任务用 `LLMMemoryPromoter` 替换它，并移除 stub。
 
 ```python
 # backend/app/core/memory/promoter.py
+
+# Step 2a: 在 __init__ 中注入 llm_promoter（替换现有的可选 llm_client 参数）
 
 class MemoryPromoter:
     def __init__(
@@ -298,6 +302,50 @@ class MemoryPromoter:
         self._importance_threshold = importance_threshold
         self._llm_promoter = llm_promoter  # 可选注入
 ```
+
+> **Step 2b: 修改 `promote_episodic_to_semantic` 方法签名**
+
+现有签名 `(user_id, conversation_id, llm_client=None)` 中的 `llm_client` 是用来调用 stub 的。本任务将其替换为使用注入的 `self._llm_promoter`：
+
+```python
+async def promote_episodic_to_semantic(
+    self,
+    user_id: str,
+    conversation_id: Optional[UUID] = None,
+) -> int:
+    # 移除 llm_client 参数 —— 使用注入的 self._llm_promoter
+    episodic_memories = self._hierarchy.get_episodic(limit=100)
+
+    for memory in episodic_memories:
+        if memory.level == MemoryLevel.SEMANTIC:
+            continue
+
+        rule_score = self._calculate_importance(memory)
+
+        # 使用 LLMMemoryPromoter 替换原来的 _evaluate_with_llm stub
+        if self._llm_promoter:
+            importance = await self._llm_promoter.evaluate_importance(
+                memory.content,
+                memory.memory_type or MemoryType.FACT,
+                rule_score,
+            )
+        else:
+            importance = rule_score
+
+        memory.importance = importance
+        if importance >= self._importance_threshold:
+            semantic_item = MemoryItem(
+                content=memory.content,
+                level=MemoryLevel.SEMANTIC,
+                memory_type=memory.memory_type,
+                metadata=memory.metadata.copy(),
+                confidence=memory.confidence,
+                importance=importance,
+            )
+            self._hierarchy.add_semantic(semantic_item)
+```
+
+> **Step 2c: 删除 stub `_evaluate_with_llm` 方法**（promoter.py 约 463-496 行），由 `LLMMemoryPromoter.evaluate_importance` 取代。
 
 - [ ] **Step 3: 修改 promote_episodic_to_semantic 方法**
 
@@ -429,7 +477,6 @@ import logging
 import math
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import List, Optional
 
 from app.core.memory.hierarchy import MemoryItem
@@ -560,20 +607,15 @@ class ForgettingCurveManager:
     def _get_strength(self, memory: MemoryItem) -> MemoryStrength:
         """Get or create MemoryStrength for a memory.
 
-        Handles both datetime objects and ISO strings.
+        MemoryItem.created_at is always a datetime object (never ISO string),
+        so no special handling needed. See hierarchy.py:66.
         """
         if "strength" in memory.metadata:
             return MemoryStrength.from_dict(memory.metadata["strength"])
 
-        # Handle created_at being datetime or ISO string
-        if isinstance(memory.created_at, datetime):
-            created_ts = memory.created_at.timestamp()
-        else:
-            created_ts = memory.created_at
-
         return MemoryStrength(
             initial_strength=memory.importance,
-            created_at=created_ts
+            created_at=memory.created_at.timestamp()
         )
 ```
 
@@ -917,17 +959,12 @@ git commit -m "feat(memory): add multi-level conversation compression
 
 - [ ] **Step 1: 在 MemoryConfig 中添加新配置字段**
 
+> **BLOCK 3 修复**：`SlotExtractionTemplate` 已在 `compressor.py`（Task 4）中定义，本步骤只引用/导入，不重复定义。
+
 ```python
 # backend/app/core/memory/config.py
 
-@dataclass
-class SlotExtractionTemplate:
-    """Slot extraction template configuration."""
-    name: str
-    pattern: str
-    label: str
-    flags: int = 0
-
+from app.core.memory.compressor import SlotExtractionTemplate  # 导入 Task 4 中定义的类
 
 @dataclass
 class MemoryConfig:
@@ -983,57 +1020,97 @@ git commit -m "feat(memory): add v2.2 configuration for memory optimization
 **Files:**
 - Modify: `backend/app/core/query_engine.py`
 
-- [ ] **Step 1: 在 _ensure_phase2_initialized 中初始化新组件**
+- [ ] **Step 1: 在 `_ensure_phase2_initialized` 中新增组件初始化**
+
+> **BLOCK 2 修复**：以下为完整代码，包含了所有组件的初始化和连接。
+> **注意初始化顺序**：遗忘管理器 → LLM评估器 → 压缩器 → MemoryPromoter → HybridRetriever。
+
+在现有 `_ensure_phase2_initialized` 中，在 `self._hybrid_retriever = HybridRetriever(...)` 之前（大约第 2361 行），按顺序添加以下代码：
 
 ```python
-# backend/app/core/query_engine.py
+# backend/app/core/query_engine.py - _ensure_phase2_initialized 中
+# 约 line 2359 处（在 HybridRetriever 初始化之前）
 
-async def _ensure_phase2_initialized(self):
-    ...
-    from app.core.memory.llm_promoter import LLMMemoryPromoter
-    from app.core.memory.forgetting_curve import ForgettingCurveManager
-    from app.core.memory.compressor import ConversationCompressor
+# Step 1a: 新增遗忘曲线管理器（必须在 HybridRetriever 之前）
+if self._config.forgetting_enabled:
+    self._forgetting_manager = ForgettingCurveManager(
+        semantic_repo=self._semantic_repo
+    )
+    logger.info("[QueryEngine:Phase2]   - ForgettingCurveManager: 已配置")
 
-    # 现有初始化...
+# Step 1b: 新增 LLM 评估器
+if self._llm_client and self._config.llm_promoter_enabled:
+    self._llm_promoter = LLMMemoryPromoter(
+        llm_client=self._llm_client,
+        rule_threshold=self._config.llm_promoter_rule_threshold,
+        llm_threshold=self._config.llm_promoter_llm_threshold,
+        timeout=self._config.llm_promoter_timeout,
+    )
+    logger.info("[QueryEngine:Phase2]   - LLMMemoryPromoter: 已配置")
 
-    # 新增：LLM评估器（如果有LLM client）
-    if self._llm_client and self._config.llm_promoter_enabled:
-        self._llm_promoter = LLMMemoryPromoter(
-            llm_client=self._llm_client,
-            rule_threshold=self._config.llm_promoter_rule_threshold,
-            llm_threshold=self._config.llm_promoter_llm_threshold,
-            timeout=self._config.llm_promoter_timeout,
-        )
-        logger.info("[QueryEngine:Phase2]   - LLMMemoryPromoter: 已配置")
-
-    # 新增：遗忘曲线管理器
-    if self._config.forgetting_enabled:
-        self._forgetting_manager = ForgettingCurveManager(
-            semantic_repo=self._semantic_repo
-        )
-        logger.info("[QueryEngine:Phase2]   - ForgettingCurveManager: 已配置")
-
-    # 新增：对话压缩器
-    if self._config.compression_enabled and self._llm_client:
-        self._compressor = ConversationCompressor(
-            llm_client=self._llm_client,
-            llm_timeout=self._config.compression_llm_timeout,
-        )
-        logger.info("[QueryEngine:Phase2]   - ConversationCompressor: 已配置")
+# Step 1c: 新增对话压缩器
+if self._config.compression_enabled and self._llm_client:
+    self._compressor = ConversationCompressor(
+        llm_client=self._llm_client,
+        llm_timeout=self._config.compression_llm_timeout,
+        slot_templates=self._config.compression_slot_templates,
+    )
+    logger.info("[QueryEngine:Phase2]   - ConversationCompressor: 已配置")
 ```
 
-- [ ] **Step 2: 更新 HybridRetriever 初始化**
+然后，在 `self._memory_hierarchy = MemoryHierarchy()` 之后（大约第 2370 行），添加：
 
 ```python
-# backend/app/core/memory/retrieval.py - 在 _ensure_phase2_initialized 中
+# Step 1d: 新增 MemoryPromoter 初始化（当前 QueryEngine 中不存在）
+from app.core.memory.promoter import MemoryPromoter
 
+self._memory_promoter = MemoryPromoter(
+    hierarchy=self._memory_hierarchy,
+    importance_threshold=0.7,
+    llm_promoter=self._llm_promoter if hasattr(self, '_llm_promoter') else None,
+)
+logger.info("[QueryEngine:Phase2]   - MemoryPromoter: 已配置")
+```
+
+最后，将现有 `HybridRetriever` 初始化（大约第 2363 行）替换为：
+
+```python
+# Step 1e: 更新混合检索器（新增 forgetting_manager 参数）
 if self._config.forgetting_enabled and self._forgetting_manager:
     self._hybrid_retriever = HybridRetriever(
         self._semantic_repo,
         embedding_client=self._vector_store.embedding_function,
         config=self._memory_config,
-        forgetting_manager=self._forgetting_manager,  # 新增
+        forgetting_manager=self._forgetting_manager,
     )
+else:
+    self._hybrid_retriever = HybridRetriever(
+        self._semantic_repo,
+        embedding_client=self._vector_store.embedding_function,
+        config=self._memory_config
+    )
+```
+
+- [ ] **Step 2: 压缩器集成到 `_load_history_from_db`**
+
+> **BLOCK 2 修复**：在从 DB 加载历史后、返回前，对消息列表进行压缩。
+
+在 `_load_history_from_db` 方法中，找到数据库加载分支的 `self._conversation_history[conversation_id] = loaded` 之前（大约第 696 行），插入：
+
+```python
+# 对加载的消息进行压缩（减少上下文 token）
+if self._compressor and self._config.compression_enabled:
+    try:
+        original_count = len(loaded)
+        loaded = await self._compressor.compress(loaded)
+        logger.info(
+            f"[Compressor] 压缩对话历史 | conv={conversation_id} | "
+            f"原始={original_count}条 → 压缩后={len(loaded)}条"
+        )
+    except Exception as e:
+        logger.warning(f"[Compressor] 压缩失败，降级到未压缩: {e}")
+
+self._conversation_history[conversation_id] = loaded
 ```
 
 - [ ] **Step 3: 提交**
