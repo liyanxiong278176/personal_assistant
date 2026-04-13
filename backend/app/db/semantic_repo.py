@@ -186,6 +186,55 @@ class ChromaDBSemanticRepository(SemanticRepository):
             )
             raise
 
+    async def update_metadata(self, item_id: str, metadata: dict) -> bool:
+        """Update metadata for an existing memory item."""
+        try:
+            collection = self._store.client.get_or_create_collection(
+                name=self._collection_name
+            )
+
+            # Get existing data (include embeddings explicitly)
+            existing = collection.get(
+                ids=[item_id],
+                include=["documents", "metadatas", "embeddings"]
+            )
+            if not existing.get("ids"):
+                return False
+
+            # Merge metadata
+            old_metadata = existing["metadatas"][0]
+            merged_metadata = {**old_metadata, **metadata}
+
+            # Update (preserving document and embedding)
+            # Handle ChromaDB embedding return (may be numpy array or None)
+            emb = existing.get("embeddings")
+            emb_list = None
+            if emb is not None and len(emb) > 0 and emb[0] is not None:
+                import numpy as np
+                first_emb = emb[0]
+                if isinstance(first_emb, np.ndarray):
+                    emb_list = [first_emb.tolist()]
+                else:
+                    emb_list = [list(first_emb)]
+
+            if emb_list:
+                collection.update(
+                    ids=[item_id],
+                    documents=[existing["documents"][0]],
+                    embeddings=emb_list,
+                    metadatas=[merged_metadata]
+                )
+            else:
+                collection.update(
+                    ids=[item_id],
+                    documents=[existing["documents"][0]],
+                    metadatas=[merged_metadata]
+                )
+            return True
+        except Exception as e:
+            logger.error(f"[SemanticRepo] update_metadata failed: {e}")
+            return False
+
     async def save(self, item: Any) -> Any:
         """Generic save interface - requires embedding."""
         raise NotImplementedError("Use add() with embedding directly")
