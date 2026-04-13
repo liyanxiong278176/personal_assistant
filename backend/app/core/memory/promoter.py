@@ -118,15 +118,18 @@ class MemoryPromoter:
         self,
         hierarchy: MemoryHierarchy,
         importance_threshold: float = 0.7,
+        llm_promoter: Optional["LLMMemoryPromoter"] = None,
     ):
         """Initialize the memory promoter.
 
         Args:
             hierarchy: MemoryHierarchy instance to promote memories from
             importance_threshold: Minimum importance score for promotion (0.0 to 1.0)
+            llm_promoter: Optional LLMMemoryPromoter for two-stage evaluation
         """
         self._hierarchy = hierarchy
         self._importance_threshold = importance_threshold
+        self._llm_promoter = llm_promoter
 
         # Track access counts for memory items
         self._access_counts: Dict[str, int] = {}
@@ -139,7 +142,6 @@ class MemoryPromoter:
         self,
         user_id: str,
         conversation_id: Optional[UUID] = None,
-        llm_client: Optional[Any] = None,
     ) -> int:
         """Promote important episodic memories to semantic memory.
 
@@ -149,7 +151,6 @@ class MemoryPromoter:
         Args:
             user_id: User ID for semantic memory storage
             conversation_id: Optional conversation ID for filtering
-            llm_client: Optional LLM client for enhanced importance evaluation
 
         Returns:
             Number of memories promoted
@@ -174,11 +175,13 @@ class MemoryPromoter:
             # Calculate importance score
             importance = self._calculate_importance(memory)
 
-            # Optionally use LLM for enhanced evaluation
-            if llm_client is not None:
-                llm_importance = await self._evaluate_with_llm(memory, llm_client)
-                # Average the two scores
-                importance = (importance + llm_importance) / 2
+            # Use LLMMemoryPromoter for two-stage evaluation
+            if self._llm_promoter:
+                importance = await self._llm_promoter.evaluate_importance(
+                    memory.content,
+                    memory.memory_type,
+                    importance,  # pass rule score as baseline
+                )
 
             # Update memory importance
             memory.importance = importance
@@ -459,41 +462,6 @@ class MemoryPromoter:
             score += 0.15
 
         return min(score, 1.0)
-
-    async def _evaluate_with_llm(
-        self,
-        memory: MemoryItem,
-        llm_client: Any,
-    ) -> float:
-        """Evaluate memory importance using LLM.
-
-        Args:
-            memory: MemoryItem to evaluate
-            llm_client: LLM client with async chat interface
-
-        Returns:
-            Importance score (0.0 to 1.0) as evaluated by LLM
-        """
-        try:
-            prompt = f"""Evaluate the importance of this user statement for long-term memory.
-
-Statement: "{memory.content}"
-
-Rate on a scale of 0.0 to 1.0 where:
-- 0.0-0.3: Not important (greetings, small talk, transient info)
-- 0.4-0.6: Somewhat important (context for current conversation)
-- 0.7-1.0: Very important (user preferences, constraints, key facts)
-
-Respond with only a number."""
-
-            # This is a simplified interface - actual implementation depends on LLM client
-            # For now, return a default score
-            logger.debug("[MemoryPromoter] LLM evaluation not fully implemented")
-            return 0.5
-
-        except Exception as e:
-            logger.error(f"[MemoryPromoter] LLM evaluation failed: {e}")
-            return 0.5
 
     def track_access(self, memory_id: str) -> None:
         """Track access to a memory item for importance calculation.
