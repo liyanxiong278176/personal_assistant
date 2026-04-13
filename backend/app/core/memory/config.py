@@ -8,6 +8,8 @@ from typing import Dict, Optional, Any
 from enum import Enum
 from pathlib import Path
 
+from app.core.memory.compressor import SlotExtractionTemplate
+
 try:
     import yaml
     YAML_AVAILABLE = True
@@ -119,6 +121,36 @@ class MemoryConfig:
     different_conversation_score: float = 0.3
 
     max_expired_details: int = 100
+
+    # ---- Memory Optimization v2.2 Configuration ----
+
+    # LLM promoter settings
+    llm_promoter_enabled: bool = True
+    llm_promoter_rule_threshold: float = 0.5
+    llm_promoter_llm_threshold: float = 0.7
+    llm_promoter_timeout: float = 3.0
+
+    # Forgetting curve settings
+    forgetting_enabled: bool = True
+    forgetting_threshold: float = 0.3
+    forgetting_decay_factor: float = 30.0
+    forgetting_reinforce_boost: float = 0.05
+
+    # Compression settings
+    compression_enabled: bool = True
+    compression_recent_limit: int = 5
+    compression_mid_limit: int = 20
+    compression_llm_timeout: float = 5.0
+
+    # Slot extraction templates for compression
+    compression_slot_templates: list = field(
+        default_factory=lambda: [
+            {"name": "destination", "pattern": r'(北京|上海|东京|巴黎|\w{2,4}国)', "label": "目的地"},
+            {"name": "date", "pattern": r'(\d+月\d+日|\d+/\d+)', "label": "时间"},
+            {"name": "budget", "pattern": r'(\d+)元', "label": "预算"},
+        ]
+    )
+
     config_file_path: Optional[str] = None
 
     _reload_callbacks: list = field(default_factory=list, init=False, repr=False)
@@ -153,3 +185,17 @@ class MemoryConfig:
         """Register hot-reload callback."""
         if callback not in self._reload_callbacks:
             self._reload_callbacks.append(callback)
+
+    @property
+    def compression_slot_templates_objects(self) -> list:
+        """Get slot templates as SlotExtractionTemplate objects for ConversationCompressor."""
+        if not self.compression_slot_templates:
+            return []
+        return [
+            SlotExtractionTemplate(
+                name=t.get("name", ""),
+                pattern=t.get("pattern", ""),
+                label=t.get("label", ""),
+            )
+            for t in self.compression_slot_templates
+        ]
