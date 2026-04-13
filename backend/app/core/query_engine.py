@@ -21,11 +21,11 @@ from pathlib import Path
 
 if TYPE_CHECKING:
     from .intent.router import IntentRouter
-    from .prompts.service import PromptService
     from .context import RequestContext
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
+from .prompts.service import PromptService
 from .prompts.providers.base import IPromptProvider, PromptTemplate
 from .prompts.loader import PromptConfigLoader
 from .errors import AgentError, DegradationLevel
@@ -41,10 +41,13 @@ from .session import SessionInitializer
 from .subagent import SubAgentOrchestrator, ResultBubble, AgentType
 from .metrics.collector import global_collector
 from .security.injection_guard import InjectionGuard as SecurityGuard, PolicyDecision
+from .security.injection_guard_enhanced import InjectionGuardEnhanced, SecurityEventType as EnhancedSecurityEventType
 from .security.authorization import get_auth_manager, AuthorizationError  # UC4-1修复
 from .security.auditor import get_security_auditor, SecurityEventType  # 安全审计
 from .observability.tracing import get_tracing_manager, TraceContext  # UC5-1修复
 from .token_budget import TokenBudgetManager, get_token_budget_manager, BudgetAction  # P1修复: Token预算管理
+from .memory.injection import MemoryInjector  # 集成: MemoryInjector for automatic memory retrieval
+from .memory.config import MemoryConfig  # 集成: v2.1 统一配置
 
 # === 集成: 灰度放量、会话快照、安全审计 ===
 from .canary import get_canary_controller
@@ -294,6 +297,10 @@ class QueryEngine:
             )
             logger.info("[QueryEngine] IntentRouter 已自动创建（含CacheStrategy）")
 
+        # === PromptBuilder 初始化（必须在 PromptService 之前） ===
+        # 参考 Claude Code asSystemPrompt 模式
+        self._prompt_builder = self._init_prompt_builder()
+
         # 如果没有提供新的 PromptService，自动创建一个
         if self._prompt_service is None:
             from .prompts.service import PromptService
@@ -303,18 +310,28 @@ class QueryEngine:
             if prompt_config_path:
                 loader = PromptConfigLoader(config_path=prompt_config_path)
                 provider = _LoaderProvider(loader)
-                self._prompt_service = PromptService(provider=provider)
+                # Task 4: 传递 PromptBuilder 到 PromptService 实现双系统统一
+                self._prompt_service = PromptService(
+                    provider=provider,
+                    prompt_builder=self._prompt_builder
+                )
                 self._prompt_loader = loader  # 保存引用以便访问缓存统计
                 logger.info(
-                    f"[QueryEngine] 🔄 PromptService 已创建（热更新模式）| "
+                    f"[QueryEngine] 🔄 PromptService 已创建（热更新模式 + PromptBuilder）| "
                     f"config={prompt_config_path}"
                 )
             else:
-                self._prompt_service = PromptService(provider=TemplateProvider())
+                # Task 4: 传递 PromptBuilder 到 PromptService 实现双系统统一
+                self._prompt_service = PromptService(
+                    provider=TemplateProvider(),
+                    prompt_builder=self._prompt_builder
+                )
                 self._prompt_loader = None
-                logger.info("[QueryEngine] 🔄 PromptService 已自动创建")
+                logger.info("[QueryEngine] 🔄 PromptService 已自动创建（含 PromptBuilder）")
         else:
             self._prompt_loader = None  # 外部传入的 service 没有 loader
+            # 注意：外部传入的 PromptService 可能没有 PromptBuilder，
+            # 调用方需要负责传递正确的实例
 
         # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
@@ -322,9 +339,6 @@ class QueryEngine:
         self._session_locks: Dict[str, asyncio.Lock] = {}  # 单会话互斥锁
         self._session_semaphore = asyncio.Semaphore(100)  # UC3-2: 并发数限制100
         self._session_timestamps: Dict[str, float] = {}  # UC3-1: 会话时间戳，用于清理
-
-        # === PromptBuilder 初始化，参考 Claude Code asSystemPrompt 模式 ===
-        self._prompt_builder = self._init_prompt_builder()
 
         # === 增强功能配置 ===
         self._config = enhancement_config or AgentEnhancementConfig.load()
@@ -358,8 +372,9 @@ class QueryEngine:
             llm_client=self.llm_client,
         )
 
-        # === 安全守卫初始化（PII检测、违规内容检测）===
-        self._security_guard = SecurityGuard()
+        # === 安全守卫初始化（PII检测、违规内容检测、特殊令牌转义）===
+        # 使用增强版 InjectionGuard，整合了 SecurityFilter 的优点
+        self._security_guard = InjectionGuardEnhanced(enable_logging=True)
 
         # === 会话生命周期组件初始化 ===
         self._session_initializer = SessionInitializer(
@@ -384,6 +399,9 @@ class QueryEngine:
 
         # === 集成: 安全审计 ===
         self._auditor = get_security_auditor()
+
+        # === 集成: MemoryInjector ===
+        self._memory_injector = None  # 延迟初始化，在 Phase 2 初始化后创建
 
         # === Phase 2: 持久化组件初始化 ===
         self._phase2_enabled = False
@@ -675,10 +693,22 @@ class QueryEngine:
                     loaded.append({"role": m.role, "content": m.content})
                     total_chars += msg_chars
 
+            # v2.2: Apply conversation compression
+            if hasattr(self, '_compressor') and self._compressor and self._memory_config.compression_enabled:
+                try:
+                    original_count = len(loaded)
+                    loaded = await self._compressor.compress(loaded)
+                    logger.info(
+                        f"[Compressor] 压缩对话历史 | conv={conversation_id} | "
+                        f"原始={original_count}条 → 压缩后={len(loaded)}条"
+                    )
+                except Exception as e:
+                    logger.warning(f"[Compressor] 压缩失败，降级到未压缩: {e}")
+
             self._conversation_history[conversation_id] = loaded
             logger.info(
                 f"[MEMORY] 📥 从数据库加载历史 | conv={conversation_id} | "
-                f"消息数={len(loaded)} | 字符数={total_chars}"
+                f"消��数={len(loaded)} | 字符数={total_chars}"
             )
 
             # 异步写回Redis缓存
@@ -1020,52 +1050,23 @@ class QueryEngine:
         parts = []
         context_parts = []
 
-        # 语义记忆检索（Phase 2: ChromaDB向量检索）
-        if self._phase2_enabled and self._hybrid_retriever and user_id and conversation_id:
+        # 使用 MemoryInjector 进行智能记忆检索（语义记忆）
+        if self._memory_injector and user_input:
             try:
-                # 构建查询：优先使用目的地，其次使用用户输入
-                query = slots.destination or user_input or ""
-                if query:
-                    import uuid
-                    semantic_memories = await self._hybrid_retriever.retrieve(
-                        query=query,
-                        user_id=user_id,
-                        conversation_id=uuid.UUID(conversation_id) if conversation_id else uuid.UUID(int=0),
-                        limit=3
-                    )
-                    if semantic_memories:
-                        parts.append("## 相关记忆")
-                        context_parts.append("## 相关记忆")
-                        for mem in semantic_memories:
-                            mem_type = mem.memory_type.value if mem.memory_type else "记忆"
-                            parts.append(f"- [{mem_type}] {mem.content}")
-                            context_parts.append(f"- [{mem_type}] {mem.content}")
-                        logger.debug(
-                            f"[CONTEXT] ✅ 语义记忆已注入 | 数量={len(semantic_memories)} | "
-                            f"查询={query[:30]}"
-                        )
-            except Exception as e:
-                logger.warning(f"[CONTEXT] ⚠️ 语义记忆检索失败: {e}")
-
-        # 情景记忆检索（当前会话的短期记忆）
-        if self._phase2_enabled and self._memory_hierarchy:
-            try:
-                episodic_memories = self._memory_hierarchy.get_episodic(
-                    limit=5,
-                    min_importance=0.3
+                memory_context = self._memory_injector.build_memory_context(
+                    user_input,
+                    max_memories=3,
+                    include_empty=False
                 )
-                if episodic_memories:
-                    parts.append("## 当前会话记忆")
-                    context_parts.append("## 当前会话记忆")
-                    for mem in episodic_memories:
-                        mem_type = mem.memory_type.value if mem.memory_type else "记忆"
-                        parts.append(f"- [{mem_type}] {mem.content}")
-                        context_parts.append(f"- [{mem_type}] {mem.content}")
+                if memory_context:
+                    parts.append(f"## 相关记忆\n{memory_context}")
+                    context_parts.append(f"## 相关记忆\n{memory_context}")
                     logger.debug(
-                        f"[CONTEXT] ✅ 情景记忆已注入 | 数量={len(episodic_memories)}"
+                        f"[CONTEXT] ✅ MemoryInjector 已注入 | "
+                        f"输入='{user_input[:30]}...'"
                     )
             except Exception as e:
-                logger.warning(f"[CONTEXT] ⚠️ 情景记忆检索失败: {e}")
+                logger.warning(f"[CONTEXT] ⚠️ MemoryInjector 检索失败: {e}")
 
         # 用户偏好（如果启用偏好提取）
         if self._config.enable_preference_extraction and self._pref_extractor and user_id:
@@ -1085,32 +1086,19 @@ class QueryEngine:
         if tool_results:
             parts.append("## 工具调用结果")
             context_parts.append("## 工具调用结果")
-            for name, result in tool_results.items():
-                if isinstance(result, dict) and "error" in result:
-                    parts.append(f"{name}: 错误 - {result['error']}")
-                    context_parts.append(f"{name}: 错误 - {result['error']}")
-                else:
-                    try:
-                        result_str = json.dumps(result, ensure_ascii=False)
-                        parts.append(f"{name}: {result_str}")
-                        context_parts.append(f"{name}: {result_str}")
-                    except Exception:
-                        parts.append(f"{name}: {result}")
-                        context_parts.append(f"{name}: {result}")
+            formatted_results = PromptService.format_tool_results(tool_results)
+            for line in formatted_results.split("\n"):
+                parts.append(line)
+                context_parts.append(line)
 
         # 槽位信息
         if slots.destination or slots.start_date:
             parts.append("## 提取的信息")
             context_parts.append("## 提取的信息")
-            if slots.destination:
-                parts.append(f"- 目的地: {slots.destination}")
-                context_parts.append(f"- 目的地: {slots.destination}")
-            if slots.start_date:
-                parts.append(f"- 日期: {slots.start_date}")
-                context_parts.append(f"- 日期: {slots.start_date}")
-                if slots.end_date and slots.end_date != slots.start_date:
-                    parts.append(f"至 {slots.end_date}")
-                    context_parts.append(f"至 {slots.end_date}")
+            formatted_slots = PromptService.format_slots(slots)
+            for line in formatted_slots.split("\n"):
+                parts.append(line)
+                context_parts.append(line)
 
         result = "\n\n".join(parts) if parts else ""
 
@@ -1294,16 +1282,14 @@ class QueryEngine:
             except Exception as e:
                 logger.error(f"[MEMORY:Phase2] ❌ 消息持久化失败: {e}")
 
-            # === 步骤 2: 提取并保存语义记忆 ===
+            # === 步骤 2: 提取并保存语义记忆（带冲突检测 + TTL清理）===
             try:
                 from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
+                from app.core.memory.conflict_resolver import MemoryOperation
                 from app.db.vector_store import ChineseEmbeddings
-
-                embedder = ChineseEmbeddings()
 
                 # 检查是否包含偏好/意图信息（使用清洗后的输入）
                 if self._should_save_as_semantic(user_input_sanitized, assistant_response_sanitized):
-                    # 提取用户偏好（使用清洗后的内容）
                     memory_content = f"用户: {user_input_sanitized}\n助手: {assistant_response_sanitized[:100]}..."
 
                     memory = MemoryItem(
@@ -1314,21 +1300,68 @@ class QueryEngine:
                         metadata={
                             "user_id": user_id or "unknown",
                             "conversation_id": conversation_id,
-                            "created_at": time.time()
                         }
                     )
 
-                    # 获取向量并保存
-                    embedding = embedder.embed_query(memory_content)
-                    await self._semantic_repo.add(
-                        content=memory_content,
-                        embedding=embedding,
-                        metadata=memory.metadata
+                    # v2.1: 懒初始化冲突检测器
+                    if self._conflict_resolver is None and self.llm_client is not None:
+                        embedder = ChineseEmbeddings()
+                        self._conflict_resolver = MemoryConflictResolver(
+                            embedder.embed_query, self.llm_client
+                        )
+                        self._memory_hierarchy._conflict_resolver = self._conflict_resolver
+                        logger.info("[MEMORY:Phase2] ✓ ConflictResolver 已初始化")
+
+                    # v2.1: 使用冲突检测添加到语义记忆
+                    if self._conflict_resolver:
+                        resolution = await self._memory_hierarchy.add_semantic_with_conflict_check(
+                            memory, resolve=True
+                        )
+                        if resolution.operation == MemoryOperation.ADD:
+                            # 新增：持久化到 ChromaDB
+                            embedder = ChineseEmbeddings()
+                            embedding = embedder.embed_query(memory.content)
+                            await self._semantic_repo.add(
+                                content=memory.content,
+                                embedding=embedding,
+                                metadata=memory.metadata
+                            )
+                            logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存(新增) | sim={resolution.similarity:.2f}")
+                        elif resolution.operation == MemoryOperation.UPDATE:
+                            # 更新：替换内容并重新持久化
+                            if resolution.resolved_item:
+                                embedder = ChineseEmbeddings()
+                                embedding = embedder.embed_query(resolution.resolved_item.content)
+                                await self._semantic_repo.add(
+                                    content=resolution.resolved_item.content,
+                                    embedding=embedding,
+                                    metadata=resolution.resolved_item.metadata
+                                )
+                                logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已更新 | reason={resolution.reason}")
+                        elif resolution.operation == MemoryOperation.NOOP:
+                            logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆跳过(重复) | reason={resolution.reason}")
+                    else:
+                        # 降级：无冲突检测时直接保存
+                        embedder = ChineseEmbeddings()
+                        embedding = embedder.embed_query(memory_content)
+                        await self._semantic_repo.add(
+                            content=memory_content,
+                            embedding=embedding,
+                            metadata=memory.metadata
+                        )
+                        self._memory_hierarchy.add_semantic(memory)
+                        logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存(无冲突检测)")
+
+                # v2.1: TTL 清理（每次更新时检查）
+                if self._ttl_manager:
+                    removed, remaining = await self._ttl_manager.cleanup_expired(
+                        list(self._memory_hierarchy._semantic), dry_run=False
                     )
-                    logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存 | type=preference")
+                    if removed:
+                        logger.info(f"[MEMORY:Phase2] ✓ TTL清理 | 移除={len(removed)} 剩余={len(remaining)}")
 
             except Exception as e:
-                logger.error(f"[MEMORY:Phase2] ❌ 语义记忆保存失败: {e}")
+                logger.error(f"[MEMORY:Phase2] ❌ 语义记忆保存失败: {e}", exc_info=True)
 
             # === 步骤 3: 更新情景记忆（使用清洗后的内容）===
             try:
@@ -1452,8 +1485,8 @@ class QueryEngine:
         logger.info(f"[WORKFLOW:0_SECURITY] ⏳ 开始 | conv={conversation_id}")
 
         # 检查注入攻击和违规内容
-        security_decision = self._security_guard.check(user_input)
-        if security_decision.value == "deny":
+        sanitized_input, security_decision, security_info = self._security_guard.sanitize_input(user_input)
+        if security_decision == PolicyDecision.DENY:
             elapsed_ms = (time.perf_counter() - stage_start) * 1000
             logger.warning(
                 f"[WORKFLOW:0_SECURITY] ❌ 拒�� | conv={conversation_id} | "
@@ -1466,15 +1499,8 @@ class QueryEngine:
                 {}      # tool_results
             )
 
-        # 检测PII并记录警告（不阻止，但记录）
-        pii_result = self._security_guard.detect_pii(user_input)
-        if pii_result["detected"]:
-            logger.warning(
-                f"[WORKFLOW:0_SECURITY] ⚠️ PII检测到 | conv={conversation_id} | "
-                f"types: {[p['type'] for p in pii_result['details']]}"
-            )
+        user_input = sanitized_input
 
-        elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
             f"[WORKFLOW:0_SECURITY] ✅ 完成 | conv={conversation_id} | "
             f"耗时: {elapsed_ms:.2f}ms"
@@ -1748,8 +1774,8 @@ class QueryEngine:
             trace_ctx.end_span(span_total, success=False, error=error)
             raise AgentError(error, level=DegradationLevel.LLM_DEGRADED)
 
-        # === Step 0.9: 安全审计 ===
-        audit_result = self._security_guard.check(user_input)
+        # === Step 0.9: 安全审计（增强版注入检测 + 特殊令牌转义 + PII检测）===
+        sanitized_input, audit_result, security_info = self._security_guard.sanitize_input(user_input)
         if audit_result == PolicyDecision.DENY:
             logger.warning(
                 f"[QueryEngine] 安全拦截 | conv={conversation_id} | "
@@ -1764,6 +1790,19 @@ class QueryEngine:
             )
             yield "您的输入包含敏感内容，请重新输入。"
             return
+
+        if security_info.get("pii_detected"):
+            logger.info(
+                f"[QueryEngine] PII检测到 | conv={conversation_id} | "
+                f"types: {security_info['pii_detected']}"
+            )
+        if security_info.get("tokens_escaped"):
+            logger.info(
+                f"[QueryEngine] 特殊令牌已转义 | conv={conversation_id}"
+            )
+
+        # 使用清理后的输入继续处理
+        user_input = sanitized_input
 
         # UC5-1修复: 追踪Step1
         span_step1 = trace_ctx.create_span("Step1_intent", "Step1_intent")
@@ -2315,9 +2354,20 @@ class QueryEngine:
                 from app.core.memory.persistence import AsyncPersistenceManager
                 from app.core.memory.hierarchy import MemoryHierarchy
                 from app.core.memory.loaders import MemoryLoader
+                from app.core.memory.ttl_manager import TTLMemoryManager
+                from app.core.memory.conflict_resolver import MemoryConflictResolver
+                from app.core.memory.config import MemoryConfig
+                # v2.2: Memory optimization imports
+                from app.core.memory.llm_promoter import LLMMemoryPromoter
+                from app.core.memory.forgetting_curve import ForgettingCurveManager
+                from app.core.memory.compressor import ConversationCompressor
+                from app.core.memory.promoter import MemoryPromoter
 
                 # 确保 Database 连接池已初始化
                 await Database.connect()
+
+                # v2.1: 统一配置（放在最前，组件共享）
+                self._memory_config = MemoryConfig()
 
                 # 向量存储
                 self._vector_store = VectorStore()
@@ -2325,14 +2375,75 @@ class QueryEngine:
                 # 语义仓储
                 self._semantic_repo = ChromaDBSemanticRepository(self._vector_store)
 
-                # 混合检索器（复用 VectorStore 的 embedding 实例，避免重复加载模型）
-                self._hybrid_retriever = HybridRetriever(
-                    self._semantic_repo,
-                    embedding_client=self._vector_store.embedding_function
-                )
+                # v2.2: ForgettingCurveManager (must be before HybridRetriever)
+                if self._memory_config.forgetting_enabled:
+                    self._forgetting_manager = ForgettingCurveManager(
+                        semantic_repo=self._semantic_repo
+                    )
+                    logger.info("[QueryEngine:Phase2]   - ForgettingCurveManager: 已配置")
+                else:
+                    self._forgetting_manager = None
+
+                # v2.2: LLMMemoryPromoter (requires llm_client)
+                self._llm_promoter = None
+                if self._llm_client and self._memory_config.llm_promoter_enabled:
+                    self._llm_promoter = LLMMemoryPromoter(
+                        llm_client=self._llm_client,
+                        rule_threshold=self._memory_config.llm_promoter_rule_threshold,
+                        llm_threshold=self._memory_config.llm_promoter_llm_threshold,
+                        timeout=self._memory_config.llm_promoter_timeout,
+                    )
+                    logger.info("[QueryEngine:Phase2]   - LLMMemoryPromoter: 已配置")
+
+                # v2.2: ConversationCompressor (requires llm_client)
+                self._compressor = None
+                if self._llm_client and self._memory_config.compression_enabled:
+                    self._compressor = ConversationCompressor(
+                        llm_client=self._llm_client,
+                        llm_timeout=self._memory_config.compression_llm_timeout,
+                        recent_limit=self._memory_config.compression_recent_limit,
+                        mid_limit=self._memory_config.compression_mid_limit,
+                        slot_templates=self._memory_config.compression_slot_templates_objects,
+                    )
+                    logger.info("[QueryEngine:Phase2]   - ConversationCompressor: 已配置")
+
+                # v2.2: HybridRetriever (updated with forgetting_manager)
+                if self._memory_config.forgetting_enabled and hasattr(self, '_forgetting_manager') and self._forgetting_manager:
+                    self._hybrid_retriever = HybridRetriever(
+                        self._semantic_repo,
+                        embedding_client=self._vector_store.embedding_function,
+                        config=self._memory_config,
+                        forgetting_manager=self._forgetting_manager,
+                    )
+                else:
+                    self._hybrid_retriever = HybridRetriever(
+                        self._semantic_repo,
+                        embedding_client=self._vector_store.embedding_function,
+                        config=self._memory_config,
+                    )
+                logger.info("[QueryEngine:Phase2]   - HybridRetriever: 已配置 (v2.2 遗忘曲线)")
 
                 # 记忆层级
                 self._memory_hierarchy = MemoryHierarchy()
+
+                # v2.2: MemoryPromoter (inject llm_promoter if available)
+                self._memory_promoter = MemoryPromoter(
+                    hierarchy=self._memory_hierarchy,
+                    importance_threshold=0.7,
+                    llm_promoter=self._llm_promoter,
+                )
+                logger.info("[QueryEngine:Phase2]   - MemoryPromoter: 已配置")
+
+                # v2.1: TTL 管理器 - 用于语义记忆过期清理
+                self._ttl_manager = TTLMemoryManager(config=self._memory_config)
+                logger.info("[QueryEngine:Phase2]   - TTLMemoryManager: 已配置")
+
+                # v2.1: 冲突检测器 - 用于语义记忆去重（延迟初始化，需要 embedding + llm client）
+                self._conflict_resolver: Optional[MemoryConflictResolver] = None
+                logger.info("[QueryEngine:Phase2]   - MemoryConflictResolver: 延迟初始化")
+
+                # 记忆注入器 - 用于自动语义记忆检索
+                self._memory_injector = MemoryInjector(self._memory_hierarchy)
 
                 # 记忆加载器
                 self._memory_loader = MemoryLoader(self._memory_hierarchy, self._hybrid_retriever)
@@ -2360,9 +2471,20 @@ class QueryEngine:
                 logger.info("[QueryEngine:Phase2] ✅ Phase 2 组件已初始化")
                 logger.info("[QueryEngine:Phase2]   - MessageRepository: PostgresMessageRepository")
                 logger.info("[QueryEngine:Phase2]   - SemanticRepository: ChromaDBSemanticRepository")
-                logger.info("[QueryEngine:Phase2]   - HybridRetriever: 已配置")
+                logger.info("[QueryEngine:Phase2]   - HybridRetriever: 已配置 (v2.2 遗忘曲线)")
                 logger.info("[QueryEngine:Phase2]   - MemoryHierarchy: 已初始化")
+                logger.info("[QueryEngine:Phase2]   - MemoryInjector: 已配置")
                 logger.info("[QueryEngine:Phase2]   - PersistenceManager: 已启动")
+                logger.info("[QueryEngine:Phase2]   - MemoryConfig: 已配置 (v2.1 统一配置)")
+                # v2.2: New components
+                if hasattr(self, '_llm_promoter') and self._llm_promoter:
+                    logger.info("[QueryEngine:Phase2]   - LLMMemoryPromoter: 已配置")
+                if hasattr(self, '_forgetting_manager') and self._forgetting_manager:
+                    logger.info("[QueryEngine:Phase2]   - ForgettingCurveManager: 已配置")
+                if hasattr(self, '_compressor') and self._compressor:
+                    logger.info("[QueryEngine:Phase2]   - ConversationCompressor: 已配置")
+                if hasattr(self, '_memory_promoter'):
+                    logger.info("[QueryEngine:Phase2]   - MemoryPromoter: 已配置")
 
             except ImportError as e:
                 logger.warning(f"[QueryEngine:Phase2] ⚠️ Phase 2 组件导入失败: {e}")
