@@ -263,12 +263,22 @@ class ForgettingCurveManager:
         )
 
     def _get_strength(self, memory: MemoryItem) -> MemoryStrength:
-        """获取或创建记忆强度"""
+        """获取或创建记忆强度
+
+        处理 datetime 和 ISO 字符串两种格式
+        """
         if "strength" in memory.metadata:
             return MemoryStrength.from_dict(memory.metadata["strength"])
+
+        # 处理 created_at 可能是 datetime 或 ISO 字符串
+        if isinstance(memory.created_at, datetime):
+            created_ts = memory.created_at.timestamp()
+        else:
+            created_ts = memory.created_at  # 假设已经是时间戳
+
         return MemoryStrength(
             initial_strength=memory.importance,
-            created_at=memory.created_at.timestamp()
+            created_at=created_ts
         )
 ```
 
@@ -429,7 +439,75 @@ async def _load_history_from_db(self, conversation_id: str) -> List[Dict]:
 
 ---
 
-## 五、文件结构
+## 五、与现有代码集成
+
+### 5.1 新增接口方法
+
+需要在 `SemanticRepository` 接口添加 `update_metadata` 方法：
+
+**文件**: `backend/app/core/memory/repositories.py`
+
+```python
+class SemanticRepository(BaseRepository, abc.ABC):
+    # 现有方法...
+
+    @abc.abstractmethod
+    async def update_metadata(self, item_id: str, metadata: dict) -> bool:
+        """Update metadata for an existing memory item.
+
+        Args:
+            item_id: Memory item identifier
+            metadata: New metadata to merge/update
+
+        Returns:
+            True if successful
+        """
+        pass
+```
+
+### 5.2 集成点映射
+
+| 新组件 | 现有代码 | 集成位置 | 状态 |
+|--------|----------|----------|------|
+| `LLMMemoryPromoter` | `MemoryHierarchy.add_semantic_with_conflict_check` | hierarchy.py:228-266 | 新增参数 |
+| `ForgettingCurveManager` | `HybridRetriever.retrieve` | retrieval.py:67-198 | 注入集成 |
+| `ConversationCompressor` | `QueryEngine._load_history_from_db` | query_engine.py:612-725 | 字符限制后应用 |
+| `SemanticRepository.update_metadata` | `ChromaDBSemanticRepository` | semantic_repo.py | 新增方法 |
+
+### 5.3 配置扩展
+
+**文件**: `backend/app/core/memory/config.py`
+
+在现有 `MemoryConfig` 基础上新增字段（向后兼容）：
+
+```python
+@dataclass
+class MemoryConfig:
+    # 现有配置...
+    retrieval: RetrievalThresholdConfig = field(default_factory=RetrievalThresholdConfig)
+
+    # 新增：LLM评估配置
+    llm_promoter_enabled: bool = True
+    llm_promoter_rule_threshold: float = 0.5
+    llm_promoter_llm_threshold: float = 0.7
+    llm_promoter_timeout: float = 3.0
+
+    # 新增：遗忘曲线配置
+    forgetting_enabled: bool = True
+    forgetting_threshold: float = 0.3
+    forgetting_decay_factor: float = 30.0
+    forgetting_reinforce_boost: float = 0.05
+
+    # 新增：压缩配置
+    compression_enabled: bool = True
+    compression_recent_limit: int = 5
+    compression_mid_limit: int = 20
+    compression_llm_timeout: float = 5.0
+```
+
+---
+
+## 六、文件结构
 
 ```
 backend/app/core/memory/
@@ -441,32 +519,6 @@ backend/app/core/memory/
 ├── hierarchy.py             # 修改：添加强度字段支持
 ├── repositories.py          # 修改：添加update_metadata方法
 └── config.py                # 修改：新增配置项
-```
-
----
-
-## 六、配置项
-
-```python
-@dataclass
-class MemoryConfig:
-    # LLM评估配置
-    llm_promoter_enabled: bool = True
-    llm_promoter_rule_threshold: float = 0.5
-    llm_promoter_llm_threshold: float = 0.7
-    llm_promoter_timeout: float = 3.0
-
-    # 遗忘曲线配置
-    forgetting_enabled: bool = True
-    forgetting_threshold: float = 0.3
-    forgetting_decay_factor: float = 30.0  # 天
-    forgetting_reinforce_boost: float = 0.05
-
-    # 压缩配置
-    compression_enabled: bool = True
-    compression_recent_limit: int = 5
-    compression_mid_limit: int = 20
-    compression_llm_timeout: float = 5.0
 ```
 
 ---
