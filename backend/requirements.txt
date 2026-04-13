@@ -37,3 +37,8 @@ sentence-transformers>=3.0.0
 # Development
 pytest==8.3.4
 pytest-asyncio==0.24.0
+
+# Memory v2.1 新增依赖
+redis>=5.0.0              # 异步 Redis 客户端
+pyyaml>=6.0                # YAML 配置文件支持
+numpy>=1.24.0              # 向量相似度计算
