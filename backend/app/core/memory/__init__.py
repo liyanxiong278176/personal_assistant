@@ -59,6 +59,8 @@ from .redis_episodic import RedisEpisodicStore
 from .injection import MemoryInjector
 from .promoter import MemoryPromoter, PromotionResult
 from .llm_promoter import LLMMemoryPromoter
+from .forgetting_curve import ForgettingCurveManager, MemoryStrength
+from .compressor import ConversationCompressor, SlotExtractionTemplate, TRAVEL_TEMPLATES, GENERIC_TEMPLATES
 from .repositories import (
     BaseRepository,
     MessageRepository,
@@ -101,6 +103,13 @@ __all__ = [
     "MemoryPromoter",
     "PromotionResult",
     "LLMMemoryPromoter",
+    # Memory Optimization v2.2
+    "ForgettingCurveManager",
+    "MemoryStrength",
+    "ConversationCompressor",
+    "SlotExtractionTemplate",
+    "TRAVEL_TEMPLATES",
+    "GENERIC_TEMPLATES",
     # Repositories
     "BaseRepository",
     "MessageRepository",
