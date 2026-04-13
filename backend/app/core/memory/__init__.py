@@ -4,41 +4,41 @@ This module provides a 3-tier memory structure for managing
 conversation context and user preferences:
 
 - **Working Memory**: Recent messages (in-memory, fast access)
-- **Episodic Memory**: Current conversation context (session-scoped)
+- **Episodic Memory**: Current conversation context (Redis + in-memory fallback)
 - **Semantic Memory**: Long-term user preferences (persistent)
 - **Memory Injector**: Automatic memory injection based on keywords
 - **Memory Promoter**: Intelligent promotion from episodic to semantic memory
+- **Hybrid Retriever**: Scenario-aware retrieval with dynamic thresholds (v2.1)
 
 Example usage:
     ```python
-    from app.core.memory import MemoryHierarchy, MemoryItem, MemoryLevel, MemoryInjector, MemoryPromoter
+    from app.core.memory import (
+        MemoryHierarchy, MemoryItem, MemoryLevel,
+        MemoryInjector, MemoryPromoter, HybridRetriever,
+        MemoryConfig, RetrievalScenario, RedisEpisodicStore
+    )
 
-    # Create hierarchy
-    hierarchy = MemoryHierarchy()
+    # Create Redis store for episodic memory
+    redis_store = RedisEpisodicStore()
 
-    # Add working memory message
-    hierarchy.add_working_message("user", "我想去北京旅游")
+    # Create hierarchy with Redis support
+    hierarchy = MemoryHierarchy(
+        user_id="user123",
+        conversation_id=conv_id,
+        redis_store=redis_store
+    )
 
-    # Add episodic memory
+    # Add episodic memory (automatically saved to Redis)
     item = MemoryItem(
         content="用户想去北京旅游",
         level=MemoryLevel.EPISODIC,
         memory_type=MemoryType.INTENT,
         importance=0.8
     )
-    hierarchy.add(item)
+    await hierarchy.add(item)
 
-    # Create injector and get relevant memories
-    injector = MemoryInjector(hierarchy)
-    context = injector.build_memory_context("我想去北京旅游")
-
-    # Create promoter to promote important memories
-    promoter = MemoryPromoter(hierarchy)
-    promoted_count = await promoter.promote_episodic_to_semantic("user123")
-
-    # Retrieve memories
-    working = hierarchy.get_working(limit=5)
-    episodic = hierarchy.get_episodic(limit=10)
+    # Load from Redis
+    await hierarchy.load_from_redis()
     ```
 """
 
@@ -55,8 +55,10 @@ from .hierarchy import (
     MemoryType,
     WorkingMemoryEntry,
 )
+from .redis_episodic import RedisEpisodicStore
 from .injection import MemoryInjector
 from .promoter import MemoryPromoter, PromotionResult
+from .llm_promoter import LLMMemoryPromoter
 from .repositories import (
     BaseRepository,
     MessageRepository,
@@ -74,6 +76,11 @@ from .conflict_resolver import (
     MemoryOperation,
 )
 from .loaders import MemoryLoader
+from .ttl_manager import (
+    TTLConfig,
+    CleanupStats,
+    TTLMemoryManager,
+)
 
 __all__ = [
     # Configuration
@@ -87,10 +94,13 @@ __all__ = [
     "MemoryLevel",
     "MemoryType",
     "WorkingMemoryEntry",
+    # Redis Episodic Store
+    "RedisEpisodicStore",
     # Injection & Promotion
     "MemoryInjector",
     "MemoryPromoter",
     "PromotionResult",
+    "LLMMemoryPromoter",
     # Repositories
     "BaseRepository",
     "MessageRepository",
@@ -105,4 +115,8 @@ __all__ = [
     "MemoryConflictResolver",
     "ConflictResolution",
     "MemoryOperation",
+    # TTL Management
+    "TTLConfig",
+    "CleanupStats",
+    "TTLMemoryManager",
 ]
