@@ -19,10 +19,12 @@ async def test_update_metadata():
 
     assert success is True
 
-    # Verify the update persisted (optional verification)
-    # We can check by searching and finding the updated item
-    results = await repo.search_similar([0.1]*384, "test", n_results=1)
-    if results:
-        updated_meta = results[0].get("metadata", {})
-        assert updated_meta.get("temp") == "new"
-        assert updated_meta.get("added") is True
+    # Verify the update persisted by searching with a large n_results
+    # and filtering by our known item_id (avoids embedding model dependency)
+    results = await repo.search_similar([0.1]*384, "test", n_results=50)
+    # Find our specific item by id
+    our_item = next((r for r in results if r.get("id") == item_id), None)
+    assert our_item is not None, f"Updated item {item_id} not found in results"
+    updated_meta = our_item.get("metadata", {})
+    assert updated_meta.get("temp") == "new", f"Expected 'new', got {updated_meta.get('temp')}"
+    assert updated_meta.get("added") is True
