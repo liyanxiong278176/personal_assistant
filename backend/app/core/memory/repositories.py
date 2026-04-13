@@ -97,3 +97,16 @@ class SemanticRepository(BaseRepository, abc.ABC):
     ) -> List[Dict[str, Any]]:
         """Get memories by type."""
         pass
+
+    @abc.abstractmethod
+    async def update_metadata(self, item_id: str, metadata: dict) -> bool:
+        """Update metadata for an existing memory item.
+
+        Args:
+            item_id: Memory item identifier
+            metadata: New metadata to merge/update
+
+        Returns:
+            True if successful, False otherwise
+        """
+        pass
