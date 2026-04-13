@@ -42,6 +42,11 @@ Example usage:
     ```
 """
 
+from .config import (
+    MemoryConfig,
+    RetrievalScenario,
+    RetrievalThresholdConfig,
+)
 from .hierarchy import (
     MemoryHierarchy,
     MemoryHierarchyFactory,
@@ -66,6 +71,10 @@ from .persistence import (
 from .loaders import MemoryLoader
 
 __all__ = [
+    # Configuration
+    "MemoryConfig",
+    "RetrievalScenario",
+    "RetrievalThresholdConfig",
     # Hierarchy
     "MemoryHierarchy",
     "MemoryHierarchyFactory",
