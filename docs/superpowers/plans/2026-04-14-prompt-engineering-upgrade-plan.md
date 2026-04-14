@@ -222,7 +222,7 @@ def test_template_renderer_parses_role_block():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "<role>你是旅游助手</role>"
         ctx = RequestContext(message="测试")
@@ -234,7 +234,7 @@ def test_template_renderer_parses_rules_sorted():
     """解析 <rules> 区块并按 priority 排序"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = """<rules>
 <rule priority="2">第二条规则</rule>
@@ -252,7 +252,7 @@ def test_template_renderer_multiline_rules():
     """支持多行规则内容"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = """<rules>
 <rule priority="1">第一行
@@ -269,7 +269,7 @@ def test_template_renderer_conditionals_truthy():
     """{#if var}...{/if} 条件为真时保留内容"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "{#if slots}槽位信息：{slots}{/if}"
         ctx = RequestContext(message="测试", slots={"destination": "杭州"})
@@ -281,7 +281,7 @@ def test_template_renderer_conditionals_falsy():
     """{#if var}...{/if} 条件为空时移除区块"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "{#if memories}记忆：{memories}{/if}"
         ctx = RequestContext(message="测试", memories=[])  # 空列表
@@ -293,7 +293,7 @@ def test_template_renderer_injects_user_message():
     """替换 {user_message} 变量"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "用户说：{user_message}"
         ctx = RequestContext(message="我想去杭州")
@@ -305,7 +305,7 @@ def test_template_renderer_examples_disabled():
     """examples_enabled=False 时不渲染 examples"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "<examples><example><input>test</input><output>resp</output></example></examples>"
         ctx = RequestContext(message="test", examples_enabled=False)
@@ -317,7 +317,7 @@ def test_template_renderer_unknown_block_preserved():
     """未知区块类型保留原文"""
     with tempfile.TemporaryDirectory() as tmpdir:
         loader = ExamplesLoader(Path(tmpdir))
-        renderer = TemplateRenderer(None, loader)
+        renderer = TemplateRenderer(loader)
 
         template = "<unknown>some content</unknown>"
         ctx = RequestContext(message="test")
@@ -346,7 +346,6 @@ from typing import TYPE_CHECKING, List, Tuple
 
 if TYPE_CHECKING:
     from app.core.context import RequestContext
-    from app.core.prompts.loader import PromptConfigLoader
     from app.core.prompts.examples_loader import ExamplesLoader
 
 from app.core.prompts.service import PromptService
@@ -359,14 +358,13 @@ class TemplateRenderer:
 
     def __init__(
         self,
-        config: "PromptConfigLoader | None",
         examples_loader: "ExamplesLoader",
     ):
-        self.config = config
+        # config 参数保留供未来扩展（intent 级别配置覆盖），当前不使用
         self.examples_loader = examples_loader
         self._block_pattern = re.compile(r'<(\w+)>([\s\S]*?)</\1>')
 
-    async def render(self, template: str, context: "RequestContext") -> str:
+    def render(self, template: str, context: "RequestContext") -> str:
         # 第一步：处理条件注入 {#if}...{/if}
         template = self._process_conditionals(template, context)
 
@@ -392,6 +390,7 @@ class TemplateRenderer:
         result = self._inject_variables(result, context)
         return result
 
+    # 同步方法（无 I/O，所有操作均为 regex 和字符串处理）
     def _process_conditionals(self, template: str, context: "RequestContext") -> str:
         """解析 {#if var}...{/if} 条件，空值时移除区块"""
         pattern = re.compile(r'\{#if\s+(\w+)\}([\s\S]*?)\{/if\}')
@@ -568,24 +567,41 @@ git commit -m "feat(prompts): extend prompts.yaml with examples_enabled/few_shot
 **Files:**
 - Modify: `backend/app/core/prompts/loader.py`
 
-- [ ] **Step 1: 添加 get_output_format 和 get_few_shot_config 方法**
+- [ ] **Step 1: 添加 get_output_format 和 get_few_shot_config 方法到 loader.py**
 
-在 `PromptConfigLoader` class 中添加：
+在 `PromptConfigLoader` class 中添加上述两个方法（方法实现见上）。
+
+- [ ] **Step 2: 写测试**
 
 ```python
-def get_output_format(self, intent: str) -> str:
-    """查询意图的 output_format"""
-    mapping = self.get_config().get("mapping", {})
-    return mapping.get(intent, {}).get("output_format", "free")
+# backend/tests/core/prompts/test_renderer.py 新增
+def test_loader_get_output_format():
+    """get_output_format 返回正确的 output_format"""
+    from app.core.prompts.loader import PromptConfigLoader
+    loader = PromptConfigLoader()  # 使用默认路径
+    assert loader.get_output_format("itinerary") == "structured"
+    assert loader.get_output_format("chat") == "free"
+    assert loader.get_output_format("unknown") == "free"  # 默认值
 
-def get_few_shot_config(self, intent: str) -> tuple[bool, int]:
-    """查询意图的 Few-shot 配置"""
-    mapping = self.get_config().get("mapping", {})
-    cfg = mapping.get(intent, {})
-    return cfg.get("examples_enabled", True), cfg.get("few_shot_count", 3)
+
+def test_loader_get_few_shot_config():
+    """get_few_shot_config 返回正确的 Few-shot 配置"""
+    from app.core.prompts.loader import PromptConfigLoader
+    loader = PromptConfigLoader()
+    enabled, count = loader.get_few_shot_config("itinerary")
+    assert enabled is True
+    assert count == 3
+    enabled, count = loader.get_few_shot_config("unknown")
+    assert enabled is True  # 默认值
+    assert count == 3  # 默认值
 ```
 
-- [ ] **Step 2: 提交**
+- [ ] **Step 3: 运行测试验证通过**
+
+Run: `cd D:/agent_learning/travel_assistant/backend && pytest tests/core/prompts/test_renderer.py::test_loader_get_output_format tests/core/prompts/test_renderer.py::test_loader_get_few_shot_config -v`
+Expected: PASS
+
+- [ ] **Step 4: 提交**
 
 ```bash
 git add backend/app/core/prompts/loader.py
@@ -602,6 +618,7 @@ git commit -m "feat(prompts): add get_output_format and get_few_shot_config to P
 - Create: `backend/app/core/prompts/examples/itinerary.yaml`
 - Create: `backend/app/core/prompts/examples/query.yaml`
 - Create: `backend/app/core/prompts/examples/chat.yaml`
+- Create: `backend/app/core/prompts/examples/image.yaml`
 - Create: `backend/app/core/prompts/examples/hotel.yaml`
 - Create: `backend/app/core/prompts/examples/food.yaml`
 - Create: `backend/app/core/prompts/examples/budget.yaml`
@@ -620,22 +637,21 @@ itinerary:
       ### 第1天
       - 09:00 西湖断桥残雪（免费）
       - 12:00 知味观午餐（约50元）
-      ...
 
       ## 费用估算
       总计：约1850元
 ```
 
-- [ ] **Step: 批量创建 7 个 examples YAML 文件**
+- [ ] **Step: 批量创建 8 个 examples YAML 文件**
 
 每个意图 3 条示例，涵盖：
 - `itinerary`: 经济游 / 亲子游 / 商务游
+- `query`: 天气 / 交通 / 景点
+- `chat`: 问候 / 闲聊 / 确认
+- `image`: 地标识别 / 美食识别 / 地图截图
 - `hotel`: 高端 / 经济 / 亲子
 - `food`: 小吃 / 正餐 / 夜宵
 - `budget`: 穷游 / 标准 / 奢侈
-- `transport`: 飞机 / 高铁 / 自驾
-- `query`: 天气 / 交通 / 景点
-- `chat`: 问候 / 闲聊 / 确认
 - `transport`: 机票 / 高铁 / 市内交通
 
 - [ ] **Step: 提交**
@@ -755,11 +771,53 @@ git commit -m "feat(prompts): rewrite remaining 7 intent templates with structur
 - [ ] **Step 1: 写集成测试**
 
 ```python
-def test_prompt_service_integration():
-    """PromptService.render() 调用 TemplateRenderer"""
-    # 此测试验证 PromptService 正确使用 TemplateRenderer
-    # 在 Task 10 的 PromptService 修改完成后验证
-    pass
+# backend/tests/core/prompts/test_renderer.py 新增
+import pytest
+from unittest.mock import MagicMock
+
+
+def test_prompt_service_integration_with_renderer():
+    """PromptService 正确集成 TemplateRenderer"""
+    from app.core.prompts.service import PromptService
+    from app.core.prompts.renderer import TemplateRenderer
+    from app.core.prompts.examples_loader import ExamplesLoader
+    from app.core.context import RequestContext
+    from app.core.prompts.providers.base import IPromptProvider, PromptTemplate
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        examples_dir = Path(tmpdir)
+        # 创建 examples YAML
+        (examples_dir / "itinerary.yaml").write_text(
+            yaml.dump({"itinerary": [{"input": "test", "output": "resp"}]}),
+            encoding="utf-8"
+        )
+
+        mock_provider = MagicMock(spec=IPromptProvider)
+        mock_provider.get_template = pytest.AsyncMock()
+        mock_provider.get_template.return_value = PromptTemplate(
+            intent="itinerary",
+            template="<role>旅游助手</role>",
+            version="1.0",
+        )
+
+        service = PromptService(
+            provider=mock_provider,
+            config_loader=None,
+            examples_dir=examples_dir,
+        )
+
+        # 验证 renderer 已初始化
+        assert service._renderer is not None
+        assert isinstance(service._renderer, TemplateRenderer)
+
+        ctx = RequestContext(
+            message="测试",
+            intent="itinerary",
+            examples_enabled=True,
+            few_shot_count=1,
+        )
+        result = service.render("itinerary", ctx)
+        assert "旅游助手" in result
 ```
 
 - [ ] **Step 2: 修改 PromptService**
@@ -781,7 +839,7 @@ class PromptService:
         # 新增：初始化 ExamplesLoader 和 TemplateRenderer
         if examples_dir:
             self._examples_loader = ExamplesLoader(examples_dir)
-            self._renderer = TemplateRenderer(config_loader, self._examples_loader)
+            self._renderer = TemplateRenderer(self._examples_loader)
         else:
             self._examples_loader = None
             self._renderer = None
@@ -805,7 +863,7 @@ async def render(self, intent: str, context: "RequestContext") -> str:
     # 2. 获取并渲染模板
     if self._renderer:
         template = await self.provider.get_template(intent)
-        return await self._renderer.render(template.template, context)
+        return self._renderer.render(template.template, context)
 
     # 回退：原有逻辑
     template = await self.provider.get_template(intent)
@@ -901,7 +959,7 @@ def test_full_pipeline_render():
             slots={"destination": "杭州", "days": "3"},
         )
 
-        template = await renderer.render("<role>旅游助手</role>", ctx)
+        template = renderer.render("<role>旅游助手</role>", ctx)
         assert "旅游助手" in template
 ```
 
@@ -938,6 +996,13 @@ __all__ = [
     "PromptService",
     "PromptConfigLoader",
 ]
+```
+
+- [ ] **Step: 提交**
+
+```bash
+git add backend/app/core/prompts/__init__.py
+git commit -m "feat(prompts): update __init__.py exports for new components"
 ```
 
 ---
