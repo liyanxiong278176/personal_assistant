@@ -2,6 +2,7 @@
 
 Tests the new fields: intent, output_format, examples_enabled, few_shot_count.
 Also tests ExamplesLoader for few-shot YAML management.
+And tests TemplateRenderer for structured block parsing.
 """
 
 import tempfile
@@ -11,6 +12,8 @@ from pathlib import Path
 import pytest
 
 from app.core.context import RequestContext
+from app.core.prompts.examples_loader import ExamplesLoader
+from app.core.prompts.renderer import TemplateRenderer
 
 
 class TestRequestContextNewFields:
@@ -194,3 +197,173 @@ class TestExamplesLoader:
             assert len(examples) == 3
             assert examples[0]["input"] == "北京天气"
             assert examples[2]["output"] == "广州今天雨..."
+
+
+class TestTemplateRenderer:
+    """Tests for TemplateRenderer - structured block parsing."""
+
+    def test_template_renderer_parses_role_block(self):
+        """Parses <role> block correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "<role>你是旅游助手</role>"
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert "你是旅游助手" in result
+
+    def test_template_renderer_parses_rules_sorted(self):
+        """Parses <rules> block and sorts by priority."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = """<rules>
+<rule priority="2">第二条规则</rule>
+<rule priority="1">第一条规则</rule>
+<rule priority="3">第三条规则</rule>
+</rules>"""
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert result.index("第一条规则") < result.index("第二条规则")
+            assert result.index("第二条规则") < result.index("第三条规则")
+
+    def test_template_renderer_multiline_rules(self):
+        """Handles multiline rules correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = """<rules>
+<rule priority="1">第一行
+第二行
+第三行</rule>
+</rules>"""
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert "第一行" in result
+            assert "第二行" in result
+
+    def test_template_renderer_conditionals_truthy(self):
+        """Includes content when conditional variable is truthy."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "{#if slots}槽位信息：{slots}{/if}"
+            ctx = RequestContext(message="测试", slots={"destination": "杭州"})
+            result = renderer.render(template, ctx)
+            assert "槽位信息" in result
+
+    def test_template_renderer_conditionals_falsy(self):
+        """Excludes content when conditional variable is falsy."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "{#if memories}记忆：{memories}{/if}"
+            ctx = RequestContext(message="测试", memories=[])
+            result = renderer.render(template, ctx)
+            assert "记忆" not in result
+
+    def test_template_renderer_injects_user_message(self):
+        """Injects {user_message} variable correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "用户说：{user_message}"
+            ctx = RequestContext(message="我想去杭州")
+            result = renderer.render(template, ctx)
+            assert "我想去杭州" in result
+
+    def test_template_renderer_examples_disabled(self):
+        """Skips examples block when examples_enabled=False."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "<examples><example><input>test</input><output>resp</output></example></examples>"
+            ctx = RequestContext(message="test", examples_enabled=False)
+            result = renderer.render(template, ctx)
+            assert "示例" not in result
+
+    def test_template_renderer_unknown_block_preserved(self):
+        """Preserves unknown blocks as-is."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "<unknown>some content</unknown>"
+            ctx = RequestContext(message="test")
+            result = renderer.render(template, ctx)
+            assert "some content" in result
+
+    def test_template_renderer_output_format(self):
+        """Parses <output_format> block correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "<output_format>JSON格式输出</output_format>"
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert "JSON格式输出" in result
+            assert "输出格式要求" in result
+
+    def test_template_renderer_multiple_blocks(self):
+        """Handles multiple blocks in one template."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = """<role>你是助手</role>
+
+<rules>
+<rule priority="1">规则1</rule>
+</rules>
+
+<output_format>文本</output_format>"""
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert "你是助手" in result
+            assert "规则1" in result
+            assert "文本" in result
+
+    def test_template_renderer_conditional_with_string_value(self):
+        """Handles conditionals with string values."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "{#if intent}Intent: {intent}{/if}"
+            ctx = RequestContext(message="测试", intent="itinerary")
+            result = renderer.render(template, ctx)
+            assert "Intent: itinerary" in result
+
+    def test_template_renderer_conditional_with_none(self):
+        """Removes conditional block when value is None."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = "{#if intent}Intent: {intent}{/if}"
+            ctx = RequestContext(message="测试", intent=None)
+            result = renderer.render(template, ctx)
+            assert "Intent:" not in result
+
+    def test_template_renderer_rules_without_priority(self):
+        """Handles rules without priority (defaults to 99)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            template = """<rules>
+<rule>无优先级规则</rule>
+<rule priority="1">有优先级规则</rule>
+</rules>"""
+            ctx = RequestContext(message="测试")
+            result = renderer.render(template, ctx)
+            assert "无优先级规则" in result
+            assert "有优先级规则" in result
