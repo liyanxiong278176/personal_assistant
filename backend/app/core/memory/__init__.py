@@ -83,6 +83,10 @@ from .ttl_manager import (
     CleanupStats,
     TTLMemoryManager,
 )
+from .semantic_backup import (
+    SemanticJSONLBackup,
+    SemanticBackupConfig,
+)
 
 __all__ = [
     # Configuration
@@ -128,4 +132,7 @@ __all__ = [
     "TTLConfig",
     "CleanupStats",
     "TTLMemoryManager",
+    # v2.3 Semantic Backup
+    "SemanticJSONLBackup",
+    "SemanticBackupConfig",
 ]
