@@ -19,17 +19,24 @@ class MemoryOperation(Enum):
     UPDATE = "update"
     DELETE = "delete"
     NOOP = "noop"
+    OVERWRITE = "overwrite"  # v2.3新增：完全替换
+    CLEAR = "clear"  # v2.3新增：批量清除
 
 
 @dataclass
 class ConflictResolution:
-    """Conflict resolution result."""
-    operation: MemoryOperation
+    """Conflict resolution result (unified interface for v2.1)."""
+    operation: MemoryOperation = MemoryOperation.ADD
     existing_item: Optional["MemoryItem"] = None
     new_item: Optional["MemoryItem"] = None
     reason: str = ""
     similarity: float = 0.0
     fallback_used: bool = False
+    # v2.1 additional fields for hierarchy.py compatibility
+    has_conflict: bool = False
+    resolved_item: Optional["MemoryItem"] = None
+    # v2.3新增：CLEAR操作的类型范围
+    clear_type: Optional["MemoryType"] = None
 
 
 class MemoryConflictResolver:
@@ -43,6 +50,50 @@ class MemoryConflictResolver:
         self._embedding = embedding_client
         self._llm = llm_client
 
+    async def check_conflict(
+        self,
+        new_item: "MemoryItem",
+        existing_memories: List["MemoryItem"],
+    ) -> ConflictResolution:
+        """Check if new item conflicts with existing memories.
+
+        Fills has_conflict and resolved_item for hierarchy.py compatibility.
+        v2.3: OVERWRITE和CLEAR也视为冲突。
+        """
+        result = await self.resolve(new_item, existing_memories)
+        result.has_conflict = result.operation in (
+            MemoryOperation.UPDATE,
+            MemoryOperation.DELETE,
+            MemoryOperation.NOOP,
+            MemoryOperation.OVERWRITE,  # v2.3新增
+            MemoryOperation.CLEAR,  # v2.3新增
+        )
+        result.resolved_item = self._apply_resolution(result)
+        return result
+
+    def _apply_resolution(self, result: ConflictResolution) -> Optional["MemoryItem"]:
+        """Apply resolution and return the item to store."""
+        if result.operation == MemoryOperation.ADD:
+            return result.new_item
+        elif result.operation == MemoryOperation.UPDATE:
+            # Merge: keep existing metadata, update content
+            if result.existing_item and result.new_item:
+                merged = result.existing_item
+                merged.content = result.new_item.content
+                merged.metadata.update(result.new_item.metadata or {})
+                return merged
+            return result.new_item
+        elif result.operation == MemoryOperation.OVERWRITE:
+            # v2.3新增：完全替换，返回新item
+            return result.new_item
+        elif result.operation == MemoryOperation.CLEAR:
+            # v2.3新增：批量清除，返回None
+            return None
+        elif result.operation == MemoryOperation.DELETE:
+            return None
+        else:  # NOOP
+            return result.existing_item
+
     async def resolve(
         self,
         new_memory: "MemoryItem",
@@ -54,7 +105,7 @@ class MemoryConflictResolver:
 
             if similarity >= self.SEMANTIC_THRESHOLD:
                 try:
-                    operation = await self._llm_confirm_operation_safe(
+                    operation, clear_type = await self._llm_confirm_operation_safe(
                         new_memory, existing
                     )
 
@@ -63,7 +114,8 @@ class MemoryConflictResolver:
                         existing_item=existing,
                         new_item=new_memory,
                         similarity=similarity,
-                        reason=f"相似度{similarity:.2f}，LLM确认为{operation.value}"
+                        reason=f"相似度{similarity:.2f}，LLM确认为{operation.value}",
+                        clear_type=clear_type
                     )
                 except Exception as e:
                     logger.warning(f"[ConflictResolver] LLM确认失败: {e}")
@@ -93,12 +145,58 @@ class MemoryConflictResolver:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, _sync_compute)
 
+    def _parse_llm_response(
+        self,
+        response: str,
+        existing_item: "MemoryItem"
+    ) -> tuple[MemoryOperation, Optional["MemoryType"]]:
+        """Parse LLM response to get operation and optional clear type.
+
+        v2.3新增：支持OVERWRITE和CLEAR:类型格式
+
+        Returns:
+            (operation, clear_type) tuple
+        """
+        from app.core.memory.hierarchy import MemoryType
+
+        response = response.strip().upper()
+
+        # CLEAR response may include type: "CLEAR:PREFERENCE" or just "CLEAR"
+        if response.startswith("CLEAR"):
+            parts = response.split(":")
+            if len(parts) > 1:
+                try:
+                    clear_type = MemoryType(parts[1].lower())
+                except ValueError:
+                    clear_type = existing_item.memory_type
+            else:
+                clear_type = existing_item.memory_type
+            return (MemoryOperation.CLEAR, clear_type)
+
+        # Other operations
+        operation_map = {
+            "UPDATE": MemoryOperation.UPDATE,
+            "OVERWRITE": MemoryOperation.OVERWRITE,
+            "DELETE": MemoryOperation.DELETE,
+            "NOOP": MemoryOperation.NOOP,
+            "ADD": MemoryOperation.ADD,
+        }
+
+        first_word = response.split()[0] if response.split() else response
+        return (operation_map.get(first_word, MemoryOperation.NOOP), None)
+
     async def _llm_confirm_operation_safe(
         self,
         new_item: "MemoryItem",
         existing_item: "MemoryItem"
-    ) -> MemoryOperation:
-        """LLM confirmation with timeout and error handling."""
+    ) -> tuple[MemoryOperation, Optional["MemoryType"]]:
+        """LLM confirmation with timeout and error handling.
+
+        v2.3新增：支持OVERWRITE和CLEAR:类型格式
+
+        Returns:
+            (operation, clear_type) tuple
+        """
         prompt = f"""
 判断以下两句话的关系：
 
@@ -107,8 +205,10 @@ class MemoryConflictResolver:
 
 请回答以下选项之一：
 - UPDATE: 新信息是对旧信息的更新或修正
+- OVERWRITE: 新信息完全替换旧信息（v2.3新增）
 - NOOP: 新信息与旧信息一致或重复
 - DELETE: 新信息表示旧信息已失效
+- CLEAR: 清除某类型的所有记忆（格式: CLEAR:类型，如CLEAR:PREFERENCE，或仅CLEAR）
 
 只回答选项名称，不要解释。
 """
@@ -119,20 +219,7 @@ class MemoryConflictResolver:
                 timeout=5.0
             )
 
-            # Use strict return value matching to prevent misidentification
-            response = response.strip().upper()
-
-            # Extract first word and match exactly
-            first_word = response.split()[0] if response.split() else response
-
-            operation_map = {
-                "UPDATE": MemoryOperation.UPDATE,
-                "DELETE": MemoryOperation.DELETE,
-                "NOOP": MemoryOperation.NOOP,
-                "ADD": MemoryOperation.ADD,
-            }
-
-            return operation_map.get(first_word, MemoryOperation.NOOP)
+            return self._parse_llm_response(response, existing_item)
 
         except (asyncio.TimeoutError, Exception) as e:
             raise Exception(f"LLM确认失败: {e}")
