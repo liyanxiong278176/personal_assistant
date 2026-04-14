@@ -197,6 +197,31 @@ class PromptConfigLoader:
             "template_cached": list(self._template_cache.keys()),
         }
 
+    def get_output_format(self, intent: str) -> str:
+        """查询意图的 output_format.
+
+        Args:
+            intent: 意图标识
+
+        Returns:
+            output_format 值，默认为 "free"
+        """
+        mapping = self.get_config().get("mapping", {})
+        return mapping.get(intent, {}).get("output_format", "free")
+
+    def get_few_shot_config(self, intent: str) -> tuple[bool, int]:
+        """查询意图的 Few-shot 配置.
+
+        Args:
+            intent: 意图标识
+
+        Returns:
+            (examples_enabled, few_shot_count) 元组，���认值为 (True, 3)
+        """
+        mapping = self.get_config().get("mapping", {})
+        cfg = mapping.get(intent, {})
+        return cfg.get("examples_enabled", True), cfg.get("few_shot_count", 3)
+
     def clear_cache(self) -> None:
         """清空所有缓存（用于测试或强制刷新）."""
         self._cache = None
