@@ -8,48 +8,72 @@ mapping:
     template: templates/itinerary.md
     enabled: true
     priority: 1
+    examples_enabled: true
+    few_shot_count: 3
+    output_format: structured
 
   # 信息查询意图
   query:
     template: templates/query.md
     enabled: true
     priority: 2
+    examples_enabled: true
+    few_shot_count: 2
+    output_format: free
 
   # 通用对话意图
   chat:
     template: templates/chat.md
     enabled: true
     priority: 8
+    examples_enabled: true
+    few_shot_count: 2
+    output_format: free
 
   # 图片识别意图
   image:
     template: templates/image.md
     enabled: true
     priority: 3
+    examples_enabled: true
+    few_shot_count: 2
+    output_format: free
 
   # 酒店推荐意图
   hotel:
     template: templates/hotel.md
     enabled: true
     priority: 4
+    examples_enabled: true
+    few_shot_count: 3
+    output_format: structured
 
   # 美食推荐意图
   food:
     template: templates/food.md
     enabled: true
     priority: 5
+    examples_enabled: true
+    few_shot_count: 3
+    output_format: structured
 
   # 预算规划意图
   budget:
     template: templates/budget.md
     enabled: true
     priority: 6
+    examples_enabled: true
+    few_shot_count: 2
+    output_format: structured
 
   # 交通出行意图
   transport:
     template: templates/transport.md
     enabled: true
     priority: 7
+    examples_enabled: true
+    few_shot_count: 2
+    output_format: structured
 
 # 全局设置
 settings:
