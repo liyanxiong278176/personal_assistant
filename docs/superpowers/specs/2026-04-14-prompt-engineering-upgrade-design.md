@@ -1,8 +1,8 @@
 # 提示词工程完整升级设计方案
 
 **日期**：2026-04-14
-**状态**：v1.1（已修复 review 问题）
-**版本**：v1.1
+**状态**：v1.2（第二次 review 通过）
+**版本**：v1.2
 
 ## 背景
 
@@ -146,9 +146,9 @@ class TemplateRenderer:
         def replacer(match):
             var_name = match.group(1)
             content = match.group(2)
-            # 检查变量是否存在且非空
+            # 检查变量是否存在且非空（list 非空、str 非空、obj 非 None 均算 truthy）
             value = getattr(context, var_name, None)
-            if value and str(value).strip():
+            if value and (not isinstance(value, str) or value.strip()):
                 return content
             return ""
         return pattern.sub(replacer, template)
@@ -163,9 +163,16 @@ class TemplateRenderer:
     def _render_rules(self, content: str, context: RequestContext) -> str:
         """解析 <rule priority="N"> 并按 priority 排序"""
         rules = []
-        # 修复：[\s\S]*? 支持多行 rule 内容
+        # 解析 <rule priority="N">...</rule>，支持多行内容
         for match in re.finditer(r'<rule priority="(\d+)">([\s\S]*?)</rule>', content):
-            rules.append((int(match.group(1)), match.group(2).strip()))
+            try:
+                priority = int(match.group(1))
+                rule_text = match.group(2).strip()
+                if rule_text:  # 忽略空规则
+                    rules.append((priority, rule_text))
+            except (ValueError, TypeError):
+                # priority 非数字时使用默认优先级 99
+                rules.append((99, match.group(2).strip()))
         rules.sort(key=lambda x: x[0])
         return "\n".join(f"- {r[1]}" for r in rules)
 
@@ -333,13 +340,9 @@ class RequestContext(BaseModel):
 
 ### 6.2 PromptConfigLoader 填充元数据
 
-`PromptConfigLoader.get_template()` 返回时，同时填充 `RequestContext` 中的元数据：
+`PromptConfigLoader` 提供三个查询方法，`PromptService.render()` 调用时将元数据填入 `RequestContext`：
 
 ```python
-def get_template(self, intent: str) -> str:
-    # ... 现有逻辑 ...
-    return template_str
-
 def get_output_format(self, intent: str) -> str:
     """查询意图的 output_format"""
     mapping = self.get_config().get("mapping", {})
@@ -350,6 +353,22 @@ def get_few_shot_config(self, intent: str) -> Tuple[bool, int]:
     mapping = self.get_config().get("mapping", {})
     cfg = mapping.get(intent, {})
     return cfg.get("examples_enabled", True), cfg.get("few_shot_count", 3)
+```
+
+调用示例：
+
+```python
+# PromptService.render() 中
+output_format = self.config.get_output_format(intent)
+examples_enabled, few_shot_count = self.config.get_few_shot_config(intent)
+
+# 填充到 context
+context = context.update(
+    intent=intent,
+    output_format=output_format,
+    examples_enabled=examples_enabled,
+    few_shot_count=few_shot_count,
+)
 ```
 
 ### 6.3 LLMClient 支持 response_format
