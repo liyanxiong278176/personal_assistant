@@ -367,3 +367,26 @@ class TestTemplateRenderer:
             result = renderer.render(template, ctx)
             assert "无优先级规则" in result
             assert "有优先级规则" in result
+
+
+class TestPromptConfigLoader:
+    """Tests for PromptConfigLoader query methods."""
+
+    def test_loader_get_output_format(self):
+        """get_output_format 返回正确的 output_format"""
+        from app.core.prompts.loader import PromptConfigLoader
+        loader = PromptConfigLoader()
+        assert loader.get_output_format("itinerary") == "structured"
+        assert loader.get_output_format("chat") == "free"
+        assert loader.get_output_format("unknown") == "free"  # 默认值
+
+    def test_loader_get_few_shot_config(self):
+        """get_few_shot_config 返回正确的 Few-shot 配置"""
+        from app.core.prompts.loader import PromptConfigLoader
+        loader = PromptConfigLoader()
+        enabled, count = loader.get_few_shot_config("itinerary")
+        assert enabled is True
+        assert count == 3
+        enabled, count = loader.get_few_shot_config("unknown")
+        assert enabled is True  # 默认值
+        assert count == 3  # 默认值
