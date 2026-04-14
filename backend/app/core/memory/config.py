@@ -151,6 +151,11 @@ class MemoryConfig:
         ]
     )
 
+    # ---- JSONL Backup v2.3 Configuration ----
+    jsonl_backup_enabled: bool = True
+    jsonl_backup_path: str = "./data/semantic_backup.jsonl"
+    jsonl_max_file_size_mb: float = 100.0
+
     config_file_path: Optional[str] = None
 
     _reload_callbacks: list = field(default_factory=list, init=False, repr=False)
