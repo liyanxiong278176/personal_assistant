@@ -12,6 +12,7 @@ from .providers.base import IPromptProvider, PromptTemplate
 from .providers.template_provider import TemplateProvider
 from .loader import PromptConfigLoader
 from .examples_loader import ExamplesLoader
+from .renderer import TemplateRenderer
 
 __all__ = [
     "PromptLayer",
@@ -29,4 +30,6 @@ __all__ = [
     "PromptConfigLoader",
     # Examples loader exports
     "ExamplesLoader",
+    # Template renderer exports
+    "TemplateRenderer",
 ]
