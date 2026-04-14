@@ -1,8 +1,8 @@
 # 提示词工程完整升级设计方案
 
 **日期**：2026-04-14
-**状态**：已批准
-**版本**：v1.0
+**状态**：v1.1（已修复 review 问题）
+**版本**：v1.1
 
 ## 背景
 
@@ -99,21 +99,29 @@ mapping:
 
 ---
 
-## 三、新增组件：TemplateRenderer
+## 三、新增组件：TemplateRenderer + ExamplesLoader
 
 位置：`backend/app/core/prompts/renderer.py`
 
-职责：解析 Markdown 中的结构化区块，替换变量，输出渲染后的模板文本。
+职责：解析 Markdown 中的结构化区块，处理条件注入，调用 ExamplesLoader 获取示例。
+
+### 3.1 TemplateRenderer
 
 ```python
 class TemplateRenderer:
     """解析 Markdown 中的 <role>/<rules>/<examples>/<output_format> 区块"""
 
-    def __init__(self, config: PromptConfigLoader):
+    def __init__(self, config: PromptConfigLoader, examples_loader: "ExamplesLoader"):
         self.config = config
-        self._block_pattern = re.compile(r'<(\w+)>(.*?)</\1>', re.DOTALL)
+        self.examples_loader = examples_loader
+        # 修复：[\s\S]*? 支持多行内容（替代 .*?）
+        self._block_pattern = re.compile(r'<(\w+)>([\s\S]*?)</\1>')
 
     async def render(self, template: str, context: RequestContext) -> str:
+        # 第一步：处理条件注入 {#if}...{/if}
+        template = self._process_conditionals(template, context)
+
+        # 第二步：解析区块
         blocks = self._parse_blocks(template)
         rendered_parts = []
 
@@ -127,7 +135,23 @@ class TemplateRenderer:
             elif block_type == "output_format":
                 rendered_parts.append(self._render_output_format(content, context))
 
-        return "\n\n".join(rendered_parts)
+        # 第三步：替换剩余变量 {slots} / {memories} / {tool_results}
+        result = "\n\n".join(rendered_parts)
+        result = self._inject_variables(result, context)
+        return result
+
+    def _process_conditionals(self, template: str, context: RequestContext) -> str:
+        """解析 {#if var}...{/if} 条件，空值时移除区块"""
+        pattern = re.compile(r'\{#if\s+(\w+)\}([\s\S]*?)\{/if\}')
+        def replacer(match):
+            var_name = match.group(1)
+            content = match.group(2)
+            # 检查变量是否存在且非空
+            value = getattr(context, var_name, None)
+            if value and str(value).strip():
+                return content
+            return ""
+        return pattern.sub(replacer, template)
 
     def _parse_blocks(self, template: str) -> List[Tuple[str, str]]:
         """解析模板中的所有区块"""
@@ -139,22 +163,31 @@ class TemplateRenderer:
     def _render_rules(self, content: str, context: RequestContext) -> str:
         """解析 <rule priority="N"> 并按 priority 排序"""
         rules = []
-        for match in re.finditer(r'<rule priority="(\d+)">(.*?)</rule>', content, re.DOTALL):
+        # 修复：[\s\S]*? 支持多行 rule 内容
+        for match in re.finditer(r'<rule priority="(\d+)">([\s\S]*?)</rule>', content):
             rules.append((int(match.group(1)), match.group(2).strip()))
         rules.sort(key=lambda x: x[0])
         return "\n".join(f"- {r[1]}" for r in rules)
 
     def _render_examples(self, content: str, context: RequestContext) -> str:
-        """从 examples 库选取 N 条，注入当前上下文变量"""
-        examples = self._parse_example_list(content)
-        count = self.config.get_few_shot_count(context.intent)
-        selected = examples[:count]
+        """从 ExamplesLoader 选取 N 条，注入当前上下文变量"""
+        intent = context.intent or "chat"
+        count = context.few_shot_count if context.few_shot_count else 3
 
+        if not context.examples_enabled:
+            return ""
+
+        # 从 ExamplesLoader 获取示例
+        examples = self.examples_loader.get_examples(intent)
+        if not examples:
+            logger.warning(f"[TemplateRenderer] No examples found for intent: {intent}")
+            return ""
+
+        selected = examples[:count]
         parts = []
         for i, ex in enumerate(selected, 1):
-            # 替换变量
-            input_text = self._inject_variables(ex["input"], context)
-            output_text = self._inject_variables(ex["output"], context)
+            input_text = self._inject_variables(ex.get("input", ""), context)
+            output_text = self._inject_variables(ex.get("output", ""), context)
             parts.append(f"**示例 {i}**：\n用户：{input_text}\n助手：{output_text}")
 
         return "\n\n".join(parts)
@@ -163,16 +196,63 @@ class TemplateRenderer:
         return f"**输出格式要求**：\n{content.strip()}"
 
     def _inject_variables(self, text: str, context: RequestContext) -> str:
-        """变量替换"""
+        """变量替换（第三步，在区块渲染之后执行）"""
         result = text.replace("{user_message}", context.message)
         if context.slots:
-            result = result.replace("{slots}", self._format_slots(context.slots))
+            result = result.replace("{slots}", PromptService.format_slots(context.slots))
+        if context.memories:
+            result = result.replace("{memories}", PromptService.format_memories(context.memories))
+        if context.tool_results:
+            result = result.replace("{tool_results}", PromptService.format_tool_results(context.tool_results))
         return result
 ```
+
+### 3.2 ExamplesLoader
+
+```python
+class ExamplesLoader:
+    """加载和管理 Few-shot 示例 YAML 文件"""
+
+    def __init__(self, examples_dir: Path):
+        self.examples_dir = examples_dir
+        self._cache: Dict[str, List[Dict]] = {}
+
+    def get_examples(self, intent: str) -> List[Dict]:
+        """获取指定意图的示例列表"""
+        if intent in self._cache:
+            return self._cache[intent]
+
+        path = self.examples_dir / f"{intent}.yaml"
+        if not path.exists():
+            logger.warning(f"[ExamplesLoader] Examples file not found: {path}")
+            return []
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            examples = data.get(intent, [])
+            self._cache[intent] = examples
+            return examples
+        except Exception as e:
+            logger.error(f"[ExamplesLoader] Failed to load examples: {e}")
+            return []
+```
+
+### 3.3 处理顺序（关键设计决策）
+
+```
+1. 条件注入 {#if}...{/if}   → 过滤空值区块
+2. 区块解析 role/rules/examples/output_format → 渲染各区块
+3. 变量替换 {slots}/{memories}/{tool_results} → 最终替换
+```
+
+**为什么不用 Jinja2**：当前条件需求极简（仅 `{#if var}...{/if}`），引入 Jinja2 增加依赖和复杂度，自定义解析足矣。
 
 ---
 
 ## 四、Examples 管理
+
+> **Examples 存放位置**：独立 YAML 文件（在 `examples/` 目录下），由 `ExamplesLoader` 加载。模板 `<examples>` 区块内不直接写示例内容，而是由 `TemplateRenderer` 从外部加载后渲染。
 
 新建目录：`backend/app/core/prompts/examples/`
 
@@ -234,18 +314,86 @@ TemplateRenderer 解析 `{#if}` / `{/if}` 标签，空值跳过，整个区块�
 
 ## 六、Output Format 约束
 
-`<output_format>` 区块直接影响 API 调用参数：
+**传递链路**：`output_format` 通过 `RequestContext` 传递到 `LLMClient`，不在 `PromptService.render()` 中处理。
+
+### 6.1 RequestContext 扩展
+
+在 `RequestContext` 中新增两个字段：
 
 ```python
-# PromptService.render() 中
-output_format = self.config.get_output_format(intent)
+class RequestContext(BaseModel):
+    # ... 现有字段 ...
 
-if output_format == "json":
-    api_options["response_format"] = {"type": "json_object"}
-elif output_format == "structured":
-    # 不设 API 约束，但在 prompt 中明确 Markdown 结构
-    pass
+    # Prompt 增强元数据（新增）
+    intent: Optional[str] = None            # 当前意图
+    output_format: Optional[str] = None    # structured | json | free
+    examples_enabled: bool = True           # 是否启用 Few-shot
+    few_shot_count: int = 3               # 注入的 example 数量
 ```
+
+### 6.2 PromptConfigLoader 填充元数据
+
+`PromptConfigLoader.get_template()` 返回时，同时填充 `RequestContext` 中的元数据：
+
+```python
+def get_template(self, intent: str) -> str:
+    # ... 现有逻辑 ...
+    return template_str
+
+def get_output_format(self, intent: str) -> str:
+    """查询意图的 output_format"""
+    mapping = self.get_config().get("mapping", {})
+    return mapping.get(intent, {}).get("output_format", "free")
+
+def get_few_shot_config(self, intent: str) -> Tuple[bool, int]:
+    """查询意图的 Few-shot 配置"""
+    mapping = self.get_config().get("mapping", {})
+    cfg = mapping.get(intent, {})
+    return cfg.get("examples_enabled", True), cfg.get("few_shot_count", 3)
+```
+
+### 6.3 LLMClient 支持 response_format
+
+`LLMClient` 的 `stream_chat()` / `chat()` 方法新增参数：
+
+```python
+async def stream_chat(
+    self,
+    messages: list,
+    model: str = "deepseek-chat",
+    response_format: Optional[Dict[str, str]] = None,  # 新增
+    **kwargs
+) -> AsyncIterator[str]:
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": True,
+    }
+    # 当 output_format == "json" 时，DeepSeek API 需要此参数
+    if response_format:
+        payload["response_format"] = response_format
+    # ...
+```
+
+### 6.4 调用链路
+
+```
+IntentRouter.classify() → IntentResult.intent
+                              ↓
+PromptConfigLoader.get_few_shot_config(intent) → RequestContext(intent, output_format, examples_enabled, few_shot_count)
+                              ↓
+TemplateRenderer.render() → 渲染带结构的模板
+                              ↓
+LLMClient.stream_chat(messages, response_format) → API 调用
+```
+
+### 6.5 output_format 与 API 约束映射
+
+| output_format | response_format 参数 | prompt 内 `<output_format>` 区块 |
+|---|---|---|
+| `json` | `{"type": "json_object"}` | 必须包含 JSON Schema 说明 |
+| `structured` | 无 | 必须包含 Markdown 结构 |
+| `free` | 无 | 无输出格式约束 |
 
 ---
 
@@ -254,8 +402,10 @@ elif output_format == "structured":
 | 操作 | 文件路径 |
 |---|---|
 | 新增 | `backend/app/core/prompts/renderer.py` |
+| 新增 | `backend/app/core/prompts/examples_loader.py` |
 | 修改 | `backend/app/core/prompts/service.py` (集成 renderer) |
 | 修改 | `backend/app/core/prompts/config/prompts.yaml` (加 3 个字段) |
+| 修改 | `backend/app/core/context.py` (RequestContext 加 intent/output_format/few_shot 字段) |
 | 新增 | `backend/app/core/prompts/examples/itinerary.yaml` |
 | 新增 | `backend/app/core/prompts/examples/query.yaml` |
 | 新增 | `backend/app/core/prompts/examples/chat.yaml` |
