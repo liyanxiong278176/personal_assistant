@@ -2,17 +2,24 @@
 
 Provides a 3-tier memory structure:
 - Working Memory: Recent messages (in-memory, fast access)
-- Episodic Memory: Current conversation context (session-scoped)
+- Episodic Memory: Current conversation context (Redis + in-memory fallback)
 - Semantic Memory: Long-term user preferences (persistent, vector-retrieved)
 """
 
+import asyncio
 import logging
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from app.core.memory.conflict_resolver import MemoryConflictResolver, ConflictResolution, MemoryOperation
+    from app.core.memory.ttl_manager import TTLMemoryManager, CleanupStats
+    from app.core.memory.redis_episodic import RedisEpisodicStore
+    from app.core.memory.semantic_backup import SemanticJSONLBackup  # v2.3新增
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +122,7 @@ class MemoryHierarchy:
 
     Provides unified access to:
     - Working Memory: Recent messages (deque with max size)
-    - Episodic Memory: Session-scoped memories (list with filtering)
+    - Episodic Memory: Session-scoped memories (Redis + in-memory fallback)
     - Semantic Memory: Long-term preferences (async retrieval)
 
     This class is designed to be used by the Agent Core for
@@ -128,6 +135,10 @@ class MemoryHierarchy:
         working_max_tokens: int = 4000,
         conversation_id: Optional[UUID] = None,
         user_id: Optional[str] = None,
+        compact_mode: bool = False,
+        redis_store: Optional["RedisEpisodicStore"] = None,
+        jsonl_backup: Optional["SemanticJSONLBackup"] = None,  # v2.3新增
+        conflict_resolver: Optional["MemoryConflictResolver"] = None,  # v2.3新增：允许注入resolver
     ):
         """Initialize memory hierarchy.
 
@@ -136,13 +147,29 @@ class MemoryHierarchy:
             working_max_tokens: Maximum tokens in working memory
             conversation_id: Optional conversation ID for episodic memory
             user_id: Optional user ID for semantic memory
+            compact_mode: If True, reduces working memory limits for resource-constrained environments
+            redis_store: Optional Redis store for episodic memory persistence
+            jsonl_backup: Optional JSONL backup for semantic memory persistence (v2.3)
+            conflict_resolver: Optional conflict resolver for semantic memory (v2.3)
         """
+        if compact_mode:
+            if working_max_size == 20:
+                working_max_size = 6
+            if working_max_tokens == 4000:
+                working_max_tokens = 2000
+
         self._working: deque[WorkingMemoryEntry] = deque(maxlen=working_max_size)
         self._working_max_tokens = working_max_tokens
         self._episodic: list[MemoryItem] = []
         self._semantic: list[MemoryItem] = []
         self.conversation_id = conversation_id
         self.user_id = user_id
+        self._conflict_resolver: Optional["MemoryConflictResolver"] = conflict_resolver  # v2.3修改：从参数注入
+        self._jsonl_backup: Optional["SemanticJSONLBackup"] = jsonl_backup  # v2.3新增
+        self._ttl_manager: Optional["TTLMemoryManager"] = None
+        self._semantic_lock = asyncio.Lock()
+        self._redis_store: Optional["RedisEpisodicStore"] = redis_store
+        self._use_redis: bool = redis_store is not None
 
     def add_working_message(self, role: str, content: str, tokens: Optional[int] = None) -> None:
         """Add a message to working memory.
@@ -166,8 +193,8 @@ class MemoryHierarchy:
             f"tokens: {tokens}, total: {self.get_working_token_count()}"
         )
 
-    def add_episodic(self, item: MemoryItem) -> None:
-        """Add an episodic memory.
+    async def add_episodic(self, item: MemoryItem) -> None:
+        """Add an episodic memory (to both in-memory and Redis if enabled).
 
         Args:
             item: Memory item to add (level should be EPISODIC)
@@ -175,7 +202,21 @@ class MemoryHierarchy:
         if item.level != MemoryLevel.EPISODIC:
             item.level = MemoryLevel.EPISODIC
 
+        # Always add to in-memory for fast access
         self._episodic.append(item)
+
+        # Also add to Redis if enabled
+        if self._use_redis and self._redis_store and self.user_id and self.conversation_id:
+            try:
+                await self._redis_store.add(
+                    user_id=self.user_id,
+                    conversation_id=str(self.conversation_id),
+                    item=item,
+                )
+                logger.debug(f"[MemoryHierarchy] Added episodic to Redis: {item.memory_type}")
+            except Exception as e:
+                logger.warning(f"[MemoryHierarchy] Failed to add episodic to Redis: {e}")
+
         logger.debug(f"[MemoryHierarchy] Added episodic: {item.memory_type} - {item.content[:50]}")
 
     def add_semantic(self, item: MemoryItem) -> None:
@@ -188,9 +229,131 @@ class MemoryHierarchy:
             item.level = MemoryLevel.SEMANTIC
 
         self._semantic.append(item)
+
+        # v2.3新增：同步JSONL备份
+        if self._jsonl_backup:
+            self._jsonl_backup.append(item)
+
         logger.debug(f"[MemoryHierarchy] Added semantic: {item.memory_type} - {item.content[:50]}")
 
-    def add(self, item: MemoryItem) -> None:
+    async def add_semantic_with_conflict_check(
+        self,
+        item: MemoryItem,
+        resolve: bool = True,
+    ) -> "ConflictResolution":
+        """Add a semantic memory with conflict detection and optional resolution.
+
+        v2.3新增：处理OVERWRITE和CLEAR操作
+
+        Args:
+            item: Memory item to add (level should be SEMANTIC)
+            resolve: If True, automatically resolve conflicts when possible
+
+        Returns:
+            ConflictResolution result indicating whether a conflict was found and resolved
+        """
+        if item.level != MemoryLevel.SEMANTIC:
+            item.level = MemoryLevel.SEMANTIC
+
+        async with self._semantic_lock:
+            if self._conflict_resolver:
+                conflict_result = await self._conflict_resolver.check_conflict(
+                    item, self._semantic
+                )
+                if conflict_result.has_conflict and resolve:
+                    # v2.3: 根据operation类型执行不同操作
+                    if conflict_result.operation == MemoryOperation.OVERWRITE:
+                        # OVERWRITE: 先删除旧记忆，再添加新记忆
+                        if conflict_result.existing_item:
+                            self._semantic = [
+                                m for m in self._semantic
+                                if m.item_id != conflict_result.existing_item.item_id
+                            ]
+                            logger.info(
+                                f"[MemoryHierarchy] OVERWRITE: removed {conflict_result.existing_item.item_id}"
+                            )
+                        # 添加新记忆（不merge旧metadata）
+                        new_item = MemoryItem(
+                            content=item.content,
+                            level=MemoryLevel.SEMANTIC,
+                            memory_type=item.memory_type,
+                            metadata=item.metadata or {},
+                            importance=item.importance,
+                        )
+                        self._semantic.append(new_item)
+                        # JSONL备份
+                        if self._jsonl_backup:
+                            self._jsonl_backup.append(new_item)
+                        conflict_result.resolved_item = new_item
+
+                    elif conflict_result.operation == MemoryOperation.CLEAR:
+                        # CLEAR: 按类型批量清除
+                        clear_type = conflict_result.clear_type
+                        if clear_type:
+                            removed_count = len([
+                                m for m in self._semantic
+                                if m.memory_type == clear_type
+                            ])
+                            self._semantic = [
+                                m for m in self._semantic
+                                if m.memory_type != clear_type
+                            ]
+                            logger.info(
+                                f"[MemoryHierarchy] CLEAR: removed {removed_count} memories of type {clear_type}"
+                            )
+                        conflict_result.resolved_item = None
+
+                    else:
+                        # 其他操作（UPDATE/DELETE/NOOP）由resolver处理
+                        resolved_item = self._conflict_resolver._apply_resolution(conflict_result)
+                        if resolved_item:
+                            self._semantic.append(resolved_item)
+                            # JSONL备份
+                            if self._jsonl_backup:
+                                self._jsonl_backup.append(resolved_item)
+
+                    return conflict_result
+
+            # 无冲突：直接添加
+            self._semantic.append(item)
+            # JSONL备份
+            if self._jsonl_backup:
+                self._jsonl_backup.append(item)
+
+            from app.core.memory.conflict_resolver import ConflictResolution
+            return ConflictResolution(has_conflict=False, resolved_item=item)
+
+    async def cleanup_expired_semantic(self) -> "CleanupStats":
+        """Remove expired semantic memories.
+
+        Returns:
+            CleanupStats with counts of removed and remaining items
+        """
+        async with self._semantic_lock:
+            if self._ttl_manager:
+                removed, remaining = self._ttl_manager.cleanup_expired(self._semantic)
+                self._semantic = remaining
+                logger.debug(
+                    f"[MemoryHierarchy] Cleaned up {len(removed)} expired semantic memories"
+                )
+                return {"removed": len(removed), "remaining": len(self._semantic)}
+            return {"removed": 0, "remaining": len(self._semantic)}
+
+    def get_semantic_memory_ttl(self) -> dict[str, Any]:
+        """Get TTL information for semantic memories.
+
+        Returns:
+            Dictionary with TTL statistics for each semantic memory item
+        """
+        if self._ttl_manager:
+            return self._ttl_manager.get_ttl_info(self._semantic)
+        return {
+            "items": [],
+            "total": len(self._semantic),
+            "has_ttl_manager": False,
+        }
+
+    async def add(self, item: MemoryItem) -> None:
         """Add a memory item to the appropriate level.
 
         Args:
@@ -200,11 +363,84 @@ class MemoryHierarchy:
             # For working memory, we need a role, so store as user message
             self.add_working_message("user", item.content)
         elif item.level == MemoryLevel.EPISODIC:
-            self.add_episodic(item)
+            await self.add_episodic(item)
         elif item.level == MemoryLevel.SEMANTIC:
             self.add_semantic(item)
         else:
             logger.warning(f"[MemoryHierarchy] Unknown memory level: {item.level}")
+
+    def set_redis_store(self, redis_store: "RedisEpisodicStore") -> None:
+        """Set or update the Redis store for episodic memory.
+
+        Args:
+            redis_store: RedisEpisodicStore instance
+        """
+        self._redis_store = redis_store
+        self._use_redis = redis_store is not None
+        logger.info(f"[MemoryHierarchy] Redis store {'enabled' if self._use_redis else 'disabled'}")
+
+    async def load_from_redis(self) -> int:
+        """Load episodic memories from Redis.
+
+        Returns:
+            Number of memories loaded
+        """
+        if not self._use_redis or not self._redis_store or not self.user_id or not self.conversation_id:
+            return 0
+
+        try:
+            memories = await self._redis_store.get_all(
+                user_id=self.user_id,
+                conversation_id=str(self.conversation_id),
+            )
+            # Merge with existing in-memory memories
+            for mem in memories:
+                if mem not in self._episodic:
+                    self._episodic.append(mem)
+            logger.info(f"[MemoryHierarchy] Loaded {len(memories)} episodic memories from Redis")
+            return len(memories)
+        except Exception as e:
+            logger.error(f"[MemoryHierarchy] Failed to load from Redis: {e}")
+            return 0
+
+    async def save_to_redis(self) -> int:
+        """Save all in-memory episodic memories to Redis.
+
+        Returns:
+            Number of memories saved
+        """
+        if not self._use_redis or not self._redis_store or not self.user_id or not self.conversation_id:
+            return 0
+
+        try:
+            count = 0
+            for mem in self._episodic:
+                success = await self._redis_store.add(
+                    user_id=self.user_id,
+                    conversation_id=str(self.conversation_id),
+                    item=mem,
+                )
+                if success:
+                    count += 1
+            logger.info(f"[MemoryHierarchy] Saved {count} episodic memories to Redis")
+            return count
+        except Exception as e:
+            logger.error(f"[MemoryHierarchy] Failed to save to Redis: {e}")
+            return 0
+
+    async def get_redis_health(self) -> dict[str, Any]:
+        """Get Redis store health status.
+
+        Returns:
+            Dict with health status information
+        """
+        if not self._use_redis or not self._redis_store:
+            return {
+                "enabled": False,
+                "mode": "in-memory",
+            }
+
+        return await self._redis_store.health_check()
 
     def get_working(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get recent working memory entries.
@@ -296,9 +532,21 @@ class MemoryHierarchy:
         self._working.clear()
         logger.debug("[MemoryHierarchy] Cleared working memory")
 
-    def clear_episodic(self) -> None:
-        """Clear all episodic memory entries."""
+    async def clear_episodic(self) -> None:
+        """Clear all episodic memory entries (in-memory and Redis)."""
         self._episodic.clear()
+
+        # Also clear from Redis if enabled
+        if self._use_redis and self._redis_store and self.user_id and self.conversation_id:
+            try:
+                await self._redis_store.clear(
+                    user_id=self.user_id,
+                    conversation_id=str(self.conversation_id),
+                )
+                logger.debug("[MemoryHierarchy] Cleared episodic from Redis")
+            except Exception as e:
+                logger.warning(f"[MemoryHierarchy] Failed to clear episodic from Redis: {e}")
+
         logger.debug("[MemoryHierarchy] Cleared episodic memory")
 
     def clear_semantic(self) -> None:
