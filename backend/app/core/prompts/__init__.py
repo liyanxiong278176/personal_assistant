@@ -1,19 +1,17 @@
 """提示词构建模块
 
-提供分层提示词组装能力和过滤管道。
+提供分层提示词组装能力。
+
+注意：pipeline 模块已迁移到 security.injection_guard_enhanced
 """
 
 from .layers import PromptLayer, PromptLayerDef
 from .builder import PromptBuilder, DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, load_memory_files
-from .pipeline import IPromptFilter
 from .service import PromptService
-from .legacy_adapter import LegacyPromptAdapter
-from .providers.base import IPromptProvider, PromptTemplate, PromptFilterResult
+from .providers.base import IPromptProvider, PromptTemplate
 from .providers.template_provider import TemplateProvider
-from .pipeline.security import SecurityFilter
-from .pipeline.validator import Validator
-from .pipeline.compressor import TokenCompressor
 from .loader import PromptConfigLoader
+from .examples_loader import ExamplesLoader
 
 __all__ = [
     "PromptLayer",
@@ -22,18 +20,13 @@ __all__ = [
     "DEFAULT_SYSTEM_PROMPT",
     "APPEND_TOOL_DESCRIPTION",
     "load_memory_files",
-    "IPromptFilter",
     "PromptService",
-    "LegacyPromptAdapter",
     # Provider exports
     "IPromptProvider",
     "PromptTemplate",
-    "PromptFilterResult",
     "TemplateProvider",
-    # Pipeline filter exports
-    "SecurityFilter",
-    "Validator",
-    "TokenCompressor",
     # Config loader exports
     "PromptConfigLoader",
+    # Examples loader exports
+    "ExamplesLoader",
 ]
