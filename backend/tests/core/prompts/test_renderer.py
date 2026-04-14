@@ -552,3 +552,202 @@ class TestPromptServiceIntegration:
             # query 的 output_format 是 "free"
             # 由于有 examples_enabled=True，应该注入示例
             # 但示例注入需要 TemplateRenderer 的 _render_examples 实现
+
+
+class TestFullPipelineIntegration:
+    """完整集成测试 - 端到端渲染测试，验证完整 pipeline。"""
+
+    def test_full_pipeline_render(self):
+        """完整流程：从 YAML 配置 -> 模板渲染 -> 变量注入"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+
+            # 创建 examples YAML
+            data = {"itinerary": [{"input": "test", "output": "resp"}]}
+            (examples_dir / "itinerary.yaml").write_text(yaml.dump(data), encoding="utf-8")
+
+            loader = ExamplesLoader(examples_dir)
+            renderer = TemplateRenderer(loader)
+
+            from app.core.intent.slot_extractor import SlotResult
+            slots = SlotResult(
+                destination="杭州",
+                days="3",
+                destinations=["杭州"],
+            )
+
+            ctx = RequestContext(
+                message="我想去杭州",
+                intent="itinerary",
+                output_format="structured",
+                examples_enabled=True,
+                few_shot_count=1,
+                slots=slots,
+            )
+
+            template = renderer.render("<role>旅游助手</role>", ctx)
+            assert "旅游助手" in template
+
+    def test_pipeline_with_rules_and_output_format(self):
+        """验证 rules 和 output_format 区块渲染"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            ctx = RequestContext(message="测试")
+
+            template = """<role>助手</role>
+<rules>
+<rule priority="1">规则一</rule>
+<rule priority="2">规则二</rule>
+</rules>
+<output_format>
+格式说明
+</output_format>"""
+
+            result = renderer.render(template, ctx)
+            assert "助手" in result
+            assert "规则一" in result
+            assert "规则二" in result
+            assert result.index("规则一") < result.index("规则二")
+            assert "输出格式要求" in result
+            assert "格式说明" in result
+
+    def test_pipeline_preserves_conditional_context(self):
+        """验证条件注入正确处理 slots/memories/tool_results"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            loader = ExamplesLoader(Path(tmpdir))
+            renderer = TemplateRenderer(loader)
+
+            from app.core.intent.slot_extractor import SlotResult
+            slots = SlotResult(
+                destination="杭州",
+                destinations=["杭州"],
+            )
+
+            ctx = RequestContext(
+                message="测试",
+                slots=slots,
+                memories=[],
+                tool_results={},
+            )
+
+            template = "{#if slots}槽位：{slots}{/if}{#if memories}记忆：{memories}{/if}"
+            result = renderer.render(template, ctx)
+            assert "槽位" in result
+            assert "杭州" in result
+            assert "记忆" not in result  # memories 为空列表，不渲染
+
+    def test_full_pipeline_with_examples_injection(self):
+        """验证 Few-shot 示例正确注入"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+
+            # 创建 examples YAML
+            data = {
+                "query": [
+                    {"input": "北京天气", "output": "北京今天晴天"},
+                    {"input": "上海天气", "output": "上海今天多云"},
+                ]
+            }
+            (examples_dir / "query.yaml").write_text(yaml.dump(data), encoding="utf-8")
+
+            loader = ExamplesLoader(examples_dir)
+            renderer = TemplateRenderer(loader)
+
+            ctx = RequestContext(
+                message="测试",
+                intent="query",
+                examples_enabled=True,
+                few_shot_count=2,
+            )
+
+            template = "<examples></examples>"
+            result = renderer.render(template, ctx)
+
+            # 验证示例被注入
+            assert "示例 1" in result
+            assert "示例 2" in result
+            assert "北京天气" in result
+            assert "上海天气" in result
+
+    def test_full_pipeline_examples_disabled(self):
+        """验证 examples_enabled=False 时跳过示例"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+
+            data = {"chat": [{"input": "hi", "output": "hello"}]}
+            (examples_dir / "chat.yaml").write_text(yaml.dump(data), encoding="utf-8")
+
+            loader = ExamplesLoader(examples_dir)
+            renderer = TemplateRenderer(loader)
+
+            ctx = RequestContext(
+                message="测试",
+                intent="chat",
+                examples_enabled=False,
+            )
+
+            template = "<examples></examples>"
+            result = renderer.render(template, ctx)
+
+            # 验证示例未被注入
+            assert "示例" not in result
+            assert "hi" not in result
+
+    def test_full_pipeline_with_all_blocks(self):
+        """验证所有区块协同工作"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+
+            data = {
+                "itinerary": [
+                    {"input": "杭州3天", "output": "为您规划杭州3天行程..."}
+                ]
+            }
+            (examples_dir / "itinerary.yaml").write_text(yaml.dump(data), encoding="utf-8")
+
+            loader = ExamplesLoader(examples_dir)
+            renderer = TemplateRenderer(loader)
+
+            from app.core.intent.slot_extractor import SlotResult
+            slots = SlotResult(
+                destination="杭州",
+                days="3",
+                destinations=["杭州"],
+            )
+
+            ctx = RequestContext(
+                message="我想去杭州玩3天",
+                intent="itinerary",
+                slots=slots,
+                examples_enabled=True,
+                few_shot_count=1,
+            )
+
+            template = """<role>旅游规划助手</role>
+
+<rules>
+<rule priority="1">优先推荐热门景点</rule>
+<rule priority="2">考虑用户预算</rule>
+</rules>
+
+<examples></examples>
+
+<output_format>
+- 每日行程
+- 景点推荐
+- 注意事项
+</output_format>"""
+
+            result = renderer.render(template, ctx)
+
+            # 验证所有区块都被正确渲染
+            assert "旅游规划助手" in result
+            assert "优先推荐热门景点" in result
+            assert "考虑用户预算" in result
+            assert result.index("优先推荐热门景点") < result.index("考虑用户预算")
+            assert "示例 1" in result
+            assert "杭州3天" in result
+            assert "输出格式要求" in result
+            assert "每日行程" in result
