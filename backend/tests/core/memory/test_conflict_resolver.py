@@ -521,3 +521,110 @@ def test_memory_operation_enum_values():
     assert MemoryOperation.UPDATE.value == "update"
     assert MemoryOperation.DELETE.value == "delete"
     assert MemoryOperation.NOOP.value == "noop"
+    # v2.3新增
+    assert MemoryOperation.OVERWRITE.value == "overwrite"
+    assert MemoryOperation.CLEAR.value == "clear"
+
+
+# ---------------------------------------------------------------------------
+# Tests - v2.3新增：OVERWRITE和CLEAR操作
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_overwrite_operation(mock_embedding_client):
+    """Test LLM returns OVERWRITE, verify operation == OVERWRITE."""
+    llm_client = MagicMock()
+
+    async def generate_overwrite(prompt):
+        return "OVERWRITE"
+
+    llm_client.generate = generate_overwrite
+    resolver = MemoryConflictResolver(mock_embedding_client, llm_client)
+
+    existing_memory = MemoryItem(
+        content="用户计划5月去北京旅游",
+        level=MemoryLevel.EPISODIC,
+        memory_type=MemoryType.INTENT,
+    )
+    new_memory = MemoryItem(
+        content="用户完全改变了计划，改为7月去上海旅游",
+        level=MemoryLevel.EPISODIC,
+        memory_type=MemoryType.INTENT,
+    )
+
+    result = await resolver.resolve(new_memory, [existing_memory])
+
+    assert result.operation == MemoryOperation.OVERWRITE
+    assert result.existing_item == existing_memory
+    assert result.new_item == new_memory
+
+
+@pytest.mark.asyncio
+async def test_clear_operation_with_type(mock_embedding_client):
+    """Test LLM returns CLEAR:PREFERENCE, verify operation == CLEAR and clear_type == PREFERENCE."""
+    llm_client = MagicMock()
+
+    async def generate_clear_with_type(prompt):
+        return "CLEAR:PREFERENCE"
+
+    llm_client.generate = generate_clear_with_type
+    resolver = MemoryConflictResolver(mock_embedding_client, llm_client)
+
+    existing_memory = MemoryItem(
+        content="用户喜欢吃川菜",
+        level=MemoryLevel.SEMANTIC,
+        memory_type=MemoryType.PREFERENCE,
+    )
+    new_memory = MemoryItem(
+        content="用户改变了所有饮食偏好",
+        level=MemoryLevel.SEMANTIC,
+        memory_type=MemoryType.PREFERENCE,
+    )
+
+    result = await resolver.resolve(new_memory, [existing_memory])
+
+    assert result.operation == MemoryOperation.CLEAR
+    assert result.clear_type == MemoryType.PREFERENCE
+
+
+@pytest.mark.asyncio
+async def test_clear_operation_without_type(mock_embedding_client):
+    """Test LLM returns CLEAR, verify operation == CLEAR and clear_type == existing_item.memory_type."""
+    llm_client = MagicMock()
+
+    async def generate_clear_no_type(prompt):
+        return "CLEAR"
+
+    llm_client.generate = generate_clear_no_type
+    resolver = MemoryConflictResolver(mock_embedding_client, llm_client)
+
+    existing_memory = MemoryItem(
+        content="用户喜欢吃川菜",
+        level=MemoryLevel.SEMANTIC,
+        memory_type=MemoryType.PREFERENCE,
+    )
+    new_memory = MemoryItem(
+        content="用户改变了所有饮食偏好",
+        level=MemoryLevel.SEMANTIC,
+        memory_type=MemoryType.PREFERENCE,
+    )
+
+    result = await resolver.resolve(new_memory, [existing_memory])
+
+    assert result.operation == MemoryOperation.CLEAR
+    # When no type specified, clear_type should default to existing_item.memory_type
+    assert result.clear_type == MemoryType.PREFERENCE
+
+
+def test_conflict_resolution_dataclass_with_clear_type():
+    """Test ConflictResolution dataclass with v2.3 clear_type field."""
+    res = ConflictResolution(
+        operation=MemoryOperation.CLEAR,
+        similarity=0.95,
+        reason="test reason",
+        fallback_used=False,
+        clear_type=MemoryType.PREFERENCE,
+    )
+
+    assert res.operation == MemoryOperation.CLEAR
+    assert res.clear_type == MemoryType.PREFERENCE
