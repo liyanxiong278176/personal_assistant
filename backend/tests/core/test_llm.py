@@ -112,3 +112,19 @@ async def test_llm_client_default_max_retries():
     """测试默认 max_retries 为 3"""
     client = LLMClient(api_key="test-key")
     assert client.max_retries == 3
+
+
+def test_stream_chat_accepts_response_format():
+    """stream_chat 接受 response_format 参数"""
+    import inspect
+    from app.core.llm.client import LLMClient
+    sig = inspect.signature(LLMClient.stream_chat)
+    assert "response_format" in sig.parameters
+
+
+def test_stream_chat_with_tools_accepts_response_format():
+    """stream_chat_with_tools 接受 response_format 参数"""
+    import inspect
+    from app.core.llm.client import LLMClient
+    sig = inspect.signature(LLMClient.stream_chat_with_tools)
+    assert "response_format" in sig.parameters
