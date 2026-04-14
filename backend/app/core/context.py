@@ -40,6 +40,7 @@ class IntentResult(BaseModel):
         need_tool: Whether tool calling is needed
         clarification: Optional clarification info
         strategy: Name of the strategy that produced this result
+        metadata: Optional metadata for additional info (e.g., exclusion_keywords)
     """
     intent: str
     confidence: float
@@ -48,6 +49,7 @@ class IntentResult(BaseModel):
     need_tool: bool = False
     clarification: Optional[dict] = None
     strategy: Optional[str] = None  # Name of the strategy that produced this result
+    metadata: Optional[Dict[str, Any]] = None  # Additional metadata (e.g., exclusion keywords)
 
 
 class RequestContext(BaseModel):
@@ -87,6 +89,12 @@ class RequestContext(BaseModel):
 
     # Complexity flag - whether the request is complex
     is_complex: bool = False
+
+    # Prompt enhancement metadata (new)
+    intent: Optional[str] = None  # Current intent
+    output_format: Optional[str] = None  # structured | json | free
+    examples_enabled: bool = True  # Whether to enable Few-shot
+    few_shot_count: int = 3  # Number of examples to inject
 
     def update(self, **kwargs) -> "RequestContext":
         """Create updated context copy"""
