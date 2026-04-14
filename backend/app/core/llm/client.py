@@ -128,6 +128,7 @@ class LLMClient:
         messages: List[Dict[str, str]],
         system_prompt: Optional[str] = None,
         guard: Optional["InferenceGuard"] = None,
+        response_format: Optional[Dict[str, str]] = None,
     ) -> AsyncIterator[str]:
         """流式聊天
 
@@ -135,6 +136,7 @@ class LLMClient:
             messages: 消息列表
             system_prompt: 系统提示词（可选）
             guard: 可选 InferenceGuard 用于 token 限制检查
+            response_format: 可选的响应格式（如 JSON 模式）
 
         Yields:
             str: 流式响应片段
@@ -165,6 +167,9 @@ class LLMClient:
                     "messages": full_messages,
                     "stream": True
                 }
+
+                if response_format:
+                    payload["response_format"] = response_format
 
                 async with client.stream(
                     "POST",
@@ -322,7 +327,8 @@ class LLMClient:
         self,
         messages: List[Dict[str, str]],
         tools: List[Dict[str, Any]],
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
+        response_format: Optional[Dict[str, str]] = None,
     ) -> AsyncIterator[Union[str, ToolCall]]:
         """支持工具调用的流式聊天
 
@@ -330,6 +336,7 @@ class LLMClient:
             messages: 消息列表
             tools: 工具定义列表，每个包含 name, description, parameters
             system_prompt: 系统提示词（可选）
+            response_format: 可选的响应格式（如 JSON 模式）
 
         Yields:
             Union[str, ToolCall]: 流式响应片段或工具调用
@@ -364,6 +371,9 @@ class LLMClient:
                     "tools": formatted_tools,
                     "stream": True
                 }
+
+                if response_format:
+                    payload["response_format"] = response_format
 
                 async with client.stream(
                     "POST",
