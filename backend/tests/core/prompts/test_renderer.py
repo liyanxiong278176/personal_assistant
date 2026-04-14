@@ -8,6 +8,7 @@ And tests TemplateRenderer for structured block parsing.
 import tempfile
 import yaml
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -390,3 +391,164 @@ class TestPromptConfigLoader:
         enabled, count = loader.get_few_shot_config("unknown")
         assert enabled is True  # 默认值
         assert count == 3  # 默认值
+
+
+class TestPromptServiceIntegration:
+    """Integration tests for PromptService with TemplateRenderer."""
+
+    def test_prompt_service_integration_with_renderer(self):
+        """PromptService 正确集成 TemplateRenderer"""
+        from app.core.prompts.service import PromptService
+        from app.core.prompts.renderer import TemplateRenderer
+        from app.core.prompts.examples_loader import ExamplesLoader
+        from app.core.context import RequestContext
+        from app.core.prompts.providers.base import IPromptProvider, PromptTemplate
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+            (examples_dir / "itinerary.yaml").write_text(
+                yaml.dump({"itinerary": [{"input": "test", "output": "resp"}]}),
+                encoding="utf-8"
+            )
+
+            mock_provider = MagicMock(spec=IPromptProvider)
+            mock_provider.get_template = AsyncMock()
+            mock_provider.get_template.return_value = PromptTemplate(
+                intent="itinerary",
+                template="<role>旅游助手</role>",
+                version="1.0",
+            )
+
+            service = PromptService(
+                provider=mock_provider,
+                config_loader=None,
+                examples_dir=examples_dir,
+            )
+
+            assert service._renderer is not None
+            assert isinstance(service._renderer, TemplateRenderer)
+
+            ctx = RequestContext(
+                message="测试",
+                intent="itinerary",
+                examples_enabled=True,
+                few_shot_count=1,
+            )
+
+            # render() 是 async 的，需要 await
+            import asyncio
+            result = asyncio.run(service.render("itinerary", ctx))
+            assert "旅游助手" in result
+
+    def test_prompt_service_without_renderer_fallback(self):
+        """PromptService 在没有 examples_dir 时使用原有逻辑"""
+        from app.core.prompts.service import PromptService
+        from app.core.context import RequestContext
+        from app.core.prompts.providers.base import IPromptProvider, PromptTemplate
+
+        mock_provider = MagicMock(spec=IPromptProvider)
+        mock_provider.get_template = AsyncMock()
+        mock_provider.get_template.return_value = PromptTemplate(
+            intent="chat",
+            template="你好，{user_message}！",
+            version="1.0",
+        )
+
+        service = PromptService(
+            provider=mock_provider,
+            config_loader=None,
+            examples_dir=None,
+        )
+
+        assert service._renderer is None
+
+        ctx = RequestContext(message="世界")
+        import asyncio
+        result = asyncio.run(service.render("chat", ctx))
+        assert "你好，世界！" in result
+
+    def test_prompt_service_fills_context_from_config(self):
+        """PromptService 从 config_loader 填充意图元数据"""
+        from app.core.prompts.service import PromptService
+        from app.core.context import RequestContext
+        from app.core.prompts.providers.base import IPromptProvider, PromptTemplate
+        from app.core.prompts.loader import PromptConfigLoader
+
+        mock_provider = MagicMock(spec=IPromptProvider)
+        mock_provider.get_template = AsyncMock()
+        mock_provider.get_template.return_value = PromptTemplate(
+            intent="itinerary",
+            template="Intent: {intent}, Format: {output_format}",
+            version="1.0",
+        )
+
+        # 使用真实的 PromptConfigLoader
+        config_loader = PromptConfigLoader()
+
+        service = PromptService(
+            provider=mock_provider,
+            config_loader=config_loader,
+            examples_dir=None,  # 不使用 renderer
+        )
+
+        # 传入没有元数据的 context
+        ctx = RequestContext(message="测试")
+
+        import asyncio
+        result = asyncio.run(service.render("itinerary", ctx))
+
+        # 验证元数据被填充
+        assert "Intent: itinerary" in result
+        # itinerary 的 output_format 是 "structured"
+        assert "Format: structured" in result
+
+    def test_prompt_service_renderer_with_config(self):
+        """PromptService 同时使用 TemplateRenderer 和 config_loader"""
+        from app.core.prompts.service import PromptService
+        from app.core.prompts.renderer import TemplateRenderer
+        from app.core.context import RequestContext
+        from app.core.prompts.providers.base import IPromptProvider, PromptTemplate
+        from app.core.prompts.loader import PromptConfigLoader
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            examples_dir = Path(tmpdir)
+            # 创建示例文件
+            (examples_dir / "query.yaml").write_text(
+                yaml.dump({
+                    "query": [
+                        {"input": "北京天气", "output": "北京今天晴天"},
+                    ]
+                }),
+                encoding="utf-8"
+            )
+
+            mock_provider = MagicMock(spec=IPromptProvider)
+            mock_provider.get_template = AsyncMock()
+            # 使用带 <examples> 区块的模板
+            mock_provider.get_template.return_value = PromptTemplate(
+                intent="query",
+                template="<role>查询助手</role>\n\n<examples></examples>",
+                version="1.0",
+            )
+
+            config_loader = PromptConfigLoader()
+
+            service = PromptService(
+                provider=mock_provider,
+                config_loader=config_loader,
+                examples_dir=examples_dir,
+            )
+
+            assert service._renderer is not None
+            assert isinstance(service._renderer, TemplateRenderer)
+
+            # 传入没有元数据的 context，应该被 config_loader 填充
+            ctx = RequestContext(message="测试")
+            import asyncio
+            result = asyncio.run(service.render("query", ctx))
+
+            # 验证基本渲染
+            assert "查询助手" in result
+            # query 的 output_format 是 "free"
+            # 由于有 examples_enabled=True，应该注入示例
+            # 但示例注入需要 TemplateRenderer 的 _render_examples 实现

@@ -4,17 +4,137 @@
 处理 {#if}/{/if} 条件注入，调用 ExamplesLoader 获取示例。
 """
 
+import json
 import logging
 import re
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple, Any, Dict
 
 if TYPE_CHECKING:
     from app.core.context import RequestContext
     from app.core.prompts.examples_loader import ExamplesLoader
 
-from app.core.prompts.service import PromptService
-
 logger = logging.getLogger(__name__)
+
+
+# Formatting functions (moved from PromptService to avoid circular import)
+def format_slots(slots: Any) -> str:
+    """格式化槽位结果为字符串.
+
+    返回格式（不带标题）:
+    - 目的地: xxx
+    - 日期: xxx
+
+    Args:
+        slots: 槽位对象或字典
+
+    Returns:
+        格式化的槽位字符串
+    """
+    parts = []
+
+    # 处理字典类型的 slots
+    if isinstance(slots, dict):
+        destination = slots.get("destination") or slots.get("destinations")
+        if destination:
+            if isinstance(destination, list):
+                parts.append(f"- 目的地: {', '.join(destination)}")
+            else:
+                parts.append(f"- 目的地: {destination}")
+
+        if slots.get("start_date"):
+            parts.append(f"- 日期: {slots['start_date']}")
+            if slots.get("end_date") and slots["end_date"] != slots["start_date"]:
+                parts.append(f"  至 {slots['end_date']}")
+        if slots.get("days"):
+            parts.append(f"- 天数: {slots['days']}")
+        if slots.get("travelers"):
+            parts.append(f"- 人数: {slots['travelers']}人")
+        if slots.get("budget"):
+            parts.append(f"- 预算档次: {slots['budget']}")
+
+    # 处理对象类型的 slots
+    elif hasattr(slots, "__dict__"):
+        if hasattr(slots, "destination") and slots.destination:
+            parts.append(f"- 目的地: {slots.destination}")
+        if hasattr(slots, "destinations") and slots.destinations:
+            parts.append(f"- 目的地: {', '.join(slots.destinations)}")
+        if hasattr(slots, "start_date") and slots.start_date:
+            parts.append(f"- 日期: {slots.start_date}")
+            if hasattr(slots, "end_date") and slots.end_date and slots.end_date != slots.start_date:
+                parts.append(f"  至 {slots.end_date}")
+        if hasattr(slots, "days") and slots.days:
+            parts.append(f"- 天数: {slots.days}")
+        if hasattr(slots, "travelers") and slots.travelers:
+            parts.append(f"- 人数: {slots.travelers}人")
+        if hasattr(slots, "budget") and slots.budget:
+            parts.append(f"- 预算档次: {slots.budget}")
+
+    return "\n".join(parts) if parts else "未提取到槽位信息"
+
+
+def format_memories(memories: List[Any]) -> str:
+    """格式化记忆列表为字符串.
+
+    返回格式（不带标题）:
+    1. xxx
+    2. yyy
+
+    Args:
+        memories: 记忆列表
+
+    Returns:
+        格式化的记忆字符串
+    """
+    if not memories:
+        return "无相关记忆"
+
+    parts = []
+    for i, memory in enumerate(memories[:10], 1):
+        if isinstance(memory, dict):
+            content = memory.get("content", str(memory))
+        elif hasattr(memory, "content"):
+            content = memory.content
+        else:
+            content = str(memory)
+        parts.append(f"{i}. {content}")
+
+    return "\n".join(parts) if parts else "无相关记忆"
+
+
+def format_tool_results(results: Dict[str, Any]) -> str:
+    """格式化工具结果为字符串.
+
+    返回格式（不带标题）:
+    tool_name: {...}
+    tool_name2: ...
+
+    Args:
+        results: 工具执行结果字典
+
+    Returns:
+        格式化的工具结果字符串
+    """
+    if not results:
+        return "无工具调用结果"
+
+    parts = []
+    for tool_name, result in results.items():
+        # 错误处理
+        if isinstance(result, dict) and "error" in result:
+            parts.append(f"{tool_name}: 错误 - {result['error']}")
+        elif isinstance(result, dict):
+            # 使用 JSON 格式化字典结果
+            try:
+                result_str = json.dumps(result, ensure_ascii=False)
+                parts.append(f"{tool_name}: {result_str}")
+            except Exception:
+                parts.append(f"{tool_name}: {result}")
+        elif isinstance(result, str):
+            parts.append(f"{tool_name}: {result}")
+        else:
+            parts.append(f"{tool_name}: {result}")
+
+    return "\n".join(parts) if parts else "无工具调用结果"
 
 
 class TemplateRenderer:
@@ -139,11 +259,11 @@ class TemplateRenderer:
         """
         result = text.replace("{user_message}", context.message)
         if context.slots:
-            result = result.replace("{slots}", PromptService.format_slots(context.slots))
+            result = result.replace("{slots}", format_slots(context.slots))
         if context.memories:
-            result = result.replace("{memories}", PromptService.format_memories(context.memories))
+            result = result.replace("{memories}", format_memories(context.memories))
         if context.tool_results:
-            result = result.replace("{tool_results}", PromptService.format_tool_results(context.tool_results))
+            result = result.replace("{tool_results}", format_tool_results(context.tool_results))
 
         # 处理其他上下文变量（如 intent, output_format 等）
         def replace_context_var(match):
