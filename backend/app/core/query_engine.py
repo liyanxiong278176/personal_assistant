@@ -22,6 +22,7 @@ from pathlib import Path
 if TYPE_CHECKING:
     from .intent.router import IntentRouter
     from .context import RequestContext
+    from .intent.slot_llm_extractor import LLMSlotExtractor
 
 from .llm import LLMClient, ToolCall
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
@@ -359,8 +360,16 @@ class QueryEngine:
         else:
             self._pref_extractor = None
 
-        # 槽位提取器
-        self._slot_extractor = SlotExtractor()
+        # 槽位提取器 - 两阶段（规则预提取 + LLM补充）
+        # Phase 3: LLM Slot Extractor integration
+        if self.llm_client:
+            from .intent.slot_llm_extractor import LLMSlotExtractor
+            llm_slot_extractor = LLMSlotExtractor(llm_client=self.llm_client)
+            self._slot_extractor = SlotExtractor(llm_extractor=llm_slot_extractor)
+            logger.info("[QueryEngine] Two-stage SlotExtractor enabled (rule + LLM)")
+        else:
+            self._slot_extractor = SlotExtractor()
+            logger.info("[QueryEngine] Rule-only SlotExtractor (no LLM client)")
 
         # === 上下文守卫初始化 ===
         rules_cache = ContextConfig.load_rules_at_startup(

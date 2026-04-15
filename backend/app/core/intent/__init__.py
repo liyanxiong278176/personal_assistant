@@ -5,6 +5,8 @@ from .router import IntentRouter, ClarificationResult, RouterStatistics
 from .config import IntentRouterConfig
 from .metrics import IntentMetricsCollector
 from .keywords_loader import KeywordsLoader, get_keywords_loader
+from .state_machine import SlotStateMachine, SlotState, SlotStateType
+from .slot_llm_extractor import LLMSlotExtractor, SLOT_TOOL_DEFINITION
 from .keywords import (
     ALL_INTENT_KEYWORDS,
     ALL_INTENT_PATTERNS,
@@ -82,4 +84,10 @@ __all__ = [
     "SemanticCache",
     "cosine_similarity",
     "LLMStrategy",
+    # Phase 2 & 3: State machine and LLM slot extractor
+    "SlotStateMachine",
+    "SlotState",
+    "SlotStateType",
+    "LLMSlotExtractor",
+    "SLOT_TOOL_DEFINITION",
 ]
