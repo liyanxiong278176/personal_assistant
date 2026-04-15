@@ -29,6 +29,7 @@ from app.core.intent.strategies.base import IIntentStrategy
 
 if TYPE_CHECKING:
     from app.core.intent.strategies.semantic_validator import SemanticValidator
+    from app.core.intent.state_machine import SlotStateMachine
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +102,7 @@ class IntentRouter:
         config: Optional[IntentRouterConfig] = None,
         metrics_collector: Optional[Any] = None,
         semantic_validator: Optional["SemanticValidator"] = None,
+        state_machine: Optional["SlotStateMachine"] = None,
     ):
         """Initialize the IntentRouter.
 
@@ -109,6 +111,7 @@ class IntentRouter:
             config: Optional router configuration (uses defaults if not provided)
             metrics_collector: Optional metrics collector for observability
             semantic_validator: Optional semantic validator for suspicious results
+            state_machine: Optional slot state machine for multi-turn clarification
         """
         # Sort strategies by priority (lower first)
         self._strategies = sorted(strategies, key=lambda s: s.priority)
@@ -116,6 +119,12 @@ class IntentRouter:
         self._metrics = metrics_collector
         self._stats = RouterStatistics()
         self._semantic_validator = semantic_validator
+        self._state_machine = state_machine
+
+        # Lazy import SlotStateMachine if not provided
+        if self._state_machine is None:
+            from app.core.intent.state_machine import SlotStateMachine
+            self._state_machine = SlotStateMachine()
 
         # Extract cache strategy if present
         self._cache_strategy = None
@@ -127,7 +136,8 @@ class IntentRouter:
         logger.debug(
             f"[IntentRouter] Initialized with {len(self._strategies)} strategies: "
             f"{[s.__class__.__name__ for s in self._strategies]}, "
-            f"semantic_validator={semantic_validator is not None}"
+            f"semantic_validator={semantic_validator is not None}, "
+            f"state_machine={self._state_machine is not None}"
         )
 
     async def classify(self, context: RequestContext) -> IntentResult:
@@ -219,20 +229,24 @@ class IntentRouter:
                         self._stats.strategy_counts["SemanticValidator"] = (
                             self._stats.strategy_counts.get("SemanticValidator", 0) + 1
                         )
-                        self._cache_result(context, validated_result)
-                        return self._record_success(validated_result, "SemanticValidator")
+                        final_result = self._apply_state_machine(context, validated_result)
+                        self._cache_result(context, final_result)
+                        return self._record_success(final_result, "SemanticValidator")
                     else:
                         # Validation passed, use original result
-                        self._cache_result(context, result)
-                        return self._record_success(result, strategy_name)
+                        final_result = self._apply_state_machine(context, result)
+                        self._cache_result(context, final_result)
+                        return self._record_success(final_result, strategy_name)
 
                 # No semantic validation needed or not available
                 logger.info(
                     f"[IntentRouter] High confidence ({confidence:.2f}) from {strategy_name}"
                 )
+                # Apply state machine for slot management
+                final_result = self._apply_state_machine(context, result)
                 # Cache and return
-                self._cache_result(context, result)
-                return self._record_success(result, strategy_name)
+                self._cache_result(context, final_result)
+                return self._record_success(final_result, strategy_name)
 
             # Mid confidence: can trigger clarification
             elif self._config.is_mid_confidence(confidence):
@@ -297,6 +311,74 @@ class IntentRouter:
         # Cache even fallback results
         self._cache_result(context, fallback)
         return fallback
+
+    def _apply_state_machine(
+        self, context: RequestContext, result: IntentResult
+    ) -> IntentResult:
+        """Apply slot state machine for multi-turn clarification.
+
+        Args:
+            context: Request context with conversation_id and slots
+            result: Intent classification result
+
+        Returns:
+            IntentResult with potential clarification attached
+        """
+        conv_id = context.conversation_id or "default"
+        existing_state = self._state_machine.get_state(conv_id)
+
+        # Extract slots from context
+        slots_dict = {}
+        if context.slots:
+            slots_dict = {
+                k: v for k, v in context.slots.__dict__.items()
+                if v is not None
+            }
+
+        if existing_state and existing_state.intent == result.intent:
+            # Multi-turn same intent: merge slots
+            state = self._state_machine.update_state(conv_id, slots_dict)
+        else:
+            # New intent: initialize state
+            state = self._state_machine.init_state(conv_id, result.intent)
+            if slots_dict:
+                state = self._state_machine.update_state(conv_id, slots_dict)
+
+        # Attach collected slots to result
+        result.collected_slots = state.collected
+
+        # Determine if clarification needed
+        if state.needs_clarification():
+            self._state_machine.increment_round(conv_id)
+            clarification_q = self._state_machine.generate_clarification(
+                self._state_machine.get_state(conv_id)
+            )
+
+            result.clarification = {
+                "needs": True,
+                "question": clarification_q,
+                "missing_slots": state.missing,
+                "collected": state.collected,
+            }
+            result.need_tool = False  # Don't execute tools yet
+            logger.info(
+                f"[IntentRouter] Clarification needed | "
+                f"intent={result.intent} | missing={state.missing}"
+            )
+        else:
+            result.clarification = {
+                "needs": False,
+                "question": "",
+                "missing_slots": [],
+                "collected": state.collected,
+            }
+            result.need_tool = True  # Slots complete, proceed
+            logger.info(
+                f"[IntentRouter] Slots complete | "
+                f"intent={result.intent} | collected={state.collected}"
+            )
+
+        return result
 
     def _cache_result(self, context: RequestContext, result: IntentResult) -> None:
         """Cache classification result to L1 and L2.
