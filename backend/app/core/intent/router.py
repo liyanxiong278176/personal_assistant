@@ -4,26 +4,31 @@ Design principles:
     - Unified confidence thresholds (0.8 high, 0.5 mid)
     - No二次判断 - trust each strategy's output
     - Cache-first for performance
-    - Simple flow: cache → rule → llm → fallback
+    - Simple flow: cache → rule → [semantic_validation] → llm → fallback
+    - Optional semantic validation for suspicious rule results
 
 Flow:
     1. Check cache → hit → return
     2. Try rule strategy (simple queries only)
-       - confidence ≥ 0.8 → return, cache
+       - confidence >= 0.8 + exclusion hit → semantic validation → return
+       - confidence >= 0.8 no exclusion → return, cache
        - confidence < 0.8 → continue
     3. Try LLM strategy
-       - confidence ≥ 0.5 → return, cache
+       - confidence >= 0.5 → return, cache
        - confidence < 0.5 → fallback
     4. Fallback → return chat with 0.5 confidence
 """
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from app.core.context import RequestContext, IntentResult
 from app.core.intent.config import IntentRouterConfig
 from app.core.intent.strategies.base import IIntentStrategy
+
+if TYPE_CHECKING:
+    from app.core.intent.strategies.semantic_validator import SemanticValidator
 
 logger = logging.getLogger(__name__)
 
@@ -74,12 +79,18 @@ class IntentRouter:
     Strategy order (by priority):
         0. CacheStrategy - check for cached results
         10. RuleStrategy - keyword matching (simple queries only)
+        15. SemanticValidator - LLM validation for suspicious rule results (optional)
         100. LLMStrategy - LLM classification (fallback)
 
     Confidence handling (unified across all strategies):
-        - ≥ 0.8: High confidence, accept immediately
+        - >= 0.8: High confidence, accept immediately (may trigger semantic validation)
         - 0.5 - 0.8: Mid confidence, can trigger clarification
         - < 0.5: Low confidence, try next strategy
+
+    Semantic validation:
+        - Triggered when RuleStrategy result has exclusion_keywords metadata
+        - Uses lightweight LLM prompt to validate semantic correctness
+        - Can correct false positives like "天气真好想去北京玩" -> itinerary
 
     No二次判断 - each strategy's confidence is trusted.
     """
@@ -89,6 +100,7 @@ class IntentRouter:
         strategies: List[IIntentStrategy],
         config: Optional[IntentRouterConfig] = None,
         metrics_collector: Optional[Any] = None,
+        semantic_validator: Optional["SemanticValidator"] = None,
     ):
         """Initialize the IntentRouter.
 
@@ -96,12 +108,14 @@ class IntentRouter:
             strategies: List of classification strategies (will be sorted by priority)
             config: Optional router configuration (uses defaults if not provided)
             metrics_collector: Optional metrics collector for observability
+            semantic_validator: Optional semantic validator for suspicious results
         """
         # Sort strategies by priority (lower first)
         self._strategies = sorted(strategies, key=lambda s: s.priority)
         self._config = config or IntentRouterConfig()
         self._metrics = metrics_collector
         self._stats = RouterStatistics()
+        self._semantic_validator = semantic_validator
 
         # Extract cache strategy if present
         self._cache_strategy = None
@@ -112,7 +126,8 @@ class IntentRouter:
 
         logger.debug(
             f"[IntentRouter] Initialized with {len(self._strategies)} strategies: "
-            f"{[s.__class__.__name__ for s in self._strategies]}"
+            f"{[s.__class__.__name__ for s in self._strategies]}, "
+            f"semantic_validator={semantic_validator is not None}"
         )
 
     async def classify(self, context: RequestContext) -> IntentResult:
@@ -188,9 +203,30 @@ class IntentRouter:
             # Get confidence
             confidence = result.confidence
 
-            # High confidence: accept immediately
+            # High confidence: check for semantic validation if exclusion hit
             if self._config.is_high_confidence(confidence):
                 self._stats.confidence_distribution["high"] += 1
+
+                # Check if semantic validation is needed
+                if self._semantic_validator and self._semantic_validator.should_validate(result):
+                    logger.info(
+                        f"[IntentRouter] High confidence ({confidence:.2f}) from {strategy_name}, "
+                        f"triggering semantic validation due to exclusion keywords"
+                    )
+                    validated_result = await self._semantic_validator.validate(context, result)
+                    if validated_result.method == "semantic_correction":
+                        # Intent was corrected
+                        self._stats.strategy_counts["SemanticValidator"] = (
+                            self._stats.strategy_counts.get("SemanticValidator", 0) + 1
+                        )
+                        self._cache_result(context, validated_result)
+                        return self._record_success(validated_result, "SemanticValidator")
+                    else:
+                        # Validation passed, use original result
+                        self._cache_result(context, result)
+                        return self._record_success(result, strategy_name)
+
+                # No semantic validation needed or not available
                 logger.info(
                     f"[IntentRouter] High confidence ({confidence:.2f}) from {strategy_name}"
                 )
@@ -263,15 +299,23 @@ class IntentRouter:
         return fallback
 
     def _cache_result(self, context: RequestContext, result: IntentResult) -> None:
-        """Cache a classification result if cache is available.
+        """Cache classification result to L1 and L2.
 
         Args:
             context: Request context
             result: Result to cache
         """
+        # L1: Always cache (exact match)
         if self._cache_strategy:
             self._cache_strategy.cache.put(
                 context.message, context.has_image, result
+            )
+
+        # L2: Async write for semantic cache (high-confidence only)
+        if self._cache_strategy and hasattr(self._cache_strategy, 'put_semantic'):
+            import asyncio
+            asyncio.create_task(
+                self._cache_strategy.put_semantic(context.message, result)
             )
 
     def _record_success(
