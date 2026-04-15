@@ -83,6 +83,20 @@ from .ttl_manager import (
     CleanupStats,
     TTLMemoryManager,
 )
+# A/B Testing Framework
+from .ab_testing import (
+    MemoryExperiment,
+    ExperimentResult,
+    ParameterVariant,
+    QueryResult,
+    VariantMetrics,
+    BASELINE_VARIANT,
+    HIGH_SEMANTIC_VARIANT,
+    HIGH_RECENCY_VARIANT,
+    BALANCED_VARIANT,
+    AGGRESSIVE_VARIANT,
+    run_quick_experiment,
+)
 from .semantic_backup import (
     SemanticJSONLBackup,
     SemanticBackupConfig,
@@ -135,4 +149,16 @@ __all__ = [
     # v2.3 Semantic Backup
     "SemanticJSONLBackup",
     "SemanticBackupConfig",
+    # A/B Testing Framework
+    "MemoryExperiment",
+    "ExperimentResult",
+    "ParameterVariant",
+    "QueryResult",
+    "VariantMetrics",
+    "BASELINE_VARIANT",
+    "HIGH_SEMANTIC_VARIANT",
+    "HIGH_RECENCY_VARIANT",
+    "BALANCED_VARIANT",
+    "AGGRESSIVE_VARIANT",
+    "run_quick_experiment",
 ]
