@@ -2,14 +2,21 @@
 
 Priority: 0 (highest - executes first)
 Cost: 0.0 (in-memory lookup)
+
+Supports dual-layer caching:
+- L1: Exact match cache (ClassificationCache)
+- L2: Semantic similarity cache (SemanticCache)
 """
 
 import hashlib
 import logging
 from collections import OrderedDict
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from app.core.context import RequestContext, IntentResult
+
+if TYPE_CHECKING:
+    from app.core.intent.strategies.semantic_cache import SemanticCache
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +127,10 @@ class CacheStrategy:
     """Cache-first strategy for intent classification.
 
     This strategy executes first (priority=0) to check for cached results.
+    Supports dual-layer caching:
+    - L1: Exact match cache (ClassificationCache) - fastest
+    - L2: Semantic similarity cache (SemanticCache) - fallback
+
     If cache hits, classification is complete immediately.
     If cache misses, strategy returns None to allow next strategy to run.
 
@@ -127,13 +138,19 @@ class CacheStrategy:
     The router must handle storing results after successful classification.
     """
 
-    def __init__(self, cache: Optional[ClassificationCache] = None):
-        """Initialize cache strategy.
+    def __init__(
+        self,
+        cache: Optional[ClassificationCache] = None,
+        semantic_cache: Optional["SemanticCache"] = None,
+    ):
+        """Initialize cache strategy with dual-layer support.
 
         Args:
-            cache: Shared cache instance (creates new if None)
+            cache: L1 exact-match cache instance (creates new if None)
+            semantic_cache: L2 semantic similarity cache (optional)
         """
         self._cache = cache or ClassificationCache()
+        self._semantic_cache = semantic_cache
 
     @property
     def priority(self) -> int:
@@ -142,10 +159,10 @@ class CacheStrategy:
 
     @property
     def cache(self) -> ClassificationCache:
-        """Get the underlying cache instance.
+        """Get the underlying L1 cache instance.
 
         Returns:
-            The ClassificationCache for storing results
+            The ClassificationCache for storing exact-match results
         """
         return self._cache
 
@@ -158,12 +175,54 @@ class CacheStrategy:
         return True
 
     async def classify(self, context: RequestContext) -> Optional[IntentResult]:
-        """Look up cached result for this request.
+        """Look up cached result using dual-layer strategy.
+
+        Checks L1 (exact match) first, then L2 (semantic similarity) if configured.
 
         Args:
             context: The request context
 
         Returns:
-            Cached IntentResult or None if not cached
+            Cached IntentResult with strategy tag, or None if not cached
         """
-        return self._cache.get(context.message, context.has_image)
+        # L1: Exact match (fastest)
+        result = self._cache.get(context.message, context.has_image)
+        if result:
+            result.strategy = "CacheStrategy.L1"
+            return result
+
+        # L2: Semantic similarity (if configured)
+        if self._semantic_cache:
+            result = await self._semantic_cache.get(context.message)
+            if result:
+                result.strategy = "CacheStrategy.L2"
+                return result
+
+        return None
+
+    async def put_semantic(self, message: str, result: IntentResult) -> None:
+        """Write to L2 semantic cache (high confidence only).
+
+        Quality gate: only caches results with confidence >= 0.9
+        to avoid polluting semantic cache with low-quality matches.
+
+        Args:
+            message: User message text
+            result: IntentResult to cache
+        """
+        if not self._semantic_cache:
+            return
+
+        # Quality gate: only cache high-confidence results
+        if result.confidence < 0.9:
+            logger.debug(
+                f"[CacheStrategy] Skip L2 cache | conf={result.confidence:.2f}"
+            )
+            return
+
+        embedding = await self._semantic_cache._get_embedding(message)
+        self._semantic_cache.put(message, embedding, result)
+        logger.info(
+            f"[CacheStrategy] L2 cached | intent={result.intent} "
+            f"conf={result.confidence:.2f}"
+        )
