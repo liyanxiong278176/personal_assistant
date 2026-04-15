@@ -12,9 +12,12 @@ This module extracts travel-related slots from user messages including:
 import re
 import logging
 from datetime import datetime, date, timedelta
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from app.core.intent.slot_llm_extractor import LLMSlotExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +115,12 @@ class SlotResult(BaseModel):
 
 
 class SlotExtractor:
-    """槽位提取器 - 从用户消息中提取结构化参数（增强版）"""
+    """槽位提取器 - 从用户消息中提取结构化参数（增强版）
+
+    Two-stage extraction:
+    - Stage 1: Rule-based pre-extraction (fast, free)
+    - Stage 2: LLM Function Calling (slow, accurate)
+    """
 
     # 常见中国城市列表
     COMMON_CITIES = [
@@ -167,13 +175,87 @@ class SlotExtractor:
         "高": ["豪华", "高端", "奢华", "五星", "品质"],
     }
 
-    def __init__(self, current_date: Optional[date] = None):
+    def __init__(
+        self,
+        current_date: Optional[date] = None,
+        llm_extractor: Optional["LLMSlotExtractor"] = None,
+    ):
         """初始化
 
         Args:
             current_date: 当前日期（用于测试时注入）
+            llm_extractor: 可选的LLM槽位提取器（两阶段提取）
         """
         self._current_date = current_date or datetime.now().date()
+        self._llm_extractor = llm_extractor
+
+    async def extract_async(self, message: str) -> SlotResult:
+        """两阶段异步槽位提取
+
+        Stage 1: Rule-based pre-extraction (sync, fast)
+        Stage 2: LLM supplement (if needed)
+
+        Args:
+            message: 用户消息
+
+        Returns:
+            SlotResult: 合并后的槽位结果
+        """
+        # Stage 1: Rule-based (existing extract method)
+        rule_result = self.extract(message)
+
+        # Check if LLM needed
+        needs_llm = self._should_call_llm(rule_result, message)
+
+        if needs_llm and self._llm_extractor:
+            logger.info(
+                f"[SlotExtractor] Calling LLM | "
+                f"rule_result={rule_result.destination}/{rule_result.days} | "
+                f"reason=complex_semantic"
+            )
+            llm_result = await self._llm_extractor.extract(message, rule_result)
+            return llm_result
+
+        logger.info(
+            f"[SlotExtractor] Rule sufficient | "
+            f"destination={rule_result.destination} | days={rule_result.days}"
+        )
+        return rule_result
+
+    def _should_call_llm(self, result: SlotResult, message: str) -> bool:
+        """判断是否需要LLM补充
+
+        触发条件:
+        1. 没有任何规则结果
+        2. 复杂语义关键词
+        3. 模糊预算表达
+
+        Args:
+            result: 规则提取结果
+            message: 原始消息
+
+        Returns:
+            bool: 是否需要LLM提取
+        """
+        # No results
+        if not result.destination and not result.days:
+            return True
+
+        # Complex keywords (rules struggle)
+        complex_kw = [
+            "带孩子", "全家", "情侣", "老人",
+            "放松", "休闲", "度假", "疗养",
+            "适合", "推荐", "攻略", "怎么玩",
+        ]
+        if any(kw in message for kw in complex_kw):
+            return True
+
+        # Fuzzy budget
+        budget_kw = ["预算不多", "预算有限", "大概", "左右", "差不多"]
+        if any(kw in message for kw in budget_kw):
+            return True
+
+        return False
 
     def extract(self, message: str) -> SlotResult:
         """提取所有槽位"""
