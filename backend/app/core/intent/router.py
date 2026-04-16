@@ -133,6 +133,10 @@ class IntentRouter:
                 self._cache_strategy = s
                 break
 
+        # Monitor: latency tracking and classification history
+        self._latency_tracker: Dict[str, List[float]] = {}
+        self._recent_classifications: List[Dict[str, Any]] = []
+
         logger.debug(
             f"[IntentRouter] Initialized with {len(self._strategies)} strategies: "
             f"{[s.__class__.__name__ for s in self._strategies]}, "
@@ -194,8 +198,18 @@ class IntentRouter:
 
             # Perform classification
             try:
+                import time
+                start = time.perf_counter()
                 result = await strategy.classify(context)
+                latency_ms = (time.perf_counter() - start) * 1000
                 result.strategy = strategy_name
+
+                # Monitor: record latency
+                self.record_latency(strategy_name, latency_ms)
+
+                # Monitor: record classification on high confidence results
+                if self._config.is_high_confidence(result.confidence):
+                    self.record_classification(context.message, strategy_name, result.confidence)
             except Exception as e:
                 logger.error(f"[IntentRouter] {strategy_name} failed: {e}", exc_info=True)
                 if self._metrics:
@@ -478,6 +492,55 @@ class IntentRouter:
             suggested_followup=followups.get(intent, []),
         )
 
+    def record_latency(self, strategy: str, latency_ms: float) -> None:
+        """Record strategy execution latency for monitoring.
+
+        Args:
+            strategy: Strategy name
+            latency_ms: Execution time in milliseconds
+        """
+        if strategy not in self._latency_tracker:
+            self._latency_tracker[strategy] = []
+        self._latency_tracker[strategy].append(latency_ms)
+        # Keep only last 100 samples
+        if len(self._latency_tracker[strategy]) > 100:
+            self._latency_tracker[strategy] = self._latency_tracker[strategy][-100:]
+
+    def record_classification(self, query: str, strategy: str, confidence: float) -> None:
+        """Record classification result for monitoring dashboard.
+
+        Args:
+            query: User query (truncated if needed)
+            strategy: Strategy that classified this
+            confidence: Confidence score
+        """
+        from datetime import datetime
+        truncated_query = query[:50] + "..." if len(query) > 50 else query
+        self._recent_classifications.append({
+            "query": truncated_query,
+            "strategy": strategy,
+            "confidence": float(confidence),
+            "time": datetime.now(),
+        })
+        # Keep only last 50 records
+        if len(self._recent_classifications) > 50:
+            self._recent_classifications = self._recent_classifications[-50:]
+
+    @property
+    def avg_latency_ms(self) -> Dict[str, float]:
+        """Calculate average latency per strategy.
+
+        Returns:
+            Dictionary mapping strategy name to average latency in ms
+        """
+        result = {}
+        for strategy, latencies in self._latency_tracker.items():
+            if latencies:
+                result[strategy] = sum(latencies) / len(latencies)
+            else:
+                result[strategy] = 0.0
+        return result
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get classification statistics.
 
@@ -502,6 +565,9 @@ class IntentRouter:
                 "clarification_enabled": self._config.enable_clarification,
                 "max_clarification_rounds": self._config.max_clarification_rounds,
             },
+            # Monitor: latency and recent classifications
+            "avg_latency_ms": self.avg_latency_ms,
+            "recent_classifications": self._recent_classifications.copy(),
         }
 
     def reset_statistics(self) -> None:
