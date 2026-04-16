@@ -104,8 +104,8 @@ def _log_guard_init(config: ContextConfig, has_llm: bool, rules_count: int):
 
 
 def _log_guard_stats(conv_id: str, stats: Dict):
-    """ContextGuard 统计信息 - 结构化日志"""
-    logger.info(
+    """ContextGuard 统计信息 - 结构化日志 (debug level for frequent calls)"""
+    logger.debug(
         f"[CTX_GUARD] 📊 统计 | conv={conv_id} | "
         f"前置={stats.get('pre_process_count',0)} | "
         f"后置={stats.get('post_process_count',0)} | "
