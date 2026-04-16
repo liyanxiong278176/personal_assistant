@@ -171,6 +171,9 @@ class MemoryHierarchy:
         self._redis_store: Optional["RedisEpisodicStore"] = redis_store
         self._use_redis: bool = redis_store is not None
 
+        # Monitor: promotion history for dashboard
+        self._promotion_history: list[dict[str, Any]] = []
+
     def add_working_message(self, role: str, content: str, tokens: Optional[int] = None) -> None:
         """Add a message to working memory.
 
@@ -585,6 +588,8 @@ class MemoryHierarchy:
     def promote_to_semantic(self, item: MemoryItem, min_importance: float = 0.7) -> bool:
         """Promote an episodic memory to semantic if important enough.
 
+        Monitor: Records promotion history for dashboard display.
+
         Args:
             item: Memory item to promote
             min_importance: Minimum importance required for promotion
@@ -593,14 +598,43 @@ class MemoryHierarchy:
             True if promoted, False otherwise
         """
         if item.importance >= min_importance:
+            from_level = item.level.value if hasattr(item.level, 'value') else str(item.level)
+            to_level = MemoryLevel.SEMANTIC.value
+
+            # Record promotion for monitoring
+            self._promotion_history.append({
+                "from_level": from_level,
+                "to_level": to_level,
+                "content": item.content[:100],
+                "time": datetime.now(),
+                "importance": item.importance,
+                "memory_type": item.memory_type.value if item.memory_type else None,
+            })
+            # Keep only last 50 promotions
+            if len(self._promotion_history) > 50:
+                self._promotion_history = self._promotion_history[-50:]
+
             item.level = MemoryLevel.SEMANTIC
             self.add_semantic(item)
             logger.info(f"[MemoryHierarchy] Promoted to semantic: {item.content[:50]}")
             return True
         return False
 
+    def get_recent_promotions(self, limit: int = 10) -> list[dict[str, Any]]:
+        """Get recent memory promotions for monitoring dashboard.
+
+        Args:
+            limit: Maximum number of promotions to return
+
+        Returns:
+            List of recent promotion records
+        """
+        return self._promotion_history[-limit:]
+
     def get_context_summary(self) -> dict[str, Any]:
         """Get a summary of current memory state.
+
+        Monitor: Includes promotion history for dashboard.
 
         Returns:
             Dictionary with memory statistics
@@ -612,6 +646,8 @@ class MemoryHierarchy:
             "semantic_count": len(self._semantic),
             "conversation_id": str(self.conversation_id) if self.conversation_id else None,
             "user_id": self.user_id,
+            # Monitor: promotion history
+            "promotion_history": self._promotion_history.copy(),
         }
 
     def to_llm_context(self) -> list[dict[str, str]]:
