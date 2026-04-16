@@ -1,8 +1,8 @@
 # CoT/ReAct 智能路由设计文档
 
-> **设计日期**: 2026-04-11  
-> **版本**: 1.0  
-> **状态**: 设��阶段  
+> **设计日期**: 2026-04-11
+> **版本**: 1.1
+> **状态**: 已审查 + Bug修复完成
 > **作者**: Claude + 用户协作
 
 ---
@@ -76,6 +76,7 @@ backend/app/core/reasoning/
 ├── __init__.py
 ├── config.py                 # PermissionConfig, ReasoningMode
 ├── router.py                 # PermissionRouter (轻量权限路由)
+├── schema_registry.py         # 🔧 Bug 2: 工具参数 JSON Schema 注册表
 ├── engines/
 │   ├── __init__.py
 │   ├── base.py               # BaseReasoningEngine
@@ -200,6 +201,168 @@ class ReasoningConfig:
     fallback_mode: Optional[PermissionLevel] = None
 ```
 
+### 3.2.1 ToolSchemaRegistry (工具参数 Schema 注册表)
+
+```python
+# backend/app/core/reasoning/schema_registry.py
+# 🔧 Bug 2 修复：集中管理所有工具的 JSON Schema，支持参数校验
+
+from typing import Dict, Any, Optional, Set
+
+
+class ToolSchemaRegistry:
+    """工具参数 JSON Schema 注册表
+
+    提供工具的 Schema 定义，用于 LLM 调用前的参数校验。
+    Schema 从工具的 inspect.signature 自动生成，也可手动注册覆盖。
+    """
+
+    def __init__(self):
+        self._schemas: Dict[str, Dict[str, Any]] = {}
+
+    def register_schema(self, tool_name: str, schema: Dict[str, Any]) -> None:
+        """手动注册工具的 JSON Schema
+
+        Args:
+            tool_name: 工具名称
+            schema: OpenAI 格式的 parameters 定义
+        """
+        self._schemas[tool_name] = schema
+
+    def register_from_tool(self, tool: "Tool") -> None:
+        """从 Tool 实例自动提取并注册 Schema
+
+        Args:
+            tool: Tool 子类实例
+        """
+        self._schemas[tool.name] = tool.get_parameters()
+
+    def get_schema(self, tool_name: str) -> Optional[Dict[str, Any]]:
+        """获取工具的 Schema 定义"""
+        return self._schemas.get(tool_name)
+
+    def list_tools(self) -> Set[str]:
+        """列出所有已注册 Schema 的工具"""
+        return set(self._schemas.keys())
+
+    def get_required_params(self, tool_name: str) -> list:
+        """获取工具的必填参数列表"""
+        schema = self.get_schema(tool_name)
+        if not schema:
+            return []
+        return schema.get("required", [])
+
+    def get_all_schemas_for_prompt(self) -> Dict[str, Dict[str, Any]]:
+        """获取所有 Schema，供提示词注入使用"""
+        return dict(self._schemas)
+
+
+# 预置常见工具 Schema（示例）
+PRESET_SCHEMAS: Dict[str, Dict[str, Any]] = {
+    "get_weather": {
+        "type": "object",
+        "properties": {
+            "city": {
+                "type": "string",
+                "description": "城市名称（中文）",
+                "minLength": 1,
+                "maxLength": 20
+            },
+            "days": {
+                "type": "integer",
+                "description": "预报天数",
+                "minimum": 1,
+                "maximum": 7,
+                "default": 1
+            }
+        },
+        "required": ["city"]
+    },
+    "search_poi": {
+        "type": "object",
+        "properties": {
+            "keywords": {
+                "type": "string",
+                "description": "搜索关键词",
+                "minLength": 1,
+                "maxLength": 50
+            },
+            "city": {
+                "type": "string",
+                "description": "城市名称（中文）",
+                "minLength": 1,
+                "maxLength": 20
+            },
+            "category": {
+                "type": "string",
+                "description": "POI 类别",
+                "enum": ["景点", "美食", "酒店", "购物", "娱乐", "交通"]
+            }
+        },
+        "required": ["keywords"]
+    },
+    "plan_route": {
+        "type": "object",
+        "properties": {
+            "destinations": {
+                "type": "array",
+                "description": "目的地列表",
+                "items": {"type": "string"},
+                "minItems": 1,
+                "maxItems": 10
+            },
+            "start_city": {
+                "type": "string",
+                "description": "出发城市"
+            },
+            "days": {
+                "type": "integer",
+                "description": "行程天数",
+                "minimum": 1,
+                "maximum": 15,
+                "default": 3
+            }
+        },
+        "required": ["destinations"]
+    },
+    "search_hotel": {
+        "type": "object",
+        "properties": {
+            "city": {"type": "string", "description": "城市名称"},
+            "check_in": {"type": "string", "description": "入住日期 YYYY-MM-DD"},
+            "check_out": {"type": "string", "description": "退房日期 YYYY-MM-DD"},
+            "budget": {
+                "type": "integer",
+                "description": "预算上限（元/晚）",
+                "minimum": 0
+            }
+        },
+        "required": ["city", "check_in", "check_out"]
+    },
+    "currency_convert": {
+        "type": "object",
+        "properties": {
+            "amount": {
+                "type": "number",
+                "description": "金额",
+                "minimum": 0
+            },
+            "from_currency": {
+                "type": "string",
+                "description": "源货币",
+                "enum": ["CNY", "USD", "EUR", "JPY", "GBP", "KRW", "THB"]
+            },
+            "to_currency": {
+                "type": "string",
+                "description": "目标货币",
+                "enum": ["CNY", "USD", "EUR", "JPY", "GBP", "KRW", "THB"]
+            }
+        },
+        "required": ["amount", "from_currency", "to_currency"]
+    }
+}
+```
+
 ### 3.3 ReasoningState (推理状态)
 
 ```python
@@ -207,8 +370,8 @@ class ReasoningConfig:
 class ReasoningState:
     """单次推理会话的状态"""
     iteration: int = 0
-    executed_tools: Set[str] = frozenset()
-    observations: List[Dict[str, Any]] = frozenset()
+    executed_tools: Set[str] = field(default_factory=set)  # ✅ 修复：使用可变set
+    observations: List[Dict[str, Any]] = field(default_factory=list)  # ✅ 修复：使用可变list
     max_iterations: int = 5
     token_budget: int = 128000
     tokens_used: int = 0
@@ -253,6 +416,8 @@ class ReasoningMetrics:
 
 ```python
 # backend/app/core/reasoning/engines/fusion.py
+# -*- coding: utf-8 -*-
+from typing import AsyncIterator, Dict, Any, Optional, Union, List
 
 class FusionReasoningEngine:
     """融合推理引擎 - LLM自主决策推理策略
@@ -266,14 +431,15 @@ class FusionReasoningEngine:
         llm_client: "LLMClient",
         tool_executor: "ToolExecutor",
         metrics_reporter: "MetricsReporter",
-        token_budget: "TokenBudgetManager"
+        token_budget: "TokenBudgetManager",
+        schema_registry: "ToolSchemaRegistry" = None  # 🔧 Bug 2: 参数校验注册表
     ):
         self._llm_client = llm_client
         self._tool_executor = tool_executor
         self._metrics = metrics_reporter
         self._token_budget = token_budget
         self._parser = ResponseParser()
-        
+        self._tool_schema_registry = schema_registry or ToolSchemaRegistry()  # 🔧 Bug 2
     async def reason(
         self,
         context: "RequestContext",
@@ -381,7 +547,19 @@ class FusionReasoningEngine:
             metrics.mode_used = "react"
             tool_name = parsed.get("name")
             tool_params = parsed.get("params", {})
-            
+
+            # 🔧 Bug 2 修复：执行前进行 JSON Schema 参数校验
+            validation_error = self._validate_tool_params(tool_name, tool_params)
+            if validation_error:
+                observation = {
+                    "tool": tool_name,
+                    "error": f"参数校验失败: {validation_error}",
+                    "success": False
+                }
+                state.observations.append(observation)
+                yield f"⚠️ 参数错误: {validation_error}\n\n"
+                continue
+
             # 执行工具
             try:
                 result = await self._tool_executor.execute(tool_name, **tool_params)
@@ -411,6 +589,92 @@ class FusionReasoningEngine:
             obs_tokens = self._estimate_tokens(observation)
             state.tokens_used += obs_tokens
             state.token_budget -= obs_tokens
+
+    def _validate_tool_params(
+        self,
+        tool_name: str,
+        params: Dict[str, Any]
+    ) -> Optional[str]:
+        """🔧 Bug 2 修复：基于 JSON Schema 的工具参数校验
+
+        在工具执行前验证参数的类型、必填项、约束条件，
+        避免 LLM 生成错误参数导致工具执行异常。
+
+        Args:
+            tool_name: 工具名称
+            params: LLM 生成的参数
+
+        Returns:
+            None 表示校验通过，str 表示错误信息
+        """
+        schema = self._tool_schema_registry.get_schema(tool_name)
+        if not schema:
+            # 无 schema 时放行，依赖工具自身的错误处理
+            return None
+
+        # 1. 必填参数检查
+        required = schema.get("required", [])
+        for req_param in required:
+            if req_param not in params:
+                return f"缺少必填参数 '{req_param}'"
+
+        # 2. 参数类型检查
+        properties = schema.get("properties", {})
+        for param_name, param_value in params.items():
+            if param_name not in properties:
+                continue  # 额外参数暂不报错，允许工具自行处理
+
+            expected_type = properties[param_name].get("type", "string")
+            type_map = {
+                "string": str, "integer": int, "number": (int, float),
+                "boolean": bool, "array": list, "object": dict
+            }
+            expected_python_type = type_map.get(expected_type, str)
+
+            if not isinstance(param_value, expected_python_type):
+                return (
+                    f"参数 '{param_name}' 类型错误：期望 {expected_type}，"
+                    f"实际 {type(param_value).__name__}"
+                )
+
+        # 3. 枚举约束检查
+        for param_name, param_value in params.items():
+            if param_name not in properties:
+                continue
+            enum_values = properties[param_name].get("enum")
+            if enum_values and param_value not in enum_values:
+                return f"参数 '{param_name}' 的值必须在枚举范围内: {enum_values}"
+
+        return None
+
+    def _estimate_tokens(self, text: Union[str, Dict, List]) -> int:
+        """🔧 Bug 3 修复：使用 tiktoken 精确估算 Token 数
+
+        使用与 LLM 模型匹配的 tokenizer 进行精确计数，
+        避免硬编码比例（4字符≈1Token）导致的误差累积。
+
+        实现说明：
+        - DeepSeek 模型使用 cl100k_base（与 GPT-4 相同）
+        - 返回估算的 token 数量（向上取整）
+        """
+        # 延迟导入，避免未安装时无法 import
+        try:
+            import tiktoken
+        except ImportError:
+            logger.warning(
+                "[FusionEngine] tiktoken 未安装，回退到字符估算"
+            )
+            text_str = json.dumps(text) if not isinstance(text, str) else text
+            return len(text_str) // 4 + 1
+
+        # 复用 tiktoken 编码器（缓存避免重复初始化）
+        if not hasattr(self, "_tokenizer"):
+            # DeepSeek chat 模型使用 cl100k_base
+            self._tokenizer = tiktoken.get_encoding("cl100k_base")
+
+        text_str = json.dumps(text) if not isinstance(text, str) else text
+        tokens = self._tokenizer.encode(text_str)
+        return len(tokens)
 ```
 
 ### 4.2 ResponseParser (多层降级解析)
@@ -472,20 +736,21 @@ class ResponseParser:
 # backend/app/core/reasoning/router.py
 
 class PermissionRouter:
-    """轻量权限路由器 - 仅决定权限，不固定执行模式
+    """轻量权限路由器 - 仅决���权限，不固定执行模式
     
     路由规则：意图类型 → 权限级别
     """
     
+    # ✅ 修复：food和budget也需要工具支持
     ROUTING_RULES: Dict[str, PermissionConfig.PermissionLevel] = {
         "chat": PermissionConfig.PermissionLevel.DIRECT,      # 闲聊
         "image": PermissionConfig.PermissionLevel.DIRECT,     # 图片
         "query": PermissionConfig.PermissionLevel.FUSION,     # 查询
         "itinerary": PermissionConfig.PermissionLevel.FUSION, # 行程
         "hotel": PermissionConfig.PermissionLevel.FUSION,     # 酒店
-        "food": PermissionConfig.PermissionLevel.COT,         # 美食
+        "food": PermissionConfig.PermissionLevel.FUSION,     # ✅ 美食推荐需要POI搜索
         "transport": PermissionConfig.PermissionLevel.FUSION, # 交通
-        "budget": PermissionConfig.PermissionLevel.COT,       # 预算
+        "budget": PermissionConfig.PermissionLevel.FUSION,   # ✅ 预算计算需要汇率/价格查询
     }
     
     def route(
@@ -771,42 +1036,181 @@ async def test_permission_router_high_complexity():
 
 ```python
 # tests/core/reasoning/integration/test_fusion_engine.py
+# 🔧 Bug 5 修复：使用 Mock 对象替换真实 LLM Client，确保测试稳定性
 
-async def test_fusion_engine_direct_answer():
-    """测试LLM选择直接回答"""
-    engine = FusionReasoningEngine(llm, executor, metrics, budget)
-    context = RequestContext(message="你好")
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+from app.core.reasoning.engines.fusion import FusionReasoningEngine
+from app.core.reasoning.config import ReasoningConfig, PermissionLevel
+from app.core.reasoning.schema_registry import ToolSchemaRegistry, PRESET_SCHEMAS
+
+
+class FakeLLMClient:
+    """模拟 LLM 客户端 - 强制返回确定性输出，避免依赖真实 LLM"""
+
+    def __init__(self, responses: list[dict]):
+        """
+        Args:
+            responses: 依次返回的响应列表
+                      每个 dict 格式: {"type": "final_answer"|"reasoning"|"tool_call",
+                                       "content"|"thought"|"name": ..., "params"|"next_step": ...}
+        """
+        self._responses = responses
+        self._call_count = 0
+        self._called_messages = []
+
+    async def chat(self, messages: list, temperature: float = 0.7):
+        self._called_messages.append(messages)
+        resp = self._responses[self._call_count] if self._call_count < len(self._responses) else {
+            "type": "final_answer", "content": "超时"
+        }
+        self._call_count += 1
+        fake_response = MagicMock()
+        fake_response.content = json.dumps(resp)
+        fake_response.usage = MagicMock()
+        fake_response.usage.total_tokens = 50
+        return fake_response
+
+
+class FakeToolExecutor:
+    """模拟工具执行器"""
+
+    def __init__(self, results: dict[str, Any]):
+        self._results = results
+        self._called = []
+
+    async def execute(self, tool_name: str, **kwargs):
+        self._called.append((tool_name, kwargs))
+        return self._results.get(tool_name, {"success": True})
+
+
+@pytest.fixture
+def schema_registry():
+    """预置 Schema 的注册表"""
+    registry = ToolSchemaRegistry()
+    for name, schema in PRESET_SCHEMAS.items():
+        registry.register_schema(name, schema)
+    return registry
+
+
+async def test_fusion_engine_direct_answer(schema_registry):
+    """测试 LLM 选择直接回答"""
+    llm = FakeLLMClient([
+        {"type": "final_answer", "content": "你好，很高兴为你服务！"}
+    ])
+    executor = FakeToolExecutor({})
+    engine = FusionReasoningEngine(llm, executor, MagicMock(), MagicMock())
+    engine._tool_schema_registry = schema_registry
+
+    context = MagicMock()
     config = ReasoningConfig(
-        permission_level=PermissionLevel.PermissionLevel.DIRECT,
+        permission_level=PermissionLevel.DIRECT,
         model=llm,
         max_iterations=0
     )
-    
+
     chunks = []
     async for chunk in engine.reason(context, config):
         chunks.append(chunk)
-    
-    result = "".join(chunks)
-    assert "你好" in result or "您好" in result
 
-async def test_fusion_engine_tool_call():
-    """测试LLM选择调用工具"""
-    engine = FusionReasoningEngine(llm, executor, metrics, budget)
-    context = RequestContext(message="北京今天天气怎么样？")
+    result = "".join(chunks)
+    assert "你好" in result or "很高兴" in result
+
+
+async def test_fusion_engine_tool_call(schema_registry):
+    """🔧 Bug 5 修复：Mock LLM 强制返回 tool_call，确保测试稳定"""
+    # 模拟 LLM 两轮：第1轮调用工具，第2轮给出答案
+    llm = FakeLLMClient([
+        {
+            "type": "tool_call",
+            "thought": "需要查询北京天气",
+            "name": "get_weather",
+            "params": {"city": "北京", "days": 1}
+        },
+        {
+            "type": "final_answer",
+            "content": "北京今天天气晴朗，气温15-25度。"
+        }
+    ])
+    executor = FakeToolExecutor({
+        "get_weather": {"weather": "晴", "temp": "15-25℃"}
+    })
+    metrics_reporter = MagicMock()
+    token_budget = MagicMock()
+
+    engine = FusionReasoningEngine(llm, executor, metrics_reporter, token_budget)
+    engine._tool_schema_registry = schema_registry
+
+    context = MagicMock()
     config = ReasoningConfig(
-        permission_level=PermissionLevel.PermissionLevel.FUSION,
+        permission_level=PermissionLevel.FUSION,
         model=llm,
         max_iterations=3,
         tool_whitelist={"get_weather"}
     )
-    
+
     chunks = []
     async for chunk in engine.reason(context, config):
         chunks.append(chunk)
-    
+
     result = "".join(chunks)
-    # 应该包含工具调用过程
-    assert "get_weather" in result or "天气" in result
+    # 验证：1) 工具被调用，2) 最终答案包含天气信息
+    assert len(executor._called) == 1
+    assert executor._called[0][0] == "get_weather"
+    assert executor._called[0][1]["city"] == "北京"
+    assert "天气" in result or "晴" in result
+
+
+async def test_fusion_engine_param_validation(schema_registry):
+    """🔧 Bug 2 验证：参数校验阻止无效工具调用"""
+    # LLM 生成的参数缺少必填字段
+    llm = FakeLLMClient([
+        {
+            "type": "tool_call",
+            "thought": "查询天气",
+            "name": "get_weather",
+            "params": {}  # ❌ 缺少必填的 city 参数
+        },
+        {
+            "type": "final_answer",
+            "content": "无法获取天气信息。"
+        }
+    ])
+    executor = FakeToolExecutor({})
+    engine = FusionReasoningEngine(llm, executor, MagicMock(), MagicMock())
+    engine._tool_schema_registry = schema_registry
+
+    context = MagicMock()
+    config = ReasoningConfig(
+        permission_level=PermissionLevel.FUSION,
+        model=llm,
+        max_iterations=2
+    )
+
+    chunks = []
+    async for chunk in engine.reason(context, config):
+        chunks.append(chunk)
+
+    result = "".join(chunks)
+    # 工具不应被执行（参数校验失败）
+    assert len(executor._called) == 0
+    # 应输出参数错误提示
+    assert "参数" in result or "city" in result
+
+
+async def test_token_estimation_accuracy():
+    """🔧 Bug 3 验证：tiktoken Token 估算准确性"""
+    # 安装 tiktoken 后，通过实际编码验证估算误差 < 5%
+    try:
+        import tiktoken
+        enc = tiktoken.get_encoding("cl100k_base")
+        text = "北京今天天气怎么样？" * 100
+        expected = len(enc.encode(text))
+        estimated = FusionReasoningEngine._estimate_tokens_static(text)
+        error_rate = abs(estimated - expected) / expected
+        assert error_rate < 0.05, f"Token 估算误差 {error_rate:.1%} 超过 5%"
+    except ImportError:
+        pytest.skip("tiktoken 未安装，跳过精确度验证")
 ```
 
 ---
@@ -840,8 +1244,19 @@ async def test_fusion_engine_tool_call():
 | `backend/app/core/reasoning/` | 新建 | 核心推理模块 |
 | `backend/app/core/reasoning/config.py` | 新建 | 配置定义 |
 | `backend/app/core/reasoning/router.py` | 新建 | 权限路由器 |
-| `backend/app/core/reasoning/engines/fusion.py` | 新建 | 融合推理引擎 |
+| `backend/app/core/reasoning/schema_registry.py` | 新建 | 🔧 Bug 2: 工具参数 JSON Schema 注册表 |
+| `backend/app/core/reasoning/engines/fusion.py` | 新建 | 融合推理引擎（含参数校验+Token估算） |
 | `backend/app/core/reasoning/engines/response_parser.py` | 新建 | 多层降级解析 |
 | `backend/app/core/reasoning/prompts/fusion_schema.md` | 新建 | 提示词模板 |
 | `backend/app/core/query_engine.py` | 修改 | 集成Step 1.2和Step 3 |
-| `tests/core/reasoning/` | 新建 | 测试套件 |
+| `tests/core/reasoning/` | 新建 | 测试套件（含Mock集成测试） |
+
+### Bug 修复汇总
+
+| Bug | 优先级 | 修复位置 | 修复方式 |
+|-----|--------|----------|----------|
+| 1. ReasoningState frozenset | 高 | §3.3 `ReasoningState` | `field(default_factory=set/list)` |
+| 2. 工具参数校验缺失 | 中 | §3.2.1 `ToolSchemaRegistry` + §4.1 `_validate_tool_params()` | 基于 JSON Schema 的三层校验 |
+| 3. Token 估算不明确 | 中 | §4.1 `_estimate_tokens()` | tiktoken `cl100k_base` 精确计数 |
+| 4. 路由规则 food/budget | 低 | §4.3 `ROUTING_RULES` | 改为 `PermissionLevel.FUSION` |
+| 5. 集成测试不稳定 | 低 | §8.2 `FakeLLMClient` + `FakeToolExecutor` | Mock 替代真实 LLM，确保确定性 |

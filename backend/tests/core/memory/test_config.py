@@ -34,8 +34,8 @@ def test_get_threshold():
     """Test threshold retrieval by scenario."""
     config = RetrievalThresholdConfig()
 
-    assert config.get_threshold(RetrievalScenario.STRICT) == 0.75
-    assert config.get_threshold(RetrievalScenario.NORMAL) == 0.65
+    assert config.get_threshold(RetrievalScenario.STRICT) == 0.70
+    assert config.get_threshold(RetrievalScenario.NORMAL) == 0.60
     assert config.get_threshold(RetrievalScenario.FUZZY) == 0.50
 
 

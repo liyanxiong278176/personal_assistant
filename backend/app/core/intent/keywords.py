@@ -1,125 +1,204 @@
-# backend/app/core/intent/keywords.py
-"""Intent keyword definitions.
+"""Intent keyword definitions - Hot-reload enabled.
 
-Centralized keyword definitions for all intent types.
-Each intent has weighted keywords by relevance (0.1-0.3).
+Keywords are loaded from config/keywords.yaml with mtime-based auto-reload.
+Supports positive keywords (加分) and negative keywords (排除规则).
+
+This module maintains backward compatibility by exporting constants
+that are dynamically loaded from the YAML configuration.
+
+Weight tiers:
+- Strong (0.5-0.7): Core intent indicators
+- Medium (0.35-0.45): Contextual indicators
+- Weak (0.2-0.3): Supporting words
 """
 
-from typing import Dict
+from typing import Dict, List
+from app.core.intent.keywords_loader import get_keywords_loader
 
-# 行程规划意图关键词
-ITINERARY_KEYWORDS: Dict[str, float] = {
-    # Strong indicators (0.3 each)
-    "规划": 0.3, "行程": 0.3, "路线": 0.3,
-    # Medium indicators (0.2 each)
-    "旅游": 0.2, "旅行": 0.2, "几天": 0.2, "日游": 0.2,
-    # Weak indicators (0.1 each)
-    "去玩": 0.1, "计划": 0.1, "安排": 0.1, "设计": 0.1,
-}
+# Global loader instance
+_loader = get_keywords_loader()
 
-# 信息查询意图关键词
-QUERY_KEYWORDS: Dict[str, float] = {
-    # Strong indicators
-    "天气": 0.3, "温度": 0.3, "门票": 0.3, "价格": 0.3,
-    # Medium indicators
-    "怎么去": 0.2, "交通": 0.2, "开放时间": 0.2,
-    # Weak indicators
-    "地址": 0.1, "景点": 0.1, "查询": 0.1,
-}
 
-# 普通对话意图关键词
-CHAT_KEYWORDS: Dict[str, float] = {
-    "你好": 0.2, "在吗": 0.2, "谢谢": 0.1, "您好": 0.2,
-    "哈哈": 0.1, "帮忙": 0.1,
-}
+def _get_all_keywords() -> Dict[str, Dict[str, float]]:
+    """获取所有意图关键词（向后兼容格式）."""
+    return _loader.get_all_keywords()
 
-# 图片识别意图关键词
-IMAGE_KEYWORDS: Dict[str, float] = {
-    "图片": 0.3, "照片": 0.3, "识别": 0.3,
-}
 
-# 酒店预订意图关键词 (NEW)
-HOTEL_KEYWORDS: Dict[str, float] = {
-    # Strong indicators
-    "酒店": 0.3, "住宿": 0.3, "民宿": 0.2, "宾馆": 0.2,
-    # Weak indicators
-    "住": 0.1, "房间": 0.1, "入住": 0.2,
-}
+def _get_all_patterns() -> Dict[str, List[str]]:
+    """获取所有意图正则模式."""
+    return _loader.get_all_patterns()
 
-# 美食推荐意图关键词 (NEW)
-FOOD_KEYWORDS: Dict[str, float] = {
-    # Strong indicators
-    "美食": 0.3, "小吃": 0.3, "餐厅": 0.2,
-    # Medium indicators
-    "菜": 0.2, "吃": 0.1, "好吃": 0.1,
-}
 
-# 预算规划意图关键词 (NEW)
-BUDGET_KEYWORDS: Dict[str, float] = {
-    # Strong indicators
-    "预算": 0.3, "多少钱": 0.3, "花费": 0.2,
-    # Medium indicators
-    "便宜": 0.2, "贵": 0.2, "价位": 0.1,
-}
+def _get_keywords_for_intent(intent: str) -> Dict[str, float]:
+    """获取指定意图的关键词."""
+    return _loader.get_positive_keywords(intent)
 
-# 交通出行意图关键词 (NEW)
-TRANSPORT_KEYWORDS: Dict[str, float] = {
-    # Strong indicators
-    "怎么去": 0.3, "交通": 0.3,
-    # Medium indicators
-    "飞机": 0.2, "高铁": 0.2, "开车": 0.2, "自驾": 0.2,
-}
 
-# 所有意图关键词的统一映射
-ALL_INTENT_KEYWORDS: Dict[str, Dict[str, float]] = {
-    "itinerary": ITINERARY_KEYWORDS,
-    "query": QUERY_KEYWORDS,
-    "chat": CHAT_KEYWORDS,
-    "image": IMAGE_KEYWORDS,
-    "hotel": HOTEL_KEYWORDS,
-    "food": FOOD_KEYWORDS,
-    "budget": BUDGET_KEYWORDS,
-    "transport": TRANSPORT_KEYWORDS,
-}
+def _get_negative_keywords(intent: str) -> Dict[str, float]:
+    """获取指定意图的负向关键词."""
+    return _loader.get_negative_keywords(intent)
 
-# 意图正则模式 (用于增强识别)
-ITINERARY_PATTERNS = [
-    r"去.{2,6}?玩",  # "去北京玩"
-    r"去.{2,6}?旅游",  # "去云南旅游"
-    r".{2,6}?几天游",  # "北京3天游"
-    r".{2,6}?日游",  # "一日游"
+
+# ============================================================================
+# 向后兼容：导出常量形式的关键词
+# 注意：这些常量在模块导入时初始化，但会在首次使用时从 YAML 加载
+# ============================================================================
+
+def _init_constants():
+    """初始化常量导出（懒加载）."""
+    global ITINERARY_KEYWORDS, QUERY_KEYWORDS, CHAT_KEYWORDS, IMAGE_KEYWORDS
+    global HOTEL_KEYWORDS, FOOD_KEYWORDS, BUDGET_KEYWORDS, TRANSPORT_KEYWORDS
+    global ALL_INTENT_KEYWORDS, ALL_INTENT_PATTERNS
+    global ITINERARY_PATTERNS, QUERY_PATTERNS, HOTEL_PATTERNS, FOOD_PATTERNS
+    global BUDGET_PATTERNS, TRANSPORT_PATTERNS, CHAT_PATTERNS
+
+    all_kw = _get_all_keywords()
+    all_patterns = _get_all_patterns()
+
+    # 意图关键词常量
+    ITINERARY_KEYWORDS = all_kw.get("itinerary", {})
+    QUERY_KEYWORDS = all_kw.get("query", {})
+    CHAT_KEYWORDS = all_kw.get("chat", {})
+    IMAGE_KEYWORDS = all_kw.get("image", {})
+    HOTEL_KEYWORDS = all_kw.get("hotel", {})
+    FOOD_KEYWORDS = all_kw.get("food", {})
+    BUDGET_KEYWORDS = all_kw.get("budget", {})
+    TRANSPORT_KEYWORDS = all_kw.get("transport", {})
+
+    # 所有意图关键词映射
+    ALL_INTENT_KEYWORDS = {
+        "itinerary": ITINERARY_KEYWORDS,
+        "query": QUERY_KEYWORDS,
+        "chat": CHAT_KEYWORDS,
+        "image": IMAGE_KEYWORDS,
+        "hotel": HOTEL_KEYWORDS,
+        "food": FOOD_KEYWORDS,
+        "budget": BUDGET_KEYWORDS,
+        "transport": TRANSPORT_KEYWORDS,
+    }
+
+    # 意图正则模式常量
+    ITINERARY_PATTERNS = all_patterns.get("itinerary", [])
+    QUERY_PATTERNS = all_patterns.get("query", [])
+    HOTEL_PATTERNS = all_patterns.get("hotel", [])
+    FOOD_PATTERNS = all_patterns.get("food", [])
+    BUDGET_PATTERNS = all_patterns.get("budget", [])
+    TRANSPORT_PATTERNS = all_patterns.get("transport", [])
+    CHAT_PATTERNS = all_patterns.get("chat", [])
+
+    # 所有意图正则模式映射
+    ALL_INTENT_PATTERNS = {
+        "itinerary": ITINERARY_PATTERNS,
+        "query": QUERY_PATTERNS,
+        "hotel": HOTEL_PATTERNS,
+        "food": FOOD_PATTERNS,
+        "budget": BUDGET_PATTERNS,
+        "transport": TRANSPORT_PATTERNS,
+        "chat": CHAT_PATTERNS,
+    }
+
+    return ALL_INTENT_KEYWORDS, ALL_INTENT_PATTERNS
+
+
+# 初始占位符（首次访问时从 YAML 加载）
+ITINERARY_KEYWORDS: Dict[str, float] = {}
+QUERY_KEYWORDS: Dict[str, float] = {}
+CHAT_KEYWORDS: Dict[str, float] = {}
+IMAGE_KEYWORDS: Dict[str, float] = {}
+HOTEL_KEYWORDS: Dict[str, float] = {}
+FOOD_KEYWORDS: Dict[str, float] = {}
+BUDGET_KEYWORDS: Dict[str, float] = {}
+TRANSPORT_KEYWORDS: Dict[str, float] = {}
+
+ALL_INTENT_KEYWORDS: Dict[str, Dict[str, float]] = {}
+
+ITINERARY_PATTERNS: List[str] = []
+QUERY_PATTERNS: List[str] = []
+HOTEL_PATTERNS: List[str] = []
+FOOD_PATTERNS: List[str] = []
+BUDGET_PATTERNS: List[str] = []
+TRANSPORT_PATTERNS: List[str] = []
+CHAT_PATTERNS: List[str] = []
+
+ALL_INTENT_PATTERNS: Dict[str, List[str]] = {}
+
+
+def _ensure_loaded():
+    """确保配置已加载."""
+    if not ALL_INTENT_KEYWORDS:
+        _init_constants()
+
+
+# 在模块导入时加载配置
+_ensure_loaded()
+
+
+# ============================================================================
+# 辅助函数：获取负向关键词（排除规则）
+# ============================================================================
+
+def get_exclusion_keywords(intent: str) -> Dict[str, float]:
+    """获取指定意图的负向关键词（排除规则）.
+
+    Args:
+        intent: 意图标识
+
+    Returns:
+        负向关键词字典，值为负数（扣分值）
+    """
+    return _get_negative_keywords(intent)
+
+
+def has_exclusion_match(message: str, intent: str) -> bool:
+    """检查消息是否命中指定意图的负向关键词.
+
+    Args:
+        message: 用户消息
+        intent: 意图标识
+
+    Returns:
+        True 如果命中负向关键词
+    """
+    exclusions = get_exclusion_keywords(intent)
+    for keyword in exclusions:
+        if keyword in message:
+            return True
+    return False
+
+
+def reload_keywords():
+    """强制重载关键词配置（用于热更新）."""
+    global _loader
+    _loader.force_reload()
+    _init_constants()
+
+
+# ============================================================================
+# 导出列表
+# ============================================================================
+
+__all__ = [
+    # 关键词常量
+    "ALL_INTENT_KEYWORDS",
+    "ALL_INTENT_PATTERNS",
+    "ITINERARY_KEYWORDS",
+    "QUERY_KEYWORDS",
+    "CHAT_KEYWORDS",
+    "IMAGE_KEYWORDS",
+    "HOTEL_KEYWORDS",
+    "FOOD_KEYWORDS",
+    "BUDGET_KEYWORDS",
+    "TRANSPORT_KEYWORDS",
+    # 正则模式常量
+    "ITINERARY_PATTERNS",
+    "QUERY_PATTERNS",
+    "HOTEL_PATTERNS",
+    "FOOD_PATTERNS",
+    "BUDGET_PATTERNS",
+    "TRANSPORT_PATTERNS",
+    "CHAT_PATTERNS",
+    # 辅助函数
+    "get_exclusion_keywords",
+    "has_exclusion_match",
+    "reload_keywords",
 ]
-
-QUERY_PATTERNS = [
-    r".{2,6}?怎么去",  # "北京怎么去"
-    r"如何前往.{2,6}",  # "如何前往上海"
-]
-
-HOTEL_PATTERNS = [
-    r".{2,6}?住哪里",  # "北京住哪里"
-    r".{2,6}?住宿推荐",  # "上海住宿推荐"
-]
-
-FOOD_PATTERNS = [
-    r".{2,6}?有什么好吃的",  # "成都有什么好吃的"
-    r".{2,6}?美食推荐",  # "重庆美食推荐"
-]
-
-BUDGET_PATTERNS = [
-    r".{2,6}?大概多少钱",  # "去北京大概多少钱"
-    r".{2,6}?预算多少",  # "5天预算多少"
-]
-
-TRANSPORT_PATTERNS = [
-    r".{2,6}?怎么去",  # "北京怎么去"
-    r"如何去.{2,6}",  # "如何去上海"
-]
-
-ALL_INTENT_PATTERNS = {
-    "itinerary": ITINERARY_PATTERNS,
-    "query": QUERY_PATTERNS,
-    "hotel": HOTEL_PATTERNS,
-    "food": FOOD_PATTERNS,
-    "budget": BUDGET_PATTERNS,
-    "transport": TRANSPORT_PATTERNS,
-}

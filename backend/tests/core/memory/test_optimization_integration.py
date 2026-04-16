@@ -242,7 +242,7 @@ class TestCrossComponentIntegration:
         # Verify forgetting curve defaults
         assert config.forgetting_threshold == 0.3
         assert config.forgetting_decay_factor == 30.0
-        assert config.forgetting_reinforce_boost == 0.05
+        assert config.forgetting_reinforce_boost == 0.10
 
         # Verify compression defaults
         assert config.compression_recent_limit == 5

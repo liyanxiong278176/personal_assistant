@@ -24,7 +24,7 @@ from app.core.prompts import PromptBuilder, PromptLayer, DEFAULT_SYSTEM_PROMPT
 from app.core.memory import MemoryHierarchy, MemoryItem, MemoryLevel
 from app.core.memory.injection import MemoryInjector
 from app.core.memory.promoter import MemoryPromoter
-from app.core.context_mgmt import ContextManager, TokenEstimator, ContextCompressor
+from app.core.context_mgmt import TokenEstimator, ContextCompressor  # ContextManager removed - unused
 from app.core.coordinator import Coordinator, create_worker
 from app.core.query_engine import QueryEngine
 
@@ -191,16 +191,14 @@ def test_context():
     tokens = TokenEstimator.estimate(text)
     print(f"[OK] Token 估算: '{text}' -> {tokens} tokens")
 
-    ctx = ContextManager(max_tokens=1000, auto_compress=True)
-    ctx.add_message("user", "你好")
-    ctx.add_message("assistant", "你好！有什么可以帮助你的？")
-    ctx.add_message("user", "我想去北京旅游")
+    # Test ContextCompressor directly (ContextManager removed - unused)
+    messages = [
+        {"role": "user", "content": "你好"},
+        {"role": "assistant", "content": "你好！有什么可以帮助你的？"},
+        {"role": "user", "content": "我想去北京旅游"},
+    ]
 
-    print(f"[OK] 添加了 3 条消息")
-    print(f"[OK] 当前 Token 数: {ctx.get_token_count()}")
-
-    messages = ctx.get_messages()
-    print(f"[OK] 获取消息数量: {len(messages)}")
+    print(f"[OK] 测试消息数量: {len(messages)}")
 
     compressor = ContextCompressor(max_tokens=100, compression_threshold=0.5)
     needs_compress = compressor.needs_compaction(messages)

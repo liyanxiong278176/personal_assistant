@@ -303,6 +303,28 @@ class MemoryHierarchy:
                             )
                         conflict_result.resolved_item = None
 
+                    elif conflict_result.operation == MemoryOperation.COMPLEMENT:
+                        # COMPLEMENT: 互补合并，删除旧记忆，添加合并后的记忆
+                        if conflict_result.existing_item:
+                            self._semantic = [
+                                m for m in self._semantic
+                                if m.item_id != conflict_result.existing_item.item_id
+                            ]
+                            logger.info(
+                                f"[MemoryHierarchy] COMPLEMENT: removed {conflict_result.existing_item.item_id} for merge"
+                            )
+                        # 添加合并后的记忆
+                        resolved_item = self._conflict_resolver._apply_resolution(conflict_result)
+                        if resolved_item:
+                            self._semantic.append(resolved_item)
+                            # JSONL备份
+                            if self._jsonl_backup:
+                                self._jsonl_backup.append(resolved_item)
+                            conflict_result.resolved_item = resolved_item
+                            logger.info(
+                                f"[MemoryHierarchy] COMPLEMENT: merged into {resolved_item.item_id}"
+                            )
+
                     else:
                         # 其他操作（UPDATE/DELETE/NOOP）由resolver处理
                         resolved_item = self._conflict_resolver._apply_resolution(conflict_result)

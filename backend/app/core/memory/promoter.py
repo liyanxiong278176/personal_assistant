@@ -67,23 +67,31 @@ class PromotionResult:
     """
 
     promoted_count: int = 0
+    retained_count: int = 0
+    discarded_count: int = 0
     skipped_count: int = 0
     errors: List[str] = None
     promoted_ids: List[str] = None
+    discarded_ids: List[str] = None
 
     def __post_init__(self):
         if self.errors is None:
             self.errors = []
         if self.promoted_ids is None:
             self.promoted_ids = []
+        if self.discarded_ids is None:
+            self.discarded_ids = []
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "promoted_count": self.promoted_count,
+            "retained_count": self.retained_count,
+            "discarded_count": self.discarded_count,
             "skipped_count": self.skipped_count,
             "errors": self.errors,
             "promoted_ids": self.promoted_ids,
+            "discarded_ids": self.discarded_ids,
         }
 
 
@@ -118,54 +126,62 @@ class MemoryPromoter:
         self,
         hierarchy: MemoryHierarchy,
         importance_threshold: float = 0.7,
+        discard_threshold: float = 0.4,
         llm_promoter: Optional["LLMMemoryPromoter"] = None,
     ):
         """Initialize the memory promoter.
 
         Args:
             hierarchy: MemoryHierarchy instance to promote memories from
-            importance_threshold: Minimum importance score for promotion (0.0 to 1.0)
+            importance_threshold: Minimum importance score for promotion (>0.7)
+            discard_threshold: Threshold below which memories are discarded (<0.4)
             llm_promoter: Optional LLMMemoryPromoter for two-stage evaluation
         """
         self._hierarchy = hierarchy
         self._importance_threshold = importance_threshold
+        self._discard_threshold = discard_threshold
         self._llm_promoter = llm_promoter
 
         # Track access counts for memory items
         self._access_counts: Dict[str, int] = {}
 
         logger.info(
-            f"[MemoryPromoter] Initialized with threshold={importance_threshold}"
+            f"[MemoryPromoter] Initialized with promotion_threshold={importance_threshold}, "
+            f"discard_threshold={discard_threshold}"
         )
 
     async def promote_episodic_to_semantic(
         self,
         user_id: str,
         conversation_id: Optional[UUID] = None,
-    ) -> int:
+    ) -> PromotionResult:
         """Promote important episodic memories to semantic memory.
 
-        Evaluates all episodic memories and promotes those that meet
-        the importance threshold to semantic memory.
+        三层评估后的处理：
+        - importance >= 0.7: 晋升为语义记忆
+        - 0.4 <= importance < 0.7: 保留为情景记忆（不动）
+        - importance < 0.4: 丢弃
 
         Args:
             user_id: User ID for semantic memory storage
             conversation_id: Optional conversation ID for filtering
 
         Returns:
-            Number of memories promoted
+            PromotionResult with promoted/retained/discarded counts
 
         Examples:
-            >>> count = await promoter.promote_episodic_to_semantic("user123")
-            >>> print(f"Promoted {count} memories to semantic storage")
+            >>> result = await promoter.promote_episodic_to_semantic("user123")
+            >>> print(f"Promoted: {result.promoted_count}, Retained: {result.retained_count}, Discarded: {result.discarded_count}")
         """
         episodic_memories = self._hierarchy.get_episodic(limit=100)
 
         if not episodic_memories:
             logger.debug("[MemoryPromoter] No episodic memories to evaluate")
-            return 0
+            return PromotionResult()
 
-        promoted_count = 0
+        result = PromotionResult()
+        discarded_ids = []
+        retained_ids = []
 
         for memory in episodic_memories:
             # Skip already promoted memories
@@ -186,9 +202,9 @@ class MemoryPromoter:
             # Update memory importance
             memory.importance = importance
 
-            # Promote if threshold met
+            # 三层评估后的处理
             if importance >= self._importance_threshold:
-                # Create semantic memory copy
+                # >= 0.7: 晋升为语义记忆
                 semantic_item = MemoryItem(
                     content=memory.content,
                     level=MemoryLevel.SEMANTIC,
@@ -199,19 +215,53 @@ class MemoryPromoter:
                 )
 
                 self._hierarchy.add_semantic(semantic_item)
-                promoted_count += 1
+                result.promoted_count += 1
+                result.promoted_ids.append(memory.item_id)
 
                 logger.info(
                     f"[MemoryPromoter] Promoted episodic to semantic: "
                     f"'{memory.content[:50]}...' (importance={importance:.2f})"
                 )
 
+            elif importance >= self._discard_threshold:
+                # 0.4-0.7: 保留为情景记忆（不动）
+                result.retained_count += 1
+                retained_ids.append(memory.item_id)
+
+                logger.debug(
+                    f"[MemoryPromoter] Retained as episodic: "
+                    f"'{memory.content[:50]}...' (importance={importance:.2f})"
+                )
+
+            else:
+                # < 0.4: 丢弃
+                result.discarded_count += 1
+                discarded_ids.append(memory.item_id)
+
+                logger.info(
+                    f"[MemoryPromoter] Discarded low-importance memory: "
+                    f"'{memory.content[:50]}...' (importance={importance:.2f})"
+                )
+
+        # 从hierarchy中丢弃低分记忆
+        if discarded_ids:
+            self._hierarchy._episodic = [
+                m for m in self._hierarchy._episodic
+                if m.item_id not in discarded_ids
+            ]
+            result.discarded_ids = discarded_ids
+
+            logger.info(
+                f"[MemoryPromoter] Discarded {len(discarded_ids)} low-importance memories"
+            )
+
         logger.info(
-            f"[MemoryPromoter] Promoted {promoted_count}/{len(episodic_memories)} "
-            f"episodic memories to semantic"
+            f"[MemoryPromoter] Evaluation complete: "
+            f"promoted={result.promoted_count}, retained={result.retained_count}, "
+            f"discarded={result.discarded_count}, total={len(episodic_memories)}"
         )
 
-        return promoted_count
+        return result
 
     async def auto_promote_from_conversation(
         self,

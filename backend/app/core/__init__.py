@@ -21,7 +21,7 @@ from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
 from .context_mgmt import (
     ContextCompressor,
-    ContextManager,
+    # ContextManager removed - unused, functionality handled by QueryEngine._conversation_history and ContextGuard
     TokenEstimator,
     AgentEnhancementConfig,
     InferenceGuard,
@@ -91,7 +91,7 @@ __all__ = [
     "get_global_engine",
     "set_global_engine",
     "ContextCompressor",
-    "ContextManager",
+    # ContextManager removed - unused, functionality handled by QueryEngine._conversation_history and ContextGuard
     "TokenEstimator",
     "MemoryHierarchy",
     "MemoryHierarchyFactory",

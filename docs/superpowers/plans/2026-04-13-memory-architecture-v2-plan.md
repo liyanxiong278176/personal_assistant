@@ -460,14 +460,20 @@ class MemoryConflictResolver:
                 timeout=5.0
             )
             
+            # ✅ 修复: 使用更严格的返回值匹配，防止误识别
             response = response.strip().upper()
             
-            if "UPDATE" in response:
-                return MemoryOperation.UPDATE
-            elif "DELETE" in response:
-                return MemoryOperation.DELETE
-            else:
-                return MemoryOperation.NOOP
+            # 提取第一个单词并精确匹配
+            first_word = response.split()[0] if response.split() else response
+            
+            operation_map = {
+                "UPDATE": MemoryOperation.UPDATE,
+                "DELETE": MemoryOperation.DELETE,
+                "NOOP": MemoryOperation.NOOP,
+                "ADD": MemoryOperation.ADD,
+            }
+            
+            return operation_map.get(first_word, MemoryOperation.NOOP)
                 
         except (asyncio.TimeoutError, Exception) as e:
             raise Exception(f"LLM确认失败: {e}")
@@ -705,6 +711,13 @@ class TTLMemoryManager:
     def __init__(self, config: TTLConfig = None):
         self._config = config or TTLConfig()
     
+    @staticmethod
+    def _ensure_utc(dt: datetime) -> datetime:
+        """✅ 修复: 统一时区处理，确保返回 UTC 时间"""
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+    
     def is_expired(self, item: MemoryItem) -> bool:
         """Check if memory is expired."""
         if item.created_at is None:
@@ -716,11 +729,9 @@ class TTLMemoryManager:
         else:
             ttl = self._config.TTL_BY_TYPE.get(item.memory_type, self._config.MEDIUM_TERM)
         
+        # ✅ 修复: 使用统一的时区处理函数
         now = datetime.now(timezone.utc)
-        if item.created_at.tzinfo is None:
-            created_at = item.created_at.replace(tzinfo=timezone.utc)
-        else:
-            created_at = item.created_at
+        created_at = self._ensure_utc(item.created_at)
         
         age = (now - created_at).total_seconds()
         return age > ttl
@@ -922,9 +933,13 @@ class RedisShortTermMemory:
             raise
     
     async def disconnect(self) -> None:
-        """Disconnect from Redis."""
+        """✅ 修复: 正确清理连接池和客户端"""
         if self._client:
             await self._client.aclose()
+            self._client = None
+        if self._pool:
+            await self._pool.disconnect()
+            self._pool = None
         self._connected = False
         logger.info("[RedisMemory] 🔌 连接已断开")
     
@@ -954,11 +969,12 @@ class RedisShortTermMemory:
                 "created_at": item.created_at.isoformat(),
             }
             
-            async with self._client.pipeline(transaction=True) as pipe:
-                pipe.lpush(key, json.dumps(data, ensure_ascii=False))
-                pipe.expire(key, ttl)
-                pipe.sadd(self._SESSION_KEY_PATTERN.format(prefix=self._config.key_prefix, user_id=user_id), session_id)
-                await pipe.execute()
+            # ✅ 修复: Redis pipeline 不支持 async with
+            pipe = self._client.pipeline(transaction=True)
+            pipe.lpush(key, json.dumps(data, ensure_ascii=False))
+            pipe.expire(key, ttl)
+            pipe.sadd(self._SESSION_KEY_PATTERN.format(prefix=self._config.key_prefix, user_id=user_id), session_id)
+            await pipe.execute()
             
             return True
             
@@ -985,8 +1001,9 @@ class RedisShortTermMemory:
                 try:
                     data = json.loads(raw)
                     memories.append(self._deserialize(data))
-                except Exception:
-                    pass
+                except Exception as e:
+                    # ✅ 修复: 添加日志便于调试
+                    logger.warning(f"[RedisMemory] 反序列化失败: {e}, raw={raw[:100]}")
             
             return memories
             
@@ -1125,13 +1142,22 @@ git commit -m "feat(memory): add Redis short-term memory storage
 # backend/app/core/memory/hierarchy.py
 
 # 修改 MemoryHierarchy.__init__
+# ✅ 修���: 添加 compact_mode 参数保持向后兼容性
 def __init__(
     self,
-    working_max_size: int = 6,  # ✅ 从 20 改为 6
-    working_max_tokens: int = 2000,  # ✅ 从 4000 改为 2000
+    working_max_size: int = 20,  # 保持旧默认值
+    working_max_tokens: int = 4000,  # 保持旧默认值
     conversation_id: Optional[UUID] = None,
     user_id: Optional[str] = None,
+    # v2.1 新增参数
+    compact_mode: bool = False,  # 启用新行为时设为 True
 ):
+    # 如果启用紧凑模式，使用新的默认值
+    if compact_mode:
+        if working_max_size == 20:  # 用户未指定时使用新值
+            working_max_size = 6
+        if working_max_tokens == 4000:
+            working_max_tokens = 2000
 ```
 
 - [ ] **Step 2: 添加新字段和方法**

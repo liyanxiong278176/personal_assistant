@@ -13,6 +13,8 @@ import logging
 import re
 from typing import List
 
+import jieba
+
 from app.core.memory.hierarchy import MemoryHierarchy, MemoryItem
 
 logger = logging.getLogger(__name__)
@@ -88,9 +90,6 @@ class MemoryInjector:
             hierarchy: MemoryHierarchy instance to retrieve memories from
         """
         self._hierarchy = hierarchy
-        # Chinese word pattern: match consecutive Chinese characters (2+ chars)
-        # We'll split the text into individual words in extract_keywords
-        self._chinese_char_pattern = re.compile(r'[\u4e00-\u9fff]+')
         self._english_pattern = re.compile(r'\b[a-zA-Z]{3,}\b')
         self._number_pattern = re.compile(r'\d+')
 
@@ -117,13 +116,17 @@ class MemoryInjector:
 
         keywords = set()
 
-        # Extract Chinese words
-        chinese_matches = self._chinese_char_pattern.findall(text)
-        for word in chinese_matches:
-            if word not in CHINESE_STOPWORDS:
+        # Extract Chinese words using jieba (2+ chars)
+        chinese_words = jieba.cut(text)
+        for word in chinese_words:
+            word = word.strip()
+            if not word:
+                continue
+            # Only process Chinese words in jieba block
+            if re.search(r'[\u4e00-\u9fff]', word) and len(word) >= 2 and word not in CHINESE_STOPWORDS:
                 keywords.add(word)
 
-        # Extract English words
+        # Extract English words (regex preserves word boundaries)
         english_matches = self._english_pattern.findall(text)
         for word in english_matches:
             word_lower = word.lower()
@@ -176,8 +179,10 @@ class MemoryInjector:
         # Get all semantic memories
         all_memories = self._hierarchy.get_semantic(
             limit=100,  # Get more to filter
-            min_importance=min_importance,
         )
+
+        # Filter by min_importance after retrieval
+        all_memories = [m for m in all_memories if m.importance >= min_importance]
 
         if not all_memories:
             logger.debug("[MemoryInjector] No semantic memories available")

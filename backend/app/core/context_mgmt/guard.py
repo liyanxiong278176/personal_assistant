@@ -139,16 +139,8 @@ class ContextGuard:
             llm_client: 可选的 LLM 客户端，用于摘要生成
         """
         self.config = config or get_default_config()
-        self.cleaner = ContextCleaner(
-            ttl_seconds=self.config.tool_result_ttl_seconds,
-            max_result_chars=self.config.max_tool_result_chars,
-            protected_roles=set(self.config.protected_message_types),
-        )
-        self.compressor = ContextCompressor(
-            max_tokens=int(self.config.window_size * self.config.compress_threshold),
-            compression_threshold=1.0,  # 压缩逻辑由 should_compress 控制
-            keep_recent=10,
-        )
+        self.cleaner = ContextCleaner(config=self.config)
+        self.compressor = ContextCompressor(config=self.config)
         self.reinjector = RuleReinjector(self.config)
         self._llm_client = llm_client
         self._summary_provider: Optional[LLMSummaryProvider] = None
@@ -247,29 +239,19 @@ class ContextGuard:
                 logger.info(f"[Security] Sensitive action flagged in conv={self._last_conv_id}")
 
         # 调用清理器进行自动清理（软修剪 + 硬清除）
-        cleaned = self.cleaner.clean(messages, mode="auto")
+        cleaned, clean_stats = self.cleaner.clean(messages, mode="auto")
 
-        # 获取清理统计
-        cleaner_stats = self.cleaner.get_stats()
-        expired_count = sum(
-            1 for m in cleaned if m.get("_expired")
-        )
-        trimmed_count = sum(
-            1 for m in cleaned if m.get("_trimmed")
-        )
-        cleared_count = sum(
-            1 for m in cleaned if m.get("_cleared")
-        )
-
-        self._stats["total_expired_cleaned"] += expired_count
-        self._stats["total_trimmed"] += trimmed_count
-        self._stats["total_cleared"] += cleared_count
+        # 更新统计
+        self._stats["total_expired_cleaned"] += clean_stats.expired_count
+        self._stats["total_trimmed"] += clean_stats.soft_trimmed_count
+        self._stats["total_cleared"] += clean_stats.hard_cleared_count
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         _log_guard_preprocess(
             self._last_conv_id,
-            len(messages), len(cleaned),
-            expired_count, trimmed_count, cleared_count,
+            clean_stats.input_count, clean_stats.output_count,
+            clean_stats.expired_count, clean_stats.soft_trimmed_count,
+            clean_stats.hard_cleared_count,
             elapsed_ms
         )
         return cleaned

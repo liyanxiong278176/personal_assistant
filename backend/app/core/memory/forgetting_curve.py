@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MemoryStrength:
     """Memory strength tracker (stored in metadata)."""
-    initial_strength: float = 0.5
+    initial_strength: float = 1.0
     created_at: float = field(default_factory=time.time)
     last_accessed: float = field(default_factory=time.time)
     access_count: int = 0
@@ -42,8 +42,8 @@ class MemoryStrength:
         """Reinforce memory on retrieval - each access strengthens memory."""
         self.access_count += 1
         self.last_accessed = time.time()
-        # Initial strength increases with each access, capped at 0.95
-        self.initial_strength = min(self.initial_strength + 0.05, 0.95)
+        # Initial strength increases with each access, capped at 1.0
+        self.initial_strength = min(self.initial_strength + 0.10, 1.0)
 
     def to_dict(self) -> dict:
         """Serialize to dict for metadata storage."""
