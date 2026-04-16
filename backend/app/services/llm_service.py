@@ -109,26 +109,16 @@ class LLMService:
         )
 
         # Add cross-session memory if user_id and message provided
+        # NOTE: 新记忆管理通过 QueryEngine 的 HybridRetriever 处理
+        # TODO: 如果需要在此处直接访问记忆，考虑通过 QueryEngine 的公共方法
         memory_context = ""
-        if user_id and user_message:
-            try:
-                from app.services.memory_service import memory_service
-                relevant_history = await memory_service.retrieve_relevant_history(
-                    user_id=user_id,
-                    query=user_message,
-                    k=3,
-                    score_threshold=0.02  # Very low threshold for L2 distance (similarity = 1/(1+distance))
-                )
-                if relevant_history:
-                    memory_lines = ["\n## 用户历史对话（供参考）"]
-                    for msg in relevant_history[:3]:  # Max 3 memories
-                        role = msg["metadata"].get("role", "user")
-                        role_name = "用户" if role == "user" else "助手"
-                        memory_lines.append(f"- {role_name}: {msg['content'][:100]}...")
-                    memory_context = "\n".join(memory_lines) + "\n"
-                    logger.info(f"[LLM] Retrieved {len(relevant_history)} cross-session memories")
-            except Exception as e:
-                logger.warning(f"Failed to retrieve memory: {e}")
+        # if user_id and user_message:
+        #     try:
+        #         # 新记忆管理已集成在 QueryEngine 中
+        #         # 使用 HybridRetriever 进行场景感知检索
+        #         pass
+        #     except Exception as e:
+        #         logger.warning(f"Failed to retrieve memory: {e}")
 
         # Add user preferences if user_id provided
         if user_id:

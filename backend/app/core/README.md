@@ -120,9 +120,9 @@ graph TB
         end
 
         subgraph "上下文管理"
-            CM[ContextManager<br/>上下文管理]
             CC[ContextCompressor<br/>上下文压缩]
             TE[TokenEstimator<br/>Token估算]
+            CG[ContextGuard<br/>上下文守卫]
         end
 
         subgraph "记忆系统"

@@ -17,7 +17,7 @@
 | 5 | Slash 命令系统 | PASS | /help, /plan, /weather, /reset 命令正常工作 |
 | 6 | Skill 触发系统 | PASS | 行程规划、景点推荐、旅行建议技能正确触发 |
 | 7 | 记忆系统 | PASS | MemoryHierarchy 3层结构正常工作 |
-| 8 | 上下文管理 | PASS | TokenEstimator 和 ContextManager 正常工作 |
+| 8 | 上下文管理 | PASS | TokenEstimator 和 ContextCompressor 正常工作 (ContextManager 已移除) |
 | 9 | Coordinator 并行执行 | PASS | Worker 创建和并行执行正常 |
 | 10 | QueryEngine 总控 | PASS | 意图路由和 LLM 处理正常工作 |
 | 11 | 端到端工作流 | PASS | 完整对话流程正常 |

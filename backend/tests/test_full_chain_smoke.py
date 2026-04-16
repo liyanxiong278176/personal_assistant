@@ -203,29 +203,7 @@ class TestPhase2CoreComponents:
         # 验证关键槽位被提取
         assert "destination" in slots or "目的地" in slots
 
-    @pytest.mark.asyncio
-    async def test_13_context_manager(self):
-        """测试上下文管理器"""
-        from app.core.context_mgmt.manager import ContextManager
-
-        mgr = ContextManager()
-
-        # 测试上下文管理
-        test_messages = [
-            {"role": "user", "content": "test message 1"},
-            {"role": "assistant", "content": "test response 1"},
-            {"role": "user", "content": TEST_REQUEST},
-        ]
-
-        # 构建上下文
-        context = await mgr.build_context(
-            conversation_id="test-conv",
-            messages=test_messages,
-            user_preferences={}
-        )
-
-        print(f"✓ Context manager: context built with {len(context.get('messages', []))} messages")
-        assert context is not None
+    # test_13_context_manager removed - ContextManager deleted (unused, functionality handled by QueryEngine._conversation_history and ContextGuard)
 
     @pytest.mark.asyncio
     async def test_14_memory_hierarchy(self):
@@ -294,10 +272,8 @@ class TestPhase2EightStepFlow:
     @pytest.mark.asyncio
     async def test_18_step7_context_management(self):
         """Step7: 上下文后置管理"""
-        from app.core.context_mgmt.manager import ContextManager
         from app.core.context_mgmt.cleaner import ContextCleaner
 
-        mgr = ContextManager()
         cleaner = ContextCleaner()
 
         # 测试上下文清理

@@ -1,0 +1,3 @@
+Requirement already satisfied: redis in D:\python3.13\Lib\site-packages (5.2.0)
+Requirement already satisfied: pyyaml in D:\python3.13\Lib\site-packages (6.0.3)
+Requirement already satisfied: numpy in D:\python3.13\Lib\site-packages (2.3.5)

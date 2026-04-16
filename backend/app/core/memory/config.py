@@ -30,8 +30,8 @@ class RetrievalScenario(str, Enum):
 class RetrievalThresholdConfig:
     """Scenario-based retrieval threshold configuration."""
 
-    STRICT_MIN_SCORE: float = 0.75
-    NORMAL_MIN_SCORE: float = 0.65
+    STRICT_MIN_SCORE: float = 0.70
+    NORMAL_MIN_SCORE: float = 0.60
     FUZZY_MIN_SCORE: float = 0.50
     DEFAULT_SCENARIO: RetrievalScenario = RetrievalScenario.NORMAL
 
@@ -134,7 +134,7 @@ class MemoryConfig:
     forgetting_enabled: bool = True
     forgetting_threshold: float = 0.3
     forgetting_decay_factor: float = 30.0
-    forgetting_reinforce_boost: float = 0.05
+    forgetting_reinforce_boost: float = 0.10
 
     # Compression settings
     compression_enabled: bool = True

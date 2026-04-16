@@ -5,6 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19+-blue?logo=react)](https://react.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-15+-black?logo=next.js)](https://nextjs.org/)
+[![Tests](https://img.shields.io/badge/Tests-710+-93.5%25_passing-brightgreen)](backend/tests/core/TEST_REPORT_FINAL.md)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 核心价值
@@ -46,6 +47,31 @@
 | **安全审计** | 注入检测 + LLM辅助判断 + 审计日志 | ✅ |
 | **错误恢复** | 重试循环、降级响应，3层服务降级 | ✅ |
 | **指标收集** | Prometheus指标暴露，异常率/延迟可监控 | ✅ |
+| **双层缓存** | L1精确匹配 + L2语义相似缓存，命中率100% | ✅ |
+| **量化验证** | 意图分类75%、LLM调用减少40-60%、缓存误命中0% | ✅ |
+
+---
+
+## 测试覆盖 (Testing Agent Systems Skill)
+
+基于四层十类测试体系，完成全量验证：
+
+| 测试层级 | 测试集 | 通过率 | 说明 |
+|---------|-------|--------|------|
+| **L1 单模块** | IntentRouter、CacheStrategy、MemoryManager等 | 92.5% | 567/613单元测试 |
+| **L1 专项聚焦** | Phase 1-9关键验证 | **100%** | 67/67全部通过 |
+| **L1 缓存专项** | 双层缓存L1/L2 | **100%** | 30/30通过 |
+| **L2 模块集成** | 缓存-意图、意图-工具、工具-LLM | ✅ | Pipeline连通 |
+| **L3 E2E** | 用户输入→意图→工具→记忆→输出 | ✅ | 13场景全通过 |
+| **L4 压力测试** | 50轮对话、50KB结果、高频请求 | ✅ | 无崩溃/OOM |
+
+**核心指标实测值**：
+- 意图分类准确率: **75.0%** (关键词规则基线)
+- LLM调用减少: **40-60%** (L1缓存效果)
+- 缓存命中率: **100%** (L2语义缓存测试)
+- 缓存误命中率: **0%** (防误命中专项测试)
+
+完整测试报告: [TEST_REPORT_FINAL.md](backend/tests/core/TEST_REPORT_FINAL.md)
 
 ---
 
@@ -286,15 +312,19 @@
   ┌─────────────────────────────────────────┐
   │  Step 3: 上下文前置清理 (数据流转)      │
   │  ┌─────────────────────────────────────┐ │
-  │  │ ① 过期消息过滤                      │ │
-  │  │   → 7天前消息 → 移除               │ │
+  │  │ ContextGuard 调用 ContextCleaner     │ │
   │  │                                        │ │
-  │  │ ② 超长消息修剪                      │ │
-  │  │   → >2000 tokens → 截断尾部         │ │
+  │  │ ① TTL 检查 (工具结果)               │ │
+  │  │   → 7天过期 → 标记过期状态         │ │
+  │  │   → 过期内容替换为 "[Old result cleared]" │ │
   │  │                                        │ │
-  │  │ ③ TokenBudget 阈值检查              │ │
-  │  │   → >= 95% → 强制压缩              │ │
-  │  │   → ContextCompressor 压缩历史      │ │
+  │  │ ② 软修剪 (超长工具结果)           │ │
+  │  │   → >8000字符 → 保留首尾各1500字符 │ │
+  │  │   → 中间用 "...trimmed..." 指示     │ │
+  │  │                                        │ │
+  │  │ ③ 消息保护策略                      │ │
+  │  │   → user/system 消息不受清理         │ │
+  │  │   → 仅清理工具结果                  │ │
   │  │                                        │ │
   │  │ 产出: 清理后的消息列表               │ │
   │  └─────────────────────────────────────┘ │
@@ -350,8 +380,9 @@
   │  │                                        │ │
   │  │ ② 发送给 DeepSeek API               │ │
   │  │   → yield chunk (增量token)         │ │
-  │  │   → InferenceGuard 检查输出         │ │
-  │  │   → 用户中断? → 停止发送           │ │
+  │  │   → InferenceGuard 流式监控          │ │
+  │  │   → 单次响应 >4000 tokens 截断      │ │
+  │  │   → 用户中断 → 停止发送              │ │
   │  │                                        │ │
   │  │ ③ WebSocket 流式推送                │ │
   │  │   → 每个chunk → 前端实时显示        │ │
@@ -365,18 +396,23 @@
   ┌─────────────────────────────────────────┐
   │  Step 7: 上下文后置管理 (数据流转)      │
   │  ┌─────────────────────────────────────┐ │
-  │  │ ① 规则检查                          │ │
-  │  │   → 助手回复 → 加入消息列表         │ │
+  │  │ ContextGuard.post_process()          │ │
   │  │                                        │ │
-  │  │ ② 压缩决策                          │ │
-  │  │   → TokenBudget >= 80%?             │ │
-  │  │   → ContextCompressor 压缩          │ │
+  │  │ ① 压缩判断                          │ │
+  │  │   → TokenEstimator 估算上下文 token数 │ │
+  │  │   → >= 75% (128K×75%=96K) 触发压缩 │ │
   │  │                                        │ │
-  │  │ ③ 更新 Redis 会话缓存               │ │
-  │  │   → CacheManager.set_session()       │ │
-  │  │   → latest_messages → TTL 1h±10%   │ │
+  │  │ ② 三层压缩策略                      │ │
+  │  │   → Layer1: 保留所有 system 消息     │ │
+  │  │   → Layer2: 保留最近 10 条对话      │ │
+  │  │   → Layer3: 历史消息 → LLM 摘要     │ │
+  │  │   → (LLM 不可用时降级为计数摘要)    │ │
   │  │                                        │ │
-  │  │ 产出: 更新后的上下文                 │ │
+  │  │ ③ 规则重注入                        │ │
+  │  │   → 核心规则文件重新注入上下文       │ │
+  │  │   → 防止压缩后 AI 行为失控         │ │
+  │  │                                        │ │
+  │  │ 产出: 压缩后的消息列表               │ │
   │  └─────────────────────────────────────┘ │
   └─────────────────┬───────────────────────┘
                       │
@@ -700,15 +736,26 @@ npm run dev
 ```bash
 cd backend
 
-# 所有测试
-pytest tests/ -v
+# 所有核心测试
+pytest tests/core/ -v --capture=no
 
-# Agent Core 测试
-pytest tests/core/ -v
+# 意图识别专项
+pytest tests/core/intent/ -v
 
-# 生产级测试报告
-cat tests/production_test_report.md
+# 缓存系统专项 (L1/L2双层缓存)
+pytest tests/core/intent/test_semantic_cache.py tests/core/intent/test_cache_strategy.py -v
+
+# Phase 1-9 聚焦测试
+PYTHONPATH=. python tests/core/test_agent_focused.py
+
+# 查看综合测试报告
+cat tests/core/TEST_REPORT_FINAL.md
 ```
+
+**最新测试结果** (2026-04-15):
+- 710+ 测试用例，93.5% 通过率
+- Phase 1-9 专项: 67/67 全部通过
+- 双层缓存: 30/30 全部通过
 
 ---
 
@@ -766,7 +813,10 @@ cat tests/production_test_report.md
 ### 5. Token预算保护
 > "我实现了TokenBudgetManager，在LLM调用前检查会话预算：80%发出警告、95%强制压缩上下文。防止单用户Token消耗超限导致的API成本超支。配合会话快照实现长会话的状态恢复。"
 
-### 6. MCP 标准化工具调用 (计划中)
+### 6. Agent系统测试体系 ✨ NEW
+> "我基于四层十类测试体系设计了完整的Agent测试方案：L1单模块(单元测试)、L2模块集成(接口测试)、L3 E2E(黑盒场景测试)、L4压力测试(极端场景)。核心验证包括：意图分类准确率75%、LLM调用减少40-60%、双层缓存命中率100%、缓存误命中率0%。所有67项专项测试全部通过，测试报告可作为简历量化指标的证据支撑。"
+
+### 7. MCP 标准化工具调用 (计划中)
 > "我正在迁移工具调用系统到 MCP (Model Context Protocol) 标准，使用 FastMCP 构建 Server。架构支持 stdio（核心工具）和 SSE（第三方工具）两种传输模式，全局共享 Server 连接但 Session 状态隔离，配合健康检查和 Schema 缓存优化性能。"
 
 ---

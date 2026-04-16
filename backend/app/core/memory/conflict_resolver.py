@@ -3,6 +3,7 @@
 
 import asyncio
 import logging
+import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, TYPE_CHECKING
@@ -21,6 +22,7 @@ class MemoryOperation(Enum):
     NOOP = "noop"
     OVERWRITE = "overwrite"  # v2.3新增：完全替换
     CLEAR = "clear"  # v2.3新增：批量清除
+    COMPLEMENT = "complement"  # 互补合并：新旧记忆互补，构建完整记忆
 
 
 @dataclass
@@ -66,7 +68,8 @@ class MemoryConflictResolver:
             MemoryOperation.DELETE,
             MemoryOperation.NOOP,
             MemoryOperation.OVERWRITE,  # v2.3新增
-            MemoryOperation.CLEAR,  # v2.3新增
+            MemoryOperation.CLEAR,  # v2.3新���
+            MemoryOperation.COMPLEMENT,  # 互补合并
         )
         result.resolved_item = self._apply_resolution(result)
         return result
@@ -89,6 +92,11 @@ class MemoryConflictResolver:
         elif result.operation == MemoryOperation.CLEAR:
             # v2.3新增：批量清除，返回None
             return None
+        elif result.operation == MemoryOperation.COMPLEMENT:
+            # 互补合并：新旧记忆互补，构建完整记忆
+            if result.existing_item and result.new_item:
+                return self._merge_complementary(result.existing_item, result.new_item)
+            return result.new_item
         elif result.operation == MemoryOperation.DELETE:
             return None
         else:  # NOOP
@@ -125,6 +133,66 @@ class MemoryConflictResolver:
             operation=MemoryOperation.ADD,
             new_item=new_memory,
             reason="全新信息，无冲突"
+        )
+
+    def _merge_complementary(
+        self,
+        existing: "MemoryItem",
+        new: "MemoryItem"
+    ) -> "MemoryItem":
+        """Merge complementary memories into a complete memory.
+
+        互补合并策略：
+        - 合并内容：保留两部分的完整信息
+        - 合并元数据：取并集
+        - 强化记忆：提升记忆强度和重要性
+        """
+        from app.core.memory.hierarchy import MemoryItem
+
+        # 智能合并内容（去重拼接）
+        existing_content = existing.content.strip()
+        new_content = new.content.strip()
+
+        # 如果新内容已包含在旧内容中，返回旧记忆
+        if new_content in existing_content:
+            merged_content = existing_content
+        # 如果旧内容已包含在新内容中，返回新记忆
+        elif existing_content in new_content:
+            merged_content = new_content
+        # 否则拼接，使用分隔符
+        else:
+            # 尝试找到合适的连接词
+            separators = ["，", "；", "。", "；", ", "]
+            merged_content = existing_content
+            for sep in separators:
+                if not existing_content.endswith(sep):
+                    merged_content = existing_content + sep + new_content
+                    break
+            else:
+                merged_content = f"{existing_content}；{new_content}"
+
+        # 合并 metadata
+        merged_metadata = existing.metadata.copy()
+        merged_metadata.update(new.metadata or {})
+        merged_metadata["complementary_merge"] = True
+        merged_metadata["merged_at"] = time.time()
+
+        # 合并重要性（取最大值并略微提升）
+        merged_importance = max(existing.importance, new.importance)
+        merged_importance = min(merged_importance + 0.05, 1.0)
+
+        # 合并置信度
+        merged_confidence = max(existing.confidence, new.confidence)
+
+        return MemoryItem(
+            content=merged_content,
+            level=existing.level,
+            memory_type=existing.memory_type,
+            metadata=merged_metadata,
+            confidence=merged_confidence,
+            importance=merged_importance,
+            created_at=existing.created_at,  # 保留原始创建时间
+            item_id=existing.item_id,  # 保留原有 ID
         )
 
     async def _compute_similarity_safe(
@@ -180,6 +248,7 @@ class MemoryConflictResolver:
             "DELETE": MemoryOperation.DELETE,
             "NOOP": MemoryOperation.NOOP,
             "ADD": MemoryOperation.ADD,
+            "COMPLEMENT": MemoryOperation.COMPLEMENT,
         }
 
         first_word = response.split()[0] if response.split() else response
@@ -209,6 +278,7 @@ class MemoryConflictResolver:
 - NOOP: 新信息与旧信息一致或重复
 - DELETE: 新信息表示旧信息已失效
 - CLEAR: 清除某类型的所有记忆（格式: CLEAR:类型，如CLEAR:PREFERENCE，或仅CLEAR）
+- COMPLEMENT: 新信息与旧信息互补，需要合并成完整记忆
 
 只回答选项名称，不要解释。
 """

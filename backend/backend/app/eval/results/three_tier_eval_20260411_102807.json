@@ -1,0 +1,1124 @@
+{
+  "summary": {
+    "total_cases": 103,
+    "total_correct": 92,
+    "overall_accuracy": 0.8932038834951457,
+    "high_freq_accuracy": 0.918918918918919,
+    "low_freq_accuracy": 0.75,
+    "edge_accuracy": 0.9230769230769231,
+    "ambiguous_accuracy": 0
+  },
+  "tier_results": {
+    "cache": {
+      "coverage_rate": 0.0,
+      "accuracy": 0,
+      "avg_confidence": 0,
+      "avg_response_time_ms": 0
+    },
+    "keyword": {
+      "coverage_rate": 1.0,
+      "accuracy": 0.0,
+      "avg_confidence": 0.562621359223301,
+      "avg_response_time_ms": 0.2534262134096793
+    },
+    "llm": {
+      "coverage_rate": 1.0,
+      "accuracy": 0.8932038834951457,
+      "avg_confidence": 0.8150485436893204,
+      "avg_response_time_ms": 3008.06065048563
+    }
+  },
+  "confusion_matrix": {
+    "itinerary": {
+      "itinerary": 19,
+      "hotel": 1,
+      "query": 1
+    },
+    "query": {
+      "query": 18,
+      "transport": 3,
+      "itinerary": 2
+    },
+    "hotel": {
+      "hotel": 15,
+      "query": 1
+    },
+    "food": {
+      "food": 10,
+      "query": 1
+    },
+    "budget": {
+      "budget": 11,
+      "chat": 1
+    },
+    "transport": {
+      "transport": 9,
+      "itinerary": 1
+    },
+    "chat": {
+      "chat": 10
+    }
+  },
+  "intent_stats": {
+    "itinerary": {
+      "correct": 19,
+      "total": 21
+    },
+    "query": {
+      "correct": 18,
+      "total": 23
+    },
+    "hotel": {
+      "correct": 15,
+      "total": 16
+    },
+    "food": {
+      "correct": 10,
+      "total": 11
+    },
+    "budget": {
+      "correct": 11,
+      "total": 12
+    },
+    "transport": {
+      "correct": 9,
+      "total": 10
+    },
+    "chat": {
+      "correct": 10,
+      "total": 10
+    }
+  },
+  "detailed_results": [
+    {
+      "id": 1,
+      "query": "帮我规划北京三日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 2,
+      "query": "制定一个上海旅游计划",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 3,
+      "query": "安排一下西安五日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 4,
+      "query": "我想去成都玩两天",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 13,
+      "query": "帮我规划行程",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 14,
+      "query": "北京三日游路线",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 15,
+      "query": "旅游计划",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 16,
+      "query": "去云南玩",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 31,
+      "query": "北京三日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.8,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 32,
+      "query": "上海两日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 33,
+      "query": "五天去哪玩",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 65,
+      "query": "帮我定制一个豪华游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 66,
+      "query": "设计一条文化之旅",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 81,
+      "query": "北三日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 82,
+      "query": "上海游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 83,
+      "query": "两日游",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 97,
+      "query": "5天假去哪",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.8,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 98,
+      "query": "周末计划",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 102,
+      "query": "安排一下",
+      "expected": "itinerary",
+      "predicted": "itinerary",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 105,
+      "query": "帮订机票和酒店",
+      "expected": "itinerary",
+      "predicted": "hotel",
+      "correct": false,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 5,
+      "query": "北京有什么好玩的",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 6,
+      "query": "上海天气怎么样",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 7,
+      "query": "杭州明天有雨吗",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 8,
+      "query": "怎么去故宫",
+      "expected": "query",
+      "predicted": "transport",
+      "correct": false,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 17,
+      "query": "北京怎么去",
+      "expected": "query",
+      "predicted": "transport",
+      "correct": false,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 18,
+      "query": "如何前往上海",
+      "expected": "query",
+      "predicted": "transport",
+      "correct": false,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 19,
+      "query": "门票价格",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 20,
+      "query": "开放时间",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 34,
+      "query": "西湖天气",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 35,
+      "query": "下雨吗",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 36,
+      "query": "需要带伞吗",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 37,
+      "query": "有太阳吗",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.8,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 38,
+      "query": "热不热",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 39,
+      "query": "风力多大",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 40,
+      "query": "穿衣建议",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.8,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 67,
+      "query": "推荐个好地方",
+      "expected": "query",
+      "predicted": "itinerary",
+      "correct": false,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 9,
+      "query": "找北京的酒店",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 21,
+      "query": "住宿推荐",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 22,
+      "query": "住哪里",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 41,
+      "query": "酒店",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 42,
+      "query": "住宿",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 43,
+      "query": "民宿",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 44,
+      "query": "宾馆",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 45,
+      "query": "青年旅舍",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 46,
+      "query": "招待所",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 69,
+      "query": "住的地方",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 10,
+      "query": "推荐一些美食",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 23,
+      "query": "有什么好吃的",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 24,
+      "query": "美食推荐",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 47,
+      "query": "美食",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 48,
+      "query": "小吃",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 49,
+      "query": "餐厅",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 71,
+      "query": "有啥特色菜",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 72,
+      "query": "当地美食",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 11,
+      "query": "大概多少钱",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 25,
+      "query": "预算多少",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 26,
+      "query": "多少钱",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 53,
+      "query": "预算",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 54,
+      "query": "花费",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 55,
+      "query": "便宜",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 56,
+      "query": "贵",
+      "expected": "budget",
+      "predicted": "chat",
+      "correct": false,
+      "confidence": 0.2,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 57,
+      "query": "价位",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 58,
+      "query": "怎么去",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 59,
+      "query": "交通",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 60,
+      "query": "飞机",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 61,
+      "query": "高铁",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 62,
+      "query": "开车",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 63,
+      "query": "自驾",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 12,
+      "query": "你好",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 27,
+      "query": "在吗",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 28,
+      "query": "谢谢",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 29,
+      "query": "哈哈",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 30,
+      "query": "帮忙",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.2,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 64,
+      "query": "您好",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "high_freq"
+    },
+    {
+      "id": 70,
+      "query": "找个歇脚处",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 73,
+      "query": "人均多少",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 74,
+      "query": "总预算",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 75,
+      "query": "怎么走",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 76,
+      "query": "坐什么车",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 77,
+      "query": "在不在",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 78,
+      "query": "有人吗",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 79,
+      "query": "嗨",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 80,
+      "query": "晚上好",
+      "expected": "chat",
+      "predicted": "chat",
+      "correct": true,
+      "confidence": 0.95,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 68,
+      "query": "那个景点怎么样",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 99,
+      "query": "那边怎么样",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 103,
+      "query": "不想去人多的地方",
+      "expected": "query",
+      "predicted": "itinerary",
+      "correct": false,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 104,
+      "query": "那里好玩吗",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 100,
+      "query": "推荐一下",
+      "expected": "food",
+      "predicted": "query",
+      "correct": false,
+      "confidence": 0.6,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 101,
+      "query": "找个地方",
+      "expected": "hotel",
+      "predicted": "query",
+      "correct": false,
+      "confidence": 0.3,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 106,
+      "query": "吃住行",
+      "expected": "itinerary",
+      "predicted": "query",
+      "correct": false,
+      "confidence": 0.6,
+      "tier": "llm",
+      "category": "low_freq"
+    },
+    {
+      "id": 84,
+      "query": "天气",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 85,
+      "query": "雨",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 86,
+      "query": "伞",
+      "expected": "query",
+      "predicted": "query",
+      "correct": true,
+      "confidence": 0.6,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 87,
+      "query": "旅舍",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 88,
+      "query": "旅馆",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 89,
+      "query": "入住",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.85,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 90,
+      "query": "房间",
+      "expected": "hotel",
+      "predicted": "hotel",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 91,
+      "query": "吃啥",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 92,
+      "query": "好吃吗",
+      "expected": "food",
+      "predicted": "food",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 93,
+      "query": "省钱",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 94,
+      "query": "花销",
+      "expected": "budget",
+      "predicted": "budget",
+      "correct": true,
+      "confidence": 0.9,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 95,
+      "query": "出行",
+      "expected": "transport",
+      "predicted": "itinerary",
+      "correct": false,
+      "confidence": 0.6,
+      "tier": "llm",
+      "category": "edge"
+    },
+    {
+      "id": 96,
+      "query": "交通工具",
+      "expected": "transport",
+      "predicted": "transport",
+      "correct": true,
+      "confidence": 0.7,
+      "tier": "llm",
+      "category": "edge"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ Design:
     - Trusts LLM's confidence output directly
     - No二次判断 - LLM's judgment is final
     - Can return confidence 0.0-1.0 (full range)
+    - Supports 7 fine-grained intent types for travel assistant
 """
 
 import json
@@ -19,22 +20,26 @@ from app.core.context import RequestContext, IntentResult
 logger = logging.getLogger(__name__)
 
 # Classification prompt template - optimized for structured output
-_CLASSIFICATION_PROMPT = """你是一个意图分类专家。分析用户消息，判断用户意图。
+_CLASSIFICATION_PROMPT = """你是一个旅游助手意图分类专家。分析用户消息，判断用户意图。
 
 用户消息：{message}
 
 请判断用户意图并返回JSON：
 {{
-  "intent": "itinerary|query|image|chat",
+  "intent": "itinerary|query|hotel|food|budget|transport|chat|image",
   "confidence": 0.0-1.0,
   "reasoning": "简要说明判断依据"
 }}
 
 意图说明：
-- itinerary: 用户想要规划/调整旅行行程
-- query: 用户想查询具体信息（天气、交通、景点等）
+- itinerary: 用户想要规划/调整旅行行程（如"帮我规划北京三日游"、"制定旅游计划"）
+- query: 用户想查询具体信息（如"北京天气怎么样"、"故宫开放时间"、"景点门票价格"）
+- hotel: 用户查询/预订住宿（如"找酒店"、"住哪里"、"住宿推荐"、"民宿"）
+- food: 用户查询美食/餐厅（如"推荐美食"、"有什么好吃的"、"当地特色菜"）
+- budget: 用户询问预算/费用（如"预算多少"、"大概多少钱"、"花费"）
+- transport: 用户询问交通方式（如"怎么去"、"交通方式"、"坐高铁"、"坐飞机"）
+- chat: 普通对话、问候、闲聊（如"你好"、"谢谢"、"在吗"）
 - image: 用户上传图片需要识别
-- chat: 普通对话、问候、闲聊
 
 置信度说明：
 - 0.9-1.0: 意图非常明确，无需澄清
@@ -65,9 +70,9 @@ class LLMStrategy:
 
         Args:
             llm_client: LLM client for classification
-            model: Model name to use
+            model: Model name for classification
             timeout: Request timeout in seconds
-            max_retries: Maximum retry attempts
+            max_retries: Maximum number of retries
         """
         self._llm_client = llm_client
         self._model = model
@@ -76,38 +81,28 @@ class LLMStrategy:
 
     @property
     def priority(self) -> int:
-        """Priority 100 - lowest, executes as fallback."""
+        """Priority 100 - executes last as fallback."""
         return 100
 
     def estimated_cost(self) -> float:
         """Estimated token cost for LLM classification."""
-        return 300.0
+        return 300.0  # Approximately 300 tokens per classification
 
     async def can_handle(self, context: RequestContext) -> bool:
-        """Always returns True - fallback strategy handles any request.
-
-        Args:
-            context: The request context
-
-        Returns:
-            True - always available as fallback
-        """
+        """Always returns True - this is the fallback strategy."""
         return True
 
     async def classify(self, context: RequestContext) -> IntentResult:
         """Classify intent using LLM.
 
-        Returns LLM's confidence as-is - no二次判断.
-
         Args:
             context: The request context
 
         Returns:
-            IntentResult with LLM's confidence directly
+            IntentResult with intent, confidence, method="llm"
         """
-        # Check if LLM client is available
-        if self._llm_client is None:
-            logger.warning("[LLMStrategy] No LLM client available")
+        if not self._llm_client:
+            # No LLM client available - return default
             return IntentResult(
                 intent="chat",
                 confidence=0.5,
@@ -136,7 +131,6 @@ class LLMStrategy:
                     logger.info(
                         f"[LLMStrategy] Classified as {intent} with confidence {confidence:.2f}"
                     )
-
                     return IntentResult(
                         intent=intent,
                         confidence=confidence,  # Use LLM's confidence as-is
@@ -168,93 +162,73 @@ class LLMStrategy:
 
         Returns:
             LLM response string
-
-        Raises:
-            TimeoutError: If LLM call times out
-            Exception: For other LLM errors
         """
-        # This is a placeholder - actual implementation depends on LLM client
-        # For now, assume the client has a chat method
-        import asyncio
-
         try:
-            # Wrap with timeout
-            response = await asyncio.wait_for(
-                self._llm_client.chat(
-                    messages=[{"role": "user", "content": prompt}],
-                    system_prompt="You are an intent classifier. Respond only with valid JSON."
-                ),
-                timeout=self._timeout
+            # Use chat method for simple completion
+            response = await self._llm_client.chat(
+                messages=[{"role": "user", "content": prompt}],
+                system_prompt=None,
             )
             return response
-        except asyncio.TimeoutError:
-            raise TimeoutError(f"LLM call timed out after {self._timeout}s")
+        except Exception as e:
+            raise  # Re-raise for retry logic
 
     def _parse_response(self, response: str) -> Optional[dict]:
-        """Parse LLM response to extract intent, confidence, reasoning.
+        """Parse LLM response to extract intent and confidence.
 
         Args:
             response: Raw LLM response string
 
         Returns:
-            dict with 'intent', 'confidence', and optional 'reasoning'
+            Parsed dict with intent, confidence, reasoning or None
         """
-        response = response.strip()
+        if not response:
+            return None
 
-        # Try direct JSON parse
+        # Try direct JSON parse first
         try:
-            data = json.loads(response)
-            if "intent" in data:
-                return {
-                    "intent": data["intent"],
-                    "confidence": float(data.get("confidence", 0.5)),
-                    "reasoning": data.get("reasoning", "")
-                }
+            return json.loads(response.strip())
         except json.JSONDecodeError:
             pass
 
-        # Try to find JSON in markdown code blocks
-        if "```" in response:
-            parts = response.split("```")
-            for i, part in enumerate(parts):
-                if i % 2 == 1:  # Content inside code blocks
-                    lines = part.split("\n", 1)
-                    json_content = lines[1] if len(lines) > 1 else part
-                    try:
-                        data = json.loads(json_content.strip())
-                        if "intent" in data:
-                            return {
-                                "intent": data["intent"],
-                                "confidence": float(data.get("confidence", 0.5)),
-                                "reasoning": data.get("reasoning", "")
-                            }
-                    except json.JSONDecodeError:
-                        continue
-
-        # Try regex to find JSON object
-        json_pattern = r'\{[^{}]*"intent"\s*:\s*"[^"]*"[^{}]*"confidence"\s*:\s*[0-9.]+[^{}]*\}'
-        matches = re.findall(json_pattern, response)
-        for match in matches:
+        # Try to extract JSON from markdown code block
+        json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response, re.DOTALL)
+        if json_match:
             try:
-                data = json.loads(match)
-                return {
-                    "intent": data["intent"],
-                    "confidence": float(data.get("confidence", 0.5)),
-                    "reasoning": data.get("reasoning", "")
-                }
+                return json.loads(json_match.group(1))
             except json.JSONDecodeError:
-                continue
+                pass
 
+        # Try to find JSON object in response
+        json_match = re.search(r'\{[^{}]*"intent"[^{}]*\}', response)
+        if json_match:
+            try:
+                return json.loads(json_match.group(0))
+            except json.JSONDecodeError:
+                pass
+
+        # Fallback: extract intent and confidence using regex
+        intent_match = re.search(r'"intent"\s*:\s*"([^"]+)"', response)
+        conf_match = re.search(r'"confidence"\s*:\s*([0-9.]+)', response)
+
+        if intent_match and conf_match:
+            return {
+                "intent": intent_match.group(1),
+                "confidence": float(conf_match.group(1)),
+                "reasoning": "Parsed from partial response",
+            }
+
+        logger.warning(f"[LLMStrategy] Could not parse response: {response[:200]}")
         return None
 
     def _fallback_result(self, reason: str) -> IntentResult:
-        """Create a fallback result when LLM fails.
+        """Return fallback result when LLM fails.
 
         Args:
-            reason: Why LLM failed
+            reason: Reason for fallback
 
         Returns:
-            IntentResult with chat intent and low confidence
+            IntentResult with default chat intent
         """
         return IntentResult(
             intent="chat",

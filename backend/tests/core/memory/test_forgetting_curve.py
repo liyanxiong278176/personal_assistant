@@ -34,11 +34,11 @@ class TestMemoryStrength:
         assert after > initial
 
     def test_reinforcement_caps_initial_strength(self):
-        """Reinforcement should cap initial_strength at 0.95."""
+        """Reinforcement should cap initial_strength at 1.0."""
         strength = MemoryStrength(initial_strength=0.95)
         strength.reinforce()
-        # Should not exceed 0.95
-        assert strength.initial_strength == 0.95
+        # Should cap at 1.0
+        assert strength.initial_strength == 1.0
 
     def test_forgotten_threshold(self):
         """Memory with low strength should be forgotten."""

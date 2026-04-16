@@ -60,6 +60,59 @@ export interface ChartsData {
 }
 
 /**
+ * Intent classification evaluation result (Three-Tier System)
+ */
+export interface IntentEvalResult {
+  summary: {
+    total_cases: number;
+    correct_predictions: number;
+    accuracy: number;
+    high_freq_accuracy: number;
+    low_freq_accuracy: number;
+    edge_accuracy: number;
+    ambiguous_accuracy: number;
+  };
+  // Three-tier results
+  tier_results: {
+    cache: {
+      coverage_rate: number;
+      accuracy: number;
+      avg_confidence: number;
+      avg_response_time_ms: number;
+    };
+    keyword: {
+      coverage_rate: number;
+      accuracy: number;
+      avg_confidence: number;
+      avg_response_time_ms: number;
+    };
+    llm: {
+      coverage_rate: number;
+      accuracy: number;
+      avg_confidence: number;
+      avg_response_time_ms: number;
+    };
+  };
+  // Combined keyword + LLM coverage
+  combined_coverage: number;
+  // Confusion matrix
+  confusion_matrix: Record<string, Record<string, number>>;
+  // Intent stats
+  intent_stats: Record<string, { correct: number; total: number }>;
+  // Detailed results
+  detailed_results: Array<{
+    id: number;
+    query: string;
+    expected: string;
+    predicted: string;
+    correct: boolean;
+    confidence: number;
+    tier: string;
+    category: string;
+  }>;
+}
+
+/**
  * API response wrapper for eval endpoints
  */
 interface EvalApiResponse<T> {
@@ -118,5 +171,39 @@ export const evalApi = {
       headers: getAuthHeaders(),
     });
     return handleEvalResponse<ChartsData>(response);
+  },
+
+  /**
+   * Run offline intent classification evaluation
+   * @param limit - Optional limit on test cases (for quick testing)
+   * @returns Complete intent evaluation result with confusion matrix
+   */
+  async runIntentEval(limit?: number): Promise<IntentEvalResult> {
+    const url = limit
+      ? `${API_BASE}/api/v1/eval/intent/run?limit=${limit}`
+      : `${API_BASE}/api/v1/eval/intent/run`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+    });
+    return handleEvalResponse<IntentEvalResult>(response);
+  },
+
+  /**
+   * Get intent test cases list
+   * @returns List of test cases with expected intents
+   */
+  async getTestCases(): Promise<
+    Array<{ id: number; query: string; expected_intent: string; category: string }>
+  > {
+    const response = await fetch(`${API_BASE}/api/v1/eval/intent/test-cases`, {
+      headers: getAuthHeaders(),
+    });
+    return handleEvalResponse<
+      Array<{ id: number; query: string; expected_intent: string; category: string }>
+    >(response);
   },
 };
