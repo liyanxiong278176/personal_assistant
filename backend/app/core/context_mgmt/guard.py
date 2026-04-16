@@ -159,6 +159,11 @@ class ContextGuard:
             "total_cleared": 0,
             "total_compressed": 0,
             "total_rules_injected": 0,
+            # Monitor: extended statistics for dashboard
+            "current_tokens": 0,
+            "token_history": [],
+            "last_compression": None,
+            "current_phase": "idle",
         }
 
         _log_guard_init(
@@ -216,6 +221,8 @@ class ContextGuard:
         2. 软修剪 - 超长结果保留首尾
         3. 硬清除 - 替换过期结果为占位符
 
+        Monitor: 记录处理阶段和 token 采样
+
         Args:
             messages: 原始消息列表
 
@@ -223,6 +230,7 @@ class ContextGuard:
             清理后的消息列表（新列表，不修改原列表）
         """
         self._stats["pre_process_count"] += 1
+        self.set_phase("pre_clean")
         start_time = time.perf_counter()
 
         if not messages:
@@ -254,6 +262,11 @@ class ContextGuard:
             clean_stats.hard_cleared_count,
             elapsed_ms
         )
+
+        # Monitor: record token sample after cleaning
+        self.record_token_sample(cleaned)
+        self.set_phase("idle")
+
         return cleaned
 
     async def post_process(self, messages: List[Dict]) -> List[Dict]:
@@ -264,6 +277,8 @@ class ContextGuard:
         2. 需要压缩时进行摘要压缩
         3. 规则重注入
 
+        Monitor: 记录处理阶段和压缩结果
+
         Args:
             messages: 当前消息列表
 
@@ -271,6 +286,7 @@ class ContextGuard:
             处理后的消息列表
         """
         self._stats["post_process_count"] += 1
+        self.set_phase("guard")
         start_time = time.perf_counter()
 
         if not messages:
@@ -289,9 +305,22 @@ class ContextGuard:
             self._stats["compression_triggered_count"] += 1
             self._stats["total_compressed"] += 1
 
+            # Monitor: record before compression
+            before_tokens = TokenEstimator.estimate_messages(result)
+            before_count = len(result)
+
             # 执行压缩
+            self.set_phase("compress")
             result = await self._compress_messages(result)
             compressed = len(result) < len(messages)
+
+            # Monitor: record compression result
+            after_tokens = TokenEstimator.estimate_messages(result)
+            self._stats["last_compression"] = {
+                "before": {"messages": before_count, "tokens": before_tokens},
+                "after": {"messages": len(result), "tokens": after_tokens},
+                "timestamp": time.time(),
+            }
 
         # 规则重注入
         if self.config.rules_cache:
@@ -309,6 +338,11 @@ class ContextGuard:
             current_tokens, threshold,
             rules_injected, elapsed_ms
         )
+
+        # Monitor: record final token sample and reset phase
+        self.record_token_sample(result)
+        self.set_phase("idle")
+
         return result
 
     async def force_compress(self, messages: List[Dict]) -> List[Dict]:
@@ -455,6 +489,8 @@ class ContextGuard:
     def get_stats(self) -> Dict:
         """获取处理统计信息
 
+        Monitor: Includes extended statistics for dashboard.
+
         Returns:
             包含统计信息的字典
         """
@@ -471,6 +507,11 @@ class ContextGuard:
             "total_cleared": self._stats["total_cleared"],
             "total_compressed": self._stats["total_compressed"],
             "total_rules_injected": self._stats["total_rules_injected"],
+            # Monitor: extended statistics for dashboard
+            "current_tokens": self._stats["current_tokens"],
+            "token_history": self._stats["token_history"].copy(),
+            "last_compression": self._stats["last_compression"],
+            "current_phase": self._stats["current_phase"],
             "sub_components": {
                 "cleaner": self.cleaner.get_stats(),
                 "compressor": self.compressor.get_compression_stats([]),
@@ -484,6 +525,33 @@ class ContextGuard:
         }
         _log_guard_stats(self._last_conv_id, stats)
         return stats
+
+    def record_token_sample(self, messages: Optional[List[Dict]] = None) -> None:
+        """定期采样 Token 数量用于监控面板
+
+        Args:
+            messages: 可选的消息列表，如果提供则更新 current_tokens
+        """
+        from datetime import datetime
+
+        if messages is not None:
+            self._stats["current_tokens"] = TokenEstimator.estimate_messages(messages)
+
+        self._stats["token_history"].append({
+            "time": datetime.now(),
+            "tokens": self._stats["current_tokens"]
+        })
+        # Keep only last 100 samples
+        if len(self._stats["token_history"]) > 100:
+            self._stats["token_history"] = self._stats["token_history"][-100:]
+
+    def set_phase(self, phase: str) -> None:
+        """设置当前处理阶段（用于监控面板）
+
+        Args:
+            phase: 当前阶段 ("pre_clean", "guard", "compress", "idle")
+        """
+        self._stats["current_phase"] = phase
 
     def set_conv_id(self, conv_id: str):
         """设置当前会话ID（用于日志记录）
