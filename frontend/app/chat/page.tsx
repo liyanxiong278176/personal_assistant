@@ -4,13 +4,14 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
+import { PhaseIndicator } from "@/components/chat/phase-indicator";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { createChatTransport } from "@/lib/chat-transport";
 import { userManager } from "@/lib/user-manager";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useConversationStore } from "@/lib/store/conversation-store";
 import { conversationsApi } from "@/lib/api/conversations";
-import type { Message, Itinerary } from "@/lib/types";
+import type { Message, Itinerary, StageInfo } from "@/lib/types";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,12 +22,14 @@ export default function ChatPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentStage, setCurrentStage] = useState<StageInfo | null>(null);  // 当前工作流程阶段
+  const [stageStates, setStageStates] = useState<Record<string, "completed" | "skipped">>({});  // 跟踪每个阶段的状态
 
   const transportRef = useRef<ReturnType<typeof createChatTransport> | null>(null);
   const streamingMessageRef = useRef<string>("");
   const activeConversationRef = useRef<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
-  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations, fetchConversations } = useConversationStore();
+  const { setActiveConversation, createConversation, activeConversationId: storeActiveConversationId, clear: clearConversations, fetchConversations, updateConversationTitle } = useConversationStore();
 
   // Initialize user manager on mount
   useEffect(() => {
@@ -170,6 +173,7 @@ export default function ChatPage() {
     setSelectedImage(null);
     setIsLoading(true);
     streamingMessageRef.current = "";
+    setStageStates({});  // 重置阶段状态
 
     const assistantMessageId = `assistant_${Date.now()}`;
     setMessages((prev) => [
@@ -224,9 +228,47 @@ export default function ChatPage() {
             )
           );
         },
+        onStage: (stage: StageInfo) => {
+          // 更新当前��作流程阶段
+          setCurrentStage(stage);
+          // 跟踪阶段状态
+          setStageStates((prev) => {
+            const stageOrder = ["1_INTENT", "2_STORAGE", "3_CTX_CLEAN", "4_TOOLS", "5_CONTEXT", "6_LLM", "7_CTX_MANAGE", "8_MEMORY"];
+            const currentIndex = stageOrder.indexOf(stage.name);
+            const newStates = { ...prev };
+
+            // 当收到新阶段时，将上一阶段标记为完成
+            if (currentIndex > 0) {
+              const prevStageName = stageOrder[currentIndex - 1];
+              // 只有当上一阶段没有被标记为跳过时，才标记为完成
+              if (prev[prevStageName] !== "skipped") {
+                newStates[prevStageName] = "completed";
+              }
+            }
+
+            // 标记当前阶段的状态
+            if (stage.status === "skip") {
+              newStates[stage.name] = "skipped";
+            } else if (stage.status === "end") {
+              // 当收到 end 状态时，立即标记为完成
+              newStates[stage.name] = "completed";
+            } else if (stage.status === "start") {
+              // 标记为进行中 (临时状态，稍后会更新为completed)
+              newStates[stage.name] = "completed";
+            }
+
+            return newStates;
+          });
+        },
         onDone: (messageId: string) => {
           clearTimeout(safetyTimeout);
           setIsLoading(false);
+          // 标记最后一个阶段为完成
+          setStageStates((prev) => ({
+            ...prev,
+            "8_MEMORY": "completed"
+          }));
+          setCurrentStage(null);  // 清除阶段状态
           // Only update conversation ID if we're still on this conversation
           if (activeConversationRef.current !== sendingConversationId) {
             return;
@@ -255,6 +297,11 @@ export default function ChatPage() {
             )
           );
           setIsLoading(false);
+        },
+        onTitleUpdate: (conversationId: string, title: string) => {
+          // 更新会话标题
+          console.log('[Chat] Title updated:', title);
+          updateConversationTitle(conversationId, title);
         },
       });
     } catch (error) {
@@ -471,6 +518,7 @@ export default function ChatPage() {
         </header>
 
         <div className="flex-1 overflow-y-auto scrollbar-elegant">
+          <PhaseIndicator currentStage={currentStage} isLoading={isLoading} stageStates={stageStates} />
           <MessageList messages={messages} />
         </div>
 
