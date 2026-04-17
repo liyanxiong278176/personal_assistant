@@ -4,7 +4,7 @@ import type {
   MemoryStats,
   ContextStats,
   MonitorMessage,
-} from '../monitor-types';
+} from '@/lib/monitor-types';
 
 interface MonitorState {
   // 连接状态
