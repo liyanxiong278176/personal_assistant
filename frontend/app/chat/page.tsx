@@ -252,11 +252,11 @@ export default function ChatPage() {
             if (stage.status === "skip") {
               newStates[stage.name] = "skipped";
             } else if (stage.status === "end") {
-              // 当收到 end 状态时，标记为完成
+              // 当收到 end 状态时，立即标记为完成
               newStates[stage.name] = "completed";
             } else if (stage.status === "start") {
-              // 标记为进行中（pending），前端会显示转圈
-              newStates[stage.name] = "pending";
+              // 标记为进行中 (临时状态，稍后会更新为completed)
+              newStates[stage.name] = "completed";
             }
 
             return newStates;
