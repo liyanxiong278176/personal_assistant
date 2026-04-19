@@ -451,13 +451,10 @@ export default function ChatPage() {
           <div className="flex items-center gap-1">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2 mr-1">
-<<<<<<< Updated upstream
                 {/* 监控面板按钮 */}
                 <Link href="/monitor">
                   <Button variant="ghost" size="sm">📊 监控面板</Button>
                 </Link>
-=======
->>>>>>> Stashed changes
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}

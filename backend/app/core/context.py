@@ -51,11 +51,8 @@ class IntentResult(BaseModel):
     clarification: Optional[dict] = None
     strategy: Optional[str] = None  # Name of the strategy that produced this result
     metadata: Optional[Dict[str, Any]] = None  # Additional metadata (e.g., exclusion keywords)
-<<<<<<< Updated upstream
     collected_slots: Optional[Dict[str, Any]] = None  # Slots collected during slot filling
-=======
     collected_slots: Optional[Dict[str, Any]] = None  # Collected slots from state machine
->>>>>>> Stashed changes
 
 
 class RequestContext(BaseModel):
