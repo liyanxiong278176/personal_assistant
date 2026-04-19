@@ -1,0 +1,140 @@
+[    1434ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[    1902ms] [LOG] [Auth] Synced user ID to userManager on init: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./lib/store/auth-store.ts:59
+[    1921ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/monitor?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNjJmNGVjNS0xODc0LTQ4MjEtOTdlOS1iMmM3MGIzNTgwNWQiLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2MzM4MTE4LCJpYXQiOjE3NzYzMzYzMTh9.gIUcm2lRrge9HGB53JZMAwCpBe5XOmzYZM5GwrtTw90' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:48
+[    1928ms] [LOG] [MonitorSocket] Disconnected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:27
+[    1929ms] [LOG] [MonitorSocket] Reconnecting in 1000ms... @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:33
+[    2243ms] [LOG] [MonitorSocket] Connected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:11
+[    2248ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    2248ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    2256ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    2257ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    2270ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    2271ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    3259ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    3259ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    3390ms] [LOG] [MonitorSocket] Connected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:11
+[    3476ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    3477ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    4269ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    4270ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    4352ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    4352ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    5280ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    5280ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    5362ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    5363ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    6293ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    6294ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    6387ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    6387ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    7299ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    7299ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    7385ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    7386ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    8299ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    8300ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    8386ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    8386ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    9312ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    9313ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[    9391ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[    9391ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   10314ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   10315ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   10393ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   10393ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   11323ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   11323ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   11397ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   11397ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   12331ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   12332ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   12416ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   12417ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   13346ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   13347ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   13435ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   13436ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   14350ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   14351ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   14419ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   14419ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   15358ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   15359ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   15451ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   15452ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   16363ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   16363ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   16449ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   16450ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   17368ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   17369ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   17453ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   17454ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   18369ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   18370ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   18443ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   18443ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   19374ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   19375ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   19460ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   19460ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   20382ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   20383ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   20469ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   20470ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   21385ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   21385ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   21457ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   21457ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   22399ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   22400ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   22471ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   22471ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   23406ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   23407ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   23494ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   23494ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   24411ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   24413ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   24485ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   24485ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   25423ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   25424ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   25513ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   25513ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   26423ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   26423ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   26492ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   26492ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   27442ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   27443ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   27526ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   27527ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   28454ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   28455ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   28548ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   28548ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   29462ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   29463ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   29547ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   29547ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   29816ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[   30448ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3001/_next/static/webpack/f8e79ae62fccc5c4.webpack.hot-update.json:0
+[   30477ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   30477ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   30478ms] [LOG] [MonitorStore] Received message: stats_update {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:29
+[   30478ms] [LOG] [MonitorStore] Updating stats: {intent_stats: Object, memory_stats: Object, context_stats: Object} @ webpack-internal:///(app-pages-browser)/./lib/store/monitor-store.ts:53
+[   31572ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630

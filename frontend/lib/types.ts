@@ -204,3 +204,43 @@ export interface MessageAction {
   type: "copy" | "regenerate" | "delete";
   messageId: string;
 }
+
+// ============ WebSocket Types ============
+
+export interface WSMessage {
+  type: "message" | "control";
+  session_id: string;
+  conversation_id?: string;
+  user_id?: string;
+  content?: string;
+  control?: "stop" | "ping";
+  has_image?: boolean;
+  image_data?: string;
+}
+
+export interface StageInfo {
+  name: string;      // 阶段代码，如 "1_INTENT"
+  status: "start" | "end" | "error" | "skip";
+  label: string;     // 阶段标签，如 "🔍 意图识别"
+  message: string;   // 阶段描述，如 "正在分析您的需求..."
+}
+
+export interface WSResponse {
+  type: "delta" | "done" | "error" | "itinerary" | "stage" | "title_update";
+  content?: string;
+  error?: string;
+  message_id?: string;
+  conversation_id?: string;
+  itinerary?: Record<string, unknown>;
+  stage?: StageInfo;
+}
+
+// ============ Conversation API Types ============
+
+export interface CreateConversationResponse {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
+}

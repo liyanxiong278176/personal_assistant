@@ -1,0 +1,91 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - heading "对话列表" [level=2] [ref=e15]
+            - link "监控面板" [ref=e16] [cursor=pointer]:
+              - /url: /monitor
+              - button "监控面板" [ref=e17]:
+                - img [ref=e18]
+          - generic [ref=e20]:
+            - img [ref=e21]
+            - textbox "搜索对话..." [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - heading "今天" [level=3] [ref=e27]
+            - generic [ref=e28]:
+              - generic [ref=e30] [cursor=pointer]:
+                - generic [ref=e31]: 新对话
+                - generic [ref=e32]: 10:45
+                - button "更多选项" [ref=e33]:
+                  - img [ref=e34]
+              - generic [ref=e37] [cursor=pointer]:
+                - generic [ref=e38]: 新对话
+                - generic [ref=e39]: 10:38
+                - button "更多选项" [ref=e40]:
+                  - img [ref=e41]
+          - generic [ref=e43]:
+            - heading "2026年4月10日" [level=3] [ref=e44]
+            - generic [ref=e45]:
+              - generic [ref=e47] [cursor=pointer]:
+                - generic [ref=e48]: 新对话
+                - generic [ref=e49]: 4月10日
+                - button "更多选项" [ref=e50]:
+                  - img [ref=e51]
+              - generic [ref=e54] [cursor=pointer]:
+                - generic [ref=e55]: 新对话
+                - generic [ref=e56]: 4月10日
+                - button "更多选项" [ref=e57]:
+                  - img [ref=e58]
+        - button "新建对话" [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - text: 新建对话
+    - main [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e68]
+          - heading "AI Travel Assistant" [level=1] [ref=e72]
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - link "监控面板" [ref=e75] [cursor=pointer]:
+              - /url: /monitor
+              - img [ref=e76]
+              - text: 监控面板
+            - generic [ref=e79]: "2"
+            - generic [ref=e80]: "2781764566"
+          - button "账号" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - generic [ref=e85]: 账号
+          - link "设置" [ref=e86] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e87]
+            - generic [ref=e90]: 设置
+      - paragraph [ref=e186]: 帮我规划一下行程
+      - generic [ref=e147]:
+        - generic [ref=e148]:
+          - button "上传图片" [disabled] [ref=e149]:
+            - img [ref=e150]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e155]
+          - button "停止生成" [ref=e187] [cursor=pointer]:
+            - img [ref=e188]
+        - generic [ref=e162]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - generic [ref=e167] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e168]:
+      - img [ref=e169]
+    - generic [ref=e172]:
+      - button "Open issues overlay" [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: "1"
+          - generic [ref=e176]: "2"
+        - generic [ref=e177]:
+          - text: Issue
+          - generic [ref=e178]: s
+      - button "Collapse issues badge" [ref=e179]:
+        - img [ref=e180]
+  - alert [ref=e182]

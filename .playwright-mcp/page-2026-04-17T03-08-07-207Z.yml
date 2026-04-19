@@ -1,0 +1,128 @@
+- generic [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - heading "对话列表" [level=2] [ref=e15]
+            - link "监控面板" [ref=e16] [cursor=pointer]:
+              - /url: /monitor
+              - button "监控面板" [ref=e17]:
+                - img [ref=e18]
+          - generic [ref=e20]:
+            - img [ref=e21]
+            - textbox "搜索对话..." [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - heading "今天" [level=3] [ref=e27]
+            - generic [ref=e28]:
+              - generic [ref=e201] [cursor=pointer]:
+                - generic [ref=e202]: 新对话
+                - generic [ref=e203]: 03:07
+                - button "更多选项" [ref=e204]:
+                  - img [ref=e205]
+              - generic [ref=e30] [cursor=pointer]:
+                - generic [ref=e31]: 北京三日游行程规划
+                - generic [ref=e32]: 03:02
+                - button "更多选项" [ref=e33]:
+                  - img [ref=e34]
+              - generic [ref=e37] [cursor=pointer]:
+                - generic [ref=e38]: 新对话
+                - generic [ref=e39]: 02:48
+                - button "更多选项" [ref=e40]:
+                  - img [ref=e41]
+          - generic [ref=e43]:
+            - heading "昨天" [level=3] [ref=e44]
+            - generic [ref=e45]:
+              - generic [ref=e47] [cursor=pointer]:
+                - generic [ref=e48]: 新对话
+                - generic [ref=e49]: 昨天
+                - button "更多选项" [ref=e50]:
+                  - img [ref=e51]
+              - generic [ref=e54] [cursor=pointer]:
+                - generic [ref=e55]: 新对话
+                - generic [ref=e56]: 昨天
+                - button "更多选项" [ref=e57]:
+                  - img [ref=e58]
+          - generic [ref=e60]:
+            - heading "2026年4月10日" [level=3] [ref=e61]
+            - generic [ref=e62]:
+              - generic [ref=e64] [cursor=pointer]:
+                - generic [ref=e65]: 新对话
+                - generic [ref=e66]: 4月10日
+                - button "更多选项" [ref=e67]:
+                  - img [ref=e68]
+              - generic [ref=e71] [cursor=pointer]:
+                - generic [ref=e72]: 新对话
+                - generic [ref=e73]: 4月10日
+                - button "更多选项" [ref=e74]:
+                  - img [ref=e75]
+        - button "新建对话" [ref=e78] [cursor=pointer]:
+          - img [ref=e79]
+          - text: 新建对话
+    - main [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e83]:
+          - img [ref=e85]
+          - heading "AI Travel Assistant" [level=1] [ref=e89]
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - link "监控面板" [ref=e92] [cursor=pointer]:
+              - /url: /monitor
+              - img [ref=e93]
+              - text: 监控面板
+            - generic [ref=e96]: "2"
+            - generic [ref=e97]: "2781764566"
+          - button "账号" [ref=e98] [cursor=pointer]:
+            - img [ref=e99]
+            - generic [ref=e102]: 账号
+          - link "设置" [ref=e103] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e104]
+            - generic [ref=e107]: 设置
+      - generic [ref=e108]:
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - img [ref=e213]
+              - generic [ref=e215]: 意图识别
+            - generic [ref=e216]:
+              - img [ref=e218]
+              - generic [ref=e220]: 加载历史
+            - generic [ref=e221]:
+              - img [ref=e223]
+              - generic [ref=e225]: 前置清理
+            - generic [ref=e226]:
+              - img [ref=e228]
+              - generic [ref=e230]: 工具调用
+            - generic [ref=e231]:
+              - img [ref=e233]
+              - generic [ref=e237]: 上下文构建
+            - generic [ref=e238]:
+              - img [ref=e240]
+              - generic [ref=e242]: LLM生成
+            - generic [ref=e243]:
+              - img [ref=e245]
+              - generic [ref=e249]: 后置管理
+            - generic [ref=e250]:
+              - img [ref=e252]
+              - generic [ref=e256]: 记忆更新
+          - generic [ref=e260]:
+            - generic [ref=e261]: 🔧 工具调用
+            - generic [ref=e262]: 正在获取实时数据...
+        - paragraph [ref=e266]: 推荐上海周边适合周末出游的地方
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - button "上传图片" [disabled] [ref=e166]:
+            - img [ref=e167]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e172]
+          - button "停止生成" [active] [ref=e267] [cursor=pointer]:
+            - img [ref=e268]
+        - generic [ref=e179]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - button "Open Next.js Dev Tools" [ref=e185] [cursor=pointer]:
+    - img [ref=e186]
+  - alert [ref=e199]

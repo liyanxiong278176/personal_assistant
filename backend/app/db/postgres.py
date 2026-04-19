@@ -710,6 +710,38 @@ async def get_messages(conversation_id: UUID, limit: int = 100) -> list[dict]:
         await Database.release_connection(conn)
 
 
+async def get_message_count(conversation_id: UUID) -> int:
+    """Get message count for a conversation.
+
+    Used to determine if this is the first message (for title generation).
+    """
+    conn = await Database.get_connection()
+    try:
+        count = await conn.fetchval(
+            "SELECT COUNT(*) FROM messages WHERE conversation_id = $1",
+            conversation_id
+        )
+        return count or 0
+    finally:
+        await Database.release_connection(conn)
+
+
+async def update_conversation_title(conv_id: UUID, title: str) -> bool:
+    """Update conversation title.
+
+    Used after first message to auto-generate title.
+    """
+    conn = await Database.get_connection()
+    try:
+        result = await conn.execute(
+            "UPDATE conversations SET title = $1, updated_at = $2 WHERE id = $3",
+            title, datetime.utcnow(), conv_id
+        )
+        return result == "UPDATE 1"
+    finally:
+        await Database.release_connection(conn)
+
+
 async def get_context_window(conversation_id: UUID, max_messages: int = 20, max_tokens: int = 4000) -> list[dict]:
     """Get conversation context within limits (per D-17)."""
     messages = await get_messages(conversation_id, limit=max_messages)

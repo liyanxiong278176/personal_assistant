@@ -39,6 +39,13 @@ class ToolExecutor:
         self._cache = cache
         logger.info("[ToolExecutor] Initialized")
 
+    async def __call__(self, call: "ToolCall") -> Any:
+        """支持直接调用: await tool_executor(tc)
+
+        用于 LLM 工具循环中 tool_executor(tc) 的调用方式。
+        """
+        return await self._execute_call(call)
+
     async def execute(self, tool_name: str, **kwargs) -> Any:
         """执行单个工具
 

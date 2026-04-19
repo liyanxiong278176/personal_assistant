@@ -14,7 +14,7 @@ import json
 import logging
 import time
 import traceback
-from typing import AsyncIterator, Optional, List, Dict, Any, Union, TYPE_CHECKING
+from typing import AsyncIterator, Optional, List, Dict, Any, Union, Callable, Awaitable, TYPE_CHECKING
 from enum import Enum
 
 from pathlib import Path
@@ -24,7 +24,8 @@ if TYPE_CHECKING:
     from .context import RequestContext
     from .intent.slot_llm_extractor import LLMSlotExtractor
 
-from .llm import LLMClient, ToolCall
+from .llm import LLMClient, ToolCall, StreamingDelta
+from .output_formatter import OutputFormatter
 from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
 from .prompts.service import PromptService
 from .prompts.providers.base import IPromptProvider, PromptTemplate
@@ -155,6 +156,20 @@ class WorkflowStage(Enum):
     STAGE_7_CTX_MANAGE = "7_CTX_MANAGE"  # 上下文后置管理
     STAGE_8_MEMORY = "8_MEMORY"       # 记忆更新
     COMPLETE = "COMPLETE"            # 完成
+
+
+# 阶段显示消息映射（用于前端 UI）
+STAGE_MESSAGES = {
+    WorkflowStage.STAGE_1_INTENT: ("🔍 意图识别", "正在分析您的需求..."),
+    WorkflowStage.STAGE_2_STORAGE: ("📚 加载历史", "正在加载对话历史..."),
+    WorkflowStage.STAGE_3_CTX_CLEAN: ("🧹 上下文清理", "正在整理上下文信息..."),
+    WorkflowStage.STAGE_4_TOOLS: ("🔧 工具调用", "正在获取实时数据..."),
+    WorkflowStage.STAGE_5_CONTEXT: ("🔗 整合信息", "正在整合相关信息..."),
+    WorkflowStage.STAGE_6_LLM: ("✨ 生成回复", "正在生成回复内容..."),
+    WorkflowStage.STAGE_7_CTX_MANAGE: ("📊 上下文管理", "正在管理上下文窗口..."),
+    WorkflowStage.STAGE_8_MEMORY: ("💾 记忆更新", "正在更新记忆信息..."),
+    WorkflowStage.COMPLETE: ("✅ 完成", "工作流程已完成"),
+}
 
 
 class StageLogger:
@@ -1001,8 +1016,24 @@ class QueryEngine:
                 # 合并结果
                 all_results.update(results)
 
-                # 将结果添加到消息中（每个工具调用一条消息，带 tool_call_id）
-                messages.append({"role": "assistant", "content": content})
+                # 将结果添加到消息中
+                # 1. 先添加 assistant 消息，包含 tool_calls
+                assistant_msg = {"role": "assistant", "content": content}
+                if tool_calls:
+                    assistant_msg["tool_calls"] = [
+                        {
+                            "id": tc.id,
+                            "type": "function",
+                            "function": {
+                                "name": tc.name,
+                                "arguments": json.dumps(tc.arguments, ensure_ascii=False)
+                            }
+                        }
+                        for tc in tool_calls
+                    ]
+                messages.append(assistant_msg)
+
+                # 2. 为每个工具调用添加 tool 结果消息（不包含 name 字段）
                 for tc, result in zip(tool_calls, [results.get(tc.name, {}) for tc in tool_calls]):
                     if isinstance(result, dict) and "error" in result:
                         content_str = json.dumps(result, ensure_ascii=False)
@@ -1011,7 +1042,6 @@ class QueryEngine:
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tc.id,
-                        "name": tc.name,
                         "content": content_str
                     })
 
@@ -1059,23 +1089,55 @@ class QueryEngine:
         parts = []
         context_parts = []
 
-        # 使用 MemoryInjector 进行智能记忆检索（语义记忆）
-        if self._memory_injector and user_input:
+        # 使用 HybridRetriever 进行混合评分检索（语义记忆）
+        # STAR标准：0.6×向量相似度 + 0.2×时间衰减 + 0.2×对话新颖性
+        if self._hybrid_retriever and user_input and conversation_id:
             try:
-                memory_context = self._memory_injector.build_memory_context(
-                    user_input,
-                    max_memories=3,
-                    include_empty=False
+                from uuid import UUID
+                conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
+
+                # 使用混合评分检索语义记忆
+                retrieved_memories = await self._hybrid_retriever.retrieve(
+                    query=user_input,
+                    user_id=user_id or "unknown",
+                    conversation_id=conv_uuid,
+                    limit=3
                 )
-                if memory_context:
+
+                if retrieved_memories:
+                    # 构建记忆上下文
+                    memory_lines = ["用户偏好记忆："]
+                    for i, memory in enumerate(retrieved_memories, 1):
+                        memory_lines.append(f"  {i}. {memory.content}")
+
+                    memory_context = "\n".join(memory_lines)
                     parts.append(f"## 相关记忆\n{memory_context}")
                     context_parts.append(f"## 相关记忆\n{memory_context}")
-                    logger.debug(
-                        f"[CONTEXT] ✅ MemoryInjector 已注入 | "
+
+                    logger.info(
+                        f"[CONTEXT] ✅ HybridRetriever 混合评分检索 | "
+                        f"召回={len(retrieved_memories)}条 | "
                         f"输入='{user_input[:30]}...'"
                     )
+                else:
+                    logger.debug(f"[CONTEXT] ℹ️ 未检索到相关记忆 | 输入='{user_input[:30]}...'")
+
             except Exception as e:
-                logger.warning(f"[CONTEXT] ⚠️ MemoryInjector 检索失败: {e}")
+                logger.warning(f"[CONTEXT] ⚠️ HybridRetriever 检索失败，降级到 MemoryInjector: {e}")
+                # 降级：使用 MemoryInjector 作为兜底
+                if self._memory_injector:
+                    try:
+                        memory_context = self._memory_injector.build_memory_context(
+                            user_input,
+                            max_memories=3,
+                            include_empty=False
+                        )
+                        if memory_context:
+                            parts.append(f"## 相关记忆\n{memory_context}")
+                            context_parts.append(f"## 相关记忆\n{memory_context}")
+                            logger.debug(f"[CONTEXT] ✅ MemoryInjector 降级成功")
+                    except Exception as fallback_err:
+                        logger.warning(f"[CONTEXT] ⚠️ MemoryInjector 降级也失败: {fallback_err}")
 
         # 用户偏好（如果启用偏好提取）
         if self._config.enable_preference_extraction and self._pref_extractor and user_id:
@@ -1159,7 +1221,7 @@ class QueryEngine:
             llm_messages.append(new_msg)
 
         logger.info(
-            f"[LLM] 🧠 开始生成响应 | "
+            f"[LLM] 🧠 开始生成响应（工具循环模式） | "
             f"上下文长度={len(context)}字符 | "
             f"历史消息数={len(llm_messages)}"
         )
@@ -1172,18 +1234,71 @@ class QueryEngine:
         if self._inference_guard:
             self._inference_guard.reset_response_counter()
 
-        async for chunk in self.llm_client.stream_chat(
-            messages=llm_messages,
-            system_prompt=self.get_system_prompt(),
-            guard=self._inference_guard
-        ):
-            chunk_count += 1
-            if first_chunk:
-                first_chunk_time = (time.perf_counter() - start) * 1000
-                logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
-                first_chunk = False
+        # 获取工具定义
+        tools = self._get_tools_for_llm()
 
-            yield chunk
+        if tools:
+            logger.info(f"[LLM] 🔧 启用工具循环 | 工具数量={len(tools)}")
+
+            # 使用工具循环模式
+            async for result in self.llm_client.chat_with_tool_loop(
+                messages=llm_messages,
+                tools=tools,
+                tool_executor=self._tool_executor,
+                system_prompt=self.get_system_prompt(),
+                max_iterations=5,
+                guard=self._inference_guard
+            ):
+                # 处理流式增量内容（实时输出）
+                if isinstance(result, StreamingDelta):
+                    if first_chunk:
+                        first_chunk_time = (time.perf_counter() - start) * 1000
+                        logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                        first_chunk = False
+                    chunk_count += len(result.content)
+                    # StreamingDelta内容已经格式化过，直接输出
+                    yield result.content
+                    continue
+
+                # 处理工具结果（如果有）
+                if result.tool_results:
+                    logger.info(
+                        f"[LLM] 📋 工具执行完成 | "
+                        f"调用数={len(result.tool_results)} | "
+                        f"迭代={result.iteration}"
+                    )
+
+                # 流式输出内容（迭代最终内容）
+                if result.content:
+                    if first_chunk:
+                        first_chunk_time = (time.perf_counter() - start) * 1000
+                        logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                        first_chunk = False
+
+                    chunk_count += len(result.content)
+                    # 应用输出格式化 - 确保最终输出也是干净的
+                    formatted_content = OutputFormatter.format_chunk(result.content, is_final=True)
+                    yield formatted_content
+
+                # 如果工具调用完成，退出循环
+                if not result.should_continue:
+                    logger.info(f"[LLM] ✅ 工具循环完成 | 迭代={result.iteration}")
+                    break
+        else:
+            # 无工具时使用普通流式聊天
+            logger.info(f"[LLM] 📝 无工具，使用普通流式聊天")
+            async for chunk in self.llm_client.stream_chat(
+                messages=llm_messages,
+                system_prompt=self.get_system_prompt(),
+                guard=self._inference_guard
+            ):
+                chunk_count += 1
+                if first_chunk:
+                    first_chunk_time = (time.perf_counter() - start) * 1000
+                    logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                    first_chunk = False
+
+                yield chunk
 
         total_time = (time.perf_counter() - start) * 1000
         logger.info(
@@ -1235,6 +1350,9 @@ class QueryEngine:
 
         try:
             logger.info(f"[MEMORY:Phase2] 🔄 开始异步记忆更新 | conv={conversation_id}")
+
+            # v2.1: 在这里导入（避免顶部导入问题）
+            from app.core.memory.conflict_resolver import MemoryConflictResolver, MemoryOperation
 
             # === PII 清洗（D4-2/D4-5 修复）===
             # 在持久化之前清洗PII，防止敏感信息被存储
@@ -1291,110 +1409,93 @@ class QueryEngine:
             except Exception as e:
                 logger.error(f"[MEMORY:Phase2] ❌ 消息持久化失败: {e}")
 
-            # === 步骤 2: 提取并保存语义记忆（带冲突检测 + TTL清理）===
+            # === 步骤 2: 保存情景记忆（晋升机制入口）===
             try:
                 from app.core.memory.hierarchy import MemoryItem, MemoryLevel, MemoryType
-                from app.core.memory.conflict_resolver import MemoryOperation
-                from app.db.vector_store import ChineseEmbeddings
 
-                # 检查是否包含偏好/意图信息（使用清洗后的输入）
-                if self._should_save_as_semantic(user_input_sanitized, assistant_response_sanitized):
-                    memory_content = f"用户: {user_input_sanitized}\n助手: {assistant_response_sanitized[:100]}..."
-
-                    memory = MemoryItem(
-                        content=memory_content,
-                        level=MemoryLevel.SEMANTIC,
-                        memory_type=MemoryType.PREFERENCE,
-                        importance=0.7,
-                        metadata={
-                            "user_id": user_id or "unknown",
-                            "conversation_id": conversation_id,
-                        }
-                    )
-
-                    # v2.1: 懒初始化冲突检测器
-                    if self._conflict_resolver is None and self.llm_client is not None:
-                        embedder = ChineseEmbeddings()
-                        self._conflict_resolver = MemoryConflictResolver(
-                            embedder.embed_query, self.llm_client
-                        )
-                        self._memory_hierarchy._conflict_resolver = self._conflict_resolver
-                        logger.info("[MEMORY:Phase2] ✓ ConflictResolver 已初始化")
-
-                    # v2.1: 使用冲突检测添加到语义记忆
-                    if self._conflict_resolver:
-                        resolution = await self._memory_hierarchy.add_semantic_with_conflict_check(
-                            memory, resolve=True
-                        )
-                        if resolution.operation == MemoryOperation.ADD:
-                            # 新增：持久化到 ChromaDB
-                            embedder = ChineseEmbeddings()
-                            embedding = embedder.embed_query(memory.content)
-                            await self._semantic_repo.add(
-                                content=memory.content,
-                                embedding=embedding,
-                                metadata=memory.metadata
-                            )
-                            logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存(新增) | sim={resolution.similarity:.2f}")
-                        elif resolution.operation == MemoryOperation.UPDATE:
-                            # 更新：替换内容并重新持久化
-                            if resolution.resolved_item:
-                                embedder = ChineseEmbeddings()
-                                embedding = embedder.embed_query(resolution.resolved_item.content)
-                                await self._semantic_repo.add(
-                                    content=resolution.resolved_item.content,
-                                    embedding=embedding,
-                                    metadata=resolution.resolved_item.metadata
-                                )
-                                logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已更新 | reason={resolution.reason}")
-                        elif resolution.operation == MemoryOperation.NOOP:
-                            logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆跳过(重复) | reason={resolution.reason}")
-                    else:
-                        # 降级：无冲突检测时直接保存
-                        embedder = ChineseEmbeddings()
-                        embedding = embedder.embed_query(memory_content)
-                        await self._semantic_repo.add(
-                            content=memory_content,
-                            embedding=embedding,
-                            metadata=memory.metadata
-                        )
-                        self._memory_hierarchy.add_semantic(memory)
-                        logger.debug(f"[MEMORY:Phase2] ✓ 语义记忆已保存(无冲突检测)")
-
-                # v2.1: TTL 清理（每次更新时检查）
-                if self._ttl_manager:
-                    removed, remaining = await self._ttl_manager.cleanup_expired(
-                        list(self._memory_hierarchy._semantic), dry_run=False
-                    )
-                    if removed:
-                        logger.info(f"[MEMORY:Phase2] ✓ TTL清理 | 移除={len(removed)} 剩余={len(remaining)}")
-
-            except Exception as e:
-                logger.error(f"[MEMORY:Phase2] ❌ 语义记忆保存失败: {e}", exc_info=True)
-
-            # === 步骤 3: 更新情景记忆（使用清洗后的内容）===
-            try:
-                from app.core.memory.hierarchy import MemoryItem, MemoryLevel
-
+                # 所有对话先保存为情景记忆
                 episodic_memory = MemoryItem(
-                    content=f"对话摘要: {user_input_sanitized[:100]}... → {assistant_response_sanitized[:100]}...",
+                    content=f"用户: {user_input_sanitized}",
                     level=MemoryLevel.EPISODIC,
                     memory_type=MemoryType.STATE,
                     importance=0.5,
                     metadata={
                         "user_id": user_id or "unknown",
                         "conversation_id": conversation_id,
-                        "last_message": user_input_sanitized,
-                        "last_response": assistant_response_sanitized[:200]
+                        "original_input": user_input_sanitized,
+                        "assistant_response": assistant_response_sanitized[:200],
+                        "timestamp": time.time()
                     }
                 )
 
-                # add() 是同步方法，不需要 await
-                self._memory_hierarchy.add(episodic_memory)
-                logger.debug(f"[MEMORY:Phase2] ✓ 情景记忆已更新 | level=episodic")
+                # 保存情景记忆到 Redis
+                await self._memory_hierarchy.add_episodic(episodic_memory)
+                logger.debug(f"[MEMORY:Phase2] ✓ 情景记忆已保存 | content={user_input_sanitized[:50]}...")
 
             except Exception as e:
-                logger.error(f"[MEMORY:Phase2] ❌ 情景记忆更新失败: {e}")
+                logger.error(f"[MEMORY:Phase2] ❌ 情景记忆保存失败: {e}", exc_info=True)
+
+            # === 步骤 3: 触发晋升机制（情景→语义）===
+            try:
+                from app.core.memory.promoter import MemoryPromoter
+                from app.db.vector_store import ChineseEmbeddings
+                from app.core.memory.conflict_resolver import MemoryConflictResolver
+
+                # 初始化 MemoryPromoter
+                if not hasattr(self, '_memory_promoter'):
+                    # 初始化冲突检测器
+                    if self._conflict_resolver is None and self.llm_client is not None:
+                        embedder = ChineseEmbeddings()
+                        self._conflict_resolver = MemoryConflictResolver(
+                            embedder, self.llm_client
+                        )
+                        self._memory_hierarchy._conflict_resolver = self._conflict_resolver
+                        logger.info("[MEMORY:Phase2] ✓ ConflictResolver 已初始化（用于晋升）")
+
+                    # 创建 promoter（不使用 LLM 评估器，只使用规则评分）
+                    self._memory_promoter = MemoryPromoter(
+                        hierarchy=self._memory_hierarchy,
+                        importance_threshold=0.7,  # STAR: ≥0.7 晋升
+                        discard_threshold=0.4,     # STAR: <0.4 丢弃
+                        llm_promoter=None  # 暂不使用 LLM 评估器
+                    )
+                    logger.info("[MEMORY:Phase2] ✓ MemoryPromoter 已初始化")
+
+                # 执行晋升评估
+                promotion_result = await self._memory_promoter.promote_episodic_to_semantic(
+                    user_id=user_id or "unknown",
+                    conversation_id=None
+                )
+
+                # 持久化晋升的语义记忆到 ChromaDB
+                if promotion_result.promoted_count > 0:
+                    embedder = ChineseEmbeddings()
+                    for promoted_id in promotion_result.promoted_ids:
+                        # 从 hierarchy 中查找晋升的记忆
+                        semantic_memories = self._memory_hierarchy.get_semantic()
+                        for memory in semantic_memories:
+                            if memory.item_id == promoted_id:
+                                embedding = embedder.embed_query(memory.content)
+                                await self._semantic_repo.add(
+                                    content=memory.content,
+                                    embedding=embedding,
+                                    metadata=memory.metadata
+                                )
+                                logger.info(
+                                    f"[MEMORY:Phase2] ✓ 语义记忆已持久化到ChromaDB | "
+                                    f"id={promoted_id[:8]}... | importance={memory.importance:.2f}"
+                                )
+                                break
+
+                logger.info(
+                    f"[MEMORY:Phase2] ✓ 晋升评估完成 | "
+                    f"promoted={promotion_result.promoted_count} | "
+                    f"retained={promotion_result.retained_count} | "
+                    f"discarded={promotion_result.discarded_count}"
+                )
+
+            except Exception as e:
+                logger.error(f"[MEMORY:Phase2] ❌ 晋升机制执行失败: {e}", exc_info=True)
 
             elapsed = (time.perf_counter() - start) * 1000
             logger.info(
@@ -1587,12 +1688,12 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:3_CTX_CLEAN] ⏳ 开始 | conv={conversation_id}")
 
-        history = await self.context_guard.pre_process(history)
+        history, cleaned = await self.context_guard.pre_process(history)
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
             f"[WORKFLOW:3_CTX_CLEAN] ✅ 完成 | conv={conversation_id} | "
-            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
+            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条 | 清理={'是' if cleaned else '否'}"
         )
 
         # ===== 阶段 4: 工具调用决策（统一复杂度判断） =====
@@ -1602,7 +1703,8 @@ class QueryEngine:
             f"[WORKFLOW:4_TOOLS] ⏳ 开始 | conv={conversation_id} | 意图={intent_result.intent}"
         )
 
-        if intent_result.intent in ["itinerary", "query"]:
+        # 工具调用决策：itinerary/query/chat 都需要按需调用工具
+        if intent_result.intent in ["itinerary", "query", "chat"]:
             # 统一使用 SubAgentOrchestrator 的复杂度判断
             slots_dict = slots.__dict__ if hasattr(slots, '__dict__') else {}
             session_state = self._conversation_history.get(conversation_id)
@@ -1703,12 +1805,12 @@ class QueryEngine:
         stage_start = time.perf_counter()
         logger.info(f"[WORKFLOW:7_CTX_MANAGE] ⏳ 开始 | conv={conversation_id}")
 
-        history = await self.context_guard.post_process(history)
+        history, compressed = await self.context_guard.post_process(history)
 
         elapsed_ms = (time.perf_counter() - stage_start) * 1000
         logger.info(
             f"[WORKFLOW:7_CTX_MANAGE] ✅ 完成 | conv={conversation_id} | "
-            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条"
+            f"耗时: {elapsed_ms:.2f}ms | 历史: {len(history)} 条 | 压缩={'是' if compressed else '否'}"
         )
 
         # ===== 阶段 8: 异步记忆更新 =====
@@ -1750,7 +1852,8 @@ class QueryEngine:
         self,
         user_input: str,
         conversation_id: str,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
+        stage_callback: Optional[Callable[[WorkflowStage, str, str], Awaitable[None]]] = None
     ) -> AsyncIterator[str]:
         """流式工作流程执行 - 直接yield LLM chunks而不是收集成字符串
 
@@ -1758,9 +1861,27 @@ class QueryEngine:
         Step 6: 流式LLM生成（直接yield）
         Steps 7-8: 后处理和记忆更新
 
+        Args:
+            user_input: 用户输入
+            conversation_id: 会话ID
+            user_id: 用户ID
+            stage_callback: 阶段状态回调函数
+
         Yields:
             LLM响应片段
         """
+
+        async def _emit_stage(stage: WorkflowStage, status: str):
+            """发送阶段状态"""
+            logger.info(f"[STAGE_CALLBACK] 🔄 阶段回调触发 | stage={stage.value} | status={status} | callback={stage_callback is not None}")
+            if stage_callback:
+                stage_info = STAGE_MESSAGES.get(stage, ("处理中", "正在处理..."))
+                try:
+                    await stage_callback(stage, status, stage_info[1])
+                    logger.info(f"[STAGE_CALLBACK] ✅ 阶段状态已发送 | stage={stage.value}")
+                except Exception as e:
+                    logger.error(f"[STAGE_CALLBACK] ❌ 发送阶段状态失败: {e}")
+
         total_start = time.perf_counter()
         self._current_message = user_input
 
@@ -1817,6 +1938,7 @@ class QueryEngine:
         span_step1 = trace_ctx.create_span("Step1_intent", "Step1_intent")
 
         # ===== 阶段 1: 意图 & 槽位识别 =====
+        await _emit_stage(WorkflowStage.STAGE_1_INTENT, "start")
         logger.info(f"[WORKFLOW:STREAM:1_INTENT] ⏳ 开始 | 输入: {user_input[:50]}...")
 
         # 使用新的 IntentRouter 进行意图识别
@@ -1838,6 +1960,9 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:1_INTENT] ✅ 完成 | "
             f"意图={intent_result.intent} | 置信度={intent_result.confidence:.2f}"
         )
+
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_1_INTENT, "end")
 
         # === EVAL: 初始化并记录轨迹和意图 ===
         await self._ensure_eval_initialized()
@@ -1872,6 +1997,7 @@ class QueryEngine:
                 logger.warning(f"[WORKFLOW:STREAM:1_INTENT] ⚠️ 偏好提取失败: {e}")
 
         # ===== 阶段 2: 消息基础存储 =====
+        await _emit_stage(WorkflowStage.STAGE_2_STORAGE, "start")
         logger.info(f"[WORKFLOW:STREAM:2_STORAGE] ⏳ 开始")
 
         # === Step 2.5: 恢复会话快照 ===
@@ -1909,16 +2035,19 @@ class QueryEngine:
                 f"[WORKFLOW:STREAM:2_STORAGE] ⚠️ 长会话检测 | "
                 f"历史字符={history_chars} | 消息数={len(history)} | 触发压缩"
             )
-            history = await self.context_guard.force_compress(history)
+            history, compressed = await self.context_guard.force_compress(history)
             self._conversation_history[conversation_id] = history
             logger.info(
                 f"[WORKFLOW:STREAM:2_STORAGE] ✅ 压缩完成 | "
-                f"压缩后消息数={len(history)}"
+                f"压缩后消息数={len(history)} | 实际压缩={'是' if compressed else '否'}"
             )
 
         logger.info(
             f"[WORKFLOW:STREAM:2_STORAGE] ✅ 完成 | 历史: {len(history)} 条"
         )
+
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_2_STORAGE, "end")
 
         # ===== P1修复: Token预算检查 =====
         estimated_tokens = len(user_input) + sum(len(m.get("content", "")) for m in history)
@@ -1949,11 +2078,18 @@ class QueryEngine:
             clean_history = list(history)  # 更新clean_history
 
         # ===== 阶段 3: 上下文前置清理 =====
+        await _emit_stage(WorkflowStage.STAGE_3_CTX_CLEAN, "start")
         logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ⏳ 开始")
 
-        history = await self.context_guard.pre_process(history)
+        history, cleaned = await self.context_guard.pre_process(history)
 
-        logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成")
+        logger.info(f"[WORKFLOW:STREAM:3_CTX_CLEAN] ✅ 完成 | 清理={'是' if cleaned else '否'}")
+
+        # 发送阶段状态：根据是否实际清理来决定是 end 还是 skip
+        if cleaned:
+            await _emit_stage(WorkflowStage.STAGE_3_CTX_CLEAN, "end")
+        else:
+            await _emit_stage(WorkflowStage.STAGE_3_CTX_CLEAN, "skip")
 
         # === EVAL: 记录 Token 使用（上下文压缩后）===
         if self._eval_enabled and self._eval_collector:
@@ -1976,9 +2112,11 @@ class QueryEngine:
 
         # ===== 阶段 4: 工具调用决策（统一复杂度判断） =====
         tool_results: Dict[str, Any] = {}
+        await _emit_stage(WorkflowStage.STAGE_4_TOOLS, "start")
         logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ⏳ 开始 | 意图={intent_result.intent}")
 
-        if intent_result.intent in ["itinerary", "query"]:
+        # 工具调用决策：所有意图都需要按需调用工具
+        if intent_result.intent in ["itinerary", "query", "chat", "food"]:
             # 统一使用 SubAgentOrchestrator 的复杂度判断
             slots_dict = slots.__dict__ if hasattr(slots, '__dict__') else {}
             session_state = self._conversation_history.get(conversation_id)
@@ -2027,6 +2165,8 @@ class QueryEngine:
                 )
         else:
             logger.info(f"[WORKFLOW:STREAM:4_TOOLS] ℹ️ 意图={intent_result.intent}，跳过工具")
+            # 发送跳过状态到前端
+            await _emit_stage(WorkflowStage.STAGE_4_TOOLS, "skip")
 
         # 统计成功的工具调用
         successful_count = sum(1 for v in tool_results.values() if isinstance(v, dict) and "error" not in v)
@@ -2038,12 +2178,16 @@ class QueryEngine:
             f"失败={failed_tools if failed_tools else '无'}"
         )
 
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_4_TOOLS, "end")
+
         # UC5-1修复: Step4追踪完成
         step4_latency = (time.perf_counter() - total_start) * 1000 - step1_latency
         trace_ctx.end_span(span_step4, success=True)
         asyncio.create_task(tracing.check_and_alert(trace_ctx, "Step4_tools", step4_latency))
 
         # ===== 阶段 5: 上下文构建 =====
+        await _emit_stage(WorkflowStage.STAGE_5_CONTEXT, "start")
         logger.info(f"[WORKFLOW:STREAM:5_CONTEXT] ⏳ 开始")
 
         context = await self._build_context(
@@ -2054,10 +2198,14 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:5_CONTEXT] ✅ 完成 | 上下文长度={len(context)}字符"
         )
 
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_5_CONTEXT, "end")
+
         # UC5-1修复: 追踪Step6
         span_step6 = trace_ctx.create_span("Step6_llm", "Step6_llm")
 
         # ===== 阶段 6: 流式LLM生成响应 =====
+        await _emit_stage(WorkflowStage.STAGE_6_LLM, "start")
         logger.info(f"[WORKFLOW:STREAM:6_LLM] ⏳ 开始 | 流式输出")
 
         llm_messages = list(clean_history) if clean_history else []
@@ -2081,6 +2229,9 @@ class QueryEngine:
             f"[WORKFLOW:STREAM:6_LLM] ✅ 完成 | chunk数={chunk_count} | 响应长度={len(full_response)}"
         )
 
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_6_LLM, "end")
+
         # UC5-1修复: Step6追踪完成
         step6_latency = (time.perf_counter() - total_start) * 1000 - step1_latency - step4_latency
         trace_ctx.end_span(span_step6, success=True)
@@ -2090,13 +2241,21 @@ class QueryEngine:
         self._add_to_working_memory(conversation_id, "assistant", full_response)
 
         # ===== 阶段 7: 上下文后置管理 =====
+        await _emit_stage(WorkflowStage.STAGE_7_CTX_MANAGE, "start")
         logger.info(f"[WORKFLOW:STREAM:7_CTX_MANAGE] ⏳ 开始")
 
-        history = await self.context_guard.post_process(history)
+        history, compressed = await self.context_guard.post_process(history)
 
-        logger.info(f"[WORKFLOW:STREAM:7_CTX_MANAGE] ✅ 完成")
+        logger.info(f"[WORKFLOW:STREAM:7_CTX_MANAGE] ✅ 完成 | 压缩={'是' if compressed else '否'}")
+
+        # 发送阶段状态：根据是否实际压缩来决定是 end 还是 skip
+        if compressed:
+            await _emit_stage(WorkflowStage.STAGE_7_CTX_MANAGE, "end")
+        else:
+            await _emit_stage(WorkflowStage.STAGE_7_CTX_MANAGE, "skip")
 
         # ===== 阶段 8: 异步记忆更新 =====
+        await _emit_stage(WorkflowStage.STAGE_8_MEMORY, "start")
         logger.info(f"[WORKFLOW:STREAM:8_MEMORY] ⏳ 开始")
 
         task = asyncio.create_task(
@@ -2108,6 +2267,9 @@ class QueryEngine:
         task.add_done_callback(self._background_tasks.discard)
 
         logger.info(f"[WORKFLOW:STREAM:8_MEMORY] ✅ 完成(后台)")
+
+        # 发送阶段完成状态
+        await _emit_stage(WorkflowStage.STAGE_8_MEMORY, "end")
 
         # === Step 8.5: 创建会话快照 ===
         await self._snapshot_manager.create_snapshot(
@@ -2170,7 +2332,8 @@ class QueryEngine:
         self,
         user_input: str,
         conversation_id: str,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
+        stage_callback: Optional[Callable[[WorkflowStage, str, str], Awaitable[None]]] = None
     ) -> AsyncIterator[str]:
         """统一处理流程 - 带重试循环
 
@@ -2185,6 +2348,7 @@ class QueryEngine:
             user_input: 用户输入
             conversation_id: 会话ID
             user_id: 用户ID
+            stage_callback: 阶段状态回调函数，接收 (stage, status, message)
 
         Yields:
             响应片段
@@ -2276,7 +2440,7 @@ class QueryEngine:
                 try:
                     # ===== 执行流式工作流程 =====
                     async for chunk in self._process_streaming_attempt(
-                        user_input, conversation_id, user_id
+                        user_input, conversation_id, user_id, stage_callback
                     ):
                         yield chunk
                     return
@@ -2395,9 +2559,9 @@ class QueryEngine:
 
                 # v2.2: LLMMemoryPromoter (requires llm_client)
                 self._llm_promoter = None
-                if self._llm_client and self._memory_config.llm_promoter_enabled:
+                if self.llm_client and self._memory_config.llm_promoter_enabled:
                     self._llm_promoter = LLMMemoryPromoter(
-                        llm_client=self._llm_client,
+                        llm_client=self.llm_client,
                         rule_threshold=self._memory_config.llm_promoter_rule_threshold,
                         llm_threshold=self._memory_config.llm_promoter_llm_threshold,
                         timeout=self._memory_config.llm_promoter_timeout,
@@ -2406,9 +2570,9 @@ class QueryEngine:
 
                 # v2.2: ConversationCompressor (requires llm_client)
                 self._compressor = None
-                if self._llm_client and self._memory_config.compression_enabled:
+                if self.llm_client and self._memory_config.compression_enabled:
                     self._compressor = ConversationCompressor(
-                        llm_client=self._llm_client,
+                        llm_client=self.llm_client,
                         llm_timeout=self._memory_config.compression_llm_timeout,
                         recent_limit=self._memory_config.compression_recent_limit,
                         mid_limit=self._memory_config.compression_mid_limit,
@@ -2494,6 +2658,13 @@ class QueryEngine:
                     logger.info("[QueryEngine:Phase2]   - ConversationCompressor: 已配置")
                 if hasattr(self, '_memory_promoter'):
                     logger.info("[QueryEngine:Phase2]   - MemoryPromoter: 已配置")
+
+                # 应用修复补丁：Redis 存储、上下文阈值、缓存安全等
+                try:
+                    from .query_engine_fixes import apply_all_fixes
+                    await apply_all_fixes(self)
+                except Exception as fix_error:
+                    logger.warning(f"[QueryEngine:Phase2] ⚠️ 修复补丁应用失败: {fix_error}")
 
             except ImportError as e:
                 logger.warning(f"[QueryEngine:Phase2] ⚠️ Phase 2 组件导入失败: {e}")

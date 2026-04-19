@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - img [ref=e15]
+            - heading "对话历史" [level=2] [ref=e18]
+          - button "关闭侧边栏" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+        - paragraph [ref=e23]: 登录后查看历史对话记录
+        - button "新建对话" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - text: 新建对话
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "AI Travel Assistant" [level=1] [ref=e36]
+        - generic [ref=e37]:
+          - button "登录" [ref=e38] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]: 登录
+          - link "设置" [ref=e43] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e44]
+            - generic [ref=e47]: 设置
+      - generic [ref=e48]:
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - img [ref=e204]
+              - generic [ref=e149]: 意图识别
+            - generic [ref=e150]:
+              - img [ref=e206]
+              - generic [ref=e156]: 加载历史
+            - generic [ref=e157]:
+              - img [ref=e208]
+              - generic [ref=e161]: 前置清理
+            - generic [ref=e162]:
+              - img [ref=e209]
+              - generic [ref=e166]: 工具调用
+            - generic [ref=e167]:
+              - img [ref=e213]
+              - generic [ref=e173]: 上下文构建
+            - generic [ref=e174]:
+              - img [ref=e215]
+              - generic [ref=e178]: LLM生成
+            - generic [ref=e179]:
+              - img [ref=e181]
+              - generic [ref=e185]: 后置管理
+            - generic [ref=e186]:
+              - img [ref=e188]
+              - generic [ref=e192]: 记忆更新
+          - generic [ref=e194]:
+            - generic [ref=e195]: ✨ 生成回复
+            - generic [ref=e196]: 正在生成回复内容...
+        - generic [ref=e50]:
+          - paragraph [ref=e200]: 帮我规划一个北京3日游行程
+          - generic [ref=e219]:
+            - generic [ref=e220]:
+              - img [ref=e222]
+              - generic [ref=e226]: AI 助手
+            - paragraph [ref=e227]: "好的，非常乐意为您规划一个北京3日游的行程。北京作为历史文化名城，景点非常集中，很适合在3天内体验其精华。 基于我为您搜索到的北京核心景点信息，我为您设计了以下行程方案。这个方案以天安门广场为中心，辐射周边，兼顾了历史古迹、文化体验和城市风貌，行程紧凑且高效。 --- ### **北京经典3日游行程规划** **核心思路**：第一天感受皇家气派与中轴线，第二天深入老北京胡同与现代艺术，第三天探索祭天建筑与自然历史。 #### **第一天：皇城根下的中轴线之旅** * **上午**：**天安门广场**。参观世界上最大的城市广场，观看**天安门-城楼**和**天安门广场-国旗**，感受国家象征的庄严。随后前往广场东侧的**中国国家博物馆**，深入了解中华文明的璀璨历史（需提前预约）。 * **中午**：在**前门大街**用餐。"
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - button "上传图片" [disabled] [ref=e106]:
+            - img [ref=e107]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e112]
+          - button "停止生成" [ref=e201] [cursor=pointer]:
+            - img [ref=e202]
+        - generic [ref=e119]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - generic [ref=e124] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e125]:
+      - img [ref=e126]
+    - generic [ref=e129]:
+      - button "Open issues overlay" [ref=e130]:
+        - generic [ref=e131]:
+          - generic [ref=e132]: "1"
+          - generic [ref=e133]: "2"
+        - generic [ref=e134]:
+          - text: Issue
+          - generic [ref=e135]: s
+      - button "Collapse issues badge" [ref=e136]:
+        - img [ref=e137]
+  - alert [ref=e139]

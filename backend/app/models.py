@@ -29,12 +29,13 @@ class WSMessage(BaseModel):
 class WSResponse(BaseModel):
     """WebSocket response to client."""
 
-    type: str = Field(..., description="Response type: 'delta', 'done', 'error', 'itinerary'")
-    content: Optional[str] = Field(None, description="Streaming content chunk")
+    type: str = Field(..., description="Response type: 'delta', 'done', 'error', 'itinerary', 'stage', 'title_update'")
+    content: Optional[str] = Field(None, description="Streaming content chunk or updated title")
     error: Optional[str] = Field(None, description="Error message if type='error'")
     message_id: Optional[str] = Field(None, description="Message identifier")
     conversation_id: Optional[str] = Field(None, description="Conversation identifier for context tracking")
     itinerary: Optional[dict] = Field(None, description="Itinerary data")
+    stage: Optional[dict] = Field(None, description="Workflow stage info: {name, status, message}")
 
 
 # Database Models

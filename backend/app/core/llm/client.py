@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..context.inference_guard import InferenceGuard
 
 from ..errors import AgentError, DegradationLevel, DegradationStrategy
+from ..output_formatter import OutputFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,17 @@ class ToolCall:
 
 
 @dataclass
+class StreamingDelta:
+    """流式增量内容，用于实时输出
+
+    在工具循环期间，当 LLM 生成文本时立即 yield 此类型，
+    避免前端等待迭代结束才能看到内容。
+    """
+    content: str  # 增量文本内容
+    is_final: bool = False  # 是否是本次迭代的最终内容
+
+
+@dataclass
 class ToolResult:
     """工具执行结果"""
     success: bool
@@ -59,6 +71,7 @@ class ToolCallResult:
     total_tokens: int
     should_continue: bool
     stop_reason: Optional[str] = None
+    incremental_content: Optional[str] = None  # 增量流式内容，用于实时输出
 
 
 class LLMClient:
@@ -212,14 +225,17 @@ class LLMClient:
                             chunk_data = json.loads(data)
                             content = self._extract_content(chunk_data)
                             if content:
+                                # 应用输出格式化 - 去掉markdown符号，保持结构清晰
+                                formatted_content = OutputFormatter.format_chunk(content, is_final=False)
+
                                 # 应用 guard 检查
                                 if guard is not None:
-                                    should_cont, warning = guard.check_before_yield(content)
+                                    should_cont, warning = guard.check_before_yield(formatted_content)
                                     if not should_cont:
                                         if warning:
                                             yield warning
                                         break
-                                yield content
+                                yield formatted_content
                         except json.JSONDecodeError:
                             logger.debug(f"[LLMClient] Failed to parse chunk: {data}")
                             continue
@@ -419,7 +435,9 @@ class LLMClient:
                             # 提取内容
                             content = self._extract_content(chunk_data)
                             if content:
-                                yield content
+                                # 应用输出格式化 - 去掉markdown符号，保持结构清晰
+                                formatted_content = OutputFormatter.format_chunk(content, is_final=False)
+                                yield formatted_content
 
                             # 提取工具调用（必须在 if content 外执行）
                             choice = chunk_data.get("choices", [{}])[0]
@@ -591,6 +609,9 @@ class LLMClient:
                 if isinstance(chunk, ToolCall):
                     tool_calls.append(chunk)
                 else:
+                    # 立即 yield 增量内容，实现流式输出
+                    yield StreamingDelta(content=chunk, is_final=False)
+
                     # 应用 guard 检查
                     if guard is not None:
                         should_cont, warning = guard.check_before_yield(chunk)

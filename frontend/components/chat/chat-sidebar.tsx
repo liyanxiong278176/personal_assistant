@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { ConversationList } from "@/components/conversations/conversation-list";
 import { useAuthStore } from "@/lib/store/auth-store";
-import { Compass, BarChart3 } from "lucide-react";
+import { Compass } from "lucide-react";
 
 interface ChatSidebarProps {
   onClose?: () => void;
@@ -18,7 +17,7 @@ export function ChatSidebar({ onClose, onConversationSelect, onNewConversation }
     <div className="h-full flex flex-col bg-card/50">
       {isAuthenticated ? (
         <>
-          {/* Header with Monitor Button */}
+          {/* Header */}
           <div className="h-14 border-b border-border/40 flex items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -26,27 +25,17 @@ export function ChatSidebar({ onClose, onConversationSelect, onNewConversation }
               </div>
               <h2 className="font-display font-semibold text-sm text-foreground/80">对话历史</h2>
             </div>
-            <div className="flex items-center gap-2">
-              <Link href="/monitor">
-                <button
-                  className="p-1.5 hover:bg-muted/60 rounded-lg transition-colors"
-                  aria-label="监控面板"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                </button>
-              </Link>
-              {onClose && (
-                <button
-                  onClick={onClose}
-                  className="p-1.5 hover:bg-muted/60 rounded-lg transition-colors"
-                  aria-label="关闭侧边栏"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1.5 hover:bg-muted/60 rounded-lg transition-colors"
+                aria-label="关闭侧边栏"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* Conversation List */}

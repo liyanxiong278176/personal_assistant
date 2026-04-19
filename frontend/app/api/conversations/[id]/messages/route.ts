@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { Message } from "../../../../../../shared/types";
+import type { Message } from "@/lib/types";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 

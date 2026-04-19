@@ -1,0 +1,158 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - img [ref=e15]
+            - heading "对话历史" [level=2] [ref=e18]
+          - button "关闭侧边栏" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - heading "对话列表" [level=2] [ref=e25]
+            - generic [ref=e26]:
+              - img [ref=e27]
+              - textbox "搜索对话..." [ref=e30]
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - heading "今天" [level=3] [ref=e33]
+              - generic [ref=e34]:
+                - generic [ref=e220] [cursor=pointer]:
+                  - generic [ref=e221]: 东京美食推荐
+                  - generic [ref=e222]: 12:07
+                  - button "更多选项" [ref=e223]:
+                    - img [ref=e224]
+                - generic [ref=e36] [cursor=pointer]:
+                  - generic [ref=e37]: 日本旅游城市推荐
+                  - generic [ref=e38]: 11:52
+                  - button "更多选项" [ref=e39]:
+                    - img [ref=e40]
+                - generic [ref=e43] [cursor=pointer]:
+                  - generic [ref=e44]: 北京三日游行程规划
+                  - generic [ref=e45]: 06:31
+                  - button "更多选项" [ref=e46]:
+                    - img [ref=e47]
+                - generic [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]: 上海周边周末出游推荐
+                  - generic [ref=e52]: 03:08
+                  - button "更多选项" [ref=e53]:
+                    - img [ref=e54]
+                - generic [ref=e57] [cursor=pointer]:
+                  - generic [ref=e58]: 北京三日游行程规划
+                  - generic [ref=e59]: 03:02
+                  - button "更多选项" [ref=e60]:
+                    - img [ref=e61]
+                - generic [ref=e64] [cursor=pointer]:
+                  - generic [ref=e65]: 新对话
+                  - generic [ref=e66]: 02:48
+                  - button "更多选项" [ref=e67]:
+                    - img [ref=e68]
+            - generic [ref=e70]:
+              - heading "昨天" [level=3] [ref=e71]
+              - generic [ref=e72]:
+                - generic [ref=e74] [cursor=pointer]:
+                  - generic [ref=e75]: 新对话
+                  - generic [ref=e76]: 昨天
+                  - button "更多选项" [ref=e77]:
+                    - img [ref=e78]
+                - generic [ref=e81] [cursor=pointer]:
+                  - generic [ref=e82]: 新对话
+                  - generic [ref=e83]: 昨天
+                  - button "更多选项" [ref=e84]:
+                    - img [ref=e85]
+            - generic [ref=e87]:
+              - heading "2026年4月10日" [level=3] [ref=e88]
+              - generic [ref=e89]:
+                - generic [ref=e91] [cursor=pointer]:
+                  - generic [ref=e92]: 新对话
+                  - generic [ref=e93]: 4月10日
+                  - button "更多选项" [ref=e94]:
+                    - img [ref=e95]
+                - generic [ref=e98] [cursor=pointer]:
+                  - generic [ref=e99]: 新对话
+                  - generic [ref=e100]: 4月10日
+                  - button "更多选项" [ref=e101]:
+                    - img [ref=e102]
+          - button "新建对话" [ref=e105] [cursor=pointer]:
+            - img [ref=e106]
+            - text: 新建对话
+    - main [ref=e107]:
+      - generic [ref=e108]:
+        - generic [ref=e110]:
+          - img [ref=e112]
+          - heading "AI Travel Assistant" [level=1] [ref=e116]
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e120]: "2"
+            - generic [ref=e121]: "2781764566"
+          - button "账号" [ref=e122] [cursor=pointer]:
+            - img [ref=e123]
+            - generic [ref=e126]: 账号
+          - link "设置" [ref=e127] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e128]
+            - generic [ref=e131]: 设置
+      - generic [ref=e132]:
+        - generic [ref=e278]:
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - img [ref=e439]
+              - generic [ref=e284]: 意图识别
+            - generic [ref=e285]:
+              - img [ref=e441]
+              - generic [ref=e289]: 加载历史
+            - generic [ref=e290]:
+              - img [ref=e443]
+              - generic [ref=e293]: 前置清理
+            - generic [ref=e294]:
+              - img [ref=e444]
+              - generic [ref=e298]: 工具调用
+            - generic [ref=e299]:
+              - img [ref=e446]
+              - generic [ref=e303]: 上下文构建
+            - generic [ref=e304]:
+              - img [ref=e448]
+              - generic [ref=e308]: LLM生成
+            - generic [ref=e309]:
+              - img [ref=e450]
+              - generic [ref=e315]: 后置管理
+            - generic [ref=e316]:
+              - img [ref=e454]
+              - generic [ref=e322]: 记忆更新
+          - generic [ref=e326]:
+            - generic [ref=e327]: ✨ 生成回复
+            - generic [ref=e328]: 正在生成回复内容...
+        - generic [ref=e134]:
+          - paragraph [ref=e332]: 东京有什么好吃的？
+          - generic [ref=e341]:
+            - generic [ref=e342]:
+              - img [ref=e344]
+              - generic [ref=e348]: AI 助手
+            - paragraph [ref=e349]: "我来帮您查询东京的美食信息。首先让我搜索一下东京的餐厅和美食推荐。 ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - paragraph [ref=e375]: 东京有什么好吃的？
+          - generic [ref=e384]:
+            - generic [ref=e385]:
+              - img [ref=e387]
+              - generic [ref=e391]: AI 助手
+            - paragraph [ref=e392]: "我来帮您查询东京的美食信息。东京作为美食之都，有各种各样的美食选择，从传统日料到现代创新料理都有。 ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - paragraph [ref=e418]: 东京有什么好吃的？
+          - generic [ref=e427]:
+            - generic [ref=e428]:
+              - img [ref=e430]
+              - generic [ref=e434]: AI 助手
+            - paragraph [ref=e435]: "我来帮您查询东京的美食信息。东京作为世界闻名的美食之都，有各种各样的美食选择，从传统日料到现代创新料理都有。 让我为您搜索一下东京的餐厅和美食推荐： ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - paragraph [ref=e461]: 东京有什么好吃的？
+      - generic [ref=e183]:
+        - generic [ref=e184]:
+          - button "上传图片" [disabled] [ref=e185]:
+            - img [ref=e186]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e191]
+          - button "停止生成" [ref=e462] [cursor=pointer]:
+            - img [ref=e463]
+        - generic [ref=e198]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - alert [ref=e218]

@@ -151,9 +151,11 @@ class AmapService:
 
             logger.info(f"[Amap] ← Response status: {data.get('status')}")
 
-            if data.get("status") == "1" and data.get("pois"):
+            # 高德API: status="1" 表示成功，status!="1" 表示失败
+            if data.get("status") == "1":
+                pois = data.get("pois", [])
                 results = []
-                for poi in data["pois"][:limit]:
+                for poi in pois[:limit]:
                     # Parse location from "lng,lat" format
                     location = poi.get("location", "")
                     lng, lat = "", ""
@@ -183,7 +185,7 @@ class AmapService:
                 self._set_cache(cache_key, {"results": results, "count": len(results)})
                 return {"results": results, "count": len(results)}
             else:
-                logger.warning(f"[Amap] ✗ API error - status: {data.get('status')}, info: {data.get('info')}")
+                logger.error(f"[Amap] ✗ API error - status: {data.get('status')}, info: {data.get('info')}")
                 return {"error": f"POI search failed: {data.get('info', 'Unknown error')}"}
 
         except httpx.HTTPStatusError as e:

@@ -31,13 +31,16 @@ from app.models import (
 )
 from app.db.postgres import (
     create_conversation, get_conversation, list_conversations,
-    create_message, get_messages, get_context_window
+    create_message, get_messages, get_context_window,
+    get_message_count, update_conversation_title
 )
 
 # 使用新的 Agent Core
-from app.core import QueryEngine
+from app.core import QueryEngine, TitleGenerator
+from app.core.query_engine import WorkflowStage, STAGE_MESSAGES
 from app.core.llm import LLMClient
 from app.core.multimodal.image_handler import ImageHandler
+from app.core.title_generator import get_title_generator
 import base64
 
 
@@ -194,9 +197,18 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                         user_id = raw_user_id
 
                 conversation_id = msg.conversation_id
+                is_new_conversation = False
                 if not conversation_id:
                     # Pass user_id (may be None) when creating conversation
                     conversation_id = str(await create_conversation(user_id=user_id))
+                    is_new_conversation = True
+                else:
+                    # Check if this is the first message in existing conversation
+                    try:
+                        msg_count = await get_message_count(UUID(conversation_id))
+                        is_new_conversation = msg_count == 0
+                    except Exception:
+                        is_new_conversation = False
 
                 message_id = str(uuid4())
                 full_response = ""
@@ -233,13 +245,32 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
 
                 logger.info(f"    内容: {user_content[:100]}...")
 
+                # 定义阶段状态回调函数
+                async def stage_callback(stage: WorkflowStage, status: str, message: str):
+                    """发送阶段状态到前端"""
+                    stage_info = STAGE_MESSAGES.get(stage, ("处理中", message))
+                    await manager.send_json(
+                        websocket,
+                        WSResponse(
+                            type="stage",
+                            stage={
+                                "name": stage.value,
+                                "status": status,
+                                "label": stage_info[0],
+                                "message": stage_info[1],
+                            },
+                            message_id=message_id
+                        )
+                    )
+
                 try:
                     # 使用 QueryEngine.process() 处理消息
                     # QueryEngine 内部实现完整的 6 步工作流程
                     async for chunk in engine.process(
                         user_input=user_content,
                         conversation_id=conversation_id,
-                        user_id=user_id
+                        user_id=user_id,
+                        stage_callback=stage_callback
                     ):
                         # 检查用户是否中断
                         if stop_event.is_set():
@@ -278,6 +309,27 @@ async def websocket_chat_endpoint(websocket: WebSocket) -> None:
                 ):
                     break
                 logger.info(f">>> [QueryEngine] ✓ 全流程完成")
+
+                # === 异步生成标题（第一条消息） ===
+                if is_new_conversation and msg.content:
+                    try:
+                        title_gen = get_title_generator()
+                        new_title = await title_gen.generate(msg.content)
+                        await update_conversation_title(UUID(conversation_id), new_title)
+                        logger.info(f"[Chat] 📝 标题已更新: {new_title}")
+
+                        # 通知前端标题已更新
+                        await manager.send_json(
+                            websocket,
+                            WSResponse(
+                                type="title_update",
+                                conversation_id=conversation_id,
+                                content=new_title
+                            )
+                        )
+                    except Exception as e:
+                        logger.warning(f"[Chat] 标题生成失败: {e}")
+
                 logger.info("=" * 60)
 
     except WebSocketDisconnect:

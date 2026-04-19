@@ -1,0 +1,16 @@
+[    8200ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[   33458ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[   34180ms] [LOG] [Fast Refresh] done in 723ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/report-hmr-latency.js:13
+[  248404ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://localhost:8000/api/v1/auth/me:0
+[  248470ms] [LOG] [Chat] Store conversation changed: c54607bf-cd49-4383-91c5-5f30cfe5e063 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:162
+[  248474ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/chat' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:66
+[  248478ms] [LOG] [Chat] Store conversation changed: c54607bf-cd49-4383-91c5-5f30cfe5e063 @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:162
+[  248495ms] [ERROR] [ChatTransport] WebSocket error: Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  248495ms] [ERROR] Event @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[  248495ms] [LOG] [ChatTransport] WebSocket disconnected 1006  @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:45
+[  248495ms] [LOG] [ChatTransport] Reconnecting... (1/5) @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:51
+[  248740ms] [LOG] [Chat] User initialized: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:55
+[  248740ms] [LOG] [Chat] User initialized: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:55
+[  248758ms] [LOG] [Chat] User ID set to transport: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./app/chat/page.tsx:98
+[  248809ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25
+[  249843ms] [LOG] [ChatTransport] WebSocket connected @ webpack-internal:///(app-pages-browser)/./lib/chat-transport.ts:25

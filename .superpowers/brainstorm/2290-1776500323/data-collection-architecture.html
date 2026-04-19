@@ -1,0 +1,276 @@
+<h2>完整方案：真实数据收集 + 监控面板</h2>
+<p class="subtitle">架构设计：聊天过程中实时记录，后续测试验证效果</p>
+
+<div class="mockup">
+  <div class="mockup-header">📊 数据收集架构</div>
+  <div class="mockup-body">
+
+    <!-- 第1层：数据记录层 -->
+    <div style="background:#e3f2fd;border-left:4px solid #2196f3;padding:12px;margin-bottom:16px;">
+      <h3 style="margin:0 0 8px 0;">第1层：聊天中的数据记录</h3>
+      <div style="background:white;padding:10px;border-radius:4px;font-size:14px;">
+        <div style="color:#666;margin-bottom:8px;">每次对话自动记录：</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr style="background:#f5f5f5;">
+            <th style="border:1px solid #ddd;padding:6px;text-align:left;">数据类型</th>
+            <th style="border:1px solid #ddd;padding:6px;text-align:left;">记录时机</th>
+            <th style="border:1px solid #ddd;padding:6px;text-align:left;">存储位置</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">🛡️ 攻击检测</td>
+            <td style="border:1px solid #ddd;padding:6px;">意图分类后</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>attack_logs</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">🎯 意图识别</td>
+            <td style="border:1px solid #ddd;padding:6px;">三级分类器处理后</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>intent_logs</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">🧠 记忆操作</td>
+            <td style="border:1px solid #ddd;padding:6px;">查询/注入/晋升后</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>memory_logs</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">🔧 工具调用</td>
+            <td style="border:1px solid #ddd;padding:6px;">执行后（含成功/失败）</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>tool_logs</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">💬 Token统计</td>
+            <td style="border:1px solid #ddd;padding:6px;">LLM调用前后</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>token_logs</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #ddd;padding:6px;">⏱️ 响应时间</td>
+            <td style="border:1px solid #ddd;padding:6px;">每个处理节点</td>
+            <td style="border:1px solid #ddd;padding:6px;">PostgreSQL: <code>timing_logs</code></td>
+          </tr>
+        </table>
+
+        <div style="margin-top:12px;padding:8px;background:#fff3cd;border-radius:4px;">
+          <strong>💡 记录策略：</strong>异步写入，不影响聊天响应速度<br>
+          <code style="background:#f5f5f5;padding:2px 6px;border-radius:2px;">
+            async def log_interaction(data): await db.insert(data)
+          </code>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第2层：实时计算层 -->
+    <div style="background:#f1f8e9;border-left:4px solid #4caf50;padding:12px;margin-bottom:16px;">
+      <h3 style="margin:0 0 8px 0;">第2层：实时指标计算（Dashboard读取）</h3>
+      <div style="background:white;padding:10px;border-radius:4px;font-size:14px;">
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+          <div style="border:1px solid #ddd;padding:8px;">
+            <div style="font-weight:bold;margin-bottom:6px;">✅ 拦截率计算</div>
+            <code style="background:#f5f5f5;padding:4px;display:block;">
+拦截率 = 攻击检测数 / 总消息数 * 100%
+            </code>
+          </div>
+          <div style="border:1px solid #ddd;padding:8px;">
+            <div style="font-weight:bold;margin-bottom:6px;">🎯 意图准确率</div>
+            <code style="background:#f5f5f5;padding:4px;display:block;">
+准确率 = 正确识别数 / 总识别数 * 100%
+            </code>
+            <div style="margin-top:4px;color:#666;font-size:12px;">
+              验证方式：用户反馈 + 人工标注样本
+            </div>
+          </div>
+          <div style="border:1px solid #ddd;padding:8px;">
+            <div style="font-weight:bold;margin-bottom:6px;">🧠 记忆命中率</div>
+            <code style="background:#f5f5f5;padding:4px;display:block;">
+命中率 = 成功查询数 / 总查询数 * 100%
+            </code>
+          </div>
+          <div style="border:1px solid #ddd;padding:8px;">
+            <div style="font-weight:bold;margin-bottom:6px;">⚡ 平均响应时间</div>
+            <code style="background:#f5f5f5;padding:4px;display:block;">
+AVG(timing_logs.response_time)
+            </code>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;padding:8px;background:#e8f5e9;border-radius:4px;">
+          <strong>🔄 更新频率：</strong>Dashboard每5秒查询数据库最新统计<br>
+          <code style="background:#f5f5f5;padding:2px 6px;border-radius:2px;">
+            WebSocket: 每5秒推送 metrics_update
+          </code>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第3层：测试验证层 -->
+    <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;margin-bottom:16px;">
+      <h3 style="margin:0 0 8px 0;">第3层：后续测试验证</h3>
+      <div style="background:white;padding:10px;border-radius:4px;font-size:14px;">
+        <div style="color:#666;margin-bottom:8px;">测试方案（使用真实对话数据）：</div>
+
+        <div style="border:1px solid #ddd;padding:8px;margin-bottom:8px;">
+          <div style="font-weight:bold;margin-bottom:4px;">📋 测试1：攻击防御有效性</div>
+          <ul style="margin:0;padding-left:20px;">
+            <li>构造50个攻击样本（SQL注入、Prompt注入等）</li>
+            <li>运行系统，记录拦截结果</li>
+            <li>目标：拦截率 ≥ 95%</li>
+          </ul>
+        </div>
+
+        <div style="border:1px solid #ddd;padding:8px;margin-bottom:8px;">
+          <div style="font-weight:bold;margin-bottom:4px;">📋 测试2：意图识别准确率</div>
+          <ul style="margin:0;padding-left:20px;">
+            <li>人工标注100条真实对话意图</li>
+            <li>对比系统识别结果 vs 标注结果</li>
+            <li>目标：准确率 ≥ 90%</li>
+          </ul>
+        </div>
+
+        <div style="border:1px solid #ddd;padding:8px;margin-bottom:8px;">
+          <div style="font-weight:bold;margin-bottom:4px;">📋 测试3：性能优化验证</div>
+          <ul style="margin:0;padding-left:20px;">
+            <li>对比：开启三级分类器 vs 仅LLM</li>
+            <li>指标：Token消耗、响应时间、调用次数</li>
+            <li>目标：LLM调用减少 ≥ 60%</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:12px;padding:8px;background:#ffebee;border-radius:4px;">
+          <strong>🧪 测试脚本：</strong>使用记录的真实数据批量运行<br>
+          <code style="background:#f5f5f5;padding:2px 6px;border-radius:2px;">
+            backend/tests/test_metrics.py
+          </code>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 监控面板设计（使用真实数据） -->
+<div class="mockup" style="margin-top:24px;">
+  <div class="mockup-header">🎮 交互式监控面板（真实数据驱动）</div>
+  <div class="mockup-body">
+
+    <!-- 功能1: 攻击模拟器 -->
+    <div style="border:2px solid #f44336;border-radius:8px;padding:12px;margin-bottom:16px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:bold;">💥 攻击模拟器</div>
+        <div style="background:#f44336;color:white;padding:4px 12px;border-radius:12px;font-size:13px;">
+          拦截率 <span id="attack-rate">--</span>%  <!-- 从数据库实时读取 -->
+        </div>
+      </div>
+      <div style="background:#f5f5f5;padding:8px;border-radius:4px;margin-bottom:8px;">
+        <input type="text" placeholder="输入攻击内容测试..." style="width:70%;padding:6px;border:1px solid #ddd;border-radius:4px;">
+        <button style="margin-left:8px;padding:6px 12px;background:#f44336;color:white;border:none;border-radius:4px;">测试</button>
+      </div>
+      <div style="font-size:13px;color:#666;">
+        ✅ 检测规则：<span style="color:#f44336;">注入关键词黑名单 + 语义异常检测</span><br>
+        ⏱️ 平均响应：<span style="color:#2196f3;">12ms</span>  <!-- 从timing_logs计算 -->
+      </div>
+    </div>
+
+    <!-- 功能2: 数据流追踪 -->
+    <div style="border:2px solid #2196f3;border-radius:8px;padding:12px;margin-bottom:16px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:bold;">🔍 数据流追踪</div>
+        <div style="background:#2196f3;color:white;padding:4px 12px;border-radius:12px;font-size:13px;">
+          平均响应 <span id="avg-response">--</span>ms
+        </div>
+      </div>
+      <div style="background:#f5f5f5;padding:8px;border-radius:4px;margin-bottom:8px;">
+        <select style="padding:6px;border:1px solid #ddd;border-radius:4px;width:100%;">
+          <option>选择最近对话...</option>
+          <option>对话#1: "北京有什么好吃的？" (2分钟前)</option>  <!-- 从对话日志读取 -->
+          <option>对话#2: "帮我规划长城路线" (5分钟前)</option>
+        </select>
+      </div>
+      <div style="font-size:13px;color:#666;">
+        📊 处理路径：意图识别 → 记忆查询 → 工具调用 → 回复生成<br>
+        🧠 记忆命中：<span style="color:#4caf50;">是（找到3条相关记忆）</span>
+      </div>
+    </div>
+
+    <!-- 功能3: 组件展开 -->
+    <div style="border:2px solid #4caf50;border-radius:8px;padding:12px;margin-bottom:16px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:bold;">📦 组件展开</div>
+        <div style="background:#4caf50;color:white;padding:4px 12px;border-radius:12px;font-size:13px;">
+          记忆命中率 <span id="memory-hit">--</span>%
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button style="padding:8px;background:#e3f2fd;border:1px solid #2196f3;border-radius:4px;">🧠 记忆管理</button>
+        <button style="padding:8px;background:#fff3e0;border:1px solid #ff9800;border-radius:4px;">🎯 意图识别</button>
+        <button style="padding:8px;background:#ffebee;border:1px solid #f44336;border-radius:4px;">🛡️ 防御系统</button>
+      </div>
+      <div style="font-size:13px;color:#666;">
+        点击展开组件内部结构和实时状态<br>
+        📈 记忆晋升：今日 <span style="color:#4caf50;">12条</span> → 长期记忆
+      </div>
+    </div>
+
+    <!-- 功能4: 指标对比 -->
+    <div style="border:2px solid #ff9800;border-radius:8px;padding:12px;margin-bottom:16px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-weight:bold;">📈 指标对比</div>
+        <div style="display:flex;gap:8px;">
+          <span style="background:#4caf50;color:white;padding:4px 12px;border-radius:12px;font-size:13px;">
+            LLM减少 <span id="llm-reduce">--</span>%
+          </span>
+          <span style="background:#2196f3;color:white;padding:4px 12px;border-radius:12px;font-size:13px;">
+            Token降低 <span id="token-save">--</span>%
+          </span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div style="background:#fff3e0;padding:8px;border-radius:4px;border:1px solid #ff9800;">
+          <div style="font-size:12px;color:#666;">优化前</div>
+          <div style="font-size:18px;font-weight:bold;color:#ff9800;">
+            🤖 100% LLM调用<br>
+            💰 15,000 tokens/对话
+          </div>
+        </div>
+        <div style="background:#e8f5e9;padding:8px;border-radius:4px;border:1px solid #4caf50;">
+          <div style="font-size:12px;color:#666;">优化后（三级分类器）</div>
+          <div style="font-size:18px;font-weight:bold;color:#4caf50;">
+            🤖 40% LLM调用<br>
+            💰 8,000 tokens/对话
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 实施路径 -->
+<div class="mockup" style="margin-top:24px;">
+  <div class="mockup-header">🚀 实施路径</div>
+  <div class="mockup-body">
+    <div style="background:#e3f2fd;padding:12px;border-radius:8px;">
+      <h4 style="margin:0 0 8px 0;">Step 1: 数据记录层（优先级：高）</h4>
+      <ul style="margin:0;padding-left:20px;">
+        <li>创建数据库表：<code>attack_logs</code>, <code>intent_logs</code>, <code>memory_logs</code>, <code>token_logs</code></li>
+        <li>在QueryEngine中添加异步日志记录</li>
+        <li>验证数据完整性（每条对话必有记录）</li>
+      </ul>
+    </div>
+
+    <div style="background:#f1f8e9;padding:12px;border-radius:8px;margin-top:8px;">
+      <h4 style="margin:0 0 8px 0;">Step 2: 实时监控层（优先级：中）</h4>
+      <ul style="margin:0;padding-left:20px;">
+        <li>实现WebSocket端点：<code>/ws/monitor</code></li>
+        <li>每5秒推送指标更新</li>
+        <li>前端Dashboard实时渲染</li>
+      </ul>
+    </div>
+
+    <div style="background:#fff3e0;padding:12px;border-radius:8px;margin-top:8px;">
+      <h4 style="margin:0 0 8px 0;">Step 3: 测试验证层（优先级：中）</h4>
+      <ul style="margin:0;padding-left:20px;">
+        <li>编写测试脚本：<code>backend/tests/test_metrics.py</code></li>
+        <li>使用真实对话数据运行测试</li>
+        <li>生成测试报告（拦截率、准确率、性能）</li>
+      </ul>
+    </div>
+  </div>
+</div>

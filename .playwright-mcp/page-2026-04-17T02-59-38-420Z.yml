@@ -1,0 +1,129 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - heading "对话列表" [level=2] [ref=e183]
+            - link "监控面板" [ref=e184] [cursor=pointer]:
+              - /url: /monitor
+              - button "监控面板" [ref=e185]:
+                - img [ref=e186]
+          - generic [ref=e188]:
+            - img [ref=e189]
+            - textbox "搜索对话..." [ref=e192]
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - heading "今天" [level=3] [ref=e195]
+            - generic [ref=e198] [cursor=pointer]:
+              - generic [ref=e199]: 新对话
+              - generic [ref=e200]: 02:48
+              - button "更多选项" [ref=e201]:
+                - img [ref=e202]
+          - generic [ref=e204]:
+            - heading "昨天" [level=3] [ref=e205]
+            - generic [ref=e206]:
+              - generic [ref=e208] [cursor=pointer]:
+                - generic [ref=e209]: 新对话
+                - generic [ref=e210]: 昨天
+                - button "更多选项" [ref=e211]:
+                  - img [ref=e212]
+              - generic [ref=e215] [cursor=pointer]:
+                - generic [ref=e216]: 新对话
+                - generic [ref=e217]: 昨天
+                - button "更多选项" [ref=e218]:
+                  - img [ref=e219]
+          - generic [ref=e221]:
+            - heading "2026年4月10日" [level=3] [ref=e222]
+            - generic [ref=e223]:
+              - generic [ref=e225] [cursor=pointer]:
+                - generic [ref=e226]: 新对话
+                - generic [ref=e227]: 4月10日
+                - button "更多选项" [ref=e228]:
+                  - img [ref=e229]
+              - generic [ref=e232] [cursor=pointer]:
+                - generic [ref=e233]: 新对话
+                - generic [ref=e234]: 4月10日
+                - button "更多选项" [ref=e235]:
+                  - img [ref=e236]
+        - button "新建对话" [ref=e239] [cursor=pointer]:
+          - img [ref=e240]
+          - text: 新建对话
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "AI Travel Assistant" [level=1] [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e241]:
+            - link "监控面板" [ref=e242] [cursor=pointer]:
+              - /url: /monitor
+              - img [ref=e243]
+              - text: 监控面板
+            - generic [ref=e246]: "2"
+            - generic [ref=e247]: "2781764566"
+          - button "账号" [ref=e248] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]: 账号
+          - link "设置" [ref=e43] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e44]
+            - generic [ref=e47]: 设置
+      - generic [ref=e51]:
+        - img [ref=e55]
+        - heading "开启你的旅行冒险" [level=2] [ref=e58]
+        - paragraph [ref=e59]:
+          - text: 无论你想探索未知的目的地，还是优化下一次行程，
+          - text: 我都能为你量身定制完美的旅行计划
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - text: 智能行程规划
+          - generic [ref=e64]:
+            - img [ref=e65]
+            - text: 实时景点推荐
+          - generic [ref=e67]:
+            - img [ref=e68]
+            - text: 预算优化建议
+          - generic [ref=e70]:
+            - img [ref=e71]
+            - text: 图片识别景点
+        - generic [ref=e73]:
+          - generic [ref=e75] [cursor=pointer]:
+            - img [ref=e77]
+            - generic [ref=e80]: 帮我规划一个北京3日游行程
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e87]: 推荐一些适合亲子旅行的目的地
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e91]
+            - generic [ref=e93]: 我想去日本赏樱，有什么建议？
+          - generic [ref=e95] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e100]: 周末从上海出发，适合2天的小众旅行
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - button "上传图片" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e112]
+          - button "发送" [disabled] [ref=e115]:
+            - img [ref=e116]
+        - generic [ref=e119]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - generic [ref=e124] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e125]:
+      - img [ref=e126]
+    - generic [ref=e129]:
+      - button "Open issues overlay" [ref=e130]:
+        - generic [ref=e131]:
+          - generic [ref=e132]: "1"
+          - generic [ref=e133]: "2"
+        - generic [ref=e134]:
+          - text: Issue
+          - generic [ref=e135]: s
+      - button "Collapse issues badge" [ref=e136]:
+        - img [ref=e137]
+  - alert [ref=e139]

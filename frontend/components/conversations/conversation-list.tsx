@@ -3,14 +3,13 @@
 import { useEffect, useMemo } from "react";
 import { format, isToday, isYesterday, subDays, parseISO, startOfDay } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import { Plus, Loader2, BarChart3 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConversationSearch } from "./conversation-search";
 import { ConversationItem } from "./conversation-item";
 import { useConversationStore } from "@/lib/store/conversation-store";
 import { useAuthStore } from "@/lib/store/auth-store";
 import type { Conversation } from "@/lib/types";
-import Link from "next/link";
 
 interface ConversationListProps {
   onNewConversation?: () => void;
@@ -227,15 +226,6 @@ export function ConversationList({
       <div className="h-14 border-b border-border/40 flex flex-col px-3 py-2 gap-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <h2 className="font-display font-semibold text-sm text-foreground/70">对话列表</h2>
-          <Link href="/monitor">
-            <button
-              className="p-1.5 hover:bg-muted/60 rounded-lg transition-colors"
-              aria-label="监控面板"
-              title="监控面板"
-            >
-              <BarChart3 className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </Link>
         </div>
         <ConversationSearch
           value={searchQuery}

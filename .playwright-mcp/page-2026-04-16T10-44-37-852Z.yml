@@ -1,0 +1,6 @@
+- generic [active]:
+  - link "Deerflow" [ref=e2] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e3]
+    - text: Deerflow
+  - alert [ref=e6]

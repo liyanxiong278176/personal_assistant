@@ -1,0 +1,187 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - img [ref=e8]
+            - heading "对话历史" [level=2] [ref=e11]
+          - button "关闭侧边栏" [ref=e12] [cursor=pointer]:
+            - img [ref=e13]
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - heading "对话列表" [level=2] [ref=e18]
+            - generic [ref=e19]:
+              - img [ref=e20]
+              - textbox "搜索对话..." [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - heading "今天" [level=3] [ref=e26]
+              - generic [ref=e27]:
+                - generic [ref=e29] [cursor=pointer]:
+                  - generic [ref=e30]: 东京美食推荐
+                  - generic [ref=e31]: 12:07
+                  - button "更多选项" [ref=e32]:
+                    - img [ref=e33]
+                - generic [ref=e36] [cursor=pointer]:
+                  - generic [ref=e37]: 日本旅游城市推荐
+                  - generic [ref=e38]: 11:52
+                  - button "更多选项" [ref=e39]:
+                    - img [ref=e40]
+                - generic [ref=e43] [cursor=pointer]:
+                  - generic [ref=e44]: 北京三日游行程规划
+                  - generic [ref=e45]: 06:31
+                  - button "更多选项" [ref=e46]:
+                    - img [ref=e47]
+                - generic [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]: 上海周边周末出游推荐
+                  - generic [ref=e52]: 03:08
+                  - button "更多选项" [ref=e53]:
+                    - img [ref=e54]
+                - generic [ref=e57] [cursor=pointer]:
+                  - generic [ref=e58]: 北京三日游行程规划
+                  - generic [ref=e59]: 03:02
+                  - button "更多选项" [ref=e60]:
+                    - img [ref=e61]
+                - generic [ref=e64] [cursor=pointer]:
+                  - generic [ref=e65]: 新对话
+                  - generic [ref=e66]: 02:48
+                  - button "更多选项" [ref=e67]:
+                    - img [ref=e68]
+            - generic [ref=e70]:
+              - heading "昨天" [level=3] [ref=e71]
+              - generic [ref=e72]:
+                - generic [ref=e74] [cursor=pointer]:
+                  - generic [ref=e75]: 新对话
+                  - generic [ref=e76]: 昨天
+                  - button "更多选项" [ref=e77]:
+                    - img [ref=e78]
+                - generic [ref=e81] [cursor=pointer]:
+                  - generic [ref=e82]: 新对话
+                  - generic [ref=e83]: 昨天
+                  - button "更多选项" [ref=e84]:
+                    - img [ref=e85]
+            - generic [ref=e87]:
+              - heading "2026年4月10日" [level=3] [ref=e88]
+              - generic [ref=e89]:
+                - generic [ref=e91] [cursor=pointer]:
+                  - generic [ref=e92]: 新对话
+                  - generic [ref=e93]: 4月10日
+                  - button "更多选项" [ref=e94]:
+                    - img [ref=e95]
+                - generic [ref=e98] [cursor=pointer]:
+                  - generic [ref=e99]: 新对话
+                  - generic [ref=e100]: 4月10日
+                  - button "更多选项" [ref=e101]:
+                    - img [ref=e102]
+          - button "新建对话" [ref=e105] [cursor=pointer]:
+            - img [ref=e106]
+            - text: 新建对话
+    - main [ref=e107]:
+      - generic [ref=e108]:
+        - generic [ref=e110]:
+          - img [ref=e112]
+          - heading "AI Travel Assistant" [level=1] [ref=e116]
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e120]: "2"
+            - generic [ref=e121]: "2781764566"
+          - button "账号" [ref=e122] [cursor=pointer]:
+            - img [ref=e123]
+            - generic [ref=e126]: 账号
+          - link "设置" [ref=e127] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e128]
+            - generic [ref=e131]: 设置
+      - generic [ref=e132]:
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - img [ref=e309]
+              - generic [ref=e141]: 意图识别
+            - generic [ref=e142]:
+              - img [ref=e311]
+              - generic [ref=e146]: 加载历史
+            - generic [ref=e147]:
+              - img [ref=e315]
+              - generic [ref=e150]: 前置清理
+            - generic [ref=e151]:
+              - img [ref=e317]
+              - generic [ref=e155]: 工具调用
+            - generic [ref=e156]:
+              - img [ref=e319]
+              - generic [ref=e160]: 上下文构建
+            - generic [ref=e161]:
+              - img [ref=e323]
+              - generic [ref=e165]: LLM生成
+            - generic [ref=e166]:
+              - img [ref=e325]
+              - generic [ref=e169]: 后置管理
+            - generic [ref=e170]:
+              - img [ref=e329]
+              - generic [ref=e174]: 记忆更新
+          - generic [ref=e178]:
+            - generic [ref=e179]: 🔍 意图识别
+            - generic [ref=e180]: 正在分析您的需求...
+        - generic [ref=e182]:
+          - paragraph [ref=e186]: 东京有什么好吃的？
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - img [ref=e192]
+              - generic [ref=e196]: AI 助手
+            - paragraph [ref=e197]: "我来帮您查询东京的美食信息。首先让我搜索一下东京的餐厅和美食推荐。 ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - generic [ref=e200]:
+            - generic [ref=e201]:
+              - img [ref=e203]
+              - generic [ref=e207]: AI 助手
+            - paragraph [ref=e208]: "我来帮您查询东京的美食信息。东京作为美食之都，有各种各样的美食选择，从传统日料到现代创新料理都有。 ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - img [ref=e214]
+              - generic [ref=e218]: AI 助手
+            - paragraph [ref=e219]: "我来帮您查询东京的美食信息。东京作为世界闻名的美食之都，有各种各样的美食选择，从传统日料到现代创新料理都有。 让我为您搜索一下东京的餐厅和美食推荐： ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 料理\", \"types\": \"050000,050100,050200,050300\" } ```"
+          - paragraph [ref=e223]: 东京有什么好吃的？
+          - generic [ref=e226]:
+            - generic [ref=e227]:
+              - img [ref=e229]
+              - generic [ref=e233]: AI 助手
+            - paragraph [ref=e234]: "抱歉，刚才的查询出现了技术问题。让我重新为您查询东京的美食信息。 ```json { \"location\": \"东京\", \"keywords\": \"餐厅 美食\", \"types\": \"050000\" } ``` 东京作为世界闻名的美食之都，有各种各样的美食选择。让我为您介绍一些东京的特色美食： **传统日料：** 1. **寿司** - 东京的筑地市场（现丰洲市场）是寿司爱好者的天堂 2. **拉面** - 东京酱油拉面、沾面等各具特色 3. **天妇罗** - 炸虾、蔬菜等，外酥里嫩 4. **鳗鱼饭** - 夏季特别受欢迎的传统美食 **现代美食：** 1. **和牛烤肉** - 高品质的日本牛肉 2. **居酒屋料理** - 各种下酒小菜和串烧 3. **甜品** - 抹茶甜点、和果子等 **特色区域：** - **银座**：高级餐厅和米其林星级餐厅集中地 - **涩谷/原宿**：年轻时尚的餐厅和咖啡馆 - **浅草**：传统日式料理和街头小吃 - **新宿**：从平价到高端的各种选择 您对哪种类型的美食特别感兴趣呢？我可以为您提供更具体的推荐。"
+          - paragraph [ref=e238]: 北京有哪些著名景点？
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - img [ref=e244]
+              - generic [ref=e248]: AI 助手
+            - paragraph [ref=e249]: 根据查询结果，我为您整理了北京的一些著名景点： **核心历史景点：** 1. **天安门广场** - 世界上最大的城市广场，中国的象征 2. **天安门城楼** - 重要的历史建筑，可登楼俯瞰广场 3. **故宫博物院** - 明清两代的皇家宫殿，世界文化遗产 4. **天坛公园** - 明清皇帝祭天祈谷的场所，世界文化遗产 **皇家园林公园：** 5. **景山公园** - 可俯瞰故宫全景，崇祯皇帝自缢处 6. **北海公园** - 中国现存最古老、最完整的皇家园林 7. **中山公园** - 位于天安门西侧，原为社稷坛 **文化体验区：** 8. **前门大街** - 传统商业街，老字号集中地 9. **王府井步行街** - 现代化商业中心，购物美食天堂 10. **南锣鼓巷** - 北京最古老的街区之一，胡同文化体验 11. **南池子大街** - 靠近故宫的传统街区 **博物馆：** 12. **中国国家博物馆** - 展示中华五千年文明史 **建议游览路线：** - **历史文化线**：天安门广场 → 故宫 → 景山公园 - **皇家园林线**：北海公园 → 景山公园 → 中山公园 - **胡同文化线**：南锣鼓巷 → 南池子大街 → 前门大街 **实用信息：** - 故宫、天坛等景点需要提前预约门票 - 天安门广场参观需要提前预约 - 建议安排2-3天时间游览主要景点 您对哪些景点特别感兴趣？或者需要我帮您规划具体的行程路线吗？
+          - paragraph [ref=e253]: 广州有哪些著名景点？
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - img [ref=e259]
+              - generic [ref=e263]: AI 助手
+            - paragraph [ref=e264]: 根据查询结果，我为您整理了广州的一些著名景点： **历史文化景点：** 1. **北京路步行街** - 广州最繁华的商业街之一，历史悠久 2. **北京路文化旅游区** - 包含多个历史文化遗址 3. **陈家祠堂** - 岭南建筑艺术的杰出代表，国家级景点 4. **南越王博物院**（王墓展区、王宫展区）- 展示南越国历史文物 5. **中山纪念堂** - 为纪念孙中山先生而建，建筑宏伟 **宗教寺庙：** 6. **光孝寺** - 广州最古老的佛教寺庙之一 7. **六榕寺** - 以六榕塔闻名，历史悠久 8. **大佛寺** - 位于北京路附近，香火旺盛 9. **三元宫** - 道教宫观，历史悠久 **公园与自然景观：** 10. **越秀公园** - 广州最大的综合性公园，内有五羊石像 11. **广州兰圃** - 以兰花为主题的园林 12. **海珠广场** - 位于珠江畔的城市广场 **特色街区：** 13. **沙面岛** - 欧陆风情建筑群，曾是英法租界 14. **永庆坊** - 西关文化体验区，传统与现代结合 **建议游览路线：** - **历史文化线**：中山纪念堂 → 越秀公园 → 南越王博物院 - **宗教文化线**：光孝寺 → 六榕寺 → 大佛寺 - **特色街区线**：陈家祠堂 → 永庆坊 → 沙面岛 - **商业文化线**：北京路步行街 → 北京路文化旅游区 **实用信息：** - 大部分景点集中在越秀区和荔湾区，交通便利 - 建议安排2-3天时间游览主要景点 - 广州地铁网络发达，可方便到达各景点 您对哪些类型的景点特别感兴趣？或者需要我为您规划具体的行程路线吗？
+          - paragraph [ref=e336]: 还记得我们刚才聊到的北京景点吗？我比较喜欢历史古迹
+      - generic [ref=e268]:
+        - generic [ref=e269]:
+          - button "上传图片" [disabled] [ref=e270]:
+            - img [ref=e271]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e276]
+          - button "停止生成" [ref=e337] [cursor=pointer]:
+            - img [ref=e338]
+        - generic [ref=e283]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e285] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e286]
+    - text: Deerflow
+  - generic [ref=e293] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e294]:
+      - img [ref=e295]
+    - generic [ref=e298]:
+      - button "Open issues overlay" [ref=e299]:
+        - generic [ref=e300]:
+          - generic [ref=e301]: "1"
+          - generic [ref=e302]: "2"
+        - generic [ref=e303]:
+          - text: Issue
+          - generic [ref=e304]: s
+      - button "Collapse issues badge" [ref=e305]:
+        - img [ref=e306]
+  - alert [ref=e308]

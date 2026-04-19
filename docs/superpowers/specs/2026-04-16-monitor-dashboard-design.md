@@ -103,7 +103,7 @@
 |----------|---------|---------|
 | `IntentRouter` | `from app.core.intent import IntentRouter` | 导入成功 |
 | `RouterStatistics` | 检查是否有 `_stats` 属性 | 存在 |
-| `get_stats()` 方法 | `router.get_stats()` 返回值包含 `strategy_counts` | ✅ 已有 |
+| `get_stats()` 方法 | 需新增公共方法暴露 `_stats` | ❌ 需新增 (使用 _stats 直接访问) |
 | `avg_latency` | 需新增计时功能 | ❌ 需新增 |
 
 **如果 `get_stats()` 不存在**：使用 `router._stats` ���接访问私有属性。
@@ -122,7 +122,10 @@
 | 组件/方法 | 验证命令 | 预期结果 |
 |----------|---------|---------|
 | `ContextGuard` | `from app.core.context_mgmt import ContextGuard` | 导入成功 |
-| `get_stats()` | 需新增方法收集统计数据 | ❌ 需新增 |
+| `get_stats()` | `guard.get_stats()` 返回配置和统计信息 | ✅ 已有 (字段需扩展) |
+
+**现有字段**：`window_size`, `compress_threshold`, `pre_process_count`, `post_process_count`, `compression_triggered_count` 等
+**需要扩展**：`current_tokens`, `token_history`, `last_compression`, `current_phase`
 
 ## 4. 数据接口设计
 
@@ -618,7 +621,8 @@ async def monitor_websocket(
     try:
         # 这里需要手动验证 token，因为 WebSocket 不支持 Depends
         from app.auth.service import AuthService
-        user = await AuthService.verify_token(token)
+        auth_service = AuthService()
+        user = await auth_service.get_current_user(token)
         if not user:
             await websocket.close(code=1008, reason="Invalid token")
             return
@@ -730,32 +734,20 @@ async def get_memory_stats(hierarchy: MemoryHierarchy) -> dict:
 
 async def get_context_stats(guard: ContextGuard) -> dict:
     """收集上下文压缩统计数据"""
-    # 需要新增 get_stats() 方法
-    if hasattr(guard, "get_stats"):
-        stats = guard.get_stats()
-    else:
-        # 临时实现：从配置获取
-        from app.core.context_mgmt.config import get_default_config
-        config = get_default_config()
-        stats = {
-            "total_tokens": 0,
-            "threshold": config.compress_threshold,
-            "compression_count": 0,
-            "token_history": [],
-            "last_compression": None,
-            "current_phase": "idle"
-        }
+    # ContextGuard 已有 get_stats() 方法
+    stats = guard.get_stats()
+
+    # 映射现有字段到监控所需格式
+    # 现有字段: compress_threshold, compression_triggered_count, total_compressed 等
+    # 需要扩展: current_tokens, token_history, last_compression, current_phase
 
     return {
-        "current_tokens": stats.get("total_tokens", 0),
-        "threshold": stats.get("threshold", 4000),
-        "compressions_triggered": stats.get("compression_count", 0),
-        "token_history": [
-            {"time": s["time"].strftime("%H:%M:%S"), "tokens": s["tokens"]}
-            for s in stats.get("token_history", [])[-50:]
-        ],
-        "last_compression": stats.get("last_compression"),
-        "phase": stats.get("current_phase", "idle"),
+        "current_tokens": 0,  # 需要新增：从 tokenizer 获取
+        "threshold": stats.get("compress_threshold", 4000),
+        "compressions_triggered": stats.get("compression_triggered_count", 0),
+        "token_history": [],  # 需要新增：定期采样记录
+        "last_compression": None,  # 需要新增：记录上次压缩结果
+        "phase": "idle",  # 需要新增：当前处理阶段
     }
 ```
 
@@ -873,42 +865,110 @@ class ContextGuard:
             self._token_history = self._token_history[-100:]
 ```
 
-## 7. 模拟数据模式
+## 7. 测试方案
 
-为了方便前端独立开发和演示，添加模拟数据模式：
+### 7.1 测试脚本
 
-```typescript
-// lib/monitor-socket.ts
-const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === "true";
+使用独立测试脚本生成真实测试数据，而非前端模拟模式：
 
-class MonitorSocket {
-  // ... 现有代码
+```python
+# tests/test_monitor_data.py
+"""
+监控面板测试数据生成脚本
 
-  private startMockData() {
-    // 每秒生成模拟数据
-    setInterval(() => {
-      this.options.onMessage("intent_stats", generateMockIntentStats());
-      this.options.onMessage("memory_stats", generateMockMemoryStats());
-      this.options.onMessage("context_stats", generateMockContextStats());
-    }, 1000);
-  }
-}
+用途:
+1. 开发阶段：生成测试数据验证前端展示
+2. 演示准备：录制演示场景数据
+3. 压力测试：验证大数据量下的性能
+"""
 
-function generateMockIntentStats() {
-  return {
-    strategy_counts: {
-      CacheStrategy: Math.floor(Math.random() * 20),
-      RuleStrategy: Math.floor(Math.random() * 50) + 30,
-      LLMStrategy: Math.floor(Math.random() * 15)
-    },
-    confidence_distribution: {
-      high: Math.floor(Math.random() * 50) + 40,
-      mid: Math.floor(Math.random() * 20),
-      low: Math.floor(Math.random() * 10)
-    },
-    // ...
-  };
-}
+import asyncio
+import json
+from datetime import datetime
+
+from app.core.intent.router import IntentRouter
+from app.core.memory.hierarchy import MemoryHierarchy
+from app.core.context_mgmt.guard import ContextGuard
+from app.core.query_engine import QueryEngine
+
+
+async def generate_intent_test_data(router: IntentRouter, count: int = 100):
+    """生成意图识别测试数据"""
+    test_queries = [
+        "北京天气怎么样",
+        "推荐一些上海景点",
+        "帮我规划三日游",
+        "五星级酒店有哪些",
+        "素食餐厅推荐",
+        # ... 更多测试用例
+    ]
+
+    for query in test_queries[:count]:
+        await router.route(query)
+
+
+async def generate_memory_test_data(hierarchy: MemoryHierarchy, count: int = 20):
+    """生成记忆晋升测试数据"""
+    from app.core.memory.models import MemoryItem, MemoryLevel, MemoryType
+
+    test_memories = [
+        ("用户喜欢素食", MemoryType.PREFERENCE, 0.9),
+        ("用户预算充裕", MemoryType.PREFERENCE, 0.85),
+        ("用户来自北京", MemoryType.FACT, 0.7),
+        # ... 更多测试数据
+    ]
+
+    for content, mem_type, importance in test_memories[:count]:
+        item = MemoryItem(content=content, memory_type=mem_type, importance=importance)
+        hierarchy.promote_to_semantic(item)
+
+
+async def generate_context_test_data(guard: ContextGuard):
+    """生成上下文压缩测试数据"""
+    # 构造长对话触发压缩
+    messages = [{"role": "user", "content": f"测试消息 {i}"} for i in range(50)]
+    await guard.pre_process(messages)
+
+
+async def main():
+    """主测试流程"""
+    # 初始化组件
+    router = IntentRouter()
+    hierarchy = MemoryHierarchy()
+    guard = ContextGuard()
+
+    # 生成测试数据
+    await generate_intent_test_data(router, count=100)
+    await generate_memory_test_data(hierarchy, count=20)
+    await generate_context_test_data(guard)
+
+    # 导出统计结果
+    stats = {
+        "intent": router._stats.__dict__,
+        "memory": hierarchy.get_context_summary(),
+        "context": guard.get_stats(),
+        "timestamp": datetime.now().isoformat()
+    }
+
+    with open("test_monitor_data.json", "w", encoding="utf-8") as f:
+        json.dump(stats, f, ensure_ascii=False, indent=2, default=str)
+
+    print("测试数据已生成: test_monitor_data.json")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 7.2 演示数据录制
+
+```bash
+# 运行测试脚本生成演示数据
+cd backend
+python tests/test_monitor_data.py
+
+# 或通过 pytest 运行
+pytest tests/test_monitor_data.py -v
 ```
 
 ## 8. 错误处理与边界情况
@@ -982,8 +1042,9 @@ except Exception as e:
 - [ ] 实现 get_stats() 方法
 
 ### Phase 6: 联调测试 (优先级: 高)
+- [ ] 编写测试数据生成脚本 (`tests/test_monitor_data.py`)
 - [ ] 端到端测试 (真实数据)
-- [ ] 演示场景测试 (模拟数据)
+- [ ] 演示场景测试 (使用测试脚本生成数据)
 - [ ] 错误处理测试
 - [ ] 性能测试
 
@@ -1031,12 +1092,11 @@ except Exception as e:
 - 记忆列表限制显示10条
 - 使用 React.memo 优化重渲染
 - 使用 useMemo 缓存计算结果
-- 模拟数据模式用于前端独立开发
+- 使用测试脚本生成开发/演示数据（见第7节）
 
 ### 11.4 环境变量
 
 ```bash
 # .env.local
 NEXT_PUBLIC_WS_URL=ws://localhost:8000
-NEXT_PUBLIC_MOCK_MODE=false  # 设为 true 使用模拟数据
 ```

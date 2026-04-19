@@ -1,0 +1,24 @@
+[     705ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:196
+[    4508ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:25630
+[    5450ms] [LOG] [Auth] Synced user ID to userManager on init: f62f4ec5-1874-4821-97e9-b2c70b35805d @ webpack-internal:///(app-pages-browser)/./lib/store/auth-store.ts:59
+[    5489ms] [WARNING] WebSocket connection to 'ws://localhost:8000/ws/monitor?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNjJmNGVjNS0xODc0LTQ4MjEtOTdlOS1iMmM3MGIzNTgwNWQiLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2MzM4MTE4LCJpYXQiOjE3NzYzMzYzMTh9.gIUcm2lRrge9HGB53JZMAwCpBe5XOmzYZM5GwrtTw90' failed: WebSocket is closed before the connection is established. @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:48
+[    5502ms] [LOG] [MonitorSocket] Disconnected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:27
+[    5502ms] [LOG] [MonitorSocket] Reconnecting in 1000ms... @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:33
+[    5802ms] [LOG] [MonitorSocket] Connected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:11
+[    5826ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    5826ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    5841ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    5842ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/recharts/es6/util/LogUtils.js:18
+[    6954ms] [LOG] [MonitorSocket] Connected @ webpack-internal:///(app-pages-browser)/./lib/monitor-socket.ts:11

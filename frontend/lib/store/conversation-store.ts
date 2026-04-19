@@ -43,6 +43,7 @@ interface ConversationStore {
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
   clear: () => void;
+  updateConversationTitle: (id: string, title: string) => void;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -328,6 +329,14 @@ export const useConversationStore = create<ConversationStore>()(
       total: 0,
       hasMore: true,
     });
+  },
+
+  updateConversationTitle: (id, title) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === id ? { ...c, title } : c
+      ),
+    }));
   },
     }),
     {

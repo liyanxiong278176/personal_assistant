@@ -101,6 +101,10 @@ from .semantic_backup import (
     SemanticJSONLBackup,
     SemanticBackupConfig,
 )
+from .structured_logger import (
+    ChineseStructuredLogger,
+    get_memory_logger,
+)
 
 __all__ = [
     # Configuration
@@ -149,6 +153,9 @@ __all__ = [
     # v2.3 Semantic Backup
     "SemanticJSONLBackup",
     "SemanticBackupConfig",
+    # Structured Logging
+    "ChineseStructuredLogger",
+    "get_memory_logger",
     # A/B Testing Framework
     "MemoryExperiment",
     "ExperimentResult",

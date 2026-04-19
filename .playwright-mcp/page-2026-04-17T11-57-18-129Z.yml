@@ -1,0 +1,152 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - img [ref=e15]
+            - heading "对话历史" [level=2] [ref=e18]
+          - button "关闭侧边栏" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - heading "对话列表" [level=2] [ref=e25]
+            - generic [ref=e26]:
+              - img [ref=e27]
+              - textbox "搜索对话..." [ref=e30]
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - heading "今天" [level=3] [ref=e33]
+              - generic [ref=e34]:
+                - generic [ref=e36] [cursor=pointer]:
+                  - generic [ref=e37]: 日本旅游城市推荐
+                  - generic [ref=e38]: 11:52
+                  - button "更多选项" [ref=e39]:
+                    - img [ref=e40]
+                - generic [ref=e43] [cursor=pointer]:
+                  - generic [ref=e44]: 北京三日游行程规划
+                  - generic [ref=e45]: 06:31
+                  - button "更多选项" [ref=e46]:
+                    - img [ref=e47]
+                - generic [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]: 上海周边周末出游推荐
+                  - generic [ref=e52]: 03:08
+                  - button "更多选项" [ref=e53]:
+                    - img [ref=e54]
+                - generic [ref=e57] [cursor=pointer]:
+                  - generic [ref=e58]: 北京三日游行程规划
+                  - generic [ref=e59]: 03:02
+                  - button "更多选项" [ref=e60]:
+                    - img [ref=e61]
+                - generic [ref=e64] [cursor=pointer]:
+                  - generic [ref=e65]: 新对话
+                  - generic [ref=e66]: 02:48
+                  - button "更多选项" [ref=e67]:
+                    - img [ref=e68]
+            - generic [ref=e70]:
+              - heading "昨天" [level=3] [ref=e71]
+              - generic [ref=e72]:
+                - generic [ref=e74] [cursor=pointer]:
+                  - generic [ref=e75]: 新对话
+                  - generic [ref=e76]: 昨天
+                  - button "更多选项" [ref=e77]:
+                    - img [ref=e78]
+                - generic [ref=e81] [cursor=pointer]:
+                  - generic [ref=e82]: 新对话
+                  - generic [ref=e83]: 昨天
+                  - button "更多选项" [ref=e84]:
+                    - img [ref=e85]
+            - generic [ref=e87]:
+              - heading "2026年4月10日" [level=3] [ref=e88]
+              - generic [ref=e89]:
+                - generic [ref=e91] [cursor=pointer]:
+                  - generic [ref=e92]: 新对话
+                  - generic [ref=e93]: 4月10日
+                  - button "更多选项" [ref=e94]:
+                    - img [ref=e95]
+                - generic [ref=e98] [cursor=pointer]:
+                  - generic [ref=e99]: 新对话
+                  - generic [ref=e100]: 4月10日
+                  - button "更多选项" [ref=e101]:
+                    - img [ref=e102]
+          - button "新建对话" [ref=e105] [cursor=pointer]:
+            - img [ref=e106]
+            - text: 新建对话
+    - main [ref=e107]:
+      - generic [ref=e108]:
+        - generic [ref=e110]:
+          - img [ref=e112]
+          - heading "AI Travel Assistant" [level=1] [ref=e116]
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e120]: "2"
+            - generic [ref=e121]: "2781764566"
+          - button "账号" [ref=e122] [cursor=pointer]:
+            - img [ref=e123]
+            - generic [ref=e126]: 账号
+          - link "设置" [ref=e127] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e128]
+            - generic [ref=e131]: 设置
+      - generic [ref=e132]:
+        - generic [ref=e206]:
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - img [ref=e210]
+              - generic [ref=e212]: 意图识别
+            - generic [ref=e213]:
+              - img [ref=e269]
+              - generic [ref=e219]: 加载历史
+            - generic [ref=e220]:
+              - img [ref=e271]
+              - generic [ref=e224]: 前置清理
+            - generic [ref=e225]:
+              - img [ref=e272]
+              - generic [ref=e229]: 工具调用
+            - generic [ref=e230]:
+              - img [ref=e274]
+              - generic [ref=e236]: 上下文构建
+            - generic [ref=e237]:
+              - img [ref=e276]
+              - generic [ref=e241]: LLM生成
+            - generic [ref=e242]:
+              - img [ref=e244]
+              - generic [ref=e248]: 后置管理
+            - generic [ref=e249]:
+              - img [ref=e251]
+              - generic [ref=e255]: 记忆更新
+          - generic [ref=e259]:
+            - generic [ref=e260]: ✨ 生成回复
+            - generic [ref=e261]: 正在生成回复内容...
+        - generic [ref=e134]:
+          - paragraph [ref=e138]: 我想去日本旅游，推荐几个城市
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - img [ref=e144]
+              - generic [ref=e148]: AI 助手
+            - paragraph [ref=e149]: "我来为您推荐几个日本的热门旅游城市！日本有很多各具特色的城市，每个都有独特的魅力。让我先为您介绍几个最受欢迎的： ## 🌸 经典推荐城市 ### **东京** - **特色**：现代化大都市、购物天堂、美食之都 - **亮点**：东京塔、浅草寺、涩谷十字路口、秋叶原（动漫文化）、银座（高端购物） - **适合**：首次访日、喜欢都市生活、购物爱好者 ### **京都** - **特色**：日本传统文化之都、千年古都 - **亮点**：伏见稻荷大社的千本鸟居、金阁寺、清水寺、祇园（艺妓文化） - **适合**：文化爱好者、历史迷、喜欢传统建筑 ### **大阪** - **特色**：美食之都、关西商业中心 - **亮点**：大阪城、道顿堀（美食街）、环球影城日本、心斋桥购物区 - **适合**：美食家、家庭游、购物爱好者 ### **北海道（札幌）** - **特色**：自然风光、冬季雪景、海鲜美食 - **亮点**：札幌雪祭、小樽运河、富良野花田、温泉 - **适合**：自然爱好者、冬季运动、美食探索 ### **冲绳** - **特色**：热带海岛、美国文化影响、潜水胜地 - **亮点**：美丽海水族馆、古宇利岛、美国村、琉球文化 - **适合**：海滩度假、潜水爱好者、家庭游 ## 🎯 根据兴趣推荐 - **历史与文化**：京都、奈良、镰仓 - **现代都市**：东京、大阪、名古屋 - **自然风光**：北海道、富士山周边、箱根 - **温泉体验**：箱根、草津、有马温泉 - **动漫与科技**：东京秋叶原、大阪日本桥 ## 💡 建议行程组合 1. **经典关东关西线**：东京（3-4天）→ 京都（2-3天）→ 大阪（2天） 2. **深度文化之旅**：京都（4-5天）→ 奈良（1天）→ 大阪（2天） 3. **自然温泉之旅**：东京（2天）→ 箱根（1-2天）→ 富士山周边（1-2天） 您对哪种类型的旅行更感兴趣呢？或者您有什么特别的偏好（比如美食、购物、历史、自然等）？告诉我后，我可以为您提供更详细的建议和行程规划！"
+          - paragraph [ref=e153]: 东京有什么好吃的？
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - img [ref=e159]
+              - generic [ref=e163]: AI 助手
+            - paragraph [ref=e164]: "东京是美食天堂！让我为您介绍东京的各种美食选择。首先让我获取一些东京的餐饮信息，这样能给您更具体的推荐。 ```json { \"location\": \"东京\", \"keywords\": \"美食 餐厅 拉面 寿司\", \"types\": \"餐饮服务\", \"city\": \"东京\" } ```"
+          - paragraph [ref=e265]: 什么是日本签证？
+          - generic [ref=e280]:
+            - generic [ref=e281]:
+              - img [ref=e283]
+              - generic [ref=e287]: AI 助手
+            - paragraph [ref=e288]: "日本签证是前往日本旅游、商务、探亲等目的所需的入境许可文件。让我为您详细介绍一下： ## 📋 日本签证基本概念 日本签证是日本政府颁发给外国公民的入境许可，贴在护照上，允许持有人在规定时间内进入日本。 ## 🎫"
+      - generic [ref=e168]:
+        - generic [ref=e169]:
+          - button "上传图片" [disabled] [ref=e170]:
+            - img [ref=e171]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [disabled] [ref=e176]
+          - button "停止生成" [ref=e266] [cursor=pointer]:
+            - img [ref=e267]
+        - generic [ref=e183]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - alert [ref=e203]

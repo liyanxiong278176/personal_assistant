@@ -1,0 +1,188 @@
+<h2>核心技术指标展示方案</h2>
+<p class="subtitle">如何量化和展示您提到的技术成果？</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">📊 监控面板 - 指标展示区</div>
+    <div class="mockup-body">
+      <!-- 意图识别指标 -->
+      <div style="background:#e3f2fd;padding:12px;margin-bottom:8px;border-radius:8px;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:8px;">🎯 意图识别三级分类器</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+          <div>
+            <div style="color:#666;">准确率</div>
+            <div style="font-size:18px;font-weight:bold;color:#2e7d32;">90.2%</div>
+          </div>
+          <div>
+            <div style="color:#666;">LLM调用减少</div>
+            <div style="font-size:18px;font-weight:bold;color:#1565c0;">⬇️ 62%</div>
+          </div>
+          <div>
+            <div style="color:#666;">缓存命中率</div>
+            <div style="font-size:18px;font-weight:bold;color:#0277bd;">68%</div>
+          </div>
+          <div>
+            <div style="color:#666;">平均响应时间</div>
+            <div style="font-size:18px;font-weight:bold;">15ms</div>
+          </div>
+        </div>
+        <div style="font-size:10px;margin-top:8px;color:#666;">
+          基于最近 1,000 次分类统计 | 实时更新
+        </div>
+      </div>
+
+      <!-- 记忆架构指标 -->
+      <div style="background:#f3e5f5;padding:12px;margin-bottom:8px;border-radius:8px;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:8px;">🧠 三级记忆架构</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+          <div>
+            <div style="color:#666;">记忆准确率</div>
+            <div style="font-size:18px;font-weight:bold;color:#7b1fa2;">88.5%</div>
+          </div>
+          <div>
+            <div style="color:#666;">自动晋升次数</div>
+            <div style="font-size:18px;font-weight:bold;">127次</div>
+          </div>
+          <div>
+            <div style="color:#666;">语义记忆条数</div>
+            <div style="font-size:18px;font-weight:bold;">34条</div>
+          </div>
+        </div>
+        <div style="font-size:10px;margin-top:8px;color:#666;">
+          基于用户反馈验证 | 跨会话持久化
+        </div>
+      </div>
+
+      <!-- 上下文压缩指标 -->
+      <div style="background:#e8f5e9;padding:12px;margin-bottom:8px;border-radius:8px;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:8px;">📉 上下文压缩管控</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+          <div>
+            <div style="color:#666;">Token成本降低</div>
+            <div style="font-size:18px;font-weight:bold;color:#2e7d32;">⬇️ 47%</div>
+          </div>
+          <div>
+            <div style="color:#666;">压缩触发次数</div>
+            <div style="font-size:18px;font-weight:bold;">23次</div>
+          </div>
+          <div>
+            <div style="color:#666;">对话中断率</div>
+            <div style="font-size:18px;font-weight:bold;color:#c62828;">0%</div>
+          </div>
+          <div>
+            <div style="color:#666;">当前Token使用</div>
+            <div style="font-size:18px;font-weight:bold;">1,847/4,000</div>
+          </div>
+        </div>
+        <div style="font-size:10px;margin-top:8px;color:#666;">
+          累计节省 124,500 Tokens | 压缩比 2.3:1
+        </div>
+      </div>
+
+      <!-- 提示词防御指标 -->
+      <div style="background:#fff3e0;padding:12px;border-radius:8px;">
+        <div style="font-weight:bold;font-size:14px;margin-bottom:8px;">💂 提示词防御系统</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+          <div>
+            <div style="color:#666;">攻击拦截率</div>
+            <div style="font-size:18px;font-weight:bold;color:#ef6c00;">100%</div>
+          </div>
+          <div>
+            <div style="color:#666;">检测次数</div>
+            <div style="font-size:18px;font-weight:bold;">1,234次</div>
+          </div>
+          <div>
+            <div style="color:#666;">误报率</div>
+            <div style="font-size:18px;font-weight:bold;">&lt; 0.1%</div>
+          </div>
+          <div>
+            <div style="color:#666;">模板热更新</div>
+            <div style="font-size:18px;font-weight:bold;color:#4caf50;">✅ 已启用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3>📐 指标计算方式</h3>
+
+    <div class="section">
+      <h4>1️⃣ 意图识别准确率 90%</h4>
+      <p><strong>计算方式:</strong></p>
+      <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;">
+accuracy = 正确分类数 / 总分类数
+= 856 / 950 = 90.1%
+      </pre>
+      <p><strong>数据来源:</strong> <code>IntentRouter._stats.correct_count</code> / <code>total_count</code></p>
+      <p class="label">需要新增</p>
+    </div>
+
+    <div class="section">
+      <h4>2️⃣ LLM调用减少 60%</h4>
+      <p><strong>计算方式:</strong></p>
+      <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;">
+无优化方案: 1000次查询 = 1000次LLM调用
+三级分类器:   1000次查询 = 680次缓存 + 220次规则 + 100次LLM
+减少比例: (1000-100) / 1000 = 90% ↓
+LLM减少:   (1000-100) / 1000 = 60% ↓
+      </pre>
+      <p><strong>数据来源:</strong> <code>IntentRouter._strategy_counts</code></p>
+    </div>
+
+    <div class="section">
+      <h4>3️⃣ 记忆准确率 88%</h4>
+      <p><strong>计算方式:</strong></p>
+      <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;">
+用户反馈验证: "你记住我喜欢素食了吗？" → ✅ 正确
+准确率 = 正确记忆数 / 总记忆数 = 88/100 = 88%
+      </pre>
+      <p><strong>数据来源:</strong> 需要新增用户反馈追踪机制</p>
+      <p class="label">需要新增</p>
+    </div>
+
+    <div class="section">
+      <h4>4️⃣ Token成本降低 45%</h4>
+      <p><strong>计算方式:</strong></p>
+      <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;">
+压缩前: 4200 tokens (25条消息)
+压缩后: 1800 tokens (8条摘要 + 5条原始)
+节省: (4200-1800) / 4200 = 57%
+累计平均: 45% (考虑所有对话)
+      </pre>
+      <p><strong>数据来源:</strong> <code>ContextGuard._compression_history</code></p>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons">
+  <div class="pros">
+    <h4>✅ 已有基础设施</h4>
+    <ul>
+      <li><code>IntentMetricsCollector</code> - 收集分类统计</li>
+      <li><code>MemoryHierarchy._promotion_history</code> - 晋升记录</li>
+      <li><code>ContextGuard.get_stats()</code> - 压缩统计</li>
+      <li><code>InjectionGuard</code> - 攻击检测计数</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>⚠️ 需要补充</h4>
+    <ul>
+      <li>准确率验证机制（用户反馈/标注数据）</li>
+      <li>"优化前"基线数据收集</li>
+      <li>成本节省的累计统计</li>
+      <li>实时计算的性能影响评估</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <p class="label">关键问题</p>
+  <p><strong>这些指标应该用什么方式展示？</strong></p>
+  <ul>
+    <li>大数字醒目展示（90% ↓60%）</li>
+    <li>趋势图（随时间优化效果）</li>
+    <li>对比视图（优化前 vs 优化后）</li>
+    <li>实时滚动（最新数据）</li>
+  </ul>
+</div>

@@ -1,0 +1,134 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - heading "对话列表" [level=2] [ref=e15]
+            - link "监控面板" [ref=e16] [cursor=pointer]:
+              - /url: /monitor
+              - button "监控面板" [ref=e17]:
+                - img [ref=e18]
+          - generic [ref=e20]:
+            - img [ref=e21]
+            - textbox "搜索对话..." [ref=e24]
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - heading "今天" [level=3] [ref=e27]
+            - generic [ref=e28]:
+              - generic [ref=e201] [cursor=pointer]:
+                - generic [ref=e202]: 上海周边周末出游推荐
+                - generic [ref=e203]: 03:07
+                - button "更多选项" [ref=e204]:
+                  - img [ref=e205]
+              - generic [ref=e30] [cursor=pointer]:
+                - generic [ref=e31]: 北京三日游行程规划
+                - generic [ref=e32]: 03:02
+                - button "更多选项" [ref=e33]:
+                  - img [ref=e34]
+              - generic [ref=e37] [cursor=pointer]:
+                - generic [ref=e38]: 新对话
+                - generic [ref=e39]: 02:48
+                - button "更多选项" [ref=e40]:
+                  - img [ref=e41]
+          - generic [ref=e43]:
+            - heading "昨天" [level=3] [ref=e44]
+            - generic [ref=e45]:
+              - generic [ref=e47] [cursor=pointer]:
+                - generic [ref=e48]: 新对话
+                - generic [ref=e49]: 昨天
+                - button "更多选项" [ref=e50]:
+                  - img [ref=e51]
+              - generic [ref=e54] [cursor=pointer]:
+                - generic [ref=e55]: 新对话
+                - generic [ref=e56]: 昨天
+                - button "更多选项" [ref=e57]:
+                  - img [ref=e58]
+          - generic [ref=e60]:
+            - heading "2026年4月10日" [level=3] [ref=e61]
+            - generic [ref=e62]:
+              - generic [ref=e64] [cursor=pointer]:
+                - generic [ref=e65]: 新对话
+                - generic [ref=e66]: 4月10日
+                - button "更多选项" [ref=e67]:
+                  - img [ref=e68]
+              - generic [ref=e71] [cursor=pointer]:
+                - generic [ref=e72]: 新对话
+                - generic [ref=e73]: 4月10日
+                - button "更多选项" [ref=e74]:
+                  - img [ref=e75]
+        - button "新建对话" [ref=e78] [cursor=pointer]:
+          - img [ref=e79]
+          - text: 新建对话
+    - main [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e83]:
+          - img [ref=e85]
+          - heading "AI Travel Assistant" [level=1] [ref=e89]
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - link "监控面板" [ref=e92] [cursor=pointer]:
+              - /url: /monitor
+              - img [ref=e93]
+              - text: 监控面板
+            - generic [ref=e96]: "2"
+            - generic [ref=e97]: "2781764566"
+          - button "账号" [ref=e98] [cursor=pointer]:
+            - img [ref=e99]
+            - generic [ref=e102]: 账号
+          - link "设置" [ref=e103] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e104]
+            - generic [ref=e107]: 设置
+      - generic [ref=e108]:
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - img [ref=e213]
+              - generic [ref=e215]: 意图识别
+            - generic [ref=e216]:
+              - img [ref=e218]
+              - generic [ref=e220]: 加载历史
+            - generic [ref=e221]:
+              - img [ref=e223]
+              - generic [ref=e225]: 前置清理
+            - generic [ref=e226]:
+              - img [ref=e270]
+              - generic [ref=e230]: 工具调用
+            - generic [ref=e231]:
+              - img [ref=e272]
+              - generic [ref=e237]: 上下文构建
+            - generic [ref=e238]:
+              - img [ref=e274]
+              - generic [ref=e242]: LLM生成
+            - generic [ref=e243]:
+              - img [ref=e276]
+              - generic [ref=e249]: 后置管理
+            - generic [ref=e250]:
+              - img [ref=e278]
+              - generic [ref=e256]: 记忆更新
+          - generic [ref=e260]:
+            - generic [ref=e261]: 工作流程完成
+            - generic [ref=e262]: 所有阶段已完成
+        - generic [ref=e110]:
+          - paragraph [ref=e266]: 推荐上海周边适合周末出游的地方
+          - generic [ref=e282]:
+            - generic [ref=e283]:
+              - img [ref=e285]
+              - generic [ref=e289]: AI 助手
+            - paragraph [ref=e290]: "根据搜索结果，我为您推荐几个上海周边适合周末出游的地方。这些地方大多保留了古镇风貌，交通便利，非常适合1-2天的短途旅行： ## 🌟 热门推荐 ### 1. **朱家角古镇** - **特色**：国家级景点，被誉为“上海威尼斯”，水乡风情浓郁 - **地址**：朱家角镇课植园路555号 - **亮点**：小桥流水、明清建筑、特色小吃 - **适合**：喜欢水乡文化、拍照打卡的游客 ### 2. **七宝古镇** - **特色**：距离市区最近，交通最便利 - **地址**：横沥路108号 - **亮点**：古色古香的街道、各种小吃（七宝羊肉、汤圆等） - **适合**：时间有限，想体验古镇风情又不想走太远 ### 3. **南翔古镇** - **特色**：以“南翔小笼包”闻名 - **地址**：解放街206号 - **亮点**：古猗园、云翔寺、正宗小笼包 - **适合**：美食爱好者，想品尝地道上海小吃 ### 4. **周庄古镇** - **特色**：虽然严格来说属于江苏，但从上海出发非常方便 - **地址**：周庄镇全福路42号（江苏昆山） - **亮点**：中国第一水乡，双桥、沈厅、张厅等著名景点 - **适合**：想要深度体验江南水乡文化的游客 ## 🏮 其他值得一游的古镇 - **泗泾古镇**：历史悠久的古镇，有安方塔等古迹 - **练塘古镇**：陈云故里，红色旅游与古镇结合 - **川沙古镇**：靠近迪士尼，可以结合游玩 - **青溪古镇**：奉贤区的古镇，相对小众安静 ## 📝 出行建议 1. **交通方式**： - 七宝、南翔可乘坐地铁直达 - 朱家角、周庄建议自驾或乘坐旅游专线 - 其他古镇建议自驾前往 2. **最佳时间**： - 春秋季节（3-5月，9-11月）气候宜人 - 避开节假日高峰期，体验更佳 3. **行程安排**： - 一日游：选择一个古镇深度游玩 - 两日游：可以组合两个距离较近的古镇 您对哪个古镇比较感兴趣？或者您有特定的偏好（比如喜欢安静小众的，还是热闹有美食的）？我可以为您提供更详细的建议。"
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - button "上传图片" [ref=e166] [cursor=pointer]:
+            - img [ref=e167]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e172]
+          - button "发送" [disabled] [ref=e291]:
+            - img [ref=e292]
+        - generic [ref=e179]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - button "Open Next.js Dev Tools" [ref=e185] [cursor=pointer]:
+    - img [ref=e186]
+  - alert [ref=e199]

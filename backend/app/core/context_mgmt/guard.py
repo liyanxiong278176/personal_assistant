@@ -213,7 +213,7 @@ class ContextGuard:
         )
         return result
 
-    async def pre_process(self, messages: List[Dict]) -> List[Dict]:
+    async def pre_process(self, messages: List[Dict]) -> tuple[List[Dict], bool]:
         """阶段3: 上下文前置清理
 
         调用 Cleaner 对消息列表进行清理，包括：
@@ -227,14 +227,14 @@ class ContextGuard:
             messages: 原始消息列表
 
         Returns:
-            清理后的消息列表（新列表，不修改原列表）
+            (清理后的消息列表, 是否实际执行了清理)
         """
         self._stats["pre_process_count"] += 1
         self.set_phase("pre_clean")
         start_time = time.perf_counter()
 
         if not messages:
-            return []
+            return [], False
 
         # 安全检查 - Prompt Injection 检测
         user_messages = [m for m in messages if m.get("role") == "user"]
@@ -248,6 +248,13 @@ class ContextGuard:
 
         # 调用清理器进行自动清理（软修剪 + 硬清除）
         cleaned, clean_stats = self.cleaner.clean(messages, mode="auto")
+
+        # 判断是否实际执行了清理
+        actually_cleaned = (
+            clean_stats.expired_count > 0 or
+            clean_stats.soft_trimmed_count > 0 or
+            clean_stats.hard_cleared_count > 0
+        )
 
         # 更新统计
         self._stats["total_expired_cleaned"] += clean_stats.expired_count
@@ -267,9 +274,9 @@ class ContextGuard:
         self.record_token_sample(cleaned)
         self.set_phase("idle")
 
-        return cleaned
+        return cleaned, actually_cleaned
 
-    async def post_process(self, messages: List[Dict]) -> List[Dict]:
+    async def post_process(self, messages: List[Dict]) -> tuple[List[Dict], bool]:
         """阶段7: 上下文后置管理
 
         压缩协调和规则重注入：
@@ -283,14 +290,14 @@ class ContextGuard:
             messages: 当前消息列表
 
         Returns:
-            处理后的消息列表
+            (处理后的消息列表, 是否实际执行了压缩)
         """
         self._stats["post_process_count"] += 1
         self.set_phase("guard")
         start_time = time.perf_counter()
 
         if not messages:
-            return []
+            return [], False
 
         # 判断是否需要压缩
         current_tokens = TokenEstimator.estimate_messages(messages)
@@ -343,7 +350,7 @@ class ContextGuard:
         self.record_token_sample(result)
         self.set_phase("idle")
 
-        return result
+        return result, compressed
 
     async def force_compress(self, messages: List[Dict]) -> List[Dict]:
         """手动触发压缩（混合模式支持）
@@ -360,7 +367,7 @@ class ContextGuard:
         start_time = time.perf_counter()
 
         if not messages:
-            return []
+            return [], False
 
         # 使用简单压缩方法
         compressed = self._simple_compress_with_summary(messages)
@@ -379,7 +386,7 @@ class ContextGuard:
             len(compressed) < len(messages), rules_injected,
             elapsed_ms
         )
-        return compressed
+        return compressed, True
 
     async def _compress_messages(self, messages: List[Dict]) -> List[Dict]:
         """执行消息压缩（LLM驱动）
@@ -403,7 +410,7 @@ class ContextGuard:
         # 生成摘要
         summary_provider = self._get_summary_provider()
         summary_text = await summary_provider.generate_summary(other_messages)
-        summary_tokens = TokenEstimator.count_tokens(summary_text)
+        summary_tokens = TokenEstimator.estimate(summary_text)
 
         # 构建压缩后的消息
         result: List[Dict] = []

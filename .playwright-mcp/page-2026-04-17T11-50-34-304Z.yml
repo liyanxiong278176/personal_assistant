@@ -1,0 +1,124 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e9]:
+    - complementary [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - img [ref=e15]
+            - heading "对话历史" [level=2] [ref=e18]
+          - button "关闭侧边栏" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - heading "对话列表" [level=2] [ref=e185]
+            - generic [ref=e186]:
+              - img [ref=e187]
+              - textbox "搜索对话..." [ref=e190]
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - heading "今天" [level=3] [ref=e193]
+              - generic [ref=e194]:
+                - generic [ref=e196] [cursor=pointer]:
+                  - generic [ref=e197]: 北京三日游行程规划
+                  - generic [ref=e198]: 06:31
+                  - button "更多选项" [ref=e199]:
+                    - img [ref=e200]
+                - generic [ref=e203] [cursor=pointer]:
+                  - generic [ref=e204]: 上海周边周末出游推荐
+                  - generic [ref=e205]: 03:08
+                  - button "更多选项" [ref=e206]:
+                    - img [ref=e207]
+                - generic [ref=e210] [cursor=pointer]:
+                  - generic [ref=e211]: 北京三日游行程规划
+                  - generic [ref=e212]: 03:02
+                  - button "更多选项" [ref=e213]:
+                    - img [ref=e214]
+                - generic [ref=e217] [cursor=pointer]:
+                  - generic [ref=e218]: 新对话
+                  - generic [ref=e219]: 02:48
+                  - button "更多选项" [ref=e220]:
+                    - img [ref=e221]
+            - generic [ref=e223]:
+              - heading "昨天" [level=3] [ref=e224]
+              - generic [ref=e225]:
+                - generic [ref=e227] [cursor=pointer]:
+                  - generic [ref=e228]: 新对话
+                  - generic [ref=e229]: 昨天
+                  - button "更多选项" [ref=e230]:
+                    - img [ref=e231]
+                - generic [ref=e234] [cursor=pointer]:
+                  - generic [ref=e235]: 新对话
+                  - generic [ref=e236]: 昨天
+                  - button "更多选项" [ref=e237]:
+                    - img [ref=e238]
+            - generic [ref=e240]:
+              - heading "2026年4月10日" [level=3] [ref=e241]
+              - generic [ref=e242]:
+                - generic [ref=e244] [cursor=pointer]:
+                  - generic [ref=e245]: 新对话
+                  - generic [ref=e246]: 4月10日
+                  - button "更多选项" [ref=e247]:
+                    - img [ref=e248]
+                - generic [ref=e251] [cursor=pointer]:
+                  - generic [ref=e252]: 新对话
+                  - generic [ref=e253]: 4月10日
+                  - button "更多选项" [ref=e254]:
+                    - img [ref=e255]
+          - button "新建对话" [ref=e258] [cursor=pointer]:
+            - img [ref=e259]
+            - text: 新建对话
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "AI Travel Assistant" [level=1] [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e260]:
+            - generic [ref=e262]: "2"
+            - generic [ref=e263]: "2781764566"
+          - button "账号" [ref=e264] [cursor=pointer]:
+            - img [ref=e39]
+            - generic [ref=e42]: 账号
+          - link "设置" [ref=e43] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e44]
+            - generic [ref=e47]: 设置
+      - generic [ref=e50]:
+        - paragraph [ref=e269]: 帮我规划一个北京3日游行程
+        - generic [ref=e272]:
+          - generic [ref=e273]:
+            - img [ref=e275]
+            - generic [ref=e279]: AI 助手
+          - paragraph [ref=e280]: "好的，非常乐意为您规划一个北京3日游行程。根据您提供的天气信息，未来三天北京的天气总体不错，非常适合户外游览。 以下是为您量身定制的北京经典3日游行程方案： ### **北京3日经典游行程规划** **核心思路：** 一天感受皇家气派（故宫），一天体验市井文化（胡同），一天登高望远（长城）。 --- #### **第一天：皇城根下的历史漫步** * **主题：** 中轴线上的皇家威严 * **上午：** **天安门广场** → **故宫博物院**。建议提前在网上预约故宫门票。从午门进入，沿着中轴线（太和殿、中和殿、保和殿）参观，然后可以逛逛东西六宫和御花园，从神武门出。预计游览时间4-5小时。 * **午餐：** 可以在故宫附近的“四季民福”（故宫店）品尝北京烤鸭，或者前往王府井、前门大街解决。 * **下午：** 从神武门出来，过马路就是 **景山公园**。登上万春亭，俯瞰故宫全景和北京中轴线，非常震撼。 * **傍晚/晚上：** 前往 **什刹海** 区域。可以在湖边散步，感受老北京的悠闲，也可以找一家胡同里的餐厅或酒吧小坐。 **今日天气参考（4月17日）：** 多云转晴，13-21°C。天气不错，适宜户外活动，建议穿一件薄外套。 --- #### **第二天：胡同里的京味儿生活** * **主题：** 老北京文化与现代艺术 * **上午：** 游览 **南锣鼓巷**。这里是北京最著名的胡同之一，虽然商业化较浓，但可以感受胡同氛围。建议拐进两旁的小胡同（如帽儿胡同、雨儿胡同），更能体会原汁原味的北京生活。 * **午餐：** 在南锣鼓巷或附近的北新桥一带品尝老北京小吃，如炸酱面、卤煮、爆肚等。 * **下午：** 前往 **雍和宫**（藏传佛教寺院）或 **孔庙和国子监博物馆**（古代最高学府），感受宁静与文气。之后可以去附近的 **五道营胡同**，这里比南锣鼓巷更文艺、更安静，有很多特色小店和咖啡馆。 * **晚上：** 前往 **三里屯太古里** 或 **蓝色港湾**，体验北京的现代都市夜生活。 **今日天气参考（4月18日）：** 晴，15-26°C。天气晴朗，适合出行和拍照，可以穿得轻便一些。 --- #### **第三天：世界奇迹的壮丽之旅** * **主题：** 长城雄风 * **全天：** **八达岭长城**。这是最经典、设施最完善的长城段。建议早起，乘坐地铁到“霍营”站，转乘市郊铁路S2线（“开往春天的列车”），或在北京北站/清河站乘坐高铁（更快），也可以选择旅游专线巴士。在长城上建议至少预留3-4小时的游览时间。“不到长城非好汉”，请穿一双舒适的鞋子。 * **午餐：** 在长城脚下的餐厅解决。 * **下午：** 返回市区。如果时间充裕且体力尚可，可以去 **鸟巢（国家体育场）** 和 **水立方（国家游泳中心）** 外观拍照，感受现代北京的奥运气息。 * **晚上：** 享用一顿丰盛的晚餐，为旅程画上句号。 **今日天气参考（4月19日）：** 多云，10-25°C。天气不错，适宜户外活动。长城上风可能较大，温差也大，务必注意保暖防风。 --- ### **温馨提示：** 1. **交通：** 北京地铁网络发达，是市内出行的首选。提前下载“亿通行”APP或使用支付宝/微信的乘车码，扫码乘坐地铁和公交。 2. **门票：** **故宫、国家博物馆、八达岭长城等热门景点务必提前在线实名预约！** 现场很可能买不到票。 3. **住宿：** 建议选择地铁2号线（环线）或1号线沿线附近，如前门、王府井、东直门、鼓楼大街等区域，交通便利，去各景点都方便。 4. **美食：** 除了烤鸭，还可以尝试铜锅涮肉、炸酱面、豆汁焦圈（挑战一下）、驴打滚等京味小吃。 这个行程涵盖了北京最具代表性的历史、文化和自然景观。如果您对某个部分（比如更喜欢博物馆、或者想调整节奏）有特别的想法，请随时告诉我，我可以为您进一步优化！"
+        - paragraph [ref=e284]: 你好
+        - generic [ref=e287]:
+          - generic [ref=e288]:
+            - img [ref=e290]
+            - generic [ref=e294]: AI 助手
+          - paragraph [ref=e295]: 你好！很高兴再次见到您。关于我们刚才讨论的北京3日游行程，您有什么新的想法或问题吗？ 比如： - 想调整行程中的某个景点？ - 需要我为您查询某个具体地点的开放时间或门票信息？ - 对美食推荐有更具体的要求？ - 或者想了解某个活动的更多细节？ 请随时告诉我，我很乐意为您提供进一步的帮助！
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - button "上传图片" [ref=e106] [cursor=pointer]:
+            - img [ref=e107]
+          - textbox "告诉我想去哪里旅行... (可上传图片)" [ref=e112]
+          - button "发送" [disabled] [ref=e115]:
+            - img [ref=e116]
+        - generic [ref=e119]: 按 Enter 发送，Shift + Enter 换行 · 支持上传图片识别景点
+  - link "Deerflow" [ref=e5] [cursor=pointer]:
+    - /url: https://deerflow.tech
+    - img [ref=e6]
+    - text: Deerflow
+  - generic [ref=e124] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e125]:
+      - img [ref=e126]
+    - generic [ref=e129]:
+      - button "Open issues overlay" [ref=e130]:
+        - generic [ref=e131]:
+          - generic [ref=e132]: "1"
+          - generic [ref=e133]: "2"
+        - generic [ref=e134]:
+          - text: Issue
+          - generic [ref=e135]: s
+      - button "Collapse issues badge" [ref=e136]:
+        - img [ref=e137]
+  - alert [ref=e139]

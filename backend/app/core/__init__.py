@@ -64,6 +64,7 @@ from .preferences import (
 )
 from .fallback import FallbackType, UnifiedFallbackHandler
 from .observability import StructuredLogger, get_logger, MetricsCollector, MetricType, get_metrics_collector
+from .title_generator import TitleGenerator, get_title_generator
 
 __all__ = [
     # container
@@ -138,4 +139,10 @@ __all__ = [
     "MetricsCollector",
     "MetricType",
     "get_metrics_collector",
+    # title generator
+    "TitleGenerator",
+    "get_title_generator",
+    # output formatter
+    "OutputFormatter",
+    "format_output",
 ]

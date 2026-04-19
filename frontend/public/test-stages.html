@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>阶段状态测试</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        #stages { display: flex; gap: 10px; margin: 20px 0; }
+        .stage {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: #e0e0e0;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .stage.active { background: #3b82f6; color: white; }
+        .stage.completed { background: #22c55e; color: white; }
+        .stage.skipped { background: #eab308; color: white; }
+        #log {
+            background: #1e1e1e; color: #00ff00;
+            padding: 10px; border-radius: 5px;
+            height: 300px; overflow-y: auto;
+            font-family: monospace; font-size: 12px;
+        }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>阶段状态测试</h1>
+    <input type="text" id="message" placeholder="输入消息" value="你好">
+    <button onclick="sendMessage()">发送</button>
+
+    <div id="stages">
+        <div class="stage" id="stage-1">1</div>
+        <div class="stage" id="stage-2">2</div>
+        <div class="stage" id="stage-3">3</div>
+        <div class="stage" id="stage-4">4</div>
+        <div class="stage" id="stage-5">5</div>
+        <div class="stage" id="stage-6">6</div>
+        <div class="stage" id="stage-7">7</div>
+        <div class="stage" id="stage-8">8</div>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const STAGE_MAP = {
+            '1_INTENT': 1,
+            '2_STORAGE': 2,
+            '3_CTX_CLEAN': 3,
+            '4_TOOLS': 4,
+            '5_CONTEXT': 5,
+            '6_LLM': 6,
+            '7_CTX_MANAGE': 7,
+            '8_MEMORY': 8
+        };
+
+        let ws = null;
+        let stageStates = {};
+        let currentStage = null;
+
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += msg + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStages() {
+            // 清除所有状态
+            for (let i = 1; i <= 8; i++) {
+                const el = document.getElementById('stage-' + i);
+                el.className = 'stage';
+            }
+
+            // 更新完成的阶段
+            for (const [name, state] of Object.entries(stageStates)) {
+                const num = STAGE_MAP[name];
+                if (num) {
+                    const el = document.getElementById('stage-' + num);
+                    if (state === 'completed') el.classList.add('completed');
+                    if (state === 'skipped') el.classList.add('skipped');
+                }
+            }
+
+            // 更新当前活跃阶段
+            if (currentStage) {
+                const num = STAGE_MAP[currentStage];
+                if (num) {
+                    document.getElementById('stage-' + num).classList.add('active');
+                }
+            }
+        }
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:8000/ws/chat');
+
+            ws.onopen = () => {
+                log('[连接] WebSocket 已连接');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'stage') {
+                    const stage = data.stage;
+                    log(`[阶段] ${stage.label} | ${stage.name} | ${stage.status}`);
+
+                    // 更新状态
+                    if (stage.status === 'skip') {
+                        stageStates[stage.name] = 'skipped';
+                    }
+
+                    // 当前活跃阶段
+                    if (stage.status === 'start') {
+                        // 将上一阶段标记为完成
+                        if (currentStage) {
+                            stageStates[currentStage] = 'completed';
+                        }
+                        currentStage = stage.name;
+                    }
+
+                    updateStages();
+                }
+                else if (data.type === 'delta') {
+                    // LLM 流式输出
+                }
+                else if (data.type === 'done') {
+                    // 完成时标记最后阶段为完成
+                    if (currentStage) {
+                        stageStates[currentStage] = 'completed';
+                    }
+                    currentStage = null;
+                    updateStages();
+                    log('[完成] 所有阶段已完成');
+                }
+                else if (data.type === 'error') {
+                    log(`[错误] ${data.error || '未知错误'}`);
+                }
+            };
+
+            ws.onclose = () => {
+                log('[断开] WebSocket 已断开');
+            };
+        }
+
+        function sendMessage() {
+            const msg = document.getElementById('message').value;
+            if (!msg) return;
+
+            // 重置状态
+            stageStates = {};
+            currentStage = null;
+            updateStages();
+
+            ws.send(JSON.stringify({
+                type: 'message',
+                content: msg
+            }));
+            log(`[发送] ${msg}`);
+        }
+
+        connect();
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<h2>监控面板布局方向选择</h2>
+<p class="subtitle">���择最适合您需求的展示风格</p>
+
+<div class="options">
+  <div class="option" data-choice="dashboard" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>📊 传统仪表盘</h3>
+      <p><strong>适合:</strong> 实时监控、数据驱动展示</p>
+      <p>四个核心模块并排展示���图表为主，数据实时更新</p>
+      <div class="mockup" style="margin-top:1rem;padding:0.5rem;background:#f5f5f5;border-radius:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:#e3f2fd;padding:8px;border-radius:4px;font-size:10px;">意图识别</div>
+          <div style="background:#f3e5f5;padding:8px;border-radius:4px;font-size:10px;">记忆架构</div>
+          <div style="background:#e8f5e9;padding:8px;border-radius:4px;font-size:10px;">提示词防御</div>
+          <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:10px;">上下文压缩</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="narrative" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>🎬 故事演示模式</h3>
+      <p><strong>适合:</strong> 面试演讲、技术亮点展示</p>
+      <p>突出技术指标和成果，精心设计的数据流展示，强调创新点</p>
+      <div class="mockup" style="margin-top:1rem;padding:0.5rem;background:#f5f5f5;border-radius:8px;">
+        <div style="text-align:center;font-size:10px;padding:4px;">
+          <div style="font-weight:bold;color:#1976d2;">"准确率90% • LLM调用↓60%"</div>
+          <div style="margin-top:4px;border-top:1px solid #ddd;">流程可视化</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="interactive" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>🎮 交互式探索</h3>
+      <p><strong>适合:</strong> 深度理解、架构讲解</p>
+      <p>可点击展开的组件，数据流追踪，支持模拟攻击场景</p>
+      <div class="mockup" style="margin-top:1rem;padding:0.5rem;background:#f5f5f5;border-radius:8px;">
+        <div style="text-align:center;font-size:10px;">
+          <button class="mock-button" style="font-size:8px;padding:2px 8px;">模拟注入攻击</button>
+          <div style="margin-top:4px;">→ 查看防御流程</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <p class="label">技术背景</p>
+  <p>您的项目已实现完整的 Agent Core 系统，包括意图识别、记忆管理、上下文管控和提示词防御。监控面板需要可视化展示这些系统的运行状态和技术亮点。</p>
+</div>

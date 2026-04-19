@@ -252,11 +252,11 @@ export default function ChatPage() {
             if (stage.status === "skip") {
               newStates[stage.name] = "skipped";
             } else if (stage.status === "end") {
-              // 当收到 end 状态时，立即标记为完成
+              // 当收到 end 状态时，标记为完成
               newStates[stage.name] = "completed";
             } else if (stage.status === "start") {
-              // 标记为进行中 (临时状态，稍后会更新为completed)
-              newStates[stage.name] = "completed";
+              // 标记为进行中（pending），前端会显示转圈
+              newStates[stage.name] = "pending";
             }
 
             return newStates;
@@ -451,10 +451,13 @@ export default function ChatPage() {
           <div className="flex items-center gap-1">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2 mr-1">
+<<<<<<< Updated upstream
                 {/* 监控面板按钮 */}
                 <Link href="/monitor">
                   <Button variant="ghost" size="sm">📊 监控面板</Button>
                 </Link>
+=======
+>>>>>>> Stashed changes
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
