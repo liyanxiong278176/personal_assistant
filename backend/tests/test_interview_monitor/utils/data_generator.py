@@ -37,19 +37,30 @@ class InjectionAttackGenerator:
                         "category": category,
                         "template": template,
                         "variant_id": f"{category}_{i}",
-                        "content": template,
+                        "content": f"{template} (variant {i})",
                     })
         return samples
 
     def generate_extended_samples(self, count: int = 175) -> list[dict]:
         """生成扩展样本用于SEC-02测试
 
+        注意: 这些是合成占位样本，用于测试基础设施和数据处理流程，
+        不是真实的攻击查询。真实的攻击样本需要通过专业渗透测试获取。
+
         Args:
             count: 扩展样本数量（默认175条）
 
         Returns:
-            扩展样本列表，每个样本包含攻击查询字符串
+            扩展样本列表，每个样本包含合成占位内容
+
+        Raises:
+            ValueError: 如果count为负数或超过10000
         """
+        if count < 0:
+            raise ValueError(f"count must be >= 0, got {count}")
+        if count > 10000:
+            raise ValueError(f"count too large (max 10000), got {count}")
+
         samples = []
         for i in range(count):
             samples.append({
@@ -63,15 +74,27 @@ class IntentQueryGenerator:
     """意图查询数据生成器"""
 
     TEMPLATES = {
-        "itinerary": ["帮我规划{}天{}行程", "去{}旅游怎么安排"],
-        "query": ["{}天气怎么样", "{}有什么景点"],
+        "itinerary": [("帮我规划{}天{}行程", ["3", "北京"]), ("去{}旅游怎么安排", ["上海"])],
+        "query": [("{}天气怎么样", ["北京"]), ("{}有什么景点", ["上海"])],
     }
 
     def generate(self, intent: str, count: int) -> list[tuple[str, str]]:
+        """生成意图查询样本
+
+        Args:
+            intent: 意图类型 (itinerary/query)
+            count: 生成样本数量
+
+        Returns:
+            (query_text, intent) 元组列表
+        """
         templates = self.TEMPLATES.get(intent, [])
+        if not templates:
+            return []
+
         samples = []
         for i in range(count):
-            template = templates[i % len(templates)]
-            query = template.format(f"query_{i}")
+            template, values = templates[i % len(templates)]
+            query = template.format(*values)
             samples.append((query, intent))
         return samples
