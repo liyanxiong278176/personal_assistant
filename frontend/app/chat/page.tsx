@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import Link from "next/link";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
+import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
 import { PhaseIndicator } from "@/components/chat/phase-indicator";
@@ -450,19 +452,9 @@ export default function ChatPage() {
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2 mr-1">
                 {/* 监控面板按钮 */}
-                <a
-                  href="/monitor"
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5
-                    bg-gradient-to-r from-primary/10 to-accent/10 border border-border/50
-                    hover:from-primary/20 hover:to-accent/20
-                    text-primary hover:text-primary
-                    transition-all"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  监控面板
-                </a>
+                <Link href="/monitor">
+                  <Button variant="ghost" size="sm">📊 监控面板</Button>
+                </Link>
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
