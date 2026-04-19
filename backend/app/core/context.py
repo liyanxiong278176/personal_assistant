@@ -50,6 +50,7 @@ class IntentResult(BaseModel):
     clarification: Optional[dict] = None
     strategy: Optional[str] = None  # Name of the strategy that produced this result
     metadata: Optional[Dict[str, Any]] = None  # Additional metadata (e.g., exclusion keywords)
+    collected_slots: Optional[Dict[str, Any]] = None  # Slots collected during slot filling
 
 
 class RequestContext(BaseModel):
