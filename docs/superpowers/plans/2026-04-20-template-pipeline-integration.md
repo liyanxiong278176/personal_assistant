@@ -358,84 +358,74 @@ async def _build_context(
     """
 ```
 
-- [ ] **Step 6: Modify _build_context() implementation**
+- [ ] **Step 6a: Add memory extraction logic**
 
-Find the end of `_build_context()` method and replace the return statement:
+Insert before final return statement (around line 1174):
 
-**Current code (around line 1174):**
 ```python
-    result = "\n\n".join(parts) if parts else ""
-    
-    logger.info(...)
-    
-    return result  # OLD: returns string
-```
-
-**Replace with:**
-```python
-    # Build full context string
-    result = "\n\n".join(parts) if parts else ""
-    
-    # Extract memories using HybridRetriever (structured, not string parsing)
-    memories = ""
-    if self._hybrid_retriever and user_input and conversation_id:
-        try:
-            from uuid import UUID
-            conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
-            
-            retrieved_memories = await self._hybrid_retriever.retrieve(
-                query=user_input,
-                user_id=user_id or "unknown",
-                conversation_id=conv_uuid,
-                limit=3
-            )
-            
-            if retrieved_memories:
-                memory_lines = ["用户偏好记忆："]
-                for i, memory in enumerate(retrieved_memories, 1):
-                    memory_lines.append(f"  {i}. {memory.content}")
-                memories = "\n".join(memory_lines)
-                
-                logger.debug(
-                    f"[CONTEXT] 记忆提取 | 数量={len(retrieved_memories)}条"
-                )
-        except Exception as e:
-            logger.warning(f"[CONTEXT] 记忆检索失败: {e}")
-    
-    # Extract user preferences
-    user_preferences = None
-    if self._config.enable_preference_extraction and self._pref_extractor and user_id:
-        try:
-            preferences = await self._pref_extractor.get_preferences(user_id)
-            if preferences:
-                user_preferences = preferences
-                logger.debug(f"[CONTEXT] 用户偏好提取 | 数量={len(preferences)}")
-        except Exception as e:
-            logger.warning(f"[CONTEXT] 用户偏好提取失败: {e}")
-    
-    logger.info(
-        f"[CONTEXT] 📚 上下文构建完成 | "
-        f"工具结果={'有' if tool_results else '无'} | "
-        f"槽位={slots.destination or '无目的地'} | "
-        f"上下文长度={len(result)}字符 | "
-        f"记忆={'有' if memories else '无'} | "
-        f"偏好={'有' if user_preferences else '无'}"
-    )
-    
-    if stage_log:
-        stage_log.end(
-            context_length=len(result),
-            has_tool_results=bool(tool_results),
-            has_slots=bool(slots.destination or slots.start_date)
+# Extract memories using HybridRetriever (structured, not string parsing)
+memories = ""
+if self._hybrid_retriever and user_input and conversation_id:
+    try:
+        from uuid import UUID
+        conv_uuid = UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id
+        
+        retrieved_memories = await self._hybrid_retriever.retrieve(
+            query=user_input,
+            user_id=user_id or "unknown",
+            conversation_id=conv_uuid,
+            limit=3
         )
-    
-    # Return structured data instead of plain string
-    return BuiltContext(
-        full_context=result,
-        memories=memories,
-        user_preferences=user_preferences
-    )
+        
+        if retrieved_memories:
+            memory_lines = ["用户偏好记忆："]
+            for i, memory in enumerate(retrieved_memories, 1):
+                memory_lines.append(f"  {i}. {memory.content}")
+            memories = "\n".join(memory_lines)
+            
+            logger.debug(f"[CONTEXT] 记忆提取 | 数量={len(retrieved_memories)}条")
+    except Exception as e:
+        logger.warning(f"[CONTEXT] 记忆检索失败: {e}")
 ```
+
+Time: 5 min
+
+- [ ] **Step 6b: Add user preferences extraction**
+
+Add after memory extraction:
+
+```python
+# Extract user preferences
+user_preferences = None
+if self._config.enable_preference_extraction and self._pref_extractor and user_id:
+    try:
+        preferences = await self._pref_extractor.get_preferences(user_id)
+        if preferences:
+            user_preferences = preferences
+            logger.debug(f"[CONTEXT] 用户偏好提取 | 数量={len(preferences)}")
+    except Exception as e:
+        logger.warning(f"[CONTEXT] 用户偏好提取失败: {e}")
+```
+
+Time: 3 min
+
+- [ ] **Step 6c: Modify return statement to BuiltContext**
+
+Replace:
+```python
+return result  # OLD
+```
+
+With:
+```python
+return BuiltContext(
+    full_context=result,
+    memories=memories,
+    user_preferences=user_preferences
+)
+```
+
+Time: 2 min
 
 - [ ] **Step 7: Update callers of _build_context()**
 
