@@ -6,7 +6,7 @@ import { Loader2, Search, Database, Filter, Wrench, Layers, Sparkles, Minus } fr
 interface PhaseIndicatorProps {
   currentStage: StageInfo | null;
   isLoading: boolean;
-  stageStates?: Record<string, "completed" | "skipped">;
+  stageStates?: Record<string, "completed" | "skipped" | "pending">;
 }
 
 // 阶段中文名称映射（8 个完整阶段）
