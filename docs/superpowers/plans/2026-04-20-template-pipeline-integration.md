@@ -1073,6 +1073,148 @@ Co-Authored-By: Claude Sonnet 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
+### Task 6b: Add Concurrency Tests
+
+**Files:**
+- Create: `tests/core/prompts/test_concurrency.py`
+
+**Time Estimate:** 20 minutes
+
+- [ ] **Step 1: Write concurrent rendering test**
+
+```python
+"""Tests for concurrent template rendering"""
+import pytest
+import asyncio
+from app.core.query_engine import QueryEngine
+from app.core.prompts.context import TemplateContext
+from app.core.intent.slots import SlotData
+from unittest.mock import MagicMock
+
+
+@pytest.mark.asyncio
+async def test_concurrent_rendering():
+    """Test concurrent rendering of different intents"""
+    mock_llm = MagicMock()
+    engine = QueryEngine(llm_client=mock_llm)
+    
+    intents = ["itinerary", "query", "chat", "hotel", "food"]
+    tasks = []
+    
+    for intent in intents:
+        template_ctx = TemplateContext(
+            intent=intent,
+            slots=SlotData(),
+            tool_results={},
+            context="",
+            user_message=f"测试{intent}"
+        )
+        tasks.append(engine.get_prompt_for_intent(intent, template_ctx))
+    
+    # Execute concurrently
+    results = await asyncio.gather(*tasks)
+    
+    # Verify all requests succeed
+    assert len(results) == len(intents)
+    for i, prompt in enumerate(results):
+        assert prompt is not None
+        assert len(prompt) > 0
+```
+
+- [ ] **Step 2: Run test**
+
+```bash
+cd backend
+pytest tests/core/prompts/test_concurrency.py -v
+```
+
+Expected: PASS
+
+- [ ] **Step 3: Commit concurrency tests**
+
+```bash
+git add tests/core/prompts/test_concurrency.py
+git commit -m "test: add concurrent template rendering tests
+
+- Test 5 intents rendered concurrently via asyncio.gather()
+- Verify no race conditions or cache corruption
+- All requests succeed independently
+
+Co-Authored-By: Claude Sonnet 4.6 (1M context) <noreply@anthropic.com>"
+```
+
+---
+
+### Task 6c: Add Hot Reload Tests
+
+**Files:**
+- Create: `tests/core/prompts/test_hot_reload.py`
+
+**Time Estimate:** 15 minutes
+
+- [ ] **Step 1: Write hot reload test**
+
+```python
+"""Tests for template hot reload mechanism"""
+import pytest
+import asyncio
+from pathlib import Path
+from app.core.prompts.loader import PromptConfigLoader
+
+
+@pytest.mark.asyncio
+async def test_yaml_hot_reload():
+    """Test YAML config hot reload"""
+    loader = PromptConfigLoader()
+    
+    # Get initial config
+    config1 = loader.get_config()
+    
+    # Modify YAML file
+    yaml_path = loader.config_path
+    original_content = yaml_path.read_text(encoding="utf-8")
+    
+    # Add test intent
+    modified_content = original_content + "\ntest_intent:\n  template: templates/test.md\n  enabled: true\n"
+    yaml_path.write_text(modified_content, encoding="utf-8")
+    
+    # Wait for file system refresh
+    await asyncio.sleep(0.1)
+    
+    # Get updated config
+    config2 = loader.get_config()
+    
+    # Verify hot reload
+    assert "test_intent" in config2.get("mapping", {})
+    
+    # Restore original file
+    yaml_path.write_text(original_content, encoding="utf-8")
+```
+
+- [ ] **Step 2: Run test**
+
+```bash
+cd backend
+pytest tests/core/prompts/test_hot_reload.py -v
+```
+
+Expected: PASS
+
+- [ ] **Step 3: Commit hot reload tests**
+
+```bash
+git add tests/core/prompts/test_hot_reload.py
+git commit -m "test: add template hot reload tests
+
+- Test YAML config reload on file modification
+- Verify new intents appear within 1 second
+- Cleanup: restore original file after test
+
+Co-Authored-By: Claude Sonnet 4.6 (1M context) <noreply@anthropic.com>"
+```
+
+---
+
 ### Task 7: Add Template Variable Alignment Validation
 
 **Files:**
@@ -1123,16 +1265,11 @@ def test_template_variable_alignment():
     for template_file in template_files:
         content = template_file.read_text(encoding="utf-8")
         
-        # Extract variable references: {var} or {% if var %}
-        # Pattern: {variable} or {% if variable %}
-        pattern = r'\{(\w+)\}|if\s+(\w+)'
+        # Extract variable references: {var}, {slots.attr}, or {% if var %}
+        # Pattern captures dot notation like slots.destination
+        pattern = r'\{(\w+(?:\.\w+)?)\}|if\s+(\w+(?:\.\w+)?)'
         matches = re.findall(pattern, content)
         used_vars = {v for match in matches for v in match if v}
-        
-        # Also check for slot.{attr} patterns
-        slot_pattern = r'\{slots\.(\w+)\}'
-        slot_matches = re.findall(slot_pattern, content)
-        used_vars.update(f"slots.{attr}" for attr in slot_matches)
         
         # Verify each used variable exists
         for var in used_vars:
@@ -1336,18 +1473,26 @@ Expected: All tests PASS, no errors.
 
 ## Execution Estimate
 
-**Total Time: ~4 hours** (reduced from 6 hours due to clear spec)
+**Total Time: ~6.5 hours** (realistic estimate based on review feedback)
 
 Task breakdown:
 - Task 1: 30 min (TemplateContext)
-- Task 2: 45 min (BuiltContext)
+- Task 2: 90 min (BuiltContext) - Increased due to structured data extraction complexity
 - Task 3: 30 min (async fix)
-- Task 4: 30 min (Stage 6 integration)
+- Task 4: 60 min (Stage 6 integration) - Increased due to multi-part workflow changes
 - Task 5: 15 min (_generate_response)
 - Task 6: 30 min (fallback tests)
-- Task 7: 20 min (alignment test)
+- Task 6b: 20 min (concurrency tests) - NEW
+- Task 6c: 15 min (hot reload tests) - NEW
+- Task 7: 40 min (alignment test) - Increased due to comprehensive validation
 - Task 8: 15 min (performance test)
-- Verification: 15 min
+- Verification: 20 min
+
+**Note:** Original estimate was 4 hours, but review identified granularity violations and missing test coverage. Revised estimate accounts for:
+- Complex data extraction logic (Task 2)
+- Multi-stage workflow integration (Task 4)
+- Additional test coverage (Task 6b, 6c)
+- Thorough template validation (Task 7)
 
 ---
 
