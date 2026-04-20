@@ -24,6 +24,40 @@
 
 ---
 
+## 依赖关系
+
+### 现有类（无需修改）
+
+- **`RequestContext`**: `backend/app/core/context.py`
+  - 已存在的请求上下文类
+  - 包含：message, user_id, conversation_id, clarification_count
+  - 无需修改，将在 `get_prompt_for_intent()` 中使用
+
+- **`SlotData`**: `backend/app/core/intent/slots.py`
+  - 已存在的槽位数据类
+  - 包含：destination, start_date, end_date, days, budget 等
+  - 无需修改，直接传递给 TemplateContext
+
+- **`PromptService`**: `backend/app/core/prompts/service.py`
+  - 已存在的提示词服务类
+  - 方法：`async render(intent: str, context: RequestContext) -> str`
+  - 无需修改，仅修复调用方式
+
+### 需要创建的类
+
+- **`TemplateContext`**: `backend/app/core/prompts/context.py` (新建)
+  - 本设计引入的新类
+  - 用途：封装模板渲染所需的变量
+
+### 需要修改的类
+
+- **`QueryEngine`**: `backend/app/core/query_engine.py`
+  - 修改 `get_prompt_for_intent()` 方法签名（同步→异步）
+  - 在 `_process_streaming_attempt()` 中添加 Stage 5.5
+  - 修改 `_generate_response()` 添加 `custom_system_prompt` 参数
+
+---
+
 ## 架构设计
 
 ### 数据流
@@ -156,7 +190,66 @@ async def get_prompt_for_intent(
         return self.get_system_prompt()
 ```
 
-#### 3. 修改 Stage 6 工作流
+#### 3. 修改 _build_context 返回结构化数据
+
+**文件：** `backend/app/core/query_engine.py`
+
+**当前问题：** `_build_context()` 返回字符串，无法单独提取记忆部分
+
+**修复方案：** 修改返回类型为结构化数据
+
+```python
+@dataclass
+class BuiltContext:
+    """构建的上下文 - 结构化返回"""
+    full_context: str  # 完整的上下文字符串（用于向后兼容）
+    memories: Optional[str] = None  # 提取的记忆部分
+    user_preferences: Optional[Dict[str, Any]] = None  # 用户偏好
+
+async def _build_context(
+    self,
+    user_id: Optional[str],
+    tool_results: Dict[str, Any],
+    slots,
+    stage_log: Optional[StageLogger] = None,
+    conversation_id: Optional[str] = None,
+    user_input: Optional[str] = None,
+) -> BuiltContext:
+    """构建完整上下文 - 返回结构化数据"""
+    
+    # ... 现有的 context 构建逻辑 ...
+    
+    # 提取记忆部分（使用 HybridRetriever 或 MemoryInjector）
+    memories = ""
+    if self._hybrid_retriever and user_input and conversation_id:
+        # 使用混合评分检索语义记忆
+        retrieved_memories = await self._hybrid_retriever.retrieve(
+            query=user_input,
+            user_id=user_id or "unknown",
+            conversation_id=UUID(conversation_id) if isinstance(conversation_id, str) else conversation_id,
+            limit=3
+        )
+        if retrieved_memories:
+            memory_lines = ["用户偏好记忆："]
+            for i, memory in enumerate(retrieved_memories, 1):
+                memory_lines.append(f"  {i}. {memory.content}")
+            memories = "\n".join(memory_lines)
+    
+    # 提取用户偏好
+    user_preferences = None
+    if self._config.enable_preference_extraction and self._pref_extractor and user_id:
+        preferences = await self._pref_extractor.get_preferences(user_id)
+        if preferences:
+            user_preferences = preferences
+    
+    return BuiltContext(
+        full_context=result,  # 原有的完整上下文字符串
+        memories=memories,
+        user_preferences=user_preferences
+    )
+```
+
+#### 4. 修改 Stage 6 工作流
 
 **文件：** `backend/app/core/query_engine.py`
 
@@ -166,28 +259,19 @@ async def get_prompt_for_intent(
 
 ```python
 # ===== 阶段 5: 上下文构建 =====
-context = await self._build_context(
+built_context = await self._build_context(
     user_id, tool_results, slots, None, conversation_id, user_input
 )
 
 # ===== 阶段 5.5: 构建模板上下文 =====
-# 从 context 中提取记忆部分
-memories = ""
-if "相关记忆" in context:
-    memory_start = context.index("相关记忆")
-    memory_end = context.find("\n\n", memory_start)
-    if memory_end != -1:
-        memories = context[memory_start:memory_end]
-    else:
-        memories = context[memory_start:]
-
 template_context = TemplateContext(
     intent=intent_result.intent,
     slots=slots,
     tool_results=tool_results,
-    context=context,
+    context=built_context.full_context,  # 使用完整上下文
     user_message=user_input,
-    memories=memories,
+    memories=built_context.memories,  # 结构化的记忆数据
+    user_preferences=built_context.user_preferences,  # 结构化的偏好数据
     user_id=user_id,
     conversation_id=conversation_id
 )
@@ -224,7 +308,7 @@ async for chunk in self._generate_response(
 
 **文件：** `backend/app/core/query_engine.py`
 
-**修改：** 新增 `custom_system_prompt` 参数
+**修改：** 新增 `custom_system_prompt` 参数并修改提示词选择逻辑
 
 ```python
 async def _generate_response(
@@ -237,24 +321,234 @@ async def _generate_response(
     custom_system_prompt: Optional[str] = None,  # 新增参数
 ) -> AsyncIterator[str]:
     """生成 LLM 响应
-
+    
     Args:
+        context: 构建的上下文
+        user_input: 用户输入
+        history: 对话历史（仅当 messages 未提供时使用）
+        stage_log: 阶段日志记录器
+        messages: 预构建的消息列表（推荐，避免内部修改 history）
         custom_system_prompt: 自定义系统提示词（优先级高于默认）
+    
+    Yields:
+        响应片段
     """
-
-    # ... 现有逻辑 ...
-
-    # 使用自定义系统提示词或默认提示词
+    # 使用预构建的消息列表（如果提供），否则从 history 构建
+    if messages is not None:
+        llm_messages = messages
+    else:
+        # 从 history 构建时使用副本，避免修改原始历史
+        llm_messages = list(history) if history else []
+        new_msg = {
+            "role": "user",
+            "content": f"{context}\n\n用户: {user_input}" if context else user_input
+        }
+        llm_messages.append(new_msg)
+    
+    logger.info(
+        f"[LLM] 🧠 开始生成响应（工具循环模式） | "
+        f"上下文长度={len(context)}字符 | "
+        f"历史消息数={len(llm_messages)} | "
+        f"自定义提示词={'是' if custom_system_prompt else '否'}"
+    )
+    
+    start = time.perf_counter()
+    chunk_count = 0
+    first_chunk = True
+    
+    # 重置推理守卫计数器
+    if self._inference_guard:
+        self._inference_guard.reset_response_counter()
+    
+    # === 关键修改：使用自定义系统提示词或默认提示词 ===
     system_prompt = custom_system_prompt or self.get_system_prompt()
-
-    # 传递 system_prompt 给 LLM 客户端
-    async for chunk in self.llm_client.stream_chat(
-        messages=llm_messages,
-        system_prompt=system_prompt,  # 使用计算出的提示词
-        guard=self._inference_guard
-    ):
-        yield chunk
+    
+    # 获取工具定义
+    tools = self._get_tools_for_llm()
+    
+    if tools:
+        logger.info(f"[LLM] 🔧 启用工具循环 | 工具数量={len(tools)}")
+        
+        # 使用工具循环模式
+        async for result in self.llm_client.chat_with_tool_loop(
+            messages=llm_messages,
+            tools=tools,
+            tool_executor=self._tool_executor,
+            system_prompt=system_prompt,  # 使用计算出的提示词（关键修改）
+            max_iterations=5,
+            guard=self._inference_guard
+        ):
+            # 处理流式增量内容（实时输出）
+            if isinstance(result, StreamingDelta):
+                if first_chunk:
+                    first_chunk_time = (time.perf_counter() - start) * 1000
+                    logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                    first_chunk = False
+                chunk_count += len(result.content)
+                yield result.content
+                continue
+            
+            # 处理工具结果（如果有）
+            if result.tool_results:
+                logger.info(
+                    f"[LLM] 📋 工具执行完成 | "
+                    f"调用数={len(result.tool_results)} | "
+                    f"迭代={result.iteration}"
+                )
+            
+            # 流式输出内容（迭代最终内容）
+            if result.content:
+                if first_chunk:
+                    first_chunk_time = (time.perf_counter() - start) * 1000
+                    logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                    first_chunk = False
+                
+                chunk_count += len(result.content)
+                formatted_content = OutputFormatter.format_chunk(result.content, is_final=True)
+                yield formatted_content
+            
+            # 如果工具调用完成，退出循环
+            if not result.should_continue:
+                logger.info(f"[LLM] ✅ 工具循环完成 | 迭代={result.iteration}")
+                break
+    else:
+        # 无工具时使用普通流式聊天
+        logger.info(f"[LLM] 📝 无工具，使用普通流式聊天")
+        async for chunk in self.llm_client.stream_chat(
+            messages=llm_messages,
+            system_prompt=system_prompt,  # 使用计算出的提示词（关键修改）
+            guard=self._inference_guard
+        ):
+            chunk_count += 1
+            if first_chunk:
+                first_chunk_time = (time.perf_counter() - start) * 1000
+                logger.info(f"[LLM] ⚡ 首token响应 | 耗时={first_chunk_time:.2f}ms")
+                first_chunk = False
+            
+            yield chunk
+    
+    total_time = (time.perf_counter() - start) * 1000
+    logger.info(
+        f"[LLM] ✅ 响应生成完成 | "
+        f"总耗时={total_time:.2f}ms | "
+        f"chunk数={chunk_count}"
+    )
+    
+    if stage_log:
+        stage_log.end(
+            total_time_ms=total_time,
+            chunk_count=chunk_count
+        )
 ```
+
+---
+
+## 示例模板
+
+### itinerary.md 模板示例
+
+```markdown
+# 行程规划助手
+
+你是一个专业的旅游规划助手，擅长为用户制定详细、实用的旅行行程。
+
+## 用户需求
+{user_message}
+
+## 提取的信息
+- 目的地：{slots.destination}
+- 出行日期：{slots.start_date} 至 {slots.end_date}
+- 天数：{slots.days} 天
+- 预算：{slots.budget}
+
+## 相关记忆
+{memories}
+
+## 工具调用结果
+{tool_results}
+
+## 输出要求
+请基于以上信息，为用户生成一份详细的行程规划，包括：
+1. 每日行程安排
+2. 景点推荐
+3. 交通建议
+4. 注意事项
+```
+
+### chat.md 模板示例
+
+```markdown
+# 对话助手
+
+你是一个友好、专业的 AI 旅游助手，随时准备帮助用户解答问题。
+
+## 用户消息
+{user_message}
+
+{# 如果有记忆信息，显示记忆 #}
+{% if memories %}
+## 用户偏好记忆
+{memories}
+{% endif %}
+
+{# 如果有工具结果，显示工具结果 #}
+{% if tool_results %}
+## 参考信息
+{tool_results}
+{% endif %}
+
+请以自然、友好的语气回复用户。
+```
+
+### 模板变量清单
+
+| 变量名 | 类型 | 说明 | 示例值 |
+|--------|------|------|--------|
+| `user_message` | str | 用户输入的消息 | "帮我规划北京3天行程" |
+| `slots.destination` | str | 目的地 | "北京" |
+| `slots.start_date` | str | 开始日期 | "2026-05-01" |
+| `slots.end_date` | str | 结束日期 | "2026-05-03" |
+| `slots.days` | int | 天数 | 3 |
+| `slots.budget` | str | 预算 | "5000元" |
+| `tool_results` | dict | 工具执行结果 | `{"weather": {"temp": "25°C"}}` |
+| `memories` | str | 用户偏好记忆 | "用户喜欢历史景点..." |
+| `context` | str | 完整上下文（备用） | 包含所有上述信息的字符串 |
+
+---
+
+## 缓存机制
+
+### PromptConfigLoader 缓存
+
+**缓存位置：** `PromptConfigLoader._template_cache` (内存字典)
+
+**缓存策略：**
+- **配置文件缓存**：基于 mtime（修改时间）检测，1秒内不重复加载
+- **模板文件缓存**：60秒 TTL，避免频繁文件 I/O
+- **缓存键**：模板文件路径的字符串表示
+
+**缓存流程：**
+```python
+# 1. 检查配置文件是否需要重载
+if self._should_reload_config():
+    self._cache = self._load_config()
+
+# 2. 检查模板文件是否需要重载
+if self._should_reload_template(template_path):
+    return self._load_template(template_path)
+
+# 3. 从缓存返回
+return self._template_cache.get(template_key, "")
+```
+
+**缓存配置：**
+- `watch_interval`: 1秒（配置文件监听间隔）
+- `cache_ttl`: 60秒（模板文件缓存时间）
+- 可通过 `prompts.yaml` 的 `settings` 部分配置
+
+**热更新验证：**
+- 修改 `prompts.yaml` → 1秒内生效（下次调用 `get_config()` 时）
+- 修改模板文件 → 60秒后重新加载（或手动调用 `clear_cache()`）
 
 ---
 
@@ -463,7 +757,49 @@ async def test_concurrent_rendering():
         assert len(prompt) > 0
 ```
 
-#### 7. 集成测试 (integration/test_full_workflow.py)
+#### 7. 模板变量对齐验证 (test_template_variable_alignment.py)
+
+```python
+async def test_template_variable_alignment():
+    """验证模板变量与 TemplateContext 输出对齐"""
+    # 读取所有模板文件
+    template_dir = Path("backend/app/core/prompts/templates")
+    template_files = list(template_dir.glob("*.md"))
+    
+    # 获取 TemplateContext 输出的变量
+    template_ctx = TemplateContext(
+        intent="itinerary",
+        slots=SlotData(destination="北京", days=3),
+        tool_results={"weather": {"temp": "25°C"}},
+        context="测试上下文",
+        user_message="规划行程"
+    )
+    template_vars = template_ctx.to_template_vars()
+    
+    # 验证每个模板的变量引用
+    for template_file in template_files:
+        content = template_file.read_text(encoding="utf-8")
+        
+        # 提取模板中的变量引用（简化版，支持 {var} 和 {% if var %}）
+        import re
+        pattern = r'\{(\w+)\}|if\s+(\w+)'
+        used_vars = set(re.findall(pattern, content))
+        # flatten tuples
+        used_vars = {v for tuple in used_vars for v in tuple if v}
+        
+        # 检查每个使用的变量是否在 template_vars 中
+        for var in used_vars:
+            # 特殊变量直接通过
+            if var in ["user_message", "slots", "tool_results", "memories", "context"]:
+                assert var in template_vars, f"模板 {template_file.name} 使用了变量 {var}，但 TemplateContext 未提供"
+            
+            # slots 子变量检查
+            if var.startswith("slots."):
+                slot_attr = var.split(".")[1]
+                assert hasattr(SlotData, slot_attr), f"模板 {template_file.name} 引用了不存在的槽位属性: {var}"
+```
+
+#### 8. 集成测试 (integration/test_full_workflow.py)
 
 ```python
 async def test_full_workflow_with_intent_prompt():
