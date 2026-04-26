@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 from .llm import LLMClient, ToolCall, StreamingDelta
 from .output_formatter import OutputFormatter
-from .prompts import DEFAULT_SYSTEM_PROMPT, APPEND_TOOL_DESCRIPTION, PromptBuilder, PromptLayer, load_memory_files
+from .prompts import load_memory_files
 from .prompts.service import PromptService
 from .prompts.providers.base import IPromptProvider, PromptTemplate
 from .prompts.loader import PromptConfigLoader
@@ -303,51 +303,51 @@ class QueryEngine:
         # 如果没有提供新的 IntentRouter，自动创建一个
         if self._intent_router is None:
             from .intent.router import IntentRouter
-            from .intent.strategies import CacheStrategy, RuleStrategy, LLMStrategy
+            from .intent.strategies import CacheStrategy, RuleStrategy, LLMStrategy, SemanticCache
+            from app.db.vector_store import ChineseEmbeddings
+
+            # 创建 L2 语义缓存（使用项目已有的 embedding）
+            embedding_model = ChineseEmbeddings()
+            semantic_cache = SemanticCache(
+                embedding_func=embedding_model.embed_query,
+                similarity_threshold=0.85,
+                max_entries=500,
+            )
+
             self._intent_router = IntentRouter(
                 strategies=[
-                    CacheStrategy(),
+                    CacheStrategy(semantic_cache=semantic_cache),
                     RuleStrategy(),
                     LLMStrategy(llm_client=llm_client),
                 ]
             )
-            logger.info("[QueryEngine] IntentRouter 已自动创建（含CacheStrategy）")
+            logger.info("[QueryEngine] IntentRouter 已创建（L1+L2 缓存已激活）")
 
-        # === PromptBuilder 初始化（必须在 PromptService 之前） ===
-        # 参考 Claude Code asSystemPrompt 模式
-        self._prompt_builder = self._init_prompt_builder()
-
-        # 如果没有提供新的 PromptService，自动创建一个
+        # === PromptService 初始化 ===
         if self._prompt_service is None:
             from .prompts.service import PromptService
             from .prompts.providers.template_provider import TemplateProvider
+            from .prompts.examples_loader import ExamplesLoader
+            from pathlib import Path as _Path
 
-            # 使用 PromptConfigLoader 启用热更新（如果提供了配置路径）
+            examples_dir = _Path(__file__).parent / "prompts" / "examples"
+
             if prompt_config_path:
                 loader = PromptConfigLoader(config_path=prompt_config_path)
                 provider = _LoaderProvider(loader)
-                # Task 4: 传递 PromptBuilder 到 PromptService 实现双系统统一
                 self._prompt_service = PromptService(
-                    provider=provider,
-                    prompt_builder=self._prompt_builder
+                    provider=provider, examples_dir=examples_dir
                 )
-                self._prompt_loader = loader  # 保存引用以便访问缓存统计
-                logger.info(
-                    f"[QueryEngine] 🔄 PromptService 已创建（热更新模式 + PromptBuilder）| "
-                    f"config={prompt_config_path}"
-                )
+                self._prompt_loader = loader
+                logger.info(f"[QueryEngine] PromptService 已创建（热更新模式）| config={prompt_config_path}")
             else:
-                # Task 4: 传递 PromptBuilder 到 PromptService 实现双系统统一
                 self._prompt_service = PromptService(
-                    provider=TemplateProvider(),
-                    prompt_builder=self._prompt_builder
+                    provider=TemplateProvider(), examples_dir=examples_dir
                 )
                 self._prompt_loader = None
-                logger.info("[QueryEngine] 🔄 PromptService 已自动创建（含 PromptBuilder）")
+                logger.info("[QueryEngine] PromptService 已自动创建")
         else:
-            self._prompt_loader = None  # 外部传入的 service 没有 loader
-            # 注意：外部传入的 PromptService 可能没有 PromptBuilder，
-            # 调用方需要负责传递正确的实例
+            self._prompt_loader = None
 
         # UC3-1/UC3-2 修复: 添加会话隔离机制
         self._conversation_history: Dict[str, List[Dict[str, str]]] = {}
@@ -469,68 +469,26 @@ class QueryEngine:
         """
         self._tool_registry = tool_registry
         self._tool_executor = ToolExecutor(tool_registry)
-        # 工具注册表变更时，重新构建工具描述
-        self._prompt_builder = self._init_prompt_builder()
-        logger.info(f"[QueryEngine] 🔄 工具注册表已更新 | 工具数量={len(tool_registry.list_tools())}")
-
-    def _init_prompt_builder(self) -> PromptBuilder:
-        """初始化 PromptBuilder，参考 Claude Code asSystemPrompt 模式
-
-        支持四层组装：
-        1. OVERRIDE: 外部传入的自定义提示词（完全替换）
-        2. DEFAULT: 默认系统提示词（角色定义）
-        3. MEMORY: 记忆文件层（CLAUDE.md 等），参考 Claude Code memoryMechanicsPrompt
-        4. APPEND: 工具描述等（总是追加）
-
-        Returns:
-            配置好的 PromptBuilder 实例
-        """
-        builder = PromptBuilder()
-
-        # 如果外部传入了自定义提示词，使用它替换默认提示词
-        if self._custom_system_prompt:
-            builder.add_layer(
-                name="CUSTOM",
-                content=self._custom_system_prompt,
-                layer=PromptLayer.OVERRIDE,
-            )
-        else:
-            # 默认提示词层
-            builder.add_layer(
-                name="DEFAULT",
-                content=DEFAULT_SYSTEM_PROMPT,
-                layer=PromptLayer.DEFAULT,
-            )
-
-        # 记忆文件层，参考 Claude Code memoryMechanicsPrompt
-        memory_content = load_memory_files(Path.cwd())
-        if memory_content:
-            builder.add_layer(
-                name="MEMORY",
-                content=memory_content,
-                layer=PromptLayer.MEMORY,
-            )
-
-        # 工具描述追加层
-        tools_desc = self._tool_registry.get_descriptions()
-        if tools_desc:
-            builder.add_layer(
-                name="TOOLS",
-                content=APPEND_TOOL_DESCRIPTION.format(tools=tools_desc),
-                layer=PromptLayer.APPEND,
-            )
-
-        return builder
+        logger.info(f"[QueryEngine] 工具注册表已更新 | 工具数量={len(tool_registry.list_tools())}")
 
     def get_system_prompt(self) -> str:
-        """获取当前系统提示词（PromptBuilder 组装结果）
+        """获取系统提示词
 
-        参考 Claude Code asSystemPrompt() 模式。
+        通过 PromptService 渲染 chat 意图模板获取。
+        如果不可用，返回自定义提示词或从 system.md 读取。
 
         Returns:
-            组装后的完整系统提示词
+            系统提示词字符串
         """
-        return self._prompt_builder.build()
+        if self._custom_system_prompt:
+            return self._custom_system_prompt
+
+        # 从 system.md 文件直接读取
+        try:
+            system_path = Path(__file__).parent / "prompts" / "templates" / "system.md"
+            return system_path.read_text(encoding="utf-8").strip()
+        except Exception:
+            return "你是一个专业的旅游助手 AI。"
 
     def get_prompt_for_intent(self, intent: str, context: "RequestContext") -> str:
         """使用 PromptService 渲染指定意图的提示词
@@ -1602,9 +1560,20 @@ class QueryEngine:
                 f"[WORKFLOW:0_SECURITY] ❌ 拒�� | conv={conversation_id} | "
                 f"耗时: {elapsed_ms:.2f}ms | 原因: 违规内容/注入攻击"
             )
-            # 返回安全提示响应
+            # 返回详细的用户友好提示
+            user_hint = security_info.get("user_hint", "检测到安全风险，请检查您的输入内容。")
+
+            # 针对不同类型的拦截，提供不同的默认提示
+            default_hints = {
+                "structured_injection": "您的输入包含 LLM 框架的特殊控制标记，这些标记不应出现在普通对话中。如果您想讨论相关技术，请使用描述性语言而非实际标记。",
+                "text_injection": "您的输入包含可能被解读为 Prompt 注入攻击的表达方式。请避免使用指令忽略、角色切换、系统篡改等类型的表述。",
+                "illegal_content": "您的输入涉及违规内容关键词，请避免讨论非法活动相关话题。"
+            }
+
+            fallback_hint = default_hints.get(security_info.get("reason"), "检测到安全风险，请检查您的输入内容。")
+
             return (
-                "抱歉，您的请求包含违规内容或潜在安全风险，无法处理。请避免涉及非法活动、暴力、色情等敏感话题。",
+                user_hint if user_hint else fallback_hint,
                 None,  # intent_result
                 {}      # tool_results
             )

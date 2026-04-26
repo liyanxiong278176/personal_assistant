@@ -1,0 +1,107 @@
+{
+  "source": "hangzhou_p1",
+  "scraped_at": "2026-04-22T07:51:53.146Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "灵隐寺需要另买门票吗？",
+      "answers": 71,
+      "url": "https://you.ctrip.com/asks/detail?askId=9303834"
+    },
+    {
+      "query": "灵隐寺需要另买门票吗？怎么买比较划算？需要预约吗？",
+      "answers": 20,
+      "url": "https://you.ctrip.com/asks/detail?askId=9409247"
+    },
+    {
+      "query": "请问从杭州怎么去乌镇，能否给个路线，谢谢",
+      "answers": 71,
+      "url": "https://you.ctrip.com/asks/detail?askId=9240150"
+    },
+    {
+      "query": "灵隐寺开放时间",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=13177940"
+    },
+    {
+      "query": "#全季酒店（杭州西湖鼓楼店）#请问酒店附近还在施工吗？是不是还是很吵？房间隔音如何呢？谢谢！。",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14661532"
+    },
+    {
+      "query": "#杭州天目山英迪格酒店#沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=13308695"
+    },
+    {
+      "query": "#柏纳酒店（西湖文化广场地铁站店）#你好 房间有吹风机吗",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10508623"
+    },
+    {
+      "query": "#杭州西湖黄龙新雅图酒店#1.我住的时候想把快递寄到酒店，再从酒店寄回去可以吗，\n2.能不能寄存行李",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15244967"
+    },
+    {
+      "query": "#丽斯未来酒店（杭州东站闸弄口地铁站店）#2个人都要刷脸吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14740350"
+    },
+    {
+      "query": "#杭州友好饭店（西湖店）#这个酒店晚上安静吗？ 睡眠比较差的人比较担心",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14431304"
+    },
+    {
+      "query": "#全季酒店(杭州黄龙店)#家庭房有冰箱吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13243964"
+    },
+    {
+      "query": "#臻庭酒店（杭州西湖湖滨龙翔桥地铁站店）#入住酒店从几点开始入住",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14775374"
+    },
+    {
+      "query": "租赁电瓶车要多少钱？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15740372"
+    },
+    {
+      "query": "夫夷江竹筏漂流安全吗",
+      "answers": 33,
+      "url": "https://you.ctrip.com/asks/detail?askId=10893005"
+    },
+    {
+      "query": "#Zsmart智尚酒店（杭州黄龙体育中心浙大西溪店）#能不能免费升房",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=13615579"
+    },
+    {
+      "query": "#杭州滨江Pagoda君亭设计酒店#隔音如何？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=10253735"
+    },
+    {
+      "query": "预约成功的讯息是在哪里的？为什么找不到？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=11279836"
+    },
+    {
+      "query": "崀山夫夷江竹筏漂流适合几岁孩子",
+      "answers": 27,
+      "url": "https://you.ctrip.com/asks/detail?askId=10779388"
+    },
+    {
+      "query": "#嘉杭酒店（杭州火车东站西广场店）#迷你单人房(公共卫浴)房间里有卫生间吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15340899"
+    },
+    {
+      "query": "#杭州西湖玉泉美居酒店#现在入住施工噪音会很厉害吗？是否影响早晚的睡眠？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15361425"
+    }
+  ]
+}

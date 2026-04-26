@@ -1,0 +1,107 @@
+{
+  "source": "beijing_p2",
+  "scraped_at": "2026-04-22T07:50:47.533Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "#柏曼酒店（北京人民医院店）#看评论说隔音很差 请问住过的伙伴 这酒店隔音好吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12148590"
+    },
+    {
+      "query": "去雍和宫需要提前预约门票吗？怎么预约？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=15509474"
+    },
+    {
+      "query": "#秋果酒店（北京复兴门中央音乐学院店）#隔音怎么样？床舒服吗？",
+      "answers": 17,
+      "url": "https://you.ctrip.com/asks/detail?askId=12260171"
+    },
+    {
+      "query": "今天去北海公园需要预约吗",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=15687225"
+    },
+    {
+      "query": "#wohkoon者行孙青年酒店（北京国贸SKP店）#有暖气吗，晚上会不会冷",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=13974064"
+    },
+    {
+      "query": "#布丁严选北京锣鼓巷后海鼓楼店#是地下室吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15562884"
+    },
+    {
+      "query": "#北京大兴国际机场城际酒店#双床房的两张床可以拼起来吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14618036"
+    },
+    {
+      "query": "#聚兴源宾馆（北京前门大栅栏店）#打车方便吗？好找吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13402435"
+    },
+    {
+      "query": "#汉庭酒店(北京国贸建国门地铁站店)#我看23年有个人说水压不稳定，现在水压怎么样稳定吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13430732"
+    },
+    {
+      "query": "#懿庭臻舍酒店(北京南锣鼓巷故宫地铁站店)#走路到最近地铁口要几分钟时间",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13689082"
+    },
+    {
+      "query": "如果不做缆车可以爬上去吗？要多久",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=10870650"
+    },
+    {
+      "query": "请问爬长城按哪个路线爬？听说有南线和北线，爬哪个呢？不坐缆车索道需要多长时间爬上去？",
+      "answers": 70,
+      "url": "https://you.ctrip.com/asks/detail?askId=9427700"
+    },
+    {
+      "query": "儿童票是什么要求？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9651582"
+    },
+    {
+      "query": "优速通是每个人都要买吗 儿童也要？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=9113755"
+    },
+    {
+      "query": "慕田峪长城景区里有吃饭的店吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14636207"
+    },
+    {
+      "query": "#汉庭酒店（北京大兴国际机场航站楼店）#赶早班机吃的上酒店的早饭吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14804855"
+    },
+    {
+      "query": "#锦江之星（北京物资学院路地铁站店）#有停车场吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15306998"
+    },
+    {
+      "query": "#北京明珠酒店（北京大兴机场店）#标间的床可以拼起来吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14918000"
+    },
+    {
+      "query": "#全季酒店（北京师范大学西直门店）#房间有新装修留下的味道吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477355"
+    },
+    {
+      "query": "#北京东方君悦大酒店#连续两晚是可以提早入住的吗？可以多早入住？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15887064"
+    }
+  ]
+}

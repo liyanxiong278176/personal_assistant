@@ -80,7 +80,7 @@ class LLMSlotExtractor:
     def __init__(
         self,
         llm_client: "LLMClient",
-        model: str = "deepseek-chat",
+        model: str = "deepseek-v4-flash",
         timeout: float = 10.0,
     ):
         """Initialize the LLM slot extractor.

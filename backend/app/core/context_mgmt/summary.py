@@ -90,7 +90,7 @@ class LLMSummaryProvider:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "deepseek-chat",
+        model: str = "deepseek-v4-flash",
         max_retries: int = 3,
         max_chars_per_message: int = 500,
         timeout: float = 30.0,

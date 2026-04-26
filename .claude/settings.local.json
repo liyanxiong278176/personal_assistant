@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Read(//c/Users/A2781/.claude/skills/**)",
+      "Bash(mkdir -p ~/.claude/skills)"
+    ]
+  }
+}

@@ -1,0 +1,2150 @@
+{
+  "source": "ctrip_asks",
+  "scraped_at": "2026-04-22T07:51:58.654Z",
+  "total_pages": 22,
+  "total_queries": 357,
+  "queries": [
+    {
+      "query": "适合八十岁老人去吗",
+      "answers": 175,
+      "url": "https://you.ctrip.com/asks/detail?askId=9919010",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "天安门城楼预约不了呢？",
+      "answers": 20,
+      "url": "https://you.ctrip.com/asks/detail?askId=9520711",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "第一天想去广东省博物馆，图书馆，海心沙广州塔，第二天想去沙面，北京路，永庆坊陈家祠，请问如何安排？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=9046012",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "买了这个博物馆门票，还需要预约参观清华大学的门票吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=9716168",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "3个人可以住大床房吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13694807",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "通过Expedia订的入住。费用已经交付了。入住的时候应该不会有额外的费用resort fee之类的",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14261068",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "冬天有暖气吗",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=12893825",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "步行去故宫多久",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13752034",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "买票了，没带身份证可以进去吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=9492470",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "14岁未成年人怎么买票呢？",
+      "answers": 42,
+      "url": "https://you.ctrip.com/asks/detail?askId=9672920",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "标准间有独立卫浴没",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=10504603",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "凌晨2点起床看升国旗，好打车吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12683402",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "博物馆里面有可以暂时存放东西的地方吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15281247",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "您好酒店是新装修的吗？房间里有没有甲醛味",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15022258",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "北京人民大会堂需要预约吗？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14758749",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "隔音怎么样？床舒服吗？",
+      "answers": 17,
+      "url": "https://you.ctrip.com/asks/detail?askId=12260171",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "今天去北海公园需要预约吗",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=15687225",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "去雍和宫需要提前预约门票吗？怎么预约？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=15509474",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "有暖气吗，晚上会不会冷",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=13974064",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "隔音好吗，我见有不少评论说隔音一般",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12478694",
+      "source": "beijing_p1"
+    },
+    {
+      "query": "看评论说隔音很差 请问住过的伙伴 这酒店隔音好吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12148590",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "是地下室吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15562884",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "双床房的两张床可以拼起来吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14618036",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "打车方便吗？好找吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13402435",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "我看23年有个人说水压不稳定，现在水压怎么样稳定吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13430732",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "走路到最近地铁口要几分钟时间",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13689082",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "如果不做缆车可以爬上去吗？要多久",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=10870650",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "请问爬长城按哪个路线爬？听说有南线和北线，爬哪个呢？不坐缆车索道需要多长时间爬上去？",
+      "answers": 70,
+      "url": "https://you.ctrip.com/asks/detail?askId=9427700",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "儿童票是什么要求？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9651582",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "优速通是每个人都要买吗 儿童也要？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=9113755",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "慕田峪长城景区里有吃饭的店吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14636207",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "赶早班机吃的上酒店的早饭吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14804855",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "有停车场吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15306998",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "标间的床可以拼起来吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14918000",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "房间有新装修留下的味道吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477355",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "连续两晚是可以提早入住的吗？可以多早入住？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15887064",
+      "source": "beijing_p2"
+    },
+    {
+      "query": "买不到票谁有年卡 帮帮忙有偿的",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15957063",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "住店停车收费吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=13276418",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "有飞机噪音吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477044",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "到北京了，不知道住哪里，请这个店位置怎么样？算市中心吗？",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=13494228",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "厕所玻璃会很透吗？带两个老年人怕不方便",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14253836",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "提前入园写的俩成人，那一家三口怎么办？还有一个人不能一起进吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14383978",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "从酒店到办理值机处的通道有暖气吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511863",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "老人门票有优惠活动吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=11889074",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "您好！如果打车的话，网约车能直接到贵店门口吗？还是需要定位到某个地点呢？我看着你们的地址，应该是胡…",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12064676",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "可以骑自行车进去嘛",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=12891474",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "天安门怎么预约？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=9213413",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "故宫讲解3小时，是故宫和大帅府吗，导游带着边走边讲吗，不走回头路",
+      "answers": 48,
+      "url": "https://you.ctrip.com/asks/detail?askId=9939958",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "有行李寄存处吗",
+      "answers": 23,
+      "url": "https://you.ctrip.com/asks/detail?askId=10085015",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "有空调吗！！？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=10552318",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "已经预约这酒店，因为要凌晨带一个老人和两个孩子去红墙西排队看升旗，请问步行可以吗？多久？还是约红墙西",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10569051",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "酒店有停车场吗，免费的吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10657685",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "跟日本环球影城的区别是？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=10870633",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "请问现在去北京旅游一个月需要带棉袄去吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=11142269",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "请问机场去酒店班车上客点在哪里？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=11496516",
+      "source": "beijing_p3"
+    },
+    {
+      "query": "请问九寨沟—黄龙—镇江关这个路线靠谱不，游玩时间充足否，能赶上当天17：40回成都东的高铁吗？",
+      "answers": 23,
+      "url": "https://you.ctrip.com/asks/detail?askId=9687883",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "暑假，杜甫草堂要排队吗",
+      "answers": 340,
+      "url": "https://you.ctrip.com/asks/detail?askId=9815513",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "熊猫周边都很贵吗？",
+      "answers": 98,
+      "url": "https://you.ctrip.com/asks/detail?askId=9295540",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "从成都到青城山怎么坐车方便？",
+      "answers": 39,
+      "url": "https://you.ctrip.com/asks/detail?askId=9424510",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "没带身份证可以吧。",
+      "answers": 33,
+      "url": "https://you.ctrip.com/asks/detail?askId=9781199",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "没有身份证可以进去吗",
+      "answers": 147,
+      "url": "https://you.ctrip.com/asks/detail?askId=10030340",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "停车方便吗，是地下还是地面停车",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14491645",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "请问从天府机场t2去酒店方便吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=11962706",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "成都到九寨沟的商务车直通车大概需要多长时间？回程是在哪里下车？",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=9799331",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "成都东站去这个酒店到哪个地铁站下方便",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=10602716",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "十一月份去看熊猫合适吗？会不会天气冷了见不到它们",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=12203668",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "新装修的会有味道吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15500134",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "每个房型的电视都可以投屏吗",
+      "answers": 16,
+      "url": "https://you.ctrip.com/asks/detail?askId=13180171",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "早餐怎么样啊？地铁站近吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14805422",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "请问住过的朋友，新开业的酒店有装修气味没有呢？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=14528803",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "天气好的话，可以看到远处的雪山吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13807450",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "酒店是什么时候装修的啊？是不是很旧了啊？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14440519",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "两张1.2米床可以拼一起的吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14660778",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "有停車場嗎？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12606472",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "过年去成都，有没有好的路线推荐？乐山大佛，青城山，都江宴，九寨沟都想去。",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=12658415",
+      "source": "chengdu_p1"
+    },
+    {
+      "query": "离机场距离",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15067853",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "酒店有小冰箱吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14680999",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "这种低楼层的会吵吗？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511591",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "2025年开业的，室内有装修味儿吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13177873",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "有没有洗衣机？床垫软不软",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15158112",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "酒店位置怎么样啊？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15281275",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "卫生间内是顶喷还是花洒",
+      "answers": 50,
+      "url": "https://you.ctrip.com/asks/detail?askId=10659378",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "是台湾那个德立庄吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14942896",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "酒店周边好吃的多吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=15691684",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "我早上8:25的飞机，酒店几点送机啊？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14451748",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "請問在杜甫草堂一般會停留多久時間？團體解說時間？",
+      "answers": 73,
+      "url": "https://you.ctrip.com/asks/detail?askId=9300700",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "熊猫谷和这儿哪个更好，或者更适合去看。",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=9635224",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "从成都到九寨沟直通车几个小时到呀？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=9664323",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "现在入园需要排队吗？",
+      "answers": 153,
+      "url": "https://you.ctrip.com/asks/detail?askId=9665911",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "成都到四姑娘山的往返直通车票，是限当天往返吗？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9684582",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "房间提供拖鞋吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=10726638",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "锦里古街上如何选择特色小吃",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=10898411",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "可以延时退房吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511333",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "请问窗户能打开的吗？能开窗通风的吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=12814563",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "出租车可以开到问口吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15210175",
+      "source": "chengdu_p2"
+    },
+    {
+      "query": "刀郎厦门演唱会何时预售门票",
+      "answers": 59,
+      "url": "https://you.ctrip.com/asks/detail?askId=9964859",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "镇江关站到九寨沟的直通车在哪里坐？",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=9402391",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "大帅府和沈阳故宫需要预约吗",
+      "answers": 221,
+      "url": "https://you.ctrip.com/asks/detail?askId=9271834",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "可以提前入住吗？上午10点",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=9219609",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "趵突泉景区是否需要提前预约？",
+      "answers": 289,
+      "url": "https://you.ctrip.com/asks/detail?askId=9818016",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "今年八月份去青岛，去玩3天自驾，去玩过的能不能规划一下？带着孩子去的一个八岁一个六岁",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9081775",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "灵隐寺需要另买门票吗？",
+      "answers": 71,
+      "url": "https://you.ctrip.com/asks/detail?askId=9303834",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "这个动物园真的可以带小孩子去吗，安全吗？",
+      "answers": 33,
+      "url": "https://you.ctrip.com/asks/detail?askId=9414087",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "好玩吗浙里",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=11944890",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "酒店卫生怎么样？干净不干净？",
+      "answers": 39,
+      "url": "https://you.ctrip.com/asks/detail?askId=9698897",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "隔音怎么样，临街吗？吵不吵",
+      "answers": 19,
+      "url": "https://you.ctrip.com/asks/detail?askId=14911713",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "普陀山景区门票价格，船票价格是多少",
+      "answers": 49,
+      "url": "https://you.ctrip.com/asks/detail?askId=10051209",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "在网上购买了vip套票，去玩的时候还需要去人工处预约吗，我买了8点-12点，是任意时间都可以进去吗",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=9715964",
+      "source": "global_hot_p1"
+    },
+    {
+      "query": "去上海实习一个月，不知道怎么订住宿，实习的位置大概在中国金融信息中心陆家嘴那里，谁帮帮忙呢",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=13934974",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "请问上午去马蹄寺，下午去七彩丹霞来得及吗",
+      "answers": 25,
+      "url": "https://you.ctrip.com/asks/detail?askId=9140993",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "请问需要购买观光车票吗？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=9486976",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "望仙谷几点夜景开灯？景区几点闭园？",
+      "answers": 25,
+      "url": "https://you.ctrip.com/asks/detail?askId=9523319",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "请问南京遇难同胞纪念馆对面的柒舍酒店，大家觉得怎么样？",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=14581313",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "极地海洋公园和国家海洋博物馆只能选一个，去哪个比较好？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=15284041",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "去帅府要预订吗？开放时间是几点啊？",
+      "answers": 194,
+      "url": "https://you.ctrip.com/asks/detail?askId=10041117",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "年满70岁怎么购票？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=13950720",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "绑定和解绑银行卡怎么操作？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=9773264",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "吴哥窟的观赏时间有推荐吗",
+      "answers": 115,
+      "url": "https://you.ctrip.com/asks/detail?askId=10921883",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "景区售票处可以寄放行李箱吗",
+      "answers": 194,
+      "url": "https://you.ctrip.com/asks/detail?askId=10052941",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "请问一下大家，这里环境安静吗？",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=13927756",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "九寨沟-黄龙-镇江关直通车这一躺，到镇江关几点啊？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=9549003",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "那个万人演唱会的票和门票有什么区别吗？",
+      "answers": 65,
+      "url": "https://you.ctrip.com/asks/detail?askId=9727215",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "普通游船票能看见大佛吗？",
+      "answers": 110,
+      "url": "https://you.ctrip.com/asks/detail?askId=9762738",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "没带身份证可以进吗",
+      "answers": 40,
+      "url": "https://you.ctrip.com/asks/detail?askId=9531161",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "在酒店住宿打网约车方便吗",
+      "answers": 26,
+      "url": "https://you.ctrip.com/asks/detail?askId=14929901",
+      "source": "global_hot_p2"
+    },
+    {
+      "query": "我要真实回答，我看评论说危房，是真的吗？",
+      "answers": 16,
+      "url": "https://you.ctrip.com/asks/detail?askId=10653899",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "西安博物馆和陕西历史博物馆推荐哪个",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9118453",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "都江堰现在需要预约吗？",
+      "answers": 19,
+      "url": "https://you.ctrip.com/asks/detail?askId=9134497",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "芙蓉镇和凤凰古城哪个好",
+      "answers": 26,
+      "url": "https://you.ctrip.com/asks/detail?askId=9138331",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "请问寒山寺可以坐船去山塘街吗？",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=9140725",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "老君山上是不是有住宿？",
+      "answers": 86,
+      "url": "https://you.ctrip.com/asks/detail?askId=9445182",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "退役军人能免费吗？",
+      "answers": 116,
+      "url": "https://you.ctrip.com/asks/detail?askId=9527641",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "这上面怎么抢啊，没抢过",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=9625414",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "想提前购票 绑定app 在国内 是绑定不了吗",
+      "answers": 28,
+      "url": "https://you.ctrip.com/asks/detail?askId=9676993",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "请问买二球还是三球联票？",
+      "answers": 62,
+      "url": "https://you.ctrip.com/asks/detail?askId=9484650",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "附近有什么好吃的吃海鲜的饭店不？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=14107236",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "从景区门口走到大石头那，有多远？",
+      "answers": 109,
+      "url": "https://you.ctrip.com/asks/detail?askId=9892060",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "有味道吗？",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=12521844",
+      "source": "global_hot_p3"
+    },
+    {
+      "query": "请问不坐环保车爬上山顶要多久",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13856143",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "九寨沟第二天二次入园需不需要再次买票",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=9064936",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "酒店周边有好玩的地方嘛",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12494319",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "这里适合老年人游了吗",
+      "answers": 12,
+      "url": "https://you.ctrip.com/asks/detail?askId=11243022",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "泸州老窖旅游景区适合孩子参观吗",
+      "answers": 50,
+      "url": "https://you.ctrip.com/asks/detail?askId=10880862",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "我想问问景区观光车如何收费，谢谢。有没有推荐路线",
+      "answers": 25,
+      "url": "https://you.ctrip.com/asks/detail?askId=9369496",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "灵隐寺需要另买门票吗？怎么买比较划算？需要预约吗？",
+      "answers": 20,
+      "url": "https://you.ctrip.com/asks/detail?askId=9409247",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "忘记带身份证了可以进去吗？",
+      "answers": 166,
+      "url": "https://you.ctrip.com/asks/detail?askId=9977259",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "龙门石窟玩好出来后叫车方便吗？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=15898773",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "请问从杭州怎么去乌镇，能否给个路线，谢谢",
+      "answers": 71,
+      "url": "https://you.ctrip.com/asks/detail?askId=9240150",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "好不好停车呀",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=13927647",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "下午1点左右到达洛阳后，有哪些景点可以游玩",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=12711897",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "飞机可以升舱吗？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9477776",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "请问购买了特展票之后，还需要预约上海博物馆大门票吗",
+      "answers": 35,
+      "url": "https://you.ctrip.com/asks/detail?askId=9757533",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "没带学生证可以买学生票吗",
+      "answers": 61,
+      "url": "https://you.ctrip.com/asks/detail?askId=9789023",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "身份证没带可以用电子身份证买票吗",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=9825311",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "刀郎南京演唱会什么时候预售门票？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=9915219",
+      "source": "global_hot_p4"
+    },
+    {
+      "query": "镇国寺和双林寺，都有官方的讲解导游可以请吗？",
+      "answers": 41,
+      "url": "https://you.ctrip.com/asks/detail?askId=9720301",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "请问酒店有早餐吗？可以延迟退房吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14233479",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "床好睡吗，赶路一天想要倒头就睡",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14233924",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "你们去玉龙雪山有没有高反，会不会很难受？",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=14355145",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "睡觉噪音大吗？窗外",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14355207",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "我在outlets，有免费大巴回酒店吗？在什么位置。",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14358914",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "咨询一下，入住无锡苏宁银河国际酒店的自驾车泊车的位置？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14383979",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "只用证件可以入住吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14412596",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "迁安天元谷魔方玩国的黄帝胜迹飞翔影院值得打卡吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14463907",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "离高铁站近吵不吵？",
+      "answers": 13,
+      "url": "https://you.ctrip.com/asks/detail?askId=14465476",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "酒店附近安全吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14471533",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "有免费早餐吗？",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=14485311",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "请问酒店会收取额外税费吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14577003",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "徐州三天两夜旅游，有什么好的攻略？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14681390",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "半天玩完了吧",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14681662",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "什么时候开业？暖气能调温度吗？卫生怎么样？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14758570",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "酒店有烤红薯吗？是免费的吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14838025",
+      "source": "global_hot_p5"
+    },
+    {
+      "query": "70岁以上可以坐潜艇吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14848319",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "12:30入园可以晚到晚上几点。",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14853601",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "卫生间干湿分离吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14874999",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "酒店甲醛味重吗？",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=14892975",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "三个大人订了两间房快艇可以免费接送三个人吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14911247",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "请问新开业是否还有装修味道？对气味比较敏感是否能接受？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14911416",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "买了2025年2月20号的套票，明天逛了白帝城和瞿塘峡。后天继续逛三峡之巅、可以吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14921749",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "预约的时间比较靠后，能提前进馆吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14925548",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "心愿礼包是什么？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=14929533",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "机场能接吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14947444",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "请问有洗衣机以及干衣机吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14948316",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "厕所以及洗澡的地方小不小",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14948449",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "1.32儿童要买票吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14985884",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "房间有咖啡机吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15003672",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "扬州大运河博物馆要门票吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=15061565",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "酒店到景区的接驳车会很多人坐吗？需不需要排队？最早的接驳车是几点？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15073544",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "机场班车是随时约吗还是每小时一班",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15111406",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "鼓浪屿港仔后沙滩适合傍晚去吗",
+      "answers": 16,
+      "url": "https://you.ctrip.com/asks/detail?askId=12762271",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "请问有可以寄放行李的地方吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12815097",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "卡雷奇历史街区适合步行游玩吗",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=12838449",
+      "source": "global_hot_p6"
+    },
+    {
+      "query": "自驾有免费停车吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=12840184",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "少华山山上能买到吃的吗",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=12849097",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "湖南图书馆怎么去",
+      "answers": 16,
+      "url": "https://you.ctrip.com/asks/detail?askId=12999132",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "七彩丹霞观景台适合亲子吗",
+      "answers": 19,
+      "url": "https://you.ctrip.com/asks/detail?askId=13013480",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "房间贝壳是每日都会送吗",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=13031474",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "灵隐寺开放时间",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=13177940",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "房间可以看到冰景吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13182230",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "房间门可以反锁吗，有反锁链条吗",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=13182518",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "外卖送方便吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13420873",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "千年瑶寨适合慢步游览吗",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=13464988",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "从昆明机场坐机场大巴到弥勒可以直接到酒店吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477262",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "晚上能看到星空吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477286",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "松鹤滑雪场适合新手吗",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=13492632",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "请问住过的达人们，房间有异味和噪音吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13498824",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "吃饭方便吗",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=13503426",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "情侣去三亚海棠湾，预算2晚2000左右，住哪个酒店？希望设施新一点，能看到海景，干净的",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=13513610",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "听说有电磁炉。那请问，有锅吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13526075",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "灵山适合带孩子去玩吗",
+      "answers": 16,
+      "url": "https://you.ctrip.com/asks/detail?askId=13634291",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "房间有没有甲醛味道，11月开业的",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13641065",
+      "source": "global_hot_p7"
+    },
+    {
+      "query": "请问酒店附近还在施工吗？是不是还是很吵？房间隔音如何呢？谢谢！。",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14661532",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=13308695",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "你好 房间有吹风机吗",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10508623",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "1.我住的时候想把快递寄到酒店，再从酒店寄回去可以吗，\n2.能不能寄存行李",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15244967",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "2个人都要刷脸吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14740350",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "这个酒店晚上安静吗？ 睡眠比较差的人比较担心",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14431304",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "家庭房有冰箱吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13243964",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "入住酒店从几点开始入住",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14775374",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "租赁电瓶车要多少钱？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15740372",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "夫夷江竹筏漂流安全吗",
+      "answers": 33,
+      "url": "https://you.ctrip.com/asks/detail?askId=10893005",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "能不能免费升房",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=13615579",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "隔音如何？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=10253735",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "预约成功的讯息是在哪里的？为什么找不到？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=11279836",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "崀山夫夷江竹筏漂流适合几岁孩子",
+      "answers": 27,
+      "url": "https://you.ctrip.com/asks/detail?askId=10779388",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "迷你单人房(公共卫浴)房间里有卫生间吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15340899",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "现在入住施工噪音会很厉害吗？是否影响早晚的睡眠？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15361425",
+      "source": "hangzhou_p1"
+    },
+    {
+      "query": "明仕田园竹筏漂流值不值得坐",
+      "answers": 34,
+      "url": "https://you.ctrip.com/asks/detail?askId=10750986",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "酒店双床房可以两张床拼成一起么",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14681355",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "带宠物收费吗？收的话收多少呀？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14601242",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "请问70岁以上老人，门票有优惠吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12680684",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "酒店床垫子是偏软还是偏硬？如果是偏软，酒店有补救措施吗？比如将床垫翻过来用，或者酒店预备了硬床垫",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13807100",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "楼下就能打车吗",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=14254747",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "3号楼和5号楼主要是什么房型？双床房型好的推荐哪个？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13549937",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "早歺不是自助的吗？固定早歺是什么概念？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=11219545",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "请教一下打车、还有外卖方便吗？有人接单吗？比如想点个霸王茶姬的话…..谢谢！",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15147189",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "可以提前入住吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=11990825",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "有免费停车场吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15688918",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "有免费停车吗？五一准备来杭州玩",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15898384",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "双人票是两个成人吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=11055609",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "电梯需要刷卡吗？好打车吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14129313",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "最早几点可以办理入住手续？",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=10504704",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "海外的学生和老人能用优惠券吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=11611681",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "导游好请吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14926974",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "请问酒店的床是不是比较好的硬床垫？我们最讨厌亚朵的软床垫，但是没住过汉庭，想请住过的朋友分享一下经验",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15350471",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "灵隐寺飞来峰可以现场直接购票吗",
+      "answers": 106,
+      "url": "https://you.ctrip.com/asks/detail?askId=10093423",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "酒店停车厂大吗、春节停得下吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14779590",
+      "source": "hangzhou_p2"
+    },
+    {
+      "query": "酒店外卖有机器人送到房间嘛？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13095067",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "你好，请问酒店内有电梯嘛",
+      "answers": 12,
+      "url": "https://you.ctrip.com/asks/detail?askId=13100348",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "你们酒店有没有早餐？有没有停车位？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13341687",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "酒店吵吗？隔音好不好",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13402464",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "酒店附近地铁站上下有手扶电梯吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13895370",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "酒店安静么",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14216531",
+      "source": "hotel_tag_p1"
+    },
+    {
+      "query": "酒店管家服务包含哪些内容？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12171305",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "自驾开车到酒店方便吗路是否狭窄，停车是否方便",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12521570",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店有餐厅吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=12639266",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "这个酒店是新开的吗？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10573451",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店卫生吗？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=10600033",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "你好，酒店可以开公司发票吗",
+      "answers": 29,
+      "url": "https://you.ctrip.com/asks/detail?askId=10674506",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店2018年装修的，现在房间装饰很旧吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10716279",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "这个酒店新开业的，有味道吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=11193196",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "坐城际高铁过来，怎么到酒店",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=11259260",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店的床单枕头被套干净吗，会不会有什么奇怪的污渍啊，皮肤敏感的睡了会不会痒？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12290069",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店房间里的卫生间里的马桶有清洗屁股功能的智能马桶了吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12373227",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店是否需要押金",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=15054837",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店房间有空调吗，能开暖风吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13670347",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店可以停小车吗",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=14844465",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "请问双床房还是大床房不临街? 酒店房间和对外的隔音还好吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14912059",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店床垫子是偏软还是偏硬？如果是偏软，酒店还有补救措施吗？比如将床垫翻过来用，或者酒店预备了硬床垫",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13426816",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "酒店班车接送，入园和出园可以在迪士尼小镇的那个门吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14966994",
+      "source": "hotel_tag_p2"
+    },
+    {
+      "query": "翡翠湖小火车值得坐吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073189",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖夏季去要注意什么",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073188",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖什么时候去人少颜色好看",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073202",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖内部交通如何选择",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073201",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖拍照建议有哪些",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073186",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖冬季适合游玩吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073187",
+      "source": "latest_p1"
+    },
+    {
+      "query": "翡翠湖小火车体验如何",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073200",
+      "source": "latest_p1"
+    },
+    {
+      "query": "第比利斯圣三一教堂参观有限制吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073184",
+      "source": "latest_p1"
+    },
+    {
+      "query": "乌普利斯齐赫洞穴村游玩多久合适",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073199",
+      "source": "latest_p1"
+    },
+    {
+      "query": "巴统黑海海滨大道适合全家吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073198",
+      "source": "latest_p1"
+    },
+    {
+      "query": "乌普利斯齐赫洞穴村适合带孩子玩吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073183",
+      "source": "latest_p1"
+    },
+    {
+      "query": "巴统黑海海滨大道晚上安全吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073182",
+      "source": "latest_p1"
+    },
+    {
+      "query": "乌普利斯齐赫洞穴村需要爬很久吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073181",
+      "source": "latest_p1"
+    },
+    {
+      "query": "西格纳吉红酒小镇品酒体验贵吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073197",
+      "source": "latest_p1"
+    },
+    {
+      "query": "巴统黑海海滨大道适合长距离散步吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073196",
+      "source": "latest_p1"
+    },
+    {
+      "query": "西格纳吉酒庄品酒如何选择合适品种",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073195",
+      "source": "latest_p1"
+    },
+    {
+      "query": "乌普利斯齐赫洞穴村适合小龄儿童参观吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073194",
+      "source": "latest_p1"
+    },
+    {
+      "query": "卡兹别克的圣三一教堂怎么上去方便",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073192",
+      "source": "latest_p1"
+    },
+    {
+      "query": "黑海海滨大道适合带小朋友推车散步吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073191",
+      "source": "latest_p1"
+    },
+    {
+      "query": "巴统黑海海滨大道适合慢步游览吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073193",
+      "source": "latest_p1"
+    },
+    {
+      "query": "金洞小金洞村里有餐饮吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073203",
+      "source": "latest_p2"
+    },
+    {
+      "query": "小金洞村的住宿方便吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073210",
+      "source": "latest_p2"
+    },
+    {
+      "query": "酒店有没洗衣服的地方？",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16072846",
+      "source": "latest_p3"
+    },
+    {
+      "query": "泡西岭温泉有哪些注意事项",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073190",
+      "source": "latest_p3"
+    },
+    {
+      "query": "去西岭温泉泡汤一天大概需要安排多长时间",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073180",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉周边有推荐的拍照位置吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073169",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉适合带孩子和老人一起去吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073179",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉周边能顺便去哪玩",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073168",
+      "source": "latest_p3"
+    },
+    {
+      "query": "在西岭温泉泡多久比较合适",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073177",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉和大自然温泉选哪家体验更好",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073178",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉自驾去方便吗",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073167",
+      "source": "latest_p3"
+    },
+    {
+      "query": "在西岭温泉拍照好出片吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073176",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉适合自驾还是打车",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073175",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉周边的美食有推荐吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073166",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉的私密泡池体验感怎么样",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073174",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉的本地美食值得尝试吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073165",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉的硫磺水质对皮肤有益吗",
+      "answers": 1,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073173",
+      "source": "latest_p3"
+    },
+    {
+      "query": "西岭温泉周边有哪些适合慢游的景点",
+      "answers": 0,
+      "url": "https://you.ctrip.com/asks/detail?askId=16073164",
+      "source": "latest_p3"
+    },
+    {
+      "query": "离国家会展中心近吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=14106834",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "想带孩子去上海迪士尼乐园，有什么好的攻略推荐，门票怎么买最划算？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14701270",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "有没有USB充电口？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=11912686",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "开车去外滩有公共停车场吗",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=9650489",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "迪士尼小镇有哪些必逛的特色景点？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=15378860",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "南京路步行街有哪些必打卡的景点和建筑？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15634821",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "请问送机的班车多久一班",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15398174",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "套房在酒店什么位置 安静吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15165923",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "带小朋友是住东楼方便还是北楼方便",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15176910",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "卫生怎么样？隔音好吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14985614",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "有免费送机吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15417271",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "请问酒店附近可以放烟花吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14393709",
+      "source": "shanghai_p1"
+    },
+    {
+      "query": "豪华双床房的浴室是透明的吗…？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14432368",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "买票能开发票吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13423259",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "請問最早可以幾點送去機場？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13612311",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "请问新装修的 房间有味道吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10655449",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "上海哪里适合看夜景",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=10990161",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "请问下酒店卫生如何，本人有洁癖，担心脏会有床虱之类的",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=11308238",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "上海豫园有哪些值得一试的美食",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12160309",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "预定了房间，人没到，酒店可以提前接收我的快递吗？没有房间号怎么办？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15042258",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "卫生怎么样",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=10626477",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "住酒店，买蝴蝶酥还限量吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15070900",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "請問空調制熱給力嗎？天冷時房裡暖和嗎？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14916117",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "请问这个酒店新装修，有味道吗？要带孩子去玩",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14537775",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "陆家嘴有哪些必打卡的观景台或高楼可以俯瞰城市全景？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=16001133",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "买的门票是不是里面的项目都可以玩",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=15280971",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "离机场这么近会不会很吵呀？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=16004500",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "請問可以機場接送來回嗎？還是有限制次數，謝謝",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13015940",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "迪士尼班车去程时间表和回程表有吗？晚上不看烟花有提前回酒店的车吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14270433",
+      "source": "shanghai_p2"
+    },
+    {
+      "query": "请问卫生环境怎么样？床品什么的干净吗？怕有小虫子…谢谢大家",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14824020",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "嘉宾轩和君悦的区别是什么",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14833037",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "停车场有没有充电桩",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14892566",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "身份证前几天丢了，可以进吗？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=12005830",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "上海迪士尼最近人多不多啊",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=12160308",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "有没有需要避坑的旅游项目",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=12864774",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "现在周末热力追踪排队多久？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13111780",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "请问泳池是恒温的吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13725947",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "一月份去上海需要穿厚的羽绒服吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13780544",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "居住环境怎么样",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=10567371",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "酒店有洗衣房和健身房吗？是免费的吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14391578",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "酒店设施新吗？外卖有机器人送吗？有电梯吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14392390",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "請問天冷時空調可以制熱嗎？房裡暖和嗎？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14342261",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "干净吗，冬天空调暖和吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13819119",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "从上海虹桥站过去要怎么做地铁？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14845204",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "請問房裡暖和嗎？有暖氣嗎？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14233004",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "熊猫馆人多不多呀，你们得逛园路线都是怎么样的",
+      "answers": 42,
+      "url": "https://you.ctrip.com/asks/detail?askId=10056215",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "龙华寺适合拍照吗",
+      "answers": 35,
+      "url": "https://you.ctrip.com/asks/detail?askId=10744917",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "你好，支持微信支付吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13512555",
+      "source": "shanghai_p3"
+    },
+    {
+      "query": "房间电视机可以手机投屏吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14270438",
+      "source": "shanghai_p3"
+    }
+  ]
+}

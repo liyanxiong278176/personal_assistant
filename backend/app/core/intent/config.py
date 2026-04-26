@@ -80,7 +80,7 @@ class LLMConfig(BaseModel):
         description="Maximum number of retries on failure"
     )
     model: str = Field(
-        default="deepseek-chat",
+        default="deepseek-v4-flash",
         description="Default LLM model for classification"
     )
 

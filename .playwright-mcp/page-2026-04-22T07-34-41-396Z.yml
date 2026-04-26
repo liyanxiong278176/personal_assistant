@@ -1,0 +1,540 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e7] [cursor=pointer]: 󰩫
+      - generic [ref=e11]:
+        - button "酒店 按回车键打开菜单" [ref=e13] [cursor=pointer]:
+          - generic [ref=e14]: 󰩿
+        - button "机票 按回车键打开菜单" [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: 󰪀
+        - button "火车票 按回车键打开菜单" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]: 󰪁
+        - button "旅游 按回车键打开菜单" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: 󰩼
+        - button "门票·活动 按回车键打开菜单" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26]: 󰩻
+        - button "汽车·船票 按回车键打开菜单" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: 󰩹
+        - button "用车 按回车键打开菜单" [ref=e31] [cursor=pointer]:
+          - generic [ref=e32]: 󰩯
+        - button "AI行程助手 按回车键打开菜单" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 󲍔
+        - button "攻略·景点 按回车键打开菜单" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 󰪄
+        - button "旅游地图 按回车键打开菜单" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 󱸶
+        - button "全球购 按回车键打开菜单" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: 󰪆
+        - button "礼品卡 按回车键打开菜单" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: 󰩽
+        - button "携程金融 按回车键打开菜单" [ref=e51] [cursor=pointer]:
+          - generic [ref=e52]: 󰩰
+        - button "企业商旅 按回车键打开菜单" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]: 󰪈
+        - button "老友会 按回车键打开菜单" [ref=e58] [cursor=pointer]:
+          - generic [ref=e59]: 󱝵
+        - button "关于携程 按回车键打开菜单" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]: 󱡫
+  - generic [ref=e65]:
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - link "携程旅行网" [ref=e73] [cursor=pointer]:
+          - /url: //www.ctrip.com
+        - generic [ref=e75]:
+          - textbox "搜旅任何旅行相关..." [ref=e76]:
+            - /placeholder: 搜索任何旅游相关
+          - link "󰩬" [ref=e77] [cursor=pointer]:
+            - /url: javascript:void(0)
+      - generic [ref=e78]:
+        - list [ref=e79]:
+          - listitem [ref=e80]:
+            - button "登录" [ref=e82] [cursor=pointer]:
+              - generic [ref=e84]: 登录
+          - listitem [ref=e85]:
+            - button "注册" [ref=e86] [cursor=pointer]
+          - listitem [ref=e87]
+          - listitem [ref=e89]:
+            - generic [ref=e90] [cursor=pointer]:
+              - button "我的订单" [ref=e91]
+              - generic [ref=e92]: 󰪊
+          - listitem [ref=e93]
+          - listitem [ref=e95]:
+            - generic "携程客服" [ref=e96]:
+              - button "携程客服" [ref=e97]: 联系客服
+          - listitem [ref=e98]
+          - listitem [ref=e100]:
+            - generic "扫码下载携程App或关注微信公众号" [ref=e101]:
+              - button "扫码下载携程App或关注微信公众号" [ref=e102]:
+                - generic [ref=e103] [cursor=pointer]: 󰩷
+        - button "无障碍阅读开关" [ref=e104] [cursor=pointer]:
+          - generic [ref=e105]: 󰩲
+        - button "关怀版" [ref=e106] [cursor=pointer]:
+          - generic [ref=e107]: 󱃃
+    - main [ref=e108]:
+      - generic [ref=e109]:
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - textbox "提问前不妨先搜索下，看看你的问题是否已经有人询问过" [ref=e114]
+            - button "搜索" [ref=e115] [cursor=pointer]
+          - button "我要提问" [ref=e116] [cursor=pointer]:
+            - img [ref=e117]
+            - text: 我要提问
+        - generic [ref=e121]:
+          - generic [ref=e124]:
+            - paragraph [ref=e125]: 在结果中找：
+            - generic [ref=e126]:
+              - generic [ref=e127]:
+                - link "沙溪古镇" [ref=e128] [cursor=pointer]:
+                  - /url: /asks/93610
+                - link "大悟天天阳光酒店（阳光嘉园店）" [ref=e129] [cursor=pointer]:
+                  - /url: /asks/28336143
+                - link "莫斯塔尔古桥" [ref=e130] [cursor=pointer]:
+                  - /url: /asks/23516172
+                - link "临沂·丽致|Lizy·Urban CultureHub(沂蒙北路奥体中心店)" [ref=e131] [cursor=pointer]:
+                  - /url: /asks/149992650
+                - link "镇远古城" [ref=e132] [cursor=pointer]:
+                  - /url: /asks/13277700
+                - link "夕宿·金融城盛佰嘉精品酒店（观山湖区会展城银行北街店）" [ref=e133] [cursor=pointer]:
+                  - /url: /asks/30303210
+                - link "黄山风景区" [ref=e134] [cursor=pointer]:
+                  - /url: /asks/87869
+                - link "建水古城" [ref=e135] [cursor=pointer]:
+                  - /url: /asks/79720
+                - link "西湖风景名胜区" [ref=e136] [cursor=pointer]:
+                  - /url: /asks/82922
+                - link "凯栖悦酒店" [ref=e137] [cursor=pointer]:
+                  - /url: /asks/154219623
+                - link "赛里木湖" [ref=e138] [cursor=pointer]:
+                  - /url: /asks/76744
+                - link "青海湖景区" [ref=e139] [cursor=pointer]:
+                  - /url: /asks/78537
+                - link "大悟·金华FAMILYTHEMEDMEMORYMOVIEWORLD酒店(长征路大悟一中店)" [ref=e140] [cursor=pointer]:
+                  - /url: /asks/61085296
+                - link "麗枫酒店(白城火车站步行街店)" [ref=e141] [cursor=pointer]:
+                  - /url: /asks/121823669
+                - link "扎尕那" [ref=e142] [cursor=pointer]:
+                  - /url: /asks/84274
+                - link "贵阳" [ref=e143] [cursor=pointer]:
+                  - /url: /asks/guiyang33
+                - link "苏州" [ref=e144] [cursor=pointer]:
+                  - /url: /asks/suzhou11
+                - link "杭州" [ref=e145] [cursor=pointer]:
+                  - /url: /asks/hangzhou14
+                - link "广州" [ref=e146] [cursor=pointer]:
+                  - /url: /asks/guangzhou152
+                - link "大同" [ref=e147] [cursor=pointer]:
+                  - /url: /asks/datong275
+                - link "北京" [ref=e148] [cursor=pointer]:
+                  - /url: /asks/beijing1
+                - link "大悟" [ref=e149] [cursor=pointer]:
+                  - /url: /asks/dawu2701
+                - link "上海" [ref=e150] [cursor=pointer]:
+                  - /url: /asks/shanghai2
+                - link "武汉" [ref=e151] [cursor=pointer]:
+                  - /url: /asks/wuhan145
+                - link "重庆" [ref=e152] [cursor=pointer]:
+                  - /url: /asks/chongqing158
+                - link "大理市" [ref=e153] [cursor=pointer]:
+                  - /url: /asks/dalicity1445616
+                - link "成都" [ref=e154] [cursor=pointer]:
+                  - /url: /asks/chengdu104
+                - link "长沙" [ref=e155] [cursor=pointer]:
+                  - /url: /asks/changsha148
+                - link "西安" [ref=e156] [cursor=pointer]:
+                  - /url: /asks/xi'an7
+                - link "全球" [ref=e157] [cursor=pointer]:
+                  - /url: /asks/33399999
+                - link "酒店" [ref=e158] [cursor=pointer]:
+                  - /url: /asks/t105341
+                - link "房间" [ref=e159] [cursor=pointer]:
+                  - /url: /asks/t462877
+                - link "入住" [ref=e160] [cursor=pointer]:
+                  - /url: /asks/t462935
+                - link "方便" [ref=e161] [cursor=pointer]:
+                  - /url: /asks/t462876
+                - link "周边" [ref=e162] [cursor=pointer]:
+                  - /url: /asks/t358238
+                - link "住宿" [ref=e163] [cursor=pointer]:
+                  - /url: /asks/t2
+                - link "早餐" [ref=e164] [cursor=pointer]:
+                  - /url: /asks/t362861
+                - link "附近" [ref=e165] [cursor=pointer]:
+                  - /url: /asks/t362912
+              - img [ref=e166] [cursor=pointer]: 更多
+          - generic [ref=e170]:
+            - generic [ref=e172]:
+              - link "热门问题" [ref=e173] [cursor=pointer]:
+                - /url: /asks
+              - link "最新问题" [ref=e174] [cursor=pointer]:
+                - /url: /asks/k1
+              - link "待回答问题" [ref=e175] [cursor=pointer]:
+                - /url: /asks/k4
+            - link "107 回答 携程人工客服电话是多少？ 2023/08/21 YoYo_8T8T0J5X" [ref=e177] [cursor=pointer]:
+              - /url: /asks/detail?askId=9238170
+              - generic [ref=e179]:
+                - paragraph [ref=e180]: "107"
+                - paragraph [ref=e181]: 回答
+              - heading "携程人工客服电话是多少？" [level=2] [ref=e183]
+              - generic [ref=e184]:
+                - paragraph [ref=e185]: 2023/08/21
+                - button "YoYo_8T8T0J5X" [ref=e186]:
+                  - generic [ref=e187]: YoYo_8T8T0J5X
+            - link "59 回答 刀郎厦门演唱会何时预售门票 2024/09/29 YoYo_1L6S0Z6G" [ref=e188] [cursor=pointer]:
+              - /url: /asks/detail?askId=9964859
+              - generic [ref=e190]:
+                - paragraph [ref=e191]: "59"
+                - paragraph [ref=e192]: 回答
+              - heading "刀郎厦门演唱会何时预售门票" [level=2] [ref=e194]
+              - generic [ref=e195]:
+                - paragraph [ref=e196]: 2024/09/29
+                - button "YoYo_1L6S0Z6G" [ref=e197]:
+                  - generic [ref=e198]: YoYo_1L6S0Z6G
+            - link "85 回答 携程客服投诉电话是多少 2023/07/12 YoYo_9A1F9W1U" [ref=e199] [cursor=pointer]:
+              - /url: /asks/detail?askId=9157148
+              - generic [ref=e201]:
+                - paragraph [ref=e202]: "85"
+                - paragraph [ref=e203]: 回答
+              - heading "携程客服投诉电话是多少" [level=2] [ref=e205]
+              - generic [ref=e206]:
+                - paragraph [ref=e207]: 2023/07/12
+                - button "YoYo_9A1F9W1U" [ref=e208]:
+                  - generic [ref=e209]: YoYo_9A1F9W1U
+            - link "145 回答 携程人工客服电话号码是多少？ 2024/01/08 YoYo_0R3R1Q7R" [ref=e210] [cursor=pointer]:
+              - /url: /asks/detail?askId=9391327
+              - generic [ref=e212]:
+                - paragraph [ref=e213]: "145"
+                - paragraph [ref=e214]: 回答
+              - heading "携程人工客服电话号码是多少？" [level=2] [ref=e216]
+              - generic [ref=e217]:
+                - paragraph [ref=e218]: 2024/01/08
+                - button "YoYo_0R3R1Q7R" [ref=e219]:
+                  - generic [ref=e220]: YoYo_0R3R1Q7R
+            - link "14 回答 镇江关站到九寨沟的直通车在哪里坐？ 2024/01/16 YoYo_5Q9C8Y7H" [ref=e221] [cursor=pointer]:
+              - /url: /asks/detail?askId=9402391
+              - generic [ref=e223]:
+                - paragraph [ref=e224]: "14"
+                - paragraph [ref=e225]: 回答
+              - heading "镇江关站到九寨沟的直通车在哪里坐？" [level=2] [ref=e227]
+              - generic [ref=e228]:
+                - paragraph [ref=e229]: 2024/01/16
+                - button "YoYo_5Q9C8Y7H" [ref=e230]:
+                  - generic [ref=e231]: YoYo_5Q9C8Y7H
+            - link "8 回答 我怎么加入购物车一起下单呢 2024/04/06 YoYo_8Z5M0H2Q" [ref=e232] [cursor=pointer]:
+              - /url: /asks/detail?askId=9617150
+              - generic [ref=e234]:
+                - paragraph [ref=e235]: "8"
+                - paragraph [ref=e236]: 回答
+              - heading "我怎么加入购物车一起下单呢" [level=2] [ref=e238]
+              - generic [ref=e239]:
+                - paragraph [ref=e240]: 2024/04/06
+                - button "YoYo_8Z5M0H2Q" [ref=e241]:
+                  - generic [ref=e242]: YoYo_8Z5M0H2Q
+            - link "221 回答 大帅府和沈阳故宫需要预约吗 2023/09/14 YoYo_6C0S8U2R" [ref=e243] [cursor=pointer]:
+              - /url: /asks/detail?askId=9271834
+              - generic [ref=e245]:
+                - paragraph [ref=e246]: "221"
+                - paragraph [ref=e247]: 回答
+              - heading "大帅府和沈阳故宫需要预约吗" [level=2] [ref=e249]
+              - generic [ref=e250]:
+                - paragraph [ref=e251]: 2023/09/14
+                - button "YoYo_6C0S8U2R" [ref=e252]:
+                  - generic [ref=e253]: YoYo_6C0S8U2R
+            - link "23 回答 请问九寨沟—黄龙—镇江关这个路线靠谱不，游玩时间充足否，能赶上当天17：40回成都东的高铁吗？ 2024/07/01 YoYo_4K0P6W0T" [ref=e254] [cursor=pointer]:
+              - /url: /asks/detail?askId=9687883
+              - generic [ref=e256]:
+                - paragraph [ref=e257]: "23"
+                - paragraph [ref=e258]: 回答
+              - heading "请问九寨沟—黄龙—镇江关这个路线靠谱不，游玩时间充足否，能赶上当天17：40回成都东的高铁吗？" [level=2] [ref=e260]
+              - generic [ref=e261]:
+                - paragraph [ref=e262]: 2024/07/01
+                - button "YoYo_4K0P6W0T" [ref=e263]:
+                  - generic [ref=e264]: YoYo_4K0P6W0T
+            - 'link "5 回答 #上海长荣桂冠酒店#可以提前入住吗？上午10点 2023/08/11 YoYo_2L6M1K4U" [ref=e265] [cursor=pointer]':
+              - /url: /asks/detail?askId=9219609
+              - generic [ref=e267]:
+                - paragraph [ref=e268]: "5"
+                - paragraph [ref=e269]: 回答
+              - heading "#上海长荣桂冠酒店#可以提前入住吗？上午10点" [level=2] [ref=e271]
+              - generic [ref=e272]:
+                - paragraph [ref=e273]: 2023/08/11
+                - button "YoYo_2L6M1K4U" [ref=e274]:
+                  - generic [ref=e275]: YoYo_2L6M1K4U
+            - link "289 回答 趵突泉景区是否需要提前预约？ 2024/08/06 YoYo_5Y6Z4I4F" [ref=e276] [cursor=pointer]:
+              - /url: /asks/detail?askId=9818016
+              - generic [ref=e278]:
+                - paragraph [ref=e279]: "289"
+                - paragraph [ref=e280]: 回答
+              - heading "趵突泉景区是否需要提前预约？" [level=2] [ref=e282]
+              - generic [ref=e283]:
+                - paragraph [ref=e284]: 2024/08/06
+                - button "YoYo_5Y6Z4I4F" [ref=e285]:
+                  - generic [ref=e286]: YoYo_5Y6Z4I4F
+            - link "7 回答 今年八月份去青岛，去玩3天自驾，去玩过的能不能规划一下？带着孩子去的一个八岁一个六岁 今年八月份去青岛，去玩3天自驾，去玩过的能不能规划一下？带着孩子去的一个八岁一个六岁 2023/05/25 YoYo_7K4O2W9R" [ref=e287] [cursor=pointer]:
+              - /url: /asks/detail?askId=9081775
+              - generic [ref=e289]:
+                - paragraph [ref=e290]: "7"
+                - paragraph [ref=e291]: 回答
+              - generic [ref=e292]:
+                - heading "今年八月份去青岛，去玩3天自驾，去玩过的能不能规划一下？带着孩子去的一个八岁一个六岁" [level=2] [ref=e293]
+                - paragraph [ref=e294]: 今年八月份去青岛，去玩3天自驾，去玩过的能不能规划一下？带着孩子去的一个八岁一个六岁
+              - generic [ref=e295]:
+                - paragraph [ref=e296]: 2023/05/25
+                - button "YoYo_7K4O2W9R" [ref=e297]:
+                  - generic [ref=e298]: YoYo_7K4O2W9R
+            - link "71 回答 灵隐寺需要另买门票吗？ 2023/10/08 大雾里的胡同y" [ref=e299] [cursor=pointer]:
+              - /url: /asks/detail?askId=9303834
+              - generic [ref=e301]:
+                - paragraph [ref=e302]: "71"
+                - paragraph [ref=e303]: 回答
+              - heading "灵隐寺需要另买门票吗？" [level=2] [ref=e305]
+              - generic [ref=e306]:
+                - paragraph [ref=e307]: 2023/10/08
+                - button "大雾里的胡同y" [ref=e308]:
+                  - generic [ref=e309]: 大雾里的胡同y
+            - link "33 回答 这个动物园真的可以带小孩子去吗，安全吗？ 2024/01/26 YoYo_8G9G5W9O 已解决 已解决" [ref=e310] [cursor=pointer]:
+              - /url: /asks/detail?askId=9414087
+              - generic [ref=e312]:
+                - paragraph [ref=e313]: "33"
+                - paragraph [ref=e314]: 回答
+              - heading "这个动物园真的可以带小孩子去吗，安全吗？" [level=2] [ref=e316]
+              - generic [ref=e317]:
+                - paragraph [ref=e318]: 2024/01/26
+                - button "YoYo_8G9G5W9O" [ref=e319]:
+                  - generic [ref=e320]: YoYo_8G9G5W9O
+                - generic [ref=e321]:
+                  - img "已解决" [ref=e323]
+                  - generic [ref=e325]: 已解决
+            - link "14 回答 好玩吗浙里 2025/10/21 YoYo_7T2A5X6K 已解决 已解决" [ref=e326] [cursor=pointer]:
+              - /url: /asks/detail?askId=11944890
+              - generic [ref=e328]:
+                - paragraph [ref=e329]: "14"
+                - paragraph [ref=e330]: 回答
+              - heading "好玩吗浙里" [level=2] [ref=e332]
+              - generic [ref=e333]:
+                - paragraph [ref=e334]: 2025/10/21
+                - button "YoYo_7T2A5X6K" [ref=e335]:
+                  - generic [ref=e336]: YoYo_7T2A5X6K
+                - generic [ref=e337]:
+                  - img "已解决" [ref=e339]
+                  - generic [ref=e341]: 已解决
+            - link "340 回答 暑假，杜甫草堂要排队吗 2024/08/05 YoYo_2D1P3K7L" [ref=e342] [cursor=pointer]:
+              - /url: /asks/detail?askId=9815513
+              - generic [ref=e344]:
+                - paragraph [ref=e345]: "340"
+                - paragraph [ref=e346]: 回答
+              - heading "暑假，杜甫草堂要排队吗" [level=2] [ref=e348]
+              - generic [ref=e349]:
+                - paragraph [ref=e350]: 2024/08/05
+                - button "YoYo_2D1P3K7L" [ref=e351]:
+                  - generic [ref=e352]: YoYo_2D1P3K7L
+            - link "98 回答 熊猫周边都很贵吗？ 2023/10/01 YoYo_7X7F6T8J" [ref=e353] [cursor=pointer]:
+              - /url: /asks/detail?askId=9295540
+              - generic [ref=e355]:
+                - paragraph [ref=e356]: "98"
+                - paragraph [ref=e357]: 回答
+              - heading "熊猫周边都很贵吗？" [level=2] [ref=e359]
+              - generic [ref=e360]:
+                - paragraph [ref=e361]: 2023/10/01
+                - button "YoYo_7X7F6T8J" [ref=e362]:
+                  - generic [ref=e363]: YoYo_7X7F6T8J
+            - 'link "19 回答 #南京城市名人酒店#隔音怎么样，临街吗？吵不吵 2026/02/19 YoYo_5V5V5O2H" [ref=e364] [cursor=pointer]':
+              - /url: /asks/detail?askId=14911713
+              - generic [ref=e366]:
+                - paragraph [ref=e367]: "19"
+                - paragraph [ref=e368]: 回答
+              - heading "#南京城市名人酒店#隔音怎么样，临街吗？吵不吵" [level=2] [ref=e370]
+              - generic [ref=e371]:
+                - paragraph [ref=e372]: 2026/02/19
+                - button "YoYo_5V5V5O2H" [ref=e373]:
+                  - generic [ref=e374]: YoYo_5V5V5O2H
+            - link "49 回答 普陀山景区门票价格，船票价格是多少 2024/11/09 YoYo_8X6S8N4N" [ref=e375] [cursor=pointer]:
+              - /url: /asks/detail?askId=10051209
+              - generic [ref=e377]:
+                - paragraph [ref=e378]: "49"
+                - paragraph [ref=e379]: 回答
+              - heading "普陀山景区门票价格，船票价格是多少" [level=2] [ref=e381]
+              - generic [ref=e382]:
+                - paragraph [ref=e383]: 2024/11/09
+                - button "YoYo_8X6S8N4N" [ref=e384]:
+                  - generic [ref=e385]: YoYo_8X6S8N4N
+            - 'link "39 回答 #恒和精选S·设计酒店（广州新市百信广场店)#酒店卫生怎么样？干净不干净？ 2024/07/04 小胖老公" [ref=e386] [cursor=pointer]':
+              - /url: /asks/detail?askId=9698897
+              - generic [ref=e388]:
+                - paragraph [ref=e389]: "39"
+                - paragraph [ref=e390]: 回答
+              - heading "#恒和精选S·设计酒店（广州新市百信广场店)#酒店卫生怎么样？干净不干净？" [level=2] [ref=e392]
+              - generic [ref=e393]:
+                - paragraph [ref=e394]: 2024/07/04
+                - button "小胖老公" [ref=e395]:
+                  - generic [ref=e396]: 小胖老公
+            - link "8 回答 在网上购买了vip套票，去玩的时候还需要去人工处预约吗，我买了8点-12点，是任意时间都可以进去吗 2024/07/09 YoYo_6Y4Z6M6U" [ref=e397] [cursor=pointer]:
+              - /url: /asks/detail?askId=9715964
+              - generic [ref=e399]:
+                - paragraph [ref=e400]: "8"
+                - paragraph [ref=e401]: 回答
+              - heading "在网上购买了vip套票，去玩的时候还需要去人工处预约吗，我买了8点-12点，是任意时间都可以进去吗" [level=2] [ref=e403]
+              - generic [ref=e404]:
+                - paragraph [ref=e405]: 2024/07/09
+                - button "YoYo_6Y4Z6M6U" [ref=e406]:
+                  - generic [ref=e407]: YoYo_6Y4Z6M6U
+            - generic [ref=e409]:
+              - generic [ref=e410]: 上一页
+              - link "1" [ref=e411] [cursor=pointer]:
+                - /url: /asks
+              - link "2" [ref=e412] [cursor=pointer]:
+                - /url: /asks/p2
+              - link "3" [ref=e413] [cursor=pointer]:
+                - /url: /asks/p3
+              - link "4" [ref=e414] [cursor=pointer]:
+                - /url: /asks/p4
+              - link "5" [ref=e415] [cursor=pointer]:
+                - /url: /asks/p5
+              - link "6" [ref=e416] [cursor=pointer]:
+                - /url: /asks/p6
+              - link "7" [ref=e417] [cursor=pointer]:
+                - /url: /asks/p7
+              - generic [ref=e418]: ...
+              - link "50" [ref=e419] [cursor=pointer]:
+                - /url: /asks/p50
+              - link "下一页" [ref=e420] [cursor=pointer]:
+                - /url: /asks/p2
+    - generic [ref=e424]:
+      - generic [ref=e425]:
+        - generic [ref=e427]:
+          - term [ref=e428]: 旅游资讯
+          - definition [ref=e429]:
+            - link "宾馆索引" [ref=e430] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/jiudian/
+          - definition [ref=e431]:
+            - link "攻略索引" [ref=e432] [cursor=pointer]:
+              - /url: https://you.ctrip.com/sitemap/
+          - definition [ref=e433]:
+            - link "机票索引" [ref=e434] [cursor=pointer]:
+              - /url: https://flights.ctrip.com/booking/hot-city-flights-sitemap.html
+          - definition [ref=e435]:
+            - link "网站导航" [ref=e436] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/sitemap.htm
+          - definition [ref=e437]:
+            - link "旅游索引" [ref=e438] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/dj.html
+          - definition [ref=e439]:
+            - link "邮轮索引" [ref=e440] [cursor=pointer]:
+              - /url: https://cruise.ctrip.com/newpackage/hot-all-sitemap.html
+          - definition [ref=e441]:
+            - link "企业差旅索引" [ref=e442] [cursor=pointer]:
+              - /url: https://ct.ctrip.com/official?ctm_ref=sme006
+        - generic [ref=e444]:
+          - term [ref=e445]: 加盟合作
+          - definition [ref=e446]:
+            - link "分销联盟" [ref=e447] [cursor=pointer]:
+              - /url: https://u.ctrip.com/
+          - definition [ref=e448]:
+            - link "友情链接" [ref=e449] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/link/ctrip_link.html
+          - definition [ref=e450]:
+            - link "企业礼品卡采购" [ref=e451] [cursor=pointer]:
+              - /url: https://lipin.ctrip.com/lipinonline/static/intentional
+          - definition [ref=e452]:
+            - link "保险代理" [ref=e453] [cursor=pointer]:
+              - /url: https://www.ctripins.com/index.html
+          - definition [ref=e454]:
+            - link "代理合作" [ref=e455] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/dlhz.htm
+          - definition [ref=e456]:
+            - link "酒店加盟" [ref=e457] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/list-your-property/?channel=1
+          - definition [ref=e458]:
+            - link "目的地及景区合作" [ref=e459] [cursor=pointer]:
+              - /url: https://dst.ctrip.com/
+          - definition [ref=e460]:
+            - link "更多加盟合作" [ref=e461] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/cooperation/web/cooperation.html#ctm_ref=ctr_hp_btm_coop
+        - generic [ref=e463]:
+          - term [ref=e464]: 关于携程
+          - definition [ref=e465]:
+            - link "关于携程" [ref=e466] [cursor=pointer]:
+              - /url: https://m.ctrip.com/webapp/you/tsnap/mtk/aboutCtripW.html?isHideNavBar=yes&pop=close&autoawaken=close
+          - definition [ref=e467]:
+            - generic [ref=e469]:
+              - text: 携程热点
+              - generic [ref=e470]: 󰪊
+          - definition [ref=e471]:
+            - link "联系我们" [ref=e472] [cursor=pointer]:
+              - /url: http://pages.ctrip.com/public/contact.htm
+          - definition [ref=e473]:
+            - link "诚聘英才" [ref=e474] [cursor=pointer]:
+              - /url: https://careers.ctrip.com/
+          - definition [ref=e475]:
+            - link "用户协议" [ref=e476] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=0
+          - definition [ref=e477]:
+            - link "隐私政策" [ref=e478] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=1
+          - definition [ref=e479]:
+            - link "营业执照" [ref=e480] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/diploma/company.htm
+          - definition [ref=e481]:
+            - link "安全中心" [ref=e482] [cursor=pointer]:
+              - /url: http://sec.ctrip.com/
+          - definition [ref=e483]:
+            - link "携程内容中心" [ref=e484] [cursor=pointer]:
+              - /url: https://we.ctrip.com/account/login
+          - definition [ref=e485]:
+            - link "知识产权" [ref=e486] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/public/encroachment.html
+          - definition [ref=e487]:
+            - link "Trip.com Group" [ref=e488] [cursor=pointer]:
+              - /url: https://group.trip.com/
+        - definition [ref=e491]:
+          - paragraph [ref=e493]: 扫码下载携程App
+      - generic [ref=e494]:
+        - paragraph [ref=e495]:
+          - link "Copyright©" [ref=e496] [cursor=pointer]:
+            - /url: http://pages.ctrip.com/public/copyright.htm
+          - text: 1999-2026,
+          - link "ctrip.com" [ref=e497] [cursor=pointer]:
+            - /url: http://www.ctrip.com/
+          - text: . All rights reserved. |
+          - link "ICP证：沪B2-20050130 |" [ref=e498] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/icp.pdf?t=20220325
+          - link "沪ICP备08023580号-3 |" [ref=e499] [cursor=pointer]:
+            - /url: http://beian.miit.gov.cn/
+          - link "网信算备310105117481904230015号" [ref=e500] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/wxsb/310105117481904230015.pdf
+        - paragraph [ref=e501]:
+          - link "沪公网备31010502002731号" [ref=e502] [cursor=pointer]:
+            - /url: http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010502002731
+            - text: 沪公网备31010502002731号
+          - text: 丨
+          - link "互联网药品信息服务资格证" [ref=e504] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/InternetDrugCertificate.pdf
+          - text: 丨
+          - link "（沪）网械平台备字[2022]第00001号" [ref=e505] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/yiliao.pdf?xx=11
+          - text: "| 沪网食备1050001号 |"
+          - link "旅游度假资质" [ref=e506] [cursor=pointer]:
+            - /url: http://m.ctrip.com/webapp/vacations/tour/supplier
+          - text: "|"
+          - link "平台信息" [ref=e507] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/cert.html
+        - paragraph [ref=e508]:
+          - generic [ref=e509]: 违法和不良信息举报电话021-22500846丨全国旅游投诉热线12345丨
+          - link "上海市旅游网站落实诚信建设主体责任承诺书" [ref=e510] [cursor=pointer]:
+            - /url: http://pages.c-ctrip.com/commerce/promote/201611/other/zz/pc/index.html
+        - generic [ref=e511]:
+          - link "上海市监" [ref=e512] [cursor=pointer]:
+            - /url: http://scjgj.sh.gov.cn/
+          - link "网络社会征信网" [ref=e513] [cursor=pointer]:
+            - /url: http://www.zx110.org/
+          - link "信息举报中心" [ref=e514] [cursor=pointer]:
+            - /url: http://www.shjbzx.cn/
+          - link "可信网站" [ref=e515] [cursor=pointer]:
+            - /url: https://ss.knet.cn/verifyseal.dll?sn=e12061531010025926306977
+        - generic [ref=e516]:
+          - link "信用中国" [ref=e517] [cursor=pointer]:
+            - /url: http://www.creditchina.gov.cn/
+          - link "网上有害信息举报专区" [ref=e518] [cursor=pointer]:
+            - /url: https://www.12377.cn/
+          - link "消费维权联络点" [ref=e519] [cursor=pointer]:
+            - /url: https://im-synthesize.ctrip.com/complaints/rights/AppealCreate
+          - generic "适老化及无障碍标识" [ref=e520]

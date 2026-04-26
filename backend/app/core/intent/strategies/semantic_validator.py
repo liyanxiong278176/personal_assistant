@@ -51,7 +51,7 @@ class SemanticValidator:
     def __init__(
         self,
         llm_client=None,
-        model: str = "deepseek-chat",
+        model: str = "deepseek-v4-flash",
         min_confidence: float = 0.7,  # Minimum confidence to trigger validation
         timeout: int = 15,  # Shorter timeout for validation
     ):

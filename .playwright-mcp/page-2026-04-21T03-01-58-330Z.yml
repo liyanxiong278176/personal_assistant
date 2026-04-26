@@ -1,0 +1,471 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - heading "🚀 提示词模板管道架构流程图" [level=1] [ref=e3]
+    - paragraph [ref=e4]: Travel Assistant Backend - 完整工作流程可视化
+  - generic [ref=e5]:
+    - heading "1️⃣ 整体架构概览" [level=2] [ref=e6]
+    - generic [ref=e7]:
+      - strong [ref=e8]: 核心组件关系图：
+      - text: 展示QueryEngine、IntentRouter、PromptService、Provider等组件的调用关系
+    - document [ref=e10]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e18]: 持久化层
+          - generic [ref=e23]: 模板提供层
+          - generic [ref=e28]: 提示词管理层
+          - generic [ref=e33]: 意图识别层
+          - generic [ref=e38]: 总控层
+          - generic [ref=e43]: 用户交互层
+        - generic [ref=e62]:
+          - generic [ref=e68]:
+            - text: prompts.yaml
+            - text: 配置文件
+          - generic [ref=e74]:
+            - text: itinerary.yaml
+            - text: Few-shot示例
+          - generic [ref=e80]:
+            - text: itinerary.md
+            - text: 模板文件
+          - generic [ref=e86]:
+            - text: user.md
+            - text: 记忆文件
+          - generic [ref=e92]:
+            - text: TemplateProvider
+            - text: 内存模板
+          - generic [ref=e98]:
+            - text: _LoaderProvider
+            - text: 热更新桥接
+          - generic [ref=e104]:
+            - text: PromptService
+            - text: 提示词服务
+          - generic [ref=e110]:
+            - text: PromptBuilder
+            - text: 层级构建器
+          - generic [ref=e116]:
+            - text: PromptConfigLoader
+            - text: 热更新加载器
+          - generic [ref=e122]:
+            - text: TemplateRenderer
+            - text: 结构化渲染器
+          - generic [ref=e128]:
+            - text: ExamplesLoader
+            - text: 示例加载器
+          - generic [ref=e134]:
+            - text: IntentRouter
+            - text: 意图路由器
+          - generic [ref=e140]:
+            - text: CacheStrategy
+            - text: 缓存策略
+          - generic [ref=e146]:
+            - text: RuleStrategy
+            - text: 规则策略
+          - generic [ref=e152]:
+            - text: LLMStrategy
+            - text: LLM策略
+          - generic [ref=e158]:
+            - text: QueryEngine
+            - text: 总控中心
+          - generic [ref=e163]: 用户请求
+          - generic [ref=e168]: 响应输出
+          - generic [ref=e173]: LLMClient
+          - generic [ref=e178]: ToolExecutor
+          - generic [ref=e183]: 外部API
+  - generic [ref=e184]:
+    - heading "2️⃣ QueryEngine初始化流程" [level=2] [ref=e185]
+    - generic [ref=e186]:
+      - strong [ref=e187]: 初始化序列：
+      - text: 从应用启动到QueryEngine完全就绪的30+步骤
+    - document [ref=e189]:
+      - generic [ref=e192]: PromptService
+      - generic [ref=e195]: PromptBuilder
+      - generic [ref=e198]: IntentRouter
+      - generic [ref=e201]: LLMClient
+      - generic [ref=e204]: QueryEngine
+      - generic [ref=e207]: 应用启动
+      - generic [ref=e211]: PromptService
+      - generic [ref=e215]: PromptBuilder
+      - generic [ref=e219]: IntentRouter
+      - generic [ref=e223]: LLMClient
+      - generic [ref=e227]: QueryEngine
+      - generic [ref=e231]: 应用启动
+      - generic [ref=e234]: Cache + Rule + LLM策略
+      - generic [ref=e235]:
+        - generic [ref=e237]: 构建四层级
+        - generic [ref=e238]: DEFAULT→MEMORY→TOOLS
+      - generic [ref=e239]:
+        - generic [ref=e241]: PromptBuilder +
+        - generic [ref=e242]: TemplateRenderer +
+        - generic [ref=e243]: ExamplesLoader
+      - generic [ref=e244]: __init__(llm_client, prompt_config_path)
+      - generic [ref=e245]: 初始化LLM客户端
+      - generic [ref=e246]: 创建IntentRouter(3策略)
+      - generic [ref=e247]: _init_prompt_builder()
+      - generic [ref=e248]: 创建PromptService
+      - generic [ref=e249]: ✅ 初始化完成
+      - generic [ref=e250]: 工具=5 | 策略=3 | 层级=4
+    - document [ref=e252]:
+      - generic [ref=e254]:
+        - generic [ref=e264]:
+          - generic [ref=e268]: "Yes"
+          - generic [ref=e272]: "No"
+          - generic [ref=e276]: "Yes"
+          - generic [ref=e280]: "No"
+        - generic [ref=e281]:
+          - generic [ref=e286]: PromptBuilder初始化
+          - generic [ref=e291]: 外部传入custom_prompt?
+          - generic [ref=e297]:
+            - text: OVERRIDE层
+            - text: 优先级=0
+            - text: 完全替换
+          - generic [ref=e303]:
+            - text: DEFAULT层
+            - text: 优先级=50
+            - text: DEFAULT_SYSTEM_PROMPT
+          - generic [ref=e309]:
+            - text: 加载记忆文件
+            - text: load_memory_files
+          - generic [ref=e314]: 记忆文件存在?
+          - generic [ref=e320]:
+            - text: MEMORY层
+            - text: 优先级=75
+            - text: user.md/project.md/team.md
+          - generic [ref=e325]: ���过MEMORY层
+          - generic [ref=e331]:
+            - text: 加载工具描述
+            - text: _get_tools_description
+          - generic [ref=e337]:
+            - text: APPEND层
+            - text: 优先级=100
+            - text: 工具使用规则
+          - generic [ref=e342]: 返回PromptBuilder实例
+  - generic [ref=e343]:
+    - heading "3️⃣ 用户请求处理流程" [level=2] [ref=e344]
+    - generic [ref=e345]:
+      - strong [ref=e346]: 并发控制与会话隔离：
+      - text: UC3-1/UC3-2安全机制 + 灰度决策 + 最多5次重试
+    - document [ref=e348]:
+      - generic [ref=e351]: LLM
+      - generic [ref=e354]: PromptService
+      - generic [ref=e357]: IntentRouter
+      - generic [ref=e360]: Canary灰度
+      - generic [ref=e363]: SessionLock互斥锁
+      - generic [ref=e366]: Semaphore并发锁
+      - generic [ref=e369]: QueryEngine
+      - generic [ref=e372]: 用户
+      - generic [ref=e376]: LLM
+      - generic [ref=e380]: PromptService
+      - generic [ref=e384]: IntentRouter
+      - generic [ref=e388]: Canary灰度
+      - generic [ref=e392]: SessionLock互斥锁
+      - generic [ref=e396]: Semaphore并发锁
+      - generic [ref=e400]: QueryEngine
+      - generic [ref=e404]: 用户
+      - generic [ref=e405]: process(user_input, conv_id)
+      - generic [ref=e406]: acquire() 最大并发100
+      - generic [ref=e407]: acquire() 同一会话串行化
+      - generic [ref=e408]: decide_version(user_id)
+      - generic [ref=e409]: classify(user_input)
+      - generic [ref=e410]: IntentResult(intent="itinerary")
+      - generic [ref=e411]: render(intent, context)
+      - generic [ref=e412]: 最终提示词
+      - generic [ref=e413]: stream(提示词+用户消息)
+      - generic [ref=e414]: 流式响应片段
+      - generic [ref=e415]: release()
+      - generic [ref=e416]: release()
+    - document [ref=e419]:
+      - generic [ref=e420]:
+        - generic [ref=e427]: Syntax error in text
+        - generic [ref=e428]: mermaid version 10.9.5
+    - table [ref=e429]:
+      - rowgroup [ref=e430]:
+        - row "策略 响应时间 准确度 成本 适用场景" [ref=e431]:
+          - columnheader "策略" [ref=e432]
+          - columnheader "响应时间" [ref=e433]
+          - columnheader "准确度" [ref=e434]
+          - columnheader "成本" [ref=e435]
+          - columnheader "适用场景" [ref=e436]
+        - row "CacheStrategy ~1ms 100% 0 重复请求快速响应" [ref=e437]:
+          - cell "CacheStrategy" [ref=e438]
+          - cell "~1ms" [ref=e439]
+          - cell "100%" [ref=e440]
+          - cell "0" [ref=e441]
+          - cell "重复请求快速响应" [ref=e442]
+        - row "RuleStrategy ~5ms 90% 0 明确关键词意图" [ref=e443]:
+          - cell "RuleStrategy" [ref=e444]
+          - cell "~5ms" [ref=e445]
+          - cell "90%" [ref=e446]
+          - cell "0" [ref=e447]
+          - cell "明确关键词意图" [ref=e448]
+        - row "LLMStrategy ~200ms 85% API调用费 模糊/复杂意图" [ref=e449]:
+          - cell "LLMStrategy" [ref=e450]
+          - cell "~200ms" [ref=e451]
+          - cell "85%" [ref=e452]
+          - cell "API调用费" [ref=e453]
+          - cell "模糊/复杂意图" [ref=e454]
+  - generic [ref=e455]:
+    - heading "4️⃣ PromptService.render核心流程" [level=2] [ref=e456]
+    - generic [ref=e457]:
+      - strong [ref=e458]: 5步骤渲染过程：
+      - text: 1.填充元数据 → 2.构建系统提示词 → 3.获取模板 → 4.渲染模板 → 5.组合
+    - document [ref=e460]:
+      - generic [ref=e463]: ExamplesLoader
+      - generic [ref=e466]: TemplateRenderer
+      - generic [ref=e469]: Provider
+      - generic [ref=e472]: PromptBuilder
+      - generic [ref=e475]: PromptConfigLoader
+      - generic [ref=e478]: PromptService
+      - generic [ref=e481]: QueryEngine
+      - generic [ref=e485]: ExamplesLoader
+      - generic [ref=e489]: TemplateRenderer
+      - generic [ref=e493]: Provider
+      - generic [ref=e497]: PromptBuilder
+      - generic [ref=e501]: PromptConfigLoader
+      - generic [ref=e505]: PromptService
+      - generic [ref=e509]: QueryEngine
+      - generic [ref=e512]: "Step1: 填充意图元数据"
+      - generic [ref=e515]: "Step2: 构建系统提示词"
+      - generic [ref=e518]: "Step3: 获取模板"
+      - generic [ref=e521]: "Step4: 渲染模板"
+      - generic [ref=e524]: "Step5: 组合最终提示词"
+      - generic [ref=e525]: render(intent="itinerary", context)
+      - generic [ref=e526]: get_output_format(intent)
+      - generic [ref=e527]: "\"structured\""
+      - generic [ref=e528]: get_few_shot_config(intent)
+      - generic [ref=e529]: (enabled=true, count=3)
+      - generic [ref=e530]: build()
+      - generic [ref=e531]: system_prompt (≈800 chars)
+      - generic [ref=e532]: get_template(intent)
+      - generic [ref=e533]: PromptTemplate
+      - generic [ref=e534]: render(template, context)
+      - generic [ref=e535]: get_examples(intent)
+      - generic [ref=e536]: 3条示例
+      - generic [ref=e537]: rendered_template (≈1500 chars)
+      - generic [ref=e538]: 最终提示词 (≈2300 chars)
+    - document [ref=e541]:
+      - generic [ref=e542]:
+        - generic [ref=e549]: Syntax error in text
+        - generic [ref=e550]: mermaid version 10.9.5
+  - generic [ref=e551]:
+    - heading "5️⃣ 热更新检测机制" [level=2] [ref=e552]
+    - generic [ref=e553]:
+      - strong [ref=e554]: 双缓存机制：
+      - text: 配置缓存(prompts.yaml) + 模板缓存(template.md)，基于文件mtime检测
+    - document [ref=e557]:
+      - generic [ref=e558]:
+        - generic [ref=e565]: Syntax error in text
+        - generic [ref=e566]: mermaid version 10.9.5
+    - document [ref=e568]:
+      - generic [ref=e569]:
+        - generic [ref=e572]: 0秒
+        - generic [ref=e574]: 5秒
+        - generic [ref=e576]: 10秒
+        - generic [ref=e578]: 15秒
+        - generic [ref=e580]: 20秒
+        - generic [ref=e582]: 25秒
+        - generic [ref=e584]: 30秒
+        - generic [ref=e586]: 35秒
+        - generic [ref=e588]: 40秒
+      - generic [ref=e601]:
+        - generic [ref=e611]: 加载YAML配置
+        - generic [ref=e612]: 记录last_mtime
+        - generic [ref=e613]: 用户请求1
+        - generic [ref=e614]: 检测mtime
+        - generic [ref=e615]: 使用缓存响应
+        - generic [ref=e616]: 编辑prompts.yaml
+        - generic [ref=e617]: mtime变化
+        - generic [ref=e618]: 用户请求2
+        - generic [ref=e619]: 检测mtime变化
+        - generic [ref=e620]: 重新加载YAML
+        - generic [ref=e621]: 使用新配置响应
+      - generic [ref=e622]:
+        - generic [ref=e623]: 初始化阶段
+        - generic [ref=e624]: 运行时阶段
+        - generic [ref=e625]: 修改阶段
+        - generic [ref=e626]: 热更新生效
+      - generic [ref=e627]: 热更新检测时间线
+  - generic [ref=e628]:
+    - heading "6️⃣ RequestContext数据流转" [level=2] [ref=e629]
+    - generic [ref=e630]:
+      - strong [ref=e631]: 数据组装过程：
+      - text: 用户消息 → IntentResult → SlotResult → MemoryList → RequestContext
+    - document [ref=e634]:
+      - generic [ref=e635]:
+        - generic [ref=e642]: Syntax error in text
+        - generic [ref=e643]: mermaid version 10.9.5
+    - document [ref=e645]:
+      - generic [ref=e657]:
+        - generic [ref=e663]:
+          - text: DEFAULT层
+          - text: 你是旅游助手...
+        - generic [ref=e668]: system_prompt
+        - generic [ref=e674]:
+          - text: MEMORY层
+          - text: 用户偏好...
+        - generic [ref=e680]:
+          - text: APPEND层
+          - text: 工具规则...
+        - generic [ref=e686]:
+          - text: role区块
+          - text: 行程规划专家
+        - generic [ref=e691]: rendered_template
+        - generic [ref=e697]:
+          - text: rules区块
+          - text: 优先级排序
+        - generic [ref=e703]:
+          - text: examples区块
+          - text: 3条示例
+        - generic [ref=e709]:
+          - text: output_format区块
+          - text: 输出约束
+        - generic [ref=e715]:
+          - text: 最终组合
+          - text: system_prompt +
+          - text: rendered_template
+        - generic [ref=e721]:
+          - text: 最终提示词
+          - text: ≈2300 chars
+  - generic [ref=e722]:
+    - heading "7️⃣ 实际渲染示例：行程规划" [level=2] [ref=e723]
+    - generic [ref=e724]:
+      - strong [ref=e725]: 完整示例：
+      - text: "\"我想去杭州3天，预算2000元\" → 最终提示词"
+    - document [ref=e727]:
+      - generic [ref=e730]:
+        - generic [ref=e736]:
+          - text: 用户输入
+          - text: 我想去杭州3天，预算2000元
+        - generic [ref=e742]:
+          - text: IntentRouter识别
+          - text: intent=itinerary
+          - text: confidence=0.95
+        - generic [ref=e748]:
+          - text: SlotExtractor提取
+          - text: destination=杭州
+          - text: days=3
+          - text: budget=2000元
+        - generic [ref=e754]:
+          - text: MemoryService检索
+          - text: 用户偏好经济游
+        - generic [ref=e760]:
+          - text: PromptConfigLoader配置
+          - text: output_format=structured
+          - text: examples_enabled=true
+          - text: few_shot_count=3
+        - generic [ref=e766]:
+          - text: PromptBuilder构建
+          - text: DEFAULT+MEMORY+TOOLS层
+        - generic [ref=e772]:
+          - text: TemplateRenderer渲染
+          - text: role+rules+examples+format
+        - generic [ref=e778]:
+          - text: 变量注入
+          - text: user_message+slots+memories
+        - generic [ref=e784]:
+          - text: 最终提示词
+          - text: ≈2300 chars
+    - document [ref=e786]:
+      - generic [ref=e788]:
+        - generic [ref=e789]:
+          - generic [ref=e794]: "Step4: 最终组合"
+          - generic [ref=e799]: "Step3: 变量注入"
+          - generic [ref=e804]: "Step2: 模板区块"
+          - generic [ref=e809]: "Step1: 系统提示词"
+        - generic [ref=e823]:
+          - generic [ref=e828]: 最终提示词
+          - generic [ref=e833]: rendered_template
+          - generic [ref=e839]:
+            - text: user_message
+            - text: 我想去杭州3天
+          - generic [ref=e845]:
+            - text: slots
+            - text: 目的地杭州/天数3
+          - generic [ref=e851]:
+            - text: memories
+            - text: 偏好经济游
+          - generic [ref=e856]: 区块组合
+          - generic [ref=e862]:
+            - text: role
+            - text: 行程规划专家
+          - generic [ref=e868]:
+            - text: rules
+            - text: 优先级规则
+          - generic [ref=e874]:
+            - text: examples
+            - text: 3条示例
+          - generic [ref=e880]:
+            - text: format
+            - text: 输出格式
+          - generic [ref=e885]: system_prompt
+          - generic [ref=e891]:
+            - text: DEFAULT层
+            - text: 你是旅游助手AI
+          - generic [ref=e897]:
+            - text: MEMORY层
+            - text: 用户偏好经济游
+          - generic [ref=e903]:
+            - text: TOOLS层
+            - text: 工具使用规则
+  - generic [ref=e904]:
+    - heading "📊 性能指标总结" [level=2] [ref=e905]
+    - table [ref=e906]:
+      - rowgroup [ref=e907]:
+        - row "阶段 平均耗时 主要开销 优化措施" [ref=e908]:
+          - columnheader "阶段" [ref=e909]
+          - columnheader "平均耗时" [ref=e910]
+          - columnheader "主要开销" [ref=e911]
+          - columnheader "优化措施" [ref=e912]
+        - row "IntentRouter 5-200ms LLM策略API调用 Cache/Rule优先" [ref=e913]:
+          - cell "IntentRouter" [ref=e914]
+          - cell "5-200ms" [ref=e915]
+          - cell "LLM策略API调用" [ref=e916]
+          - cell "Cache/Rule优先" [ref=e917]
+        - row "PromptBuilder 1ms 内存组装 预构建实例" [ref=e918]:
+          - cell "PromptBuilder" [ref=e919]
+          - cell "1ms" [ref=e920]
+          - cell "内存组装" [ref=e921]
+          - cell "预构建实例" [ref=e922]
+        - row "PromptConfigLoader 1-50ms mtime检测+YAML解析 双缓存机制" [ref=e923]:
+          - cell "PromptConfigLoader" [ref=e924]
+          - cell "1-50ms" [ref=e925]
+          - cell "mtime检测+YAML解析" [ref=e926]
+          - cell "双缓存机制" [ref=e927]
+        - row "TemplateRenderer 10ms 区块解析+变量注入 预编译正则" [ref=e928]:
+          - cell "TemplateRenderer" [ref=e929]
+          - cell "10ms" [ref=e930]
+          - cell "区块解析+变量注入" [ref=e931]
+          - cell "预编译正则" [ref=e932]
+        - row "整体渲染 12-260ms 配置热更新检测 缓存命中率>90%" [ref=e933]:
+          - cell "整体渲染" [ref=e934]
+          - cell "12-260ms" [ref=e935]
+          - cell "配置热更新检测" [ref=e936]
+          - cell "缓存命中率>90%" [ref=e937]
+  - generic [ref=e938]:
+    - heading "🎯 关键设计决策" [level=2] [ref=e939]
+    - document [ref=e941]:
+      - generic [ref=e945]:
+        - generic [ref=e950]: "决策1: 四层优先级"
+        - generic [ref=e956]:
+          - text: OVERRIDE=0
+          - text: DEFAULT=50
+          - text: MEMORY=75
+          - text: APPEND=100
+        - generic [ref=e962]:
+          - text: "优势: 清晰优先级"
+          - text: 防止覆盖
+          - text: 灵活扩展
+        - generic [ref=e967]: "决策2: 双缓存热更新"
+        - generic [ref=e973]:
+          - text: mtime检测
+          - text: 配置缓存+模板缓存
+        - generic [ref=e979]:
+          - text: "优势: 零停机更新"
+          - text: 精确到毫秒
+          - text: 内存高效
+        - generic [ref=e984]: "决策3: 结构化区块"
+        - generic [ref=e990]:
+          - text: role/rules/examples
+          - text: output_format
+        - generic [ref=e996]:
+          - text: "优势: 结构清晰"
+          - text: 可维护性强
+          - text: 条件注入

@@ -1,0 +1,107 @@
+{
+  "source": "beijing_p1",
+  "scraped_at": "2026-04-22T07:50:42.168Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "适合八十岁老人去吗",
+      "answers": 175,
+      "url": "https://you.ctrip.com/asks/detail?askId=9919010"
+    },
+    {
+      "query": "天安门城楼预约不了呢？",
+      "answers": 20,
+      "url": "https://you.ctrip.com/asks/detail?askId=9520711"
+    },
+    {
+      "query": "第一天想去广东省博物馆，图书馆，海心沙广州塔，第二天想去沙面，北京路，永庆坊陈家祠，请问如何安排？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=9046012"
+    },
+    {
+      "query": "买了这个博物馆门票，还需要预约参观清华大学的门票吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=9716168"
+    },
+    {
+      "query": "#汉庭酒店(北京国贸建国门地铁站店)#3个人可以住大床房吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13694807"
+    },
+    {
+      "query": "#北京华侨夜泊君亭酒店#通过Expedia订的入住。费用已经交付了。入住的时候应该不会有额外的费用resort fee之类的",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14261068"
+    },
+    {
+      "query": "#硕果MAX酒店（北京上地产业园清河高铁站店）#冬天有暖气吗",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=12893825"
+    },
+    {
+      "query": "#北京贵宾楼饭店#步行去故宫多久",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13752034"
+    },
+    {
+      "query": "买票了，没带身份证可以进去吗",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=9492470"
+    },
+    {
+      "query": "14岁未成年人怎么买票呢？",
+      "answers": 42,
+      "url": "https://you.ctrip.com/asks/detail?askId=9672920"
+    },
+    {
+      "query": "#奥慧宾馆（北京鸟巢店）#标准间有独立卫浴没",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=10504603"
+    },
+    {
+      "query": "#hoco好客舒旅酒店（北京站国贸店）#凌晨2点起床看升国旗，好打车吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12683402"
+    },
+    {
+      "query": "博物馆里面有可以暂时存放东西的地方吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15281247"
+    },
+    {
+      "query": "#北京万诺酒店(首都机场新国展店)#您好酒店是新装修的吗？房间里有没有甲醛味",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15022258"
+    },
+    {
+      "query": "北京人民大会堂需要预约吗？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14758749"
+    },
+    {
+      "query": "#秋果酒店（北京复兴门中央音乐学院店）#隔音怎么样？床舒服吗？",
+      "answers": 17,
+      "url": "https://you.ctrip.com/asks/detail?askId=12260171"
+    },
+    {
+      "query": "今天去北海公园需要预约吗",
+      "answers": 14,
+      "url": "https://you.ctrip.com/asks/detail?askId=15687225"
+    },
+    {
+      "query": "去雍和宫需要提前预约门票吗？怎么预约？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=15509474"
+    },
+    {
+      "query": "#wohkoon者行孙青年酒店（北京国贸SKP店）#有暖气吗，晚上会不会冷",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=13974064"
+    },
+    {
+      "query": "#维也纳国际酒店(北京劲松双井地铁站店)#隔音好吗，我见有不少评论说隔音一般",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12478694"
+    }
+  ]
+}

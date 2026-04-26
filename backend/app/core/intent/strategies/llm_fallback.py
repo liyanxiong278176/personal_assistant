@@ -19,7 +19,7 @@ from app.core.context import RequestContext, IntentResult
 
 logger = logging.getLogger(__name__)
 
-# Classification prompt template - optimized for structured output
+# Classification prompt template - restored original with chat fix
 _CLASSIFICATION_PROMPT = """你是一个旅游助手意图分类专家。分析用户消息，判断用户意图。
 
 用户消息：{message}
@@ -38,7 +38,7 @@ _CLASSIFICATION_PROMPT = """你是一个旅游助手意图分类专家。分析�
 - food: 用户查询美食/餐厅（如"推荐美食"、"有什么好吃的"、"当地特色菜"）
 - budget: 用户询问预算/费用（如"预算多少"、"大概多少钱"、"花费"）
 - transport: 用户询问交通方式（如"怎么去"、"交通方式"、"坐高铁"、"坐飞机"）
-- chat: 普通对话、问候、闲聊（如"你好"、"谢谢"、"在吗"）
+- chat: 普通对话、问候、闲聊（如"你好"、"谢谢"、"在吗"）。注意：任何涉及旅游的短句都不是chat
 - image: 用户上传图片需要识别
 
 置信度说明：
@@ -62,7 +62,7 @@ class LLMStrategy:
     def __init__(
         self,
         llm_client=None,
-        model: str = "deepseek-chat",
+        model: str = "deepseek-v4-flash",
         timeout: int = 30,
         max_retries: int = 3,
     ):

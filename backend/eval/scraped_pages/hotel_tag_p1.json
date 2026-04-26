@@ -1,0 +1,107 @@
+{
+  "source": "hotel_tag_p1",
+  "scraped_at": "2026-04-22T07:51:25.636Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "#恒和精选S·设计酒店（广州新市百信广场店)#酒店卫生怎么样？干净不干净？",
+      "answers": 39,
+      "url": "https://you.ctrip.com/asks/detail?askId=9698897"
+    },
+    {
+      "query": "#潮州希居(韩文公祠广济桥江景店)#在酒店住宿打网约车方便吗",
+      "answers": 26,
+      "url": "https://you.ctrip.com/asks/detail?askId=14929901"
+    },
+    {
+      "query": "#丽智·S酒店(上饶铅山河口古镇店）#酒店周边有好玩的地方嘛",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12494319"
+    },
+    {
+      "query": "#南县宜和源大酒店（宝塔湖店）#请问酒店有早餐吗？可以延迟退房吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14233479"
+    },
+    {
+      "query": "#香港东涌福朋喜来登酒店#我在outlets，有免费大巴回酒店吗？在什么位置。",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14358914"
+    },
+    {
+      "query": "#巴黎中心埃菲尔铁塔阿德吉奥公寓酒店#酒店附近安全吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14471533"
+    },
+    {
+      "query": "#合和酒店#请问酒店会收取额外税费吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14577003"
+    },
+    {
+      "query": "#景德镇陶溪川铂格酒店（陶阳里步行街店）#酒店有烤红薯吗？是免费的吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14838025"
+    },
+    {
+      "query": "#金尚大酒店（长汀古城店）#酒店甲醛味重吗？",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=14892975"
+    },
+    {
+      "query": "#九寨沟丽呈华廷度假酒店#酒店到景区的接驳车会很多人坐吗？需不需要排队？最早的接驳车是几点？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15073544"
+    },
+    {
+      "query": "#弥勒蓝湖温泉度假酒店#从昆明机场坐机场大巴到弥勒可以直接到酒店吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477262"
+    },
+    {
+      "query": "#全季酒店（杭州西湖鼓楼店）#请问酒店附近还在施工吗？是不是还是很吵？房间隔音如何呢？谢谢！。",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14661532"
+    },
+    {
+      "query": "#南京维景国际酒店#酒店外卖有机器人送到房间嘛？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13095067"
+    },
+    {
+      "query": "#轻住酒店（红会医院南稍门地铁站店）#你好，请问酒店内有电梯嘛",
+      "answers": 12,
+      "url": "https://you.ctrip.com/asks/detail?askId=13100348"
+    },
+    {
+      "query": "#杭州天目山英迪格酒店#沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=13308695"
+    },
+    {
+      "query": "#星期8快捷酒店(盐城高铁站盐镇水街店)#你们酒店有没有早餐？有没有停车位？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13341687"
+    },
+    {
+      "query": "#益阳汇源大酒店（益阳火车站中心医院高新院区店）#酒店吵吗？隔音好不好",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13402464"
+    },
+    {
+      "query": "#长沙岳麓温德姆花园酒店#酒店附近地铁站上下有手扶电梯吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=13895370"
+    },
+    {
+      "query": "#猫的远方酒店（南京新街口地铁站德基广场店）#酒店安静么",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14216531"
+    },
+    {
+      "query": "#成都龙之梦大酒店#请问从天府机场t2去酒店方便吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=11962706"
+    }
+  ]
+}

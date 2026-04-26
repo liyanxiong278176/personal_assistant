@@ -1,0 +1,107 @@
+{
+  "source": "beijing_p3",
+  "scraped_at": "2026-04-22T07:50:52.909Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "买不到票谁有年卡 帮帮忙有偿的",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15957063"
+    },
+    {
+      "query": "#北京东方君悦大酒店#连续两晚是可以提早入住的吗？可以多早入住？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15887064"
+    },
+    {
+      "query": "#速8精选酒店（五棵松田村地铁站店）#住店停车收费吗",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=13276418"
+    },
+    {
+      "query": "#全季酒店（北京国际会展中心首都机场店）#有飞机噪音吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13477044"
+    },
+    {
+      "query": "#汉庭酒店(北京国贸建国门地铁站店)#到北京了，不知道住哪里，请这个店位置怎么样？算市中心吗？",
+      "answers": 2,
+      "url": "https://you.ctrip.com/asks/detail?askId=13494228"
+    },
+    {
+      "query": "#艺枫酒店（北京方庄地铁站2分店）#厕所玻璃会很透吗？带两个老年人怕不方便",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14253836"
+    },
+    {
+      "query": "#环球影城大酒店#提前入园写的俩成人，那一家三口怎么办？还有一个人不能一起进吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14383978"
+    },
+    {
+      "query": "#北京大兴国际机场木棉花 · 凯悦臻选酒店#从酒店到办理值机处的通道有暖气吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511863"
+    },
+    {
+      "query": "老人门票有优惠活动吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=11889074"
+    },
+    {
+      "query": "#和风景里四合院酒店（西单金融街店）#您好！如果打车的话，网约车能直接到贵店门口吗？还是需要定位到某个地点呢？我看着你们的地址，应该是胡…",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12064676"
+    },
+    {
+      "query": "可以骑自行车进去嘛",
+      "answers": 15,
+      "url": "https://you.ctrip.com/asks/detail?askId=12891474"
+    },
+    {
+      "query": "天安门怎么预约？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=9213413"
+    },
+    {
+      "query": "故宫讲解3小时，是故宫和大帅府吗，导游带着边走边讲吗，不走回头路",
+      "answers": 48,
+      "url": "https://you.ctrip.com/asks/detail?askId=9939958"
+    },
+    {
+      "query": "有行李寄存处吗",
+      "answers": 23,
+      "url": "https://you.ctrip.com/asks/detail?askId=10085015"
+    },
+    {
+      "query": "#希岸酒店(北京天安门广场前门步行街店)#有空调吗！！？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=10552318"
+    },
+    {
+      "query": "#汉庭酒店(北京天安门店)#已经预约这酒店，因为要凌晨带一个老人和两个孩子去红墙西排队看升旗，请问步行可以吗？多久？还是约红墙西",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10569051"
+    },
+    {
+      "query": "#麗枫酒店（北京中关村大钟寺地铁站店）#酒店有停车场吗，免费的吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10657685"
+    },
+    {
+      "query": "跟日本环球影城的区别是？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=10870633"
+    },
+    {
+      "query": "请问现在去北京旅游一个月需要带棉袄去吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=11142269"
+    },
+    {
+      "query": "#北京大兴国际机场城际酒店#请问机场去酒店班车上客点在哪里？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=11496516"
+    }
+  ]
+}

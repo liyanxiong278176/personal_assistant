@@ -1,0 +1,107 @@
+{
+  "source": "shanghai_p2",
+  "scraped_at": "2026-04-22T07:51:03.716Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "#莫泰酒店(上海外滩七浦路天潼路地铁站店)#套房在酒店什么位置 安静吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15165923"
+    },
+    {
+      "query": "#上海外滩雅致酒店#卫生怎么样？隔音好吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14985614"
+    },
+    {
+      "query": "#维也纳国际酒店(上海金沙江路长风公园店)#豪华双床房的浴室是透明的吗…？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14432368"
+    },
+    {
+      "query": "买票能开发票吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13423259"
+    },
+    {
+      "query": "#上海浦东国际机场铂爱国际酒店#請問最早可以幾點送去機場？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=13612311"
+    },
+    {
+      "query": "#枫溪小筑（上海乐高乐园度假区店）#请问新装修的 房间有味道吗？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10655449"
+    },
+    {
+      "query": "上海哪里适合看夜景",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=10990161"
+    },
+    {
+      "query": "#上海世博木棉花凯悦臻选酒店#请问下酒店卫生如何，本人有洁癖，担心脏会有床虱之类的",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=11308238"
+    },
+    {
+      "query": "携程上买的迪士尼的门票，可以在迪士尼官方app上关联，买早享卡么？",
+      "answers": 29,
+      "url": "https://you.ctrip.com/asks/detail?askId=9685324"
+    },
+    {
+      "query": "上海豫园有哪些值得一试的美食",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12160309"
+    },
+    {
+      "query": "#锦江之星(上海人民广场淮海东路店)#预定了房间，人没到，酒店可以提前接收我的快递吗？没有房间号怎么办？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15042258"
+    },
+    {
+      "query": "#繁花民宿#卫生怎么样",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=10626477"
+    },
+    {
+      "query": "#上海国际饭店#住酒店，买蝴蝶酥还限量吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15070900"
+    },
+    {
+      "query": "#如家酒店·neo(上海虹口足球场赤峰路地铁站店)#請問空調制熱給力嗎？天冷時房裡暖和嗎？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14916117"
+    },
+    {
+      "query": "#上海漫庭酒店(上海国际旅游度假区店)#请问这个酒店新装修，有味道吗？要带孩子去玩",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=14537775"
+    },
+    {
+      "query": "陆家嘴有哪些必打卡的观景台或高楼可以俯瞰城市全景？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=16001133"
+    },
+    {
+      "query": "买的门票是不是里面的项目都可以玩",
+      "answers": 10,
+      "url": "https://you.ctrip.com/asks/detail?askId=15280971"
+    },
+    {
+      "query": "#上海虹桥机场华港雅阁酒店#离机场这么近会不会很吵呀？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=16004500"
+    },
+    {
+      "query": "#上海浦东国际机场铂爱国际酒店#請問可以機場接送來回嗎？還是有限制次數，謝謝",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=13015940"
+    },
+    {
+      "query": "#上海国际旅游度假区洲际假日酒店#迪士尼班车去程时间表和回程表有吗？晚上不看烟花有提前回酒店的车吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14270433"
+    }
+  ]
+}

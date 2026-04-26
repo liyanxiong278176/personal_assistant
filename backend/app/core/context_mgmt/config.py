@@ -42,7 +42,7 @@ class ContextConfig:
     max_tool_result_chars: int = 4000
 
     # 摘要配置
-    summary_model: str = "deepseek-chat"
+    summary_model: str = "deepseek-v4-flash"
     max_summary_retries: int = 3
 
     # 核心规则文件

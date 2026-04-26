@@ -1,0 +1,107 @@
+{
+  "source": "hotel_tag_p2",
+  "scraped_at": "2026-04-22T07:51:31.072Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "#张家界天门山温德姆花园酒店#酒店管家服务包含哪些内容？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12171305"
+    },
+    {
+      "query": "#雪映居|Coffee Culture雪山·咖啡观景酒店（白沙古镇店）#自驾开车到酒店方便吗路是否狭窄，停车是否方便",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12521570"
+    },
+    {
+      "query": "#海口柒栖海景度假酒店（万绿园海口湾店）#酒店有餐厅吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=12639266"
+    },
+    {
+      "query": "#腾冲柏玉温泉酒店#这个酒店是新开的吗？",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=10573451"
+    },
+    {
+      "query": "#云汀花舍·花园轻奢酒店（普者黑村口公交站店）#酒店卫生吗？",
+      "answers": 9,
+      "url": "https://you.ctrip.com/asks/detail?askId=10600033"
+    },
+    {
+      "query": "#国宝熊猫酒店(春熙路天府广场店）#成都东站去这个酒店到哪个地铁站下方便",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=10602716"
+    },
+    {
+      "query": "#艺选酒店（武汉光谷步行街华中科技大学地铁站店）#你好，酒店可以开公司发票吗",
+      "answers": 29,
+      "url": "https://you.ctrip.com/asks/detail?askId=10674506"
+    },
+    {
+      "query": "#伊犁花城宾馆（六星街店）#酒店2018年装修的，现在房间装饰很旧吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=10716279"
+    },
+    {
+      "query": "#ALLIA阿利亚铂晶酒店（重庆杨家坪地铁站店）#这个酒店新开业的，有味道吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=11193196"
+    },
+    {
+      "query": "#月漫山禾｜日落晚霞·Coffee·设计师观景民宿（峨眉山零公里店）#坐城际高铁过来，怎么到酒店",
+      "answers": 8,
+      "url": "https://you.ctrip.com/asks/detail?askId=11259260"
+    },
+    {
+      "query": "#双塔市集TTD躺躺地酒店（平江路店）#酒店的床单枕头被套干净吗，会不会有什么奇怪的污渍啊，皮肤敏感的睡了会不会痒？",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=12290069"
+    },
+    {
+      "query": "#湛江花园酒店#酒店房间里的卫生间里的马桶有清洗屁股功能的智能马桶了吗",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=12373227"
+    },
+    {
+      "query": "#福州榕发会展假日酒店#酒店是否需要押金",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=15054837"
+    },
+    {
+      "query": "#海友酒店（丽江古城祥和商业广场店）#酒店房间有空调吗，能开暖风吗",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13670347"
+    },
+    {
+      "query": "#清远古龙峡古龙酒店#酒店可以停小车吗",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=14844465"
+    },
+    {
+      "query": "#杭州西湖黄龙新雅图酒店#1.我住的时候想把快递寄到酒店，再从酒店寄回去可以吗，\n2.能不能寄存行李",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15244967"
+    },
+    {
+      "query": "#汉庭酒店(黄山风景区南大门逍遥溪换乘中心店）#请问双床房还是大床房不临街? 酒店房间和对外的隔音还好吗？",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14912059"
+    },
+    {
+      "query": "#杭州友好饭店（西湖店）#这个酒店晚上安静吗？ 睡眠比较差的人比较担心",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14431304"
+    },
+    {
+      "query": "#额济纳旗嘉豪酒店#酒店床垫子是偏软还是偏硬？如果是偏软，酒店还有补救措施吗？比如将床垫翻过来用，或者酒店预备了硬床垫",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13426816"
+    },
+    {
+      "query": "#上海君澜度假酒店#酒店班车接送，入园和出园可以在迪士尼小镇的那个门吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14966994"
+    }
+  ]
+}

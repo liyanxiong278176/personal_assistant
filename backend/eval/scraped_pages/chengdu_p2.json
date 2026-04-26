@@ -1,0 +1,107 @@
+{
+  "source": "chengdu_p2",
+  "scraped_at": "2026-04-22T07:51:20.084Z",
+  "count": 20,
+  "questions": [
+    {
+      "query": "#成都太古里春熙美居酒店#离机场距离",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15067853"
+    },
+    {
+      "query": "#中建·锦江都城酒店（成都春熙路太古里店）#酒店有小冰箱吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=14680999"
+    },
+    {
+      "query": "#成都春熙路希尔顿花园酒店（太古里店）#这种低楼层的会吵吗？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511591"
+    },
+    {
+      "query": "#猫耳朵酒店（成都川大望江校区地铁站店）#2025年开业的，室内有装修味儿吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=13177873"
+    },
+    {
+      "query": "#丽斯未来酒店(成都春熙路天府广场店)#有没有洗衣机？床垫软不软",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=15158112"
+    },
+    {
+      "query": "#成都太古里春熙路地铁站亚朵X酒店#酒店位置怎么样啊？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=15281275"
+    },
+    {
+      "query": "#香熙酒店公寓(成都春熙路店)#卫生间内是顶喷还是花洒",
+      "answers": 50,
+      "url": "https://you.ctrip.com/asks/detail?askId=10659378"
+    },
+    {
+      "query": "#德立庄酒店（成都成华店）#是台湾那个德立庄吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=14942896"
+    },
+    {
+      "query": "#成都太古里春熙路地铁站亚朵X酒店#酒店周边好吃的多吗",
+      "answers": 6,
+      "url": "https://you.ctrip.com/asks/detail?askId=15691684"
+    },
+    {
+      "query": "#天港逸居智能酒店(成都双流机场航站楼店)#我早上8:25的飞机，酒店几点送机啊？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=14451748"
+    },
+    {
+      "query": "請問在杜甫草堂一般會停留多久時間？團體解說時間？",
+      "answers": 73,
+      "url": "https://you.ctrip.com/asks/detail?askId=9300700"
+    },
+    {
+      "query": "熊猫谷和这儿哪个更好，或者更适合去看。",
+      "answers": 18,
+      "url": "https://you.ctrip.com/asks/detail?askId=9635224"
+    },
+    {
+      "query": "从成都到九寨沟直通车几个小时到呀？",
+      "answers": 11,
+      "url": "https://you.ctrip.com/asks/detail?askId=9664323"
+    },
+    {
+      "query": "现在入园需要排队吗？",
+      "answers": 153,
+      "url": "https://you.ctrip.com/asks/detail?askId=9665911"
+    },
+    {
+      "query": "成都到四姑娘山的往返直通车票，是限当天往返吗？",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=9684582"
+    },
+    {
+      "query": "#成都春熙路希尔顿欢朋酒店#房间提供拖鞋吗？",
+      "answers": 4,
+      "url": "https://you.ctrip.com/asks/detail?askId=10726638"
+    },
+    {
+      "query": "锦里古街上如何选择特色小吃",
+      "answers": 7,
+      "url": "https://you.ctrip.com/asks/detail?askId=10898411"
+    },
+    {
+      "query": "#CLOUDS HOUSE成都观雲服务公寓（成都省体育馆来福士店）#可以延时退房吗",
+      "answers": 3,
+      "url": "https://you.ctrip.com/asks/detail?askId=14511333"
+    },
+    {
+      "query": "#耳语花园服务公寓(成都太古里春熙路店)#请问窗户能打开的吗？能开窗通风的吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=12814563"
+    },
+    {
+      "query": "#成都太古里春熙路地铁站亚朵X酒店#出租车可以开到问口吗？",
+      "answers": 5,
+      "url": "https://you.ctrip.com/asks/detail?askId=15210175"
+    }
+  ]
+}

@@ -1,0 +1,556 @@
+- generic [active] [ref=e1]:
+  - iframe [ref=e2]:
+    
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e8] [cursor=pointer]: 󰩫
+      - generic [ref=e12]:
+        - button "酒店 按回车键打开菜单" [ref=e14] [cursor=pointer]:
+          - generic [ref=e15]: 󰩿
+        - button "机票 按回车键打开菜单" [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]: 󰪀
+        - button "火车票 按回车键打开菜单" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: 󰪁
+        - button "旅游 按回车键打开菜单" [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]: 󰩼
+        - button "门票·活动 按回车键打开菜单" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: 󰩻
+        - button "汽车·船票 按回车键打开菜单" [ref=e29] [cursor=pointer]:
+          - generic [ref=e30]: 󰩹
+        - button "用车 按回车键打开菜单" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: 󰩯
+        - button "AI行程助手 按回车键打开菜单" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: 󲍔
+        - button "攻略·景点 按回车键打开菜单" [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]: 󰪄
+        - button "旅游地图 按回车键打开菜单" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: 󱸶
+        - button "全球购 按回车键打开菜单" [ref=e46] [cursor=pointer]:
+          - generic [ref=e47]: 󰪆
+        - button "礼品卡 按回车键打开菜单" [ref=e49] [cursor=pointer]:
+          - generic [ref=e50]: 󰩽
+        - button "携程金融 按回车键打开菜单" [ref=e52] [cursor=pointer]:
+          - generic [ref=e53]: 󰩰
+        - button "企业商旅 按回车键打开菜单" [ref=e56] [cursor=pointer]:
+          - generic [ref=e57]: 󰪈
+        - button "老友会 按回车键打开菜单" [ref=e59] [cursor=pointer]:
+          - generic [ref=e60]: 󱝵
+        - button "关于携程 按回车键打开菜单" [ref=e62] [cursor=pointer]:
+          - generic [ref=e63]: 󱡫
+  - generic [ref=e66]:
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - link "携程旅行网" [ref=e74] [cursor=pointer]:
+          - /url: //www.ctrip.com
+        - generic [ref=e76]:
+          - textbox "搜旅任何旅行相关..." [ref=e77]:
+            - /placeholder: 搜索任何旅游相关
+          - link "󰩬" [ref=e78] [cursor=pointer]:
+            - /url: javascript:void(0)
+      - generic [ref=e79]:
+        - list [ref=e80]:
+          - listitem [ref=e81]:
+            - button "登录" [ref=e83] [cursor=pointer]:
+              - generic [ref=e85]: 登录
+          - listitem [ref=e86]:
+            - button "注册" [ref=e87] [cursor=pointer]
+          - listitem [ref=e88]
+          - listitem [ref=e90]:
+            - generic [ref=e91] [cursor=pointer]:
+              - button "我的订单" [ref=e92]
+              - generic [ref=e93]: 󰪊
+          - listitem [ref=e94]
+          - listitem [ref=e96]:
+            - generic "携程客服" [ref=e97]:
+              - button "携程客服" [ref=e98]: 联系客服
+          - listitem [ref=e99]
+          - listitem [ref=e101]:
+            - generic "扫码下载携程App或关注微信公众号" [ref=e102]:
+              - button "扫码下载携程App或关注微信公众号" [ref=e103]:
+                - generic [ref=e104] [cursor=pointer]: 󰩷
+        - button "无障碍阅读开关" [ref=e105] [cursor=pointer]:
+          - generic [ref=e106]: 󰩲
+        - button "关怀版" [ref=e107] [cursor=pointer]:
+          - generic [ref=e108]: 󱃃
+    - main [ref=e109]:
+      - generic [ref=e110]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - textbox "提问前不妨先搜索下，看看你的问题是否已经有人询问过" [ref=e115]
+            - button "搜索" [ref=e116] [cursor=pointer]
+          - button "我要提问" [ref=e117] [cursor=pointer]:
+            - img [ref=e118]
+            - text: 我要提问
+        - generic [ref=e122]:
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - generic [ref=e126]: 问答标签
+              - heading "酒店 删除" [level=1] [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: 酒店
+                  - link "删除" [ref=e130] [cursor=pointer]:
+                    - /url: /asks
+                    - img "删除" [ref=e131]
+            - generic [ref=e133]:
+              - paragraph [ref=e134]: 在结果中找：
+              - generic [ref=e135]:
+                - generic [ref=e136]:
+                  - link "大连星海广场中山路亚朵酒店" [ref=e137] [cursor=pointer]:
+                    - /url: /asks/t105341-148845717
+                  - link "淄博北站银泰城亚朵酒店" [ref=e138] [cursor=pointer]:
+                    - /url: /asks/t105341-56597110
+                  - link "珠海WINGATE 蔚景温德姆酒店 (珠海站华发商都店)" [ref=e139] [cursor=pointer]:
+                    - /url: /asks/t105341-149542920
+                  - link "日照潍坊路亚朵酒店" [ref=e140] [cursor=pointer]:
+                    - /url: /asks/t105341-148481686
+                  - link "你好" [ref=e141] [cursor=pointer]:
+                    - /url: /asks/t105341-56790957
+                  - link "金达酒店｜TRANQUILELEGANCE·KINGDA(玉溪万达广场淘宝街夜市店)" [ref=e142] [cursor=pointer]:
+                    - /url: /asks/t105341-148879834
+                  - link "都城•雅致｜HONORABLEIN•COMPARADBLE设计酒店(黄埔夏园地铁站店)" [ref=e143] [cursor=pointer]:
+                    - /url: /asks/t105341-21158631
+                  - link "烟台南站迎春大街亚朵酒店" [ref=e144] [cursor=pointer]:
+                    - /url: /asks/t105341-31091272
+                  - link "禧福缘商务酒店（林州市红旗渠大道市政府店 ）" [ref=e145] [cursor=pointer]:
+                    - /url: /asks/t105341-21454420
+                  - link "维也纳3好酒店(德宏芒市机场珠宝小镇店)" [ref=e146] [cursor=pointer]:
+                    - /url: /asks/t105341-61109603
+                  - link "济南老商埠经三路轻居酒店" [ref=e147] [cursor=pointer]:
+                    - /url: /asks/t105341-140665092
+                  - link "长沙世纪铂郡酒店（五一广场湘雅附二地铁站店）" [ref=e148] [cursor=pointer]:
+                    - /url: /asks/t105341-135819234
+                  - link "烟台站南大街亚朵酒店" [ref=e149] [cursor=pointer]:
+                    - /url: /asks/t105341-148511414
+                  - link "曲靖金座大酒店（珠江源大道店）" [ref=e150] [cursor=pointer]:
+                    - /url: /asks/t105341-21424573
+                  - link "开阳天平酒店（高铁站金湖中心店）" [ref=e151] [cursor=pointer]:
+                    - /url: /asks/t105341-47977968
+                  - link "杭州" [ref=e152] [cursor=pointer]:
+                    - /url: /asks/t105341-hangzhou14
+                  - link "芒市" [ref=e153] [cursor=pointer]:
+                    - /url: /asks/t105341-mangshi2199
+                  - link "烟台" [ref=e154] [cursor=pointer]:
+                    - /url: /asks/t105341-yantai170
+                  - link "广州" [ref=e155] [cursor=pointer]:
+                    - /url: /asks/t105341-guangzhou152
+                  - link "北京" [ref=e156] [cursor=pointer]:
+                    - /url: /asks/t105341-beijing1
+                  - link "沈阳" [ref=e157] [cursor=pointer]:
+                    - /url: /asks/t105341-shenyang155
+                  - link "上海" [ref=e158] [cursor=pointer]:
+                    - /url: /asks/t105341-shanghai2
+                  - link "武汉" [ref=e159] [cursor=pointer]:
+                    - /url: /asks/t105341-wuhan145
+                  - link "重庆" [ref=e160] [cursor=pointer]:
+                    - /url: /asks/t105341-chongqing158
+                  - link "大连" [ref=e161] [cursor=pointer]:
+                    - /url: /asks/t105341-dalian4
+                  - link "成都" [ref=e162] [cursor=pointer]:
+                    - /url: /asks/t105341-chengdu104
+                  - link "长沙" [ref=e163] [cursor=pointer]:
+                    - /url: /asks/t105341-changsha148
+                  - link "青岛" [ref=e164] [cursor=pointer]:
+                    - /url: /asks/t105341-qingdao5
+                  - link "西安" [ref=e165] [cursor=pointer]:
+                    - /url: /asks/t105341-xi'an7
+                  - link "南京" [ref=e166] [cursor=pointer]:
+                    - /url: /asks/t105341-nanjing9
+                  - link "房间" [ref=e167] [cursor=pointer]:
+                    - /url: /asks/t105341-t462877
+                  - link "距离" [ref=e168] [cursor=pointer]:
+                    - /url: /asks/t105341-t462910
+                  - link "服务" [ref=e169] [cursor=pointer]:
+                    - /url: /asks/t105341-t106410
+                  - link "入住" [ref=e170] [cursor=pointer]:
+                    - /url: /asks/t105341-t462935
+                  - link "方便" [ref=e171] [cursor=pointer]:
+                    - /url: /asks/t105341-t462876
+                  - link "周边" [ref=e172] [cursor=pointer]:
+                    - /url: /asks/t105341-t358238
+                  - link "住宿" [ref=e173] [cursor=pointer]:
+                    - /url: /asks/t105341-t2
+                  - link "电话" [ref=e174] [cursor=pointer]:
+                    - /url: /asks/t105341-t113091
+                  - link "早餐" [ref=e175] [cursor=pointer]:
+                    - /url: /asks/t105341-t362861
+                  - link "免费" [ref=e176] [cursor=pointer]:
+                    - /url: /asks/t105341-t597
+                  - link "停车场" [ref=e177] [cursor=pointer]:
+                    - /url: /asks/t105341-t362904
+                  - link "位置" [ref=e178] [cursor=pointer]:
+                    - /url: /asks/t105341-t106437
+                  - link "附近" [ref=e179] [cursor=pointer]:
+                    - /url: /asks/t105341-t362912
+                - img [ref=e180] [cursor=pointer]: 更多
+          - generic [ref=e184]:
+            - generic [ref=e186]:
+              - link "热门问题" [ref=e187] [cursor=pointer]:
+                - /url: /asks/t105341
+              - link "最新问题" [ref=e188] [cursor=pointer]:
+                - /url: /asks/t105341-k1
+              - link "待回答问题" [ref=e189] [cursor=pointer]:
+                - /url: /asks/t105341-k4
+            - 'link "39 回答 #恒和精选S·设计酒店（广州新市百信广场店)#酒店卫生怎么样？干净不干净？ 2024/07/04 小胖老公" [ref=e191] [cursor=pointer]':
+              - /url: /asks/detail?askId=9698897
+              - generic [ref=e193]:
+                - paragraph [ref=e194]: "39"
+                - paragraph [ref=e195]: 回答
+              - heading "#恒和精选S·设计酒店（广州新市百信广场店)#酒店卫生怎么样？干净不干净？" [level=2] [ref=e197]
+              - generic [ref=e198]:
+                - paragraph [ref=e199]: 2024/07/04
+                - button "小胖老公" [ref=e200]:
+                  - generic [ref=e201]: 小胖老公
+            - 'link "26 回答 #潮州希居(韩文公祠广济桥江景店)#在酒店住宿打网约车方便吗 2026/02/20 YoYo_9C1B9M5O" [ref=e202] [cursor=pointer]':
+              - /url: /asks/detail?askId=14929901
+              - generic [ref=e204]:
+                - paragraph [ref=e205]: "26"
+                - paragraph [ref=e206]: 回答
+              - heading "#潮州希居(韩文公祠广济桥江景店)#在酒店住宿打网约车方便吗" [level=2] [ref=e208]
+              - generic [ref=e209]:
+                - paragraph [ref=e210]: 2026/02/20
+                - button "YoYo_9C1B9M5O" [ref=e211]:
+                  - generic [ref=e212]: YoYo_9C1B9M5O
+            - 'link "4 回答 #丽智·S酒店(上饶铅山河口古镇店）#酒店周边有好玩的地方嘛 2025/11/09 YoYo_3I2X7E2U" [ref=e213] [cursor=pointer]':
+              - /url: /asks/detail?askId=12494319
+              - generic [ref=e215]:
+                - paragraph [ref=e216]: "4"
+                - paragraph [ref=e217]: 回答
+              - heading "#丽智·S酒店(上饶铅山河口古镇店）#酒店周边有好玩的地方嘛" [level=2] [ref=e219]
+              - generic [ref=e220]:
+                - paragraph [ref=e221]: 2025/11/09
+                - button "YoYo_3I2X7E2U" [ref=e222]:
+                  - generic [ref=e223]: YoYo_3I2X7E2U
+            - 'link "3 回答 #南县宜和源大酒店（宝塔湖店）#请问酒店有早餐吗？可以延迟退房吗？ 2026/01/15 YoYo_4Y0Q2D7L" [ref=e224] [cursor=pointer]':
+              - /url: /asks/detail?askId=14233479
+              - generic [ref=e226]:
+                - paragraph [ref=e227]: "3"
+                - paragraph [ref=e228]: 回答
+              - heading "#南县宜和源大酒店（宝塔湖店）#请问酒店有早餐吗？可以延迟退房吗？" [level=2] [ref=e230]
+              - generic [ref=e231]:
+                - paragraph [ref=e232]: 2026/01/15
+                - button "YoYo_4Y0Q2D7L" [ref=e233]:
+                  - generic [ref=e234]: YoYo_4Y0Q2D7L
+            - 'link "3 回答 #香港东涌福朋喜来登酒店#我在outlets，有免费大巴回酒店吗？在什么位置。 2026/01/22 YoYo_7X2V6V3R" [ref=e235] [cursor=pointer]':
+              - /url: /asks/detail?askId=14358914
+              - generic [ref=e237]:
+                - paragraph [ref=e238]: "3"
+                - paragraph [ref=e239]: 回答
+              - heading "#香港东涌福朋喜来登酒店#我在outlets，有免费大巴回酒店吗？在什么位置。" [level=2] [ref=e241]
+              - generic [ref=e242]:
+                - paragraph [ref=e243]: 2026/01/22
+                - button "YoYo_7X2V6V3R" [ref=e244]:
+                  - generic [ref=e245]: YoYo_7X2V6V3R
+            - 'link "3 回答 #巴黎中心埃菲尔铁塔阿德吉奥公寓酒店#酒店附近安全吗？ 2026/01/27 YoYo_4A7L7O0M" [ref=e246] [cursor=pointer]':
+              - /url: /asks/detail?askId=14471533
+              - generic [ref=e248]:
+                - paragraph [ref=e249]: "3"
+                - paragraph [ref=e250]: 回答
+              - heading "#巴黎中心埃菲尔铁塔阿德吉奥公寓酒店#酒店附近安全吗？" [level=2] [ref=e252]
+              - generic [ref=e253]:
+                - paragraph [ref=e254]: 2026/01/27
+                - button "YoYo_4A7L7O0M" [ref=e255]:
+                  - generic [ref=e256]: YoYo_4A7L7O0M
+            - 'link "3 回答 #合和酒店#请问酒店会收取额外税费吗 2026/02/01 YoYo_2W0U2Y7E" [ref=e257] [cursor=pointer]':
+              - /url: /asks/detail?askId=14577003
+              - generic [ref=e259]:
+                - paragraph [ref=e260]: "3"
+                - paragraph [ref=e261]: 回答
+              - heading "#合和酒店#请问酒店会收取额外税费吗" [level=2] [ref=e263]
+              - generic [ref=e264]:
+                - paragraph [ref=e265]: 2026/02/01
+                - button "YoYo_2W0U2Y7E" [ref=e266]:
+                  - generic [ref=e267]: YoYo_2W0U2Y7E
+            - 'link "3 回答 #景德镇陶溪川铂格酒店（陶阳里步行街店）#酒店有烤红薯吗？是免费的吗？ 2026/02/14 野生美女K" [ref=e268] [cursor=pointer]':
+              - /url: /asks/detail?askId=14838025
+              - generic [ref=e270]:
+                - paragraph [ref=e271]: "3"
+                - paragraph [ref=e272]: 回答
+              - heading "#景德镇陶溪川铂格酒店（陶阳里步行街店）#酒店有烤红薯吗？是免费的吗？" [level=2] [ref=e274]
+              - generic [ref=e275]:
+                - paragraph [ref=e276]: 2026/02/14
+                - button "野生美女K" [ref=e277]:
+                  - generic [ref=e278]: 野生美女K
+            - 'link "2 回答 #金尚大酒店（长汀古城店）#酒店甲醛味重吗？ 2026/02/18 YoYo_8N3O2C9G" [ref=e279] [cursor=pointer]':
+              - /url: /asks/detail?askId=14892975
+              - generic [ref=e281]:
+                - paragraph [ref=e282]: "2"
+                - paragraph [ref=e283]: 回答
+              - heading "#金尚大酒店（长汀古城店）#酒店甲醛味重吗？" [level=2] [ref=e285]
+              - generic [ref=e286]:
+                - paragraph [ref=e287]: 2026/02/18
+                - button "YoYo_8N3O2C9G" [ref=e288]:
+                  - generic [ref=e289]: YoYo_8N3O2C9G
+            - 'link "3 回答 #九寨沟丽呈华廷度假酒店#酒店到景区的接驳车会很多人坐吗？需不需要排队？最早的接驳车是几点？ 2026/02/27 YoYo_9J8L9U1J" [ref=e290] [cursor=pointer]':
+              - /url: /asks/detail?askId=15073544
+              - generic [ref=e292]:
+                - paragraph [ref=e293]: "3"
+                - paragraph [ref=e294]: 回答
+              - heading "#九寨沟丽呈华廷度假酒店#酒店到景区的接驳车会很多人坐吗？需不需要排队？最早的接驳车是几点？" [level=2] [ref=e296]
+              - generic [ref=e297]:
+                - paragraph [ref=e298]: 2026/02/27
+                - button "YoYo_9J8L9U1J" [ref=e299]:
+                  - generic [ref=e300]: YoYo_9J8L9U1J
+            - 'link "4 回答 #弥勒蓝湖温泉度假酒店#从昆明机场坐机场大巴到弥勒可以直接到酒店吗？ 2025/12/16 YoYo_8Z4Y9A8I" [ref=e301] [cursor=pointer]':
+              - /url: /asks/detail?askId=13477262
+              - generic [ref=e303]:
+                - paragraph [ref=e304]: "4"
+                - paragraph [ref=e305]: 回答
+              - heading "#弥勒蓝湖温泉度假酒店#从昆明机场坐机场大巴到弥勒可以直接到酒店吗？" [level=2] [ref=e307]
+              - generic [ref=e308]:
+                - paragraph [ref=e309]: 2025/12/16
+                - button "YoYo_8Z4Y9A8I" [ref=e310]:
+                  - generic [ref=e311]: YoYo_8Z4Y9A8I
+            - 'link "3 回答 #全季酒店（杭州西湖鼓楼店）#请问酒店附近还在施工吗？是不是还是很吵？房间隔音如何呢？谢谢！。 2026/02/06 YoYo_0T9Y7A3E 已解决 已解决" [ref=e312] [cursor=pointer]':
+              - /url: /asks/detail?askId=14661532
+              - generic [ref=e314]:
+                - paragraph [ref=e315]: "3"
+                - paragraph [ref=e316]: 回答
+              - heading "#全季酒店（杭州西湖鼓楼店）#请问酒店附近还在施工吗？是不是还是很吵？房间隔音如何呢？谢谢！。" [level=2] [ref=e318]
+              - generic [ref=e319]:
+                - paragraph [ref=e320]: 2026/02/06
+                - button "YoYo_0T9Y7A3E" [ref=e321]:
+                  - generic [ref=e322]: YoYo_0T9Y7A3E
+                - generic [ref=e323]:
+                  - img "已解决" [ref=e325]
+                  - generic [ref=e327]: 已解决
+            - 'link "6 回答 #南京维景国际酒店#酒店外卖有机器人送到房间嘛？ 2025/12/03 YoYo_7E4O8A2Y" [ref=e328] [cursor=pointer]':
+              - /url: /asks/detail?askId=13095067
+              - generic [ref=e330]:
+                - paragraph [ref=e331]: "6"
+                - paragraph [ref=e332]: 回答
+              - heading "#南京维景国际酒店#酒店外卖有机器人送到房间嘛？" [level=2] [ref=e334]
+              - generic [ref=e335]:
+                - paragraph [ref=e336]: 2025/12/03
+                - button "YoYo_7E4O8A2Y" [ref=e337]:
+                  - generic [ref=e338]: YoYo_7E4O8A2Y
+            - 'link "12 回答 #轻住酒店（红会医院南稍门地铁站店）#你好，请问酒店内有电梯嘛 2025/12/03 YoYo_8P9Q7Y3O" [ref=e339] [cursor=pointer]':
+              - /url: /asks/detail?askId=13100348
+              - generic [ref=e341]:
+                - paragraph [ref=e342]: "12"
+                - paragraph [ref=e343]: 回答
+              - heading "#轻住酒店（红会医院南稍门地铁站店）#你好，请问酒店内有电梯嘛" [level=2] [ref=e345]
+              - generic [ref=e346]:
+                - paragraph [ref=e347]: 2025/12/03
+                - button "YoYo_8P9Q7Y3O" [ref=e348]:
+                  - generic [ref=e349]: YoYo_8P9Q7Y3O
+            - 'link "8 回答 #杭州天目山英迪格酒店#沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请 2025/12/10 软糖0705" [ref=e350] [cursor=pointer]':
+              - /url: /asks/detail?askId=13308695
+              - generic [ref=e352]:
+                - paragraph [ref=e353]: "8"
+                - paragraph [ref=e354]: 回答
+              - heading "#杭州天目山英迪格酒店#沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请" [level=2] [ref=e356]
+              - generic [ref=e357]:
+                - paragraph [ref=e358]: 2025/12/10
+                - button "软糖0705" [ref=e359]:
+                  - generic [ref=e360]: 软糖0705
+            - 'link "5 回答 #星期8快捷酒店(盐城高铁站盐镇水街店)#你们酒店有没有早餐？有没有停车位？ 2025/12/11 YoYo_2K4B0P0Z" [ref=e361] [cursor=pointer]':
+              - /url: /asks/detail?askId=13341687
+              - generic [ref=e363]:
+                - paragraph [ref=e364]: "5"
+                - paragraph [ref=e365]: 回答
+              - heading "#星期8快捷酒店(盐城高铁站盐镇水街店)#你们酒店有没有早餐？有没有停车位？" [level=2] [ref=e367]
+              - generic [ref=e368]:
+                - paragraph [ref=e369]: 2025/12/11
+                - button "YoYo_2K4B0P0Z" [ref=e370]:
+                  - generic [ref=e371]: YoYo_2K4B0P0Z
+            - 'link "3 回答 #益阳汇源大酒店（益阳火车站中心医院高新院区店）#酒店吵吗？隔音好不好 2025/12/13 YoYo_8Y6N8E8T" [ref=e372] [cursor=pointer]':
+              - /url: /asks/detail?askId=13402464
+              - generic [ref=e374]:
+                - paragraph [ref=e375]: "3"
+                - paragraph [ref=e376]: 回答
+              - heading "#益阳汇源大酒店（益阳火车站中心医院高新院区店）#酒店吵吗？隔音好不好" [level=2] [ref=e378]
+              - generic [ref=e379]:
+                - paragraph [ref=e380]: 2025/12/13
+                - button "YoYo_8Y6N8E8T" [ref=e381]:
+                  - generic [ref=e382]: YoYo_8Y6N8E8T
+            - 'link "6 回答 #长沙岳麓温德姆花园酒店#酒店附近地铁站上下有手扶电梯吗？ 2025/12/31 KaryTing" [ref=e383] [cursor=pointer]':
+              - /url: /asks/detail?askId=13895370
+              - generic [ref=e385]:
+                - paragraph [ref=e386]: "6"
+                - paragraph [ref=e387]: 回答
+              - heading "#长沙岳麓温德姆花园酒店#酒店附近地铁站上下有手扶电梯吗？" [level=2] [ref=e389]
+              - generic [ref=e390]:
+                - paragraph [ref=e391]: 2025/12/31
+                - button "KaryTing" [ref=e392]:
+                  - generic [ref=e393]: KaryTing
+            - 'link "4 回答 #猫的远方酒店（南京新街口地铁站德基广场店）#酒店安静么 2026/01/15 YoYo_7K6H0F9Q" [ref=e394] [cursor=pointer]':
+              - /url: /asks/detail?askId=14216531
+              - generic [ref=e396]:
+                - paragraph [ref=e397]: "4"
+                - paragraph [ref=e398]: 回答
+              - heading "#猫的远方酒店（南京新街口地铁站德基广场店）#酒店安静么" [level=2] [ref=e400]
+              - generic [ref=e401]:
+                - paragraph [ref=e402]: 2026/01/15
+                - button "YoYo_7K6H0F9Q" [ref=e403]:
+                  - generic [ref=e404]: YoYo_7K6H0F9Q
+            - 'link "4 回答 #成都龙之梦大酒店#请问从天府机场t2去酒店方便吗？ 2025/10/22 YoYo_1W5M3Y8A" [ref=e405] [cursor=pointer]':
+              - /url: /asks/detail?askId=11962706
+              - generic [ref=e407]:
+                - paragraph [ref=e408]: "4"
+                - paragraph [ref=e409]: 回答
+              - heading "#成都龙之梦大酒店#请问从天府机场t2去酒店方便吗？" [level=2] [ref=e411]
+              - generic [ref=e412]:
+                - paragraph [ref=e413]: 2025/10/22
+                - button "YoYo_1W5M3Y8A" [ref=e414]:
+                  - generic [ref=e415]: YoYo_1W5M3Y8A
+            - generic [ref=e417]:
+              - generic [ref=e418]: 上一页
+              - link "1" [ref=e419] [cursor=pointer]:
+                - /url: /asks/t105341
+              - link "2" [ref=e420] [cursor=pointer]:
+                - /url: /asks/t105341/p2
+              - link "3" [ref=e421] [cursor=pointer]:
+                - /url: /asks/t105341/p3
+              - link "4" [ref=e422] [cursor=pointer]:
+                - /url: /asks/t105341/p4
+              - link "5" [ref=e423] [cursor=pointer]:
+                - /url: /asks/t105341/p5
+              - link "6" [ref=e424] [cursor=pointer]:
+                - /url: /asks/t105341/p6
+              - link "7" [ref=e425] [cursor=pointer]:
+                - /url: /asks/t105341/p7
+              - generic [ref=e426]: ...
+              - link "50" [ref=e427] [cursor=pointer]:
+                - /url: /asks/t105341/p50
+              - link "下一页" [ref=e428] [cursor=pointer]:
+                - /url: /asks/t105341/p2
+    - generic [ref=e432]:
+      - generic [ref=e433]:
+        - generic [ref=e435]:
+          - term [ref=e436]: 旅游资讯
+          - definition [ref=e437]:
+            - link "宾馆索引" [ref=e438] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/jiudian/
+          - definition [ref=e439]:
+            - link "攻略索引" [ref=e440] [cursor=pointer]:
+              - /url: https://you.ctrip.com/sitemap/
+          - definition [ref=e441]:
+            - link "机票索引" [ref=e442] [cursor=pointer]:
+              - /url: https://flights.ctrip.com/booking/hot-city-flights-sitemap.html
+          - definition [ref=e443]:
+            - link "网站导航" [ref=e444] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/sitemap.htm
+          - definition [ref=e445]:
+            - link "旅游索引" [ref=e446] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/dj.html
+          - definition [ref=e447]:
+            - link "邮轮索引" [ref=e448] [cursor=pointer]:
+              - /url: https://cruise.ctrip.com/newpackage/hot-all-sitemap.html
+          - definition [ref=e449]:
+            - link "企业差旅索引" [ref=e450] [cursor=pointer]:
+              - /url: https://ct.ctrip.com/official?ctm_ref=sme006
+        - generic [ref=e452]:
+          - term [ref=e453]: 加盟合作
+          - definition [ref=e454]:
+            - link "分销联盟" [ref=e455] [cursor=pointer]:
+              - /url: https://u.ctrip.com/
+          - definition [ref=e456]:
+            - link "友情链接" [ref=e457] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/link/ctrip_link.html
+          - definition [ref=e458]:
+            - link "企业礼品卡采购" [ref=e459] [cursor=pointer]:
+              - /url: https://lipin.ctrip.com/lipinonline/static/intentional
+          - definition [ref=e460]:
+            - link "保险代理" [ref=e461] [cursor=pointer]:
+              - /url: https://www.ctripins.com/index.html
+          - definition [ref=e462]:
+            - link "代理合作" [ref=e463] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/dlhz.htm
+          - definition [ref=e464]:
+            - link "酒店加盟" [ref=e465] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/list-your-property/?channel=1
+          - definition [ref=e466]:
+            - link "目的地及景区合作" [ref=e467] [cursor=pointer]:
+              - /url: https://dst.ctrip.com/
+          - definition [ref=e468]:
+            - link "更多加盟合作" [ref=e469] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/cooperation/web/cooperation.html#ctm_ref=ctr_hp_btm_coop
+        - generic [ref=e471]:
+          - term [ref=e472]: 关于携程
+          - definition [ref=e473]:
+            - link "关于携程" [ref=e474] [cursor=pointer]:
+              - /url: https://m.ctrip.com/webapp/you/tsnap/mtk/aboutCtripW.html?isHideNavBar=yes&pop=close&autoawaken=close
+          - definition [ref=e475]:
+            - generic [ref=e477]:
+              - text: 携程热点
+              - generic [ref=e478]: 󰪊
+          - definition [ref=e479]:
+            - link "联系我们" [ref=e480] [cursor=pointer]:
+              - /url: http://pages.ctrip.com/public/contact.htm
+          - definition [ref=e481]:
+            - link "诚聘英才" [ref=e482] [cursor=pointer]:
+              - /url: https://careers.ctrip.com/
+          - definition [ref=e483]:
+            - link "用户协议" [ref=e484] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=0
+          - definition [ref=e485]:
+            - link "隐私政策" [ref=e486] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=1
+          - definition [ref=e487]:
+            - link "营业执照" [ref=e488] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/diploma/company.htm
+          - definition [ref=e489]:
+            - link "安全中心" [ref=e490] [cursor=pointer]:
+              - /url: http://sec.ctrip.com/
+          - definition [ref=e491]:
+            - link "携程内容中心" [ref=e492] [cursor=pointer]:
+              - /url: https://we.ctrip.com/account/login
+          - definition [ref=e493]:
+            - link "知识产权" [ref=e494] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/public/encroachment.html
+          - definition [ref=e495]:
+            - link "Trip.com Group" [ref=e496] [cursor=pointer]:
+              - /url: https://group.trip.com/
+        - definition [ref=e499]:
+          - paragraph [ref=e501]: 扫码下载携程App
+      - generic [ref=e502]:
+        - paragraph [ref=e503]:
+          - link "Copyright©" [ref=e504] [cursor=pointer]:
+            - /url: http://pages.ctrip.com/public/copyright.htm
+          - text: 1999-2026,
+          - link "ctrip.com" [ref=e505] [cursor=pointer]:
+            - /url: http://www.ctrip.com/
+          - text: . All rights reserved. |
+          - link "ICP证：沪B2-20050130 |" [ref=e506] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/icp.pdf?t=20220325
+          - link "沪ICP备08023580号-3 |" [ref=e507] [cursor=pointer]:
+            - /url: http://beian.miit.gov.cn/
+          - link "网信算备310105117481904230015号" [ref=e508] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/wxsb/310105117481904230015.pdf
+        - paragraph [ref=e509]:
+          - link "沪公网备31010502002731号" [ref=e510] [cursor=pointer]:
+            - /url: http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010502002731
+            - text: 沪公网备31010502002731号
+          - text: 丨
+          - link "互联网药品信息服务资格证" [ref=e512] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/InternetDrugCertificate.pdf
+          - text: 丨
+          - link "（沪）网械平台备字[2022]第00001号" [ref=e513] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/yiliao.pdf?xx=11
+          - text: "| 沪网食备1050001号 |"
+          - link "旅游度假资质" [ref=e514] [cursor=pointer]:
+            - /url: http://m.ctrip.com/webapp/vacations/tour/supplier
+          - text: "|"
+          - link "平台信息" [ref=e515] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/cert.html
+        - paragraph [ref=e516]:
+          - generic [ref=e517]: 违法和不良信息举报电话021-22500846丨全国旅游投诉热线12345丨
+          - link "上海市旅游网站落实诚信建设主体责任承诺书" [ref=e518] [cursor=pointer]:
+            - /url: http://pages.c-ctrip.com/commerce/promote/201611/other/zz/pc/index.html
+        - generic [ref=e519]:
+          - link "上海市监" [ref=e520] [cursor=pointer]:
+            - /url: http://scjgj.sh.gov.cn/
+          - link "网络社会征信网" [ref=e521] [cursor=pointer]:
+            - /url: http://www.zx110.org/
+          - link "信息举报中心" [ref=e522] [cursor=pointer]:
+            - /url: http://www.shjbzx.cn/
+          - link "可信网站" [ref=e523] [cursor=pointer]:
+            - /url: https://ss.knet.cn/verifyseal.dll?sn=e12061531010025926306977
+        - generic [ref=e524]:
+          - link "信用中国" [ref=e525] [cursor=pointer]:
+            - /url: http://www.creditchina.gov.cn/
+          - link "网上有害信息举报专区" [ref=e526] [cursor=pointer]:
+            - /url: https://www.12377.cn/
+          - link "消费维权联络点" [ref=e527] [cursor=pointer]:
+            - /url: https://im-synthesize.ctrip.com/complaints/rights/AppealCreate
+          - generic "适老化及无障碍标识" [ref=e528]

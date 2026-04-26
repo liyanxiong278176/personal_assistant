@@ -1,12 +1,14 @@
 """TemplateRenderer - 结构化 Markdown 模板渲染器
 
 解析 <role>/<rules>/<examples>/<output_format> 区块，
-处理 {#if}/{/if} 条件注入，调用 ExamplesLoader 获取示例。
+处理 {#if}/{/if} 条件注入，{% include %} 共享片段引入，
+调用 ExamplesLoader 获取示例。
 """
 
 import json
 import logging
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, List, Tuple, Any, Dict
 
 if TYPE_CHECKING:
@@ -14,6 +16,8 @@ if TYPE_CHECKING:
     from app.core.prompts.examples_loader import ExamplesLoader
 
 logger = logging.getLogger(__name__)
+
+TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
 # Formatting functions (moved from PromptService to avoid circular import)
@@ -145,35 +149,53 @@ class TemplateRenderer:
         self._block_pattern = re.compile(r'<(\w+)>([\s\S]*?)</\1>')
 
     def render(self, template: str, context: "RequestContext") -> str:
-        # 第一步：处理条件注入 {#if}...{/if}
+        # 第一步：处理 {% include %} 共享片段引入
+        template = self._process_includes(template)
+
+        # 第二步：处理条件注入 {#if}...{/if}
         template = self._process_conditionals(template, context)
 
-        # 第二步：解析区块
-        blocks = self._parse_blocks(template)
-        rendered_parts = []
-
-        for block_type, content in blocks:
+        # 第三步：就地替换区块标签，保留周围的文本
+        def replace_block(match):
+            block_type = match.group(1)
+            content = match.group(2)
             if block_type == "role":
-                rendered_parts.append(self._render_role(content, context))
+                return self._render_role(content, context)
             elif block_type == "rules":
-                rendered_parts.append(self._render_rules(content, context))
+                return self._render_rules(content, context)
             elif block_type == "examples":
-                rendered_parts.append(self._render_examples(content, context))
+                return self._render_examples(content, context)
             elif block_type == "output_format":
-                rendered_parts.append(self._render_output_format(content, context))
+                return self._render_output_format(content, context)
             else:
-                # 未知区块保留原文
-                rendered_parts.append(content.strip())
+                return content.strip()
 
-        # 第三步：如果没有区块，保留原始模板（处理后）
-        if not rendered_parts:
-            result = template
-        else:
-            result = "\n\n".join(rendered_parts)
+        result = self._block_pattern.sub(replace_block, template)
 
         # 第四步：替换剩余变量
         result = self._inject_variables(result, context)
         return result
+
+    def _process_includes(self, template: str, visited: set = None) -> str:
+        """处理 {% include "filename" %} 指令，引入共享模板片段"""
+        if visited is None:
+            visited = set()
+
+        pattern = re.compile(r'\{%\s*include\s+"([^"]+)"\s*%\}')
+
+        def replacer(match):
+            filename = match.group(1)
+            if filename in visited:
+                return ""
+            file_path = TEMPLATES_DIR / filename
+            try:
+                content = file_path.read_text(encoding="utf-8").strip()
+                visited.add(filename)
+                return self._process_includes(content, visited)
+            except FileNotFoundError:
+                return ""
+
+        return pattern.sub(replacer, template)
 
     def _process_conditionals(self, template: str, context: "RequestContext") -> str:
         """解析 {#if var}...{/if} 条件，空值时移除区块"""
@@ -188,10 +210,6 @@ class TemplateRenderer:
             return ""
 
         return pattern.sub(replacer, template)
-
-    def _parse_blocks(self, template: str) -> List[Tuple[str, str]]:
-        """解析模板中的所有区块"""
-        return self._block_pattern.findall(template)
 
     def _render_role(self, content: str, context: "RequestContext") -> str:
         return content.strip()

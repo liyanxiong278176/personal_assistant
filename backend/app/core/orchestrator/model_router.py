@@ -8,8 +8,8 @@ class ModelRouter:
     """模型路由器 - 根据意图和复杂度选择合适的模型"""
 
     # 模型配置
-    SMALL_MODEL = "deepseek-chat"  # 或更便宜的模型
-    LARGE_MODEL = "deepseek-reasoner"  # 或更强模型
+    SMALL_MODEL = "deepseek-v4-flash"
+    LARGE_MODEL = "deepseek-v4-flash"
 
     def __init__(
         self,

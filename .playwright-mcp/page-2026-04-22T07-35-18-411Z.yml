@@ -1,0 +1,553 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e7] [cursor=pointer]: 󰩫
+      - generic [ref=e11]:
+        - button "酒店 按回车键打开菜单" [ref=e13] [cursor=pointer]:
+          - generic [ref=e14]: 󰩿
+        - button "机票 按回车键打开菜单" [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: 󰪀
+        - button "火车票 按回车键打开菜单" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]: 󰪁
+        - button "旅游 按回车键打开菜单" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: 󰩼
+        - button "门票·活动 按回车键打开菜单" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26]: 󰩻
+        - button "汽车·船票 按回车键打开菜单" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: 󰩹
+        - button "用车 按回车键打开菜单" [ref=e31] [cursor=pointer]:
+          - generic [ref=e32]: 󰩯
+        - button "AI行程助手 按回车键打开菜单" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 󲍔
+        - button "攻略·景点 按回车键打开菜单" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 󰪄
+        - button "旅游地图 按回车键打开菜单" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 󱸶
+        - button "全球购 按回车键打开菜单" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: 󰪆
+        - button "礼品卡 按回车键打开菜单" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: 󰩽
+        - button "携程金融 按回车键打开菜单" [ref=e51] [cursor=pointer]:
+          - generic [ref=e52]: 󰩰
+        - button "企业商旅 按回车键打开菜单" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]: 󰪈
+        - button "老友会 按回车键打开菜单" [ref=e58] [cursor=pointer]:
+          - generic [ref=e59]: 󱝵
+        - button "关于携程 按回车键打开菜单" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]: 󱡫
+  - generic [ref=e65]:
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - link "携程旅行网" [ref=e73] [cursor=pointer]:
+          - /url: //www.ctrip.com
+        - generic [ref=e75]:
+          - textbox "搜旅任何旅行相关..." [ref=e76]:
+            - /placeholder: 搜索任何旅游相关
+          - link "󰩬" [ref=e77] [cursor=pointer]:
+            - /url: javascript:void(0)
+      - generic [ref=e78]:
+        - list [ref=e79]:
+          - listitem [ref=e80]:
+            - button "登录" [ref=e82] [cursor=pointer]:
+              - generic [ref=e84]: 登录
+          - listitem [ref=e85]:
+            - button "注册" [ref=e86] [cursor=pointer]
+          - listitem [ref=e87]
+          - listitem [ref=e89]:
+            - generic [ref=e90] [cursor=pointer]:
+              - button "我的订单" [ref=e91]
+              - generic [ref=e92]: 󰪊
+          - listitem [ref=e93]
+          - listitem [ref=e95]:
+            - generic "携程客服" [ref=e96]:
+              - button "携程客服" [ref=e97]: 联系客服
+          - listitem [ref=e98]
+          - listitem [ref=e100]:
+            - generic "扫码下载携程App或关注微信公众号" [ref=e101]:
+              - button "扫码下载携程App或关注微信公众号" [ref=e102]:
+                - generic [ref=e103] [cursor=pointer]: 󰩷
+        - button "无障碍阅读开关" [ref=e104] [cursor=pointer]:
+          - generic [ref=e105]: 󰩲
+        - button "关怀版" [ref=e106] [cursor=pointer]:
+          - generic [ref=e107]: 󱃃
+    - main [ref=e108]:
+      - generic [ref=e109]:
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - textbox "提问前不妨先搜索下，看看你的问题是否已经有人询问过" [ref=e114]
+            - button "搜索" [ref=e115] [cursor=pointer]
+          - button "我要提问" [ref=e116] [cursor=pointer]:
+            - img [ref=e117]
+            - text: 我要提问
+        - generic [ref=e121]:
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: 问答标签
+              - heading "上海 删除" [level=1] [ref=e126]:
+                - generic [ref=e127]:
+                  - generic [ref=e128]: 上海
+                  - link "删除" [ref=e129] [cursor=pointer]:
+                    - /url: /asks/k4
+                    - img "删除" [ref=e130]
+            - generic [ref=e132]:
+              - paragraph [ref=e133]: 在结果中找：
+              - generic [ref=e134]:
+                - generic [ref=e135]:
+                  - link "人民广场" [ref=e136] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-91002
+                  - link "龙华寺" [ref=e137] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-75616
+                  - link "玩具总动员酒店" [ref=e138] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-25342561
+                  - link "新场古镇" [ref=e139] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-91000
+                  - link "上海迪士尼乐园酒店" [ref=e140] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-25342562
+                  - link "外滩" [ref=e141] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-75611
+                  - link "天马山公园" [ref=e142] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-76784
+                  - link "上海野生动物园-狐猴岛" [ref=e143] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-135627596
+                  - link "汉庭酒店(上海青浦汇金路地铁站店)" [ref=e144] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-95658293
+                  - link "上海迪士尼度假区" [ref=e145] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-13412802
+                  - link "百花岭" [ref=e146] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-145221296
+                  - link "上海海昌海洋公园" [ref=e147] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-52075446
+                  - link "城隍庙旅游区" [ref=e148] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-10524093
+                  - link "樱花园" [ref=e149] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-31660165
+                  - link "峡谷漂流" [ref=e150] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-52118856
+                  - link "苏州" [ref=e151] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-suzhou11
+                  - link "何" [ref=e152] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-ho1862962
+                  - link "杭州" [ref=e153] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-hangzhou14
+                  - link "希尔顿" [ref=e154] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-shilton1691651
+                  - link "中国" [ref=e155] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-china110000
+                  - link "龙镇" [ref=e156] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-longtieng1904907
+                  - link "南市" [ref=e157] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-nancity1447086
+                  - link "华山" [ref=e158] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-mounthua183
+                  - link "桥" [ref=e159] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-mostdistrict1638989
+                  - link "通道" [ref=e160] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-tongdao992
+                  - link "长沙" [ref=e161] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-changsha148
+                  - link "梅" [ref=e162] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-may1681306
+                  - link "美国" [ref=e163] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-unitedstates100047
+                  - link "道" [ref=e164] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-dau1454241
+                  - link "酒店" [ref=e165] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t105341
+                  - link "房间" [ref=e166] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t462877
+                  - link "入住" [ref=e167] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t462935
+                  - link "收费" [ref=e168] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t462957
+                  - link "电话" [ref=e169] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t113091
+                  - link "早餐" [ref=e170] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t362861
+                  - link "双床" [ref=e171] [cursor=pointer]:
+                    - /url: /asks/shanghai2-k4-t357342
+                - img [ref=e172] [cursor=pointer]: 更多
+          - generic [ref=e176]:
+            - generic [ref=e178]:
+              - link "热门问题" [ref=e179] [cursor=pointer]:
+                - /url: /asks/shanghai2
+              - link "最新问题" [ref=e180] [cursor=pointer]:
+                - /url: /asks/shanghai2-k1
+              - link "待回答问题" [ref=e181] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4
+            - 'link "0 回答 #上海佳美田园酒店(同济大学店）#请问有停车位吗 2026/01/15 wei性花" [ref=e183] [cursor=pointer]':
+              - /url: /asks/detail?askId=14233935
+              - generic [ref=e185]:
+                - paragraph [ref=e186]: "0"
+                - paragraph [ref=e187]: 回答
+              - heading "#上海佳美田园酒店(同济大学店）#请问有停车位吗" [level=2] [ref=e189]
+              - generic [ref=e190]:
+                - paragraph [ref=e191]: 2026/01/15
+                - button "wei性花" [ref=e192]:
+                  - generic [ref=e193]: wei性花
+            - link "0 回答 上海杨浦大桥附近有什么好走的路线 2026/01/16 莫拉加游记-L君🧭" [ref=e194] [cursor=pointer]:
+              - /url: /asks/detail?askId=14236243
+              - generic [ref=e196]:
+                - paragraph [ref=e197]: "0"
+                - paragraph [ref=e198]: 回答
+              - heading "上海杨浦大桥附近有什么好走的路线" [level=2] [ref=e200]
+              - generic [ref=e201]:
+                - paragraph [ref=e202]: 2026/01/16
+                - button "莫拉加游记-L君🧭" [ref=e203]:
+                  - generic [ref=e204]: 莫拉加游记-L君🧭
+            - link "0 回答 元宝岛的海水真的很清澈吗 2026/01/20 阿卷的旅行明信片集💌" [ref=e205] [cursor=pointer]:
+              - /url: /asks/detail?askId=14323883
+              - generic [ref=e207]:
+                - paragraph [ref=e208]: "0"
+                - paragraph [ref=e209]: 回答
+              - heading "元宝岛的海水真的很清澈吗" [level=2] [ref=e211]
+              - generic [ref=e212]:
+                - paragraph [ref=e213]: 2026/01/20
+                - button "阿卷的旅行明信片集💌" [ref=e214]:
+                  - generic [ref=e215]: 阿卷的旅行明信片集💌
+            - 'link "0 回答 #上海浦东机场川沙地铁站亚朵酒店#酒店电话多少？ 2026/01/21 YoYo_1D6O0G7W" [ref=e216] [cursor=pointer]':
+              - /url: /asks/detail?askId=14334829
+              - generic [ref=e218]:
+                - paragraph [ref=e219]: "0"
+                - paragraph [ref=e220]: 回答
+              - heading "#上海浦东机场川沙地铁站亚朵酒店#酒店电话多少？" [level=2] [ref=e222]
+              - generic [ref=e223]:
+                - paragraph [ref=e224]: 2026/01/21
+                - button "YoYo_1D6O0G7W" [ref=e225]:
+                  - generic [ref=e226]: YoYo_1D6O0G7W
+            - link "0 回答 枫叶岛有夜场活动安全吗 2026/01/21 留坝·漫游日记📝" [ref=e227] [cursor=pointer]:
+              - /url: /asks/detail?askId=14343621
+              - generic [ref=e229]:
+                - paragraph [ref=e230]: "0"
+                - paragraph [ref=e231]: 回答
+              - heading "枫叶岛有夜场活动安全吗" [level=2] [ref=e233]
+              - generic [ref=e234]:
+                - paragraph [ref=e235]: 2026/01/21
+                - button "留坝·漫游日记📝" [ref=e236]:
+                  - generic [ref=e237]: 留坝·漫游日记📝
+            - 'link "0 回答 #全季酒店(上海虹桥机场空港店)#宾馆电话是多少？ 2026/01/22 YoYo_9V3Z2C5V" [ref=e238] [cursor=pointer]':
+              - /url: /asks/detail?askId=14355436
+              - generic [ref=e240]:
+                - paragraph [ref=e241]: "0"
+                - paragraph [ref=e242]: 回答
+              - heading "#全季酒店(上海虹桥机场空港店)#宾馆电话是多少？" [level=2] [ref=e244]
+              - generic [ref=e245]:
+                - paragraph [ref=e246]: 2026/01/22
+                - button "YoYo_9V3Z2C5V" [ref=e247]:
+                  - generic [ref=e248]: YoYo_9V3Z2C5V
+            - link "0 回答 上海迪士尼1月带娃有什么注意事项 2026/01/22 📷镜头下的旅程JJ" [ref=e249] [cursor=pointer]:
+              - /url: /asks/detail?askId=14359451
+              - generic [ref=e251]:
+                - paragraph [ref=e252]: "0"
+                - paragraph [ref=e253]: 回答
+              - heading "上海迪士尼1月带娃有什么注意事项" [level=2] [ref=e255]
+              - generic [ref=e256]:
+                - paragraph [ref=e257]: 2026/01/22
+                - button "📷镜头下的旅程JJ" [ref=e258]:
+                  - generic [ref=e259]: 📷镜头下的旅程JJ
+            - link "0 回答 雁鹅村梅林徒步路线体力负担大吗 2026/01/22 ✨夜未央の旅者sxj" [ref=e260] [cursor=pointer]:
+              - /url: /asks/detail?askId=14361343
+              - generic [ref=e262]:
+                - paragraph [ref=e263]: "0"
+                - paragraph [ref=e264]: 回答
+              - heading "雁鹅村梅林徒步路线体力负担大吗" [level=2] [ref=e266]
+              - generic [ref=e267]:
+                - paragraph [ref=e268]: 2026/01/22
+                - button "✨夜未央の旅者sxj" [ref=e269]:
+                  - generic [ref=e270]: ✨夜未央の旅者sxj
+            - link "0 回答 龙华寺需要爬很多楼梯吗 2026/01/22 🌴椰子味的夏天6" [ref=e271] [cursor=pointer]:
+              - /url: /asks/detail?askId=14362259
+              - generic [ref=e273]:
+                - paragraph [ref=e274]: "0"
+                - paragraph [ref=e275]: 回答
+              - heading "龙华寺需要爬很多楼梯吗" [level=2] [ref=e277]
+              - generic [ref=e278]:
+                - paragraph [ref=e279]: 2026/01/22
+                - button "🌴椰子味的夏天6" [ref=e280]:
+                  - generic [ref=e281]: 🌴椰子味的夏天6
+            - link "0 回答 音乐之声拍摄地适合多长时间游览 2026/01/22 三哥🌟旅途Zoe7" [ref=e282] [cursor=pointer]:
+              - /url: /asks/detail?askId=14374078
+              - generic [ref=e284]:
+                - paragraph [ref=e285]: "0"
+                - paragraph [ref=e286]: 回答
+              - heading "音乐之声拍摄地适合多长时间游览" [level=2] [ref=e288]
+              - generic [ref=e289]:
+                - paragraph [ref=e290]: 2026/01/22
+                - button "三哥🌟旅途Zoe7" [ref=e291]:
+                  - generic [ref=e292]: 三哥🌟旅途Zoe7
+            - link "0 回答 城隍庙附近适合徒步吗 2026/01/23 ✈️阿飞的旅行手记5" [ref=e293] [cursor=pointer]:
+              - /url: /asks/detail?askId=14385500
+              - generic [ref=e295]:
+                - paragraph [ref=e296]: "0"
+                - paragraph [ref=e297]: 回答
+              - heading "城隍庙附近适合徒步吗" [level=2] [ref=e299]
+              - generic [ref=e300]:
+                - paragraph [ref=e301]: 2026/01/23
+                - button "✈️阿飞的旅行手记5" [ref=e302]:
+                  - generic [ref=e303]: ✈️阿飞的旅行手记5
+            - link "0 回答 外滩步行路线怎么选省力 2026/01/23 喜の旅行手札✈️" [ref=e304] [cursor=pointer]:
+              - /url: /asks/detail?askId=14385501
+              - generic [ref=e306]:
+                - paragraph [ref=e307]: "0"
+                - paragraph [ref=e308]: 回答
+              - heading "外滩步行路线怎么选省力" [level=2] [ref=e310]
+              - generic [ref=e311]:
+                - paragraph [ref=e312]: 2026/01/23
+                - button "喜の旅行手札✈️" [ref=e313]:
+                  - generic [ref=e314]: 喜の旅行手札✈️
+            - link "0 回答 田子坊人流量大不大 2026/01/23 🌍小鹿旅行日记" [ref=e315] [cursor=pointer]:
+              - /url: /asks/detail?askId=14385505
+              - generic [ref=e317]:
+                - paragraph [ref=e318]: "0"
+                - paragraph [ref=e319]: 回答
+              - heading "田子坊人流量大不大" [level=2] [ref=e321]
+              - generic [ref=e322]:
+                - paragraph [ref=e323]: 2026/01/23
+                - button "🌍小鹿旅行日记" [ref=e324]:
+                  - generic [ref=e325]: 🌍小鹿旅行日记
+            - link "0 回答 珍奇植物馆拍照好看吗 2026/01/26 薛鼎🌏探游记" [ref=e326] [cursor=pointer]:
+              - /url: /asks/detail?askId=14447688
+              - generic [ref=e328]:
+                - paragraph [ref=e329]: "0"
+                - paragraph [ref=e330]: 回答
+              - heading "珍奇植物馆拍照好看吗" [level=2] [ref=e332]
+              - generic [ref=e333]:
+                - paragraph [ref=e334]: 2026/01/26
+                - button "薛鼎🌏探游记" [ref=e335]:
+                  - generic [ref=e336]: 薛鼎🌏探游记
+            - link "0 回答 上海迪士尼乐园适合带娃冬天去吗 2026/01/27 旅行✈️小确幸🌟日记" [ref=e337] [cursor=pointer]:
+              - /url: /asks/detail?askId=14464940
+              - generic [ref=e339]:
+                - paragraph [ref=e340]: "0"
+                - paragraph [ref=e341]: 回答
+              - heading "上海迪士尼乐园适合带娃冬天去吗" [level=2] [ref=e343]
+              - generic [ref=e344]:
+                - paragraph [ref=e345]: 2026/01/27
+                - button "旅行✈️小确幸🌟日记" [ref=e346]:
+                  - generic [ref=e347]: 旅行✈️小确幸🌟日记
+            - 'link "0 回答 #上海均瀛民宿（崇明岛仙桥村店）#早餐可以送到房间吗？ 2026/01/27 火羽白日生upup" [ref=e348] [cursor=pointer]':
+              - /url: /asks/detail?askId=14470842
+              - generic [ref=e350]:
+                - paragraph [ref=e351]: "0"
+                - paragraph [ref=e352]: 回答
+              - heading "#上海均瀛民宿（崇明岛仙桥村店）#早餐可以送到房间吗？" [level=2] [ref=e354]
+              - generic [ref=e355]:
+                - paragraph [ref=e356]: 2026/01/27
+                - button "火羽白日生upup" [ref=e357]:
+                  - generic [ref=e358]: 火羽白日生upup
+            - 'link "0 回答 #上海均瀛民宿（崇明岛仙桥村店）#可以延迟退房吗？ 2026/01/27 YoYo_0R1V7K9A" [ref=e359] [cursor=pointer]':
+              - /url: /asks/detail?askId=14470847
+              - generic [ref=e361]:
+                - paragraph [ref=e362]: "0"
+                - paragraph [ref=e363]: 回答
+              - heading "#上海均瀛民宿（崇明岛仙桥村店）#可以延迟退房吗？" [level=2] [ref=e365]
+              - generic [ref=e366]:
+                - paragraph [ref=e367]: 2026/01/27
+                - button "YoYo_0R1V7K9A" [ref=e368]:
+                  - generic [ref=e369]: YoYo_0R1V7K9A
+            - 'link "0 回答 #上海均瀛民宿（崇明岛仙桥村店）# 是独门独栋吗？ 2026/01/27 YoYo_0R1V7K9A" [ref=e370] [cursor=pointer]':
+              - /url: /asks/detail?askId=14470848
+              - generic [ref=e372]:
+                - paragraph [ref=e373]: "0"
+                - paragraph [ref=e374]: 回答
+              - heading "#上海均瀛民宿（崇明岛仙桥村店）# 是独门独栋吗？" [level=2] [ref=e376]
+              - generic [ref=e377]:
+                - paragraph [ref=e378]: 2026/01/27
+                - button "YoYo_0R1V7K9A" [ref=e379]:
+                  - generic [ref=e380]: YoYo_0R1V7K9A
+            - 'link "0 回答 #上海均瀛民宿（崇明岛仙桥村店）#提供早饭吗？ 2026/01/27 火羽白日生upup" [ref=e381] [cursor=pointer]':
+              - /url: /asks/detail?askId=14470866
+              - generic [ref=e383]:
+                - paragraph [ref=e384]: "0"
+                - paragraph [ref=e385]: 回答
+              - heading "#上海均瀛民宿（崇明岛仙桥村店）#提供早饭吗？" [level=2] [ref=e387]
+              - generic [ref=e388]:
+                - paragraph [ref=e389]: 2026/01/27
+                - button "火羽白日生upup" [ref=e390]:
+                  - generic [ref=e391]: 火羽白日生upup
+            - link "0 回答 五龙湖公园适合带小孩吗 2026/01/28 旅行✈️薄荷糖" [ref=e392] [cursor=pointer]:
+              - /url: /asks/detail?askId=14477615
+              - generic [ref=e394]:
+                - paragraph [ref=e395]: "0"
+                - paragraph [ref=e396]: 回答
+              - heading "五龙湖公园适合带小孩吗" [level=2] [ref=e398]
+              - generic [ref=e399]:
+                - paragraph [ref=e400]: 2026/01/28
+                - button "旅行✈️薄荷糖" [ref=e401]:
+                  - generic [ref=e402]: 旅行✈️薄荷糖
+            - generic [ref=e404]:
+              - generic [ref=e405]: 上一页
+              - link "1" [ref=e406] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4
+              - link "2" [ref=e407] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p2
+              - link "3" [ref=e408] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p3
+              - link "4" [ref=e409] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p4
+              - link "5" [ref=e410] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p5
+              - link "6" [ref=e411] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p6
+              - link "7" [ref=e412] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p7
+              - generic [ref=e413]: ...
+              - link "50" [ref=e414] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p50
+              - link "下一页" [ref=e415] [cursor=pointer]:
+                - /url: /asks/shanghai2-k4/p2
+    - generic [ref=e419]:
+      - generic [ref=e420]:
+        - generic [ref=e422]:
+          - term [ref=e423]: 旅游资讯
+          - definition [ref=e424]:
+            - link "宾馆索引" [ref=e425] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/jiudian/
+          - definition [ref=e426]:
+            - link "攻略索引" [ref=e427] [cursor=pointer]:
+              - /url: https://you.ctrip.com/sitemap/
+          - definition [ref=e428]:
+            - link "机票索引" [ref=e429] [cursor=pointer]:
+              - /url: https://flights.ctrip.com/booking/hot-city-flights-sitemap.html
+          - definition [ref=e430]:
+            - link "网站导航" [ref=e431] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/sitemap.htm
+          - definition [ref=e432]:
+            - link "旅游索引" [ref=e433] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/sitemap/dj.html
+          - definition [ref=e434]:
+            - link "邮轮索引" [ref=e435] [cursor=pointer]:
+              - /url: https://cruise.ctrip.com/newpackage/hot-all-sitemap.html
+          - definition [ref=e436]:
+            - link "企业差旅索引" [ref=e437] [cursor=pointer]:
+              - /url: https://ct.ctrip.com/official?ctm_ref=sme006
+        - generic [ref=e439]:
+          - term [ref=e440]: 加盟合作
+          - definition [ref=e441]:
+            - link "分销联盟" [ref=e442] [cursor=pointer]:
+              - /url: https://u.ctrip.com/
+          - definition [ref=e443]:
+            - link "友情链接" [ref=e444] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/link/ctrip_link.html
+          - definition [ref=e445]:
+            - link "企业礼品卡采购" [ref=e446] [cursor=pointer]:
+              - /url: https://lipin.ctrip.com/lipinonline/static/intentional
+          - definition [ref=e447]:
+            - link "保险代理" [ref=e448] [cursor=pointer]:
+              - /url: https://www.ctripins.com/index.html
+          - definition [ref=e449]:
+            - link "代理合作" [ref=e450] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/dlhz.htm
+          - definition [ref=e451]:
+            - link "酒店加盟" [ref=e452] [cursor=pointer]:
+              - /url: https://hotels.ctrip.com/list-your-property/?channel=1
+          - definition [ref=e453]:
+            - link "目的地及景区合作" [ref=e454] [cursor=pointer]:
+              - /url: https://dst.ctrip.com/
+          - definition [ref=e455]:
+            - link "更多加盟合作" [ref=e456] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/cooperation/web/cooperation.html#ctm_ref=ctr_hp_btm_coop
+        - generic [ref=e458]:
+          - term [ref=e459]: 关于携程
+          - definition [ref=e460]:
+            - link "关于携程" [ref=e461] [cursor=pointer]:
+              - /url: https://m.ctrip.com/webapp/you/tsnap/mtk/aboutCtripW.html?isHideNavBar=yes&pop=close&autoawaken=close
+          - definition [ref=e462]:
+            - generic [ref=e464]:
+              - text: 携程热点
+              - generic [ref=e465]: 󰪊
+          - definition [ref=e466]:
+            - link "联系我们" [ref=e467] [cursor=pointer]:
+              - /url: http://pages.ctrip.com/public/contact.htm
+          - definition [ref=e468]:
+            - link "诚聘英才" [ref=e469] [cursor=pointer]:
+              - /url: https://careers.ctrip.com/
+          - definition [ref=e470]:
+            - link "用户协议" [ref=e471] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=0
+          - definition [ref=e472]:
+            - link "隐私政策" [ref=e473] [cursor=pointer]:
+              - /url: https://contents.ctrip.com/huodong/privacypolicypc/index?type=1
+          - definition [ref=e474]:
+            - link "营业执照" [ref=e475] [cursor=pointer]:
+              - /url: https://pages.ctrip.com/public/diploma/company.htm
+          - definition [ref=e476]:
+            - link "安全中心" [ref=e477] [cursor=pointer]:
+              - /url: http://sec.ctrip.com/
+          - definition [ref=e478]:
+            - link "携程内容中心" [ref=e479] [cursor=pointer]:
+              - /url: https://we.ctrip.com/account/login
+          - definition [ref=e480]:
+            - link "知识产权" [ref=e481] [cursor=pointer]:
+              - /url: https://pages.c-ctrip.com/public/encroachment.html
+          - definition [ref=e482]:
+            - link "Trip.com Group" [ref=e483] [cursor=pointer]:
+              - /url: https://group.trip.com/
+        - generic [ref=e484]:
+          - generic [ref=e485]:
+            - definition [ref=e486]:
+              - generic [ref=e487]:
+                - generic [ref=e488]: 境内：
+                - generic [ref=e489]:
+                  - generic [ref=e490]: "95010"
+                  - generic [ref=e491]: 或 400-830-6666
+            - definition [ref=e492]:
+              - generic [ref=e493]: 中国香港：+852-3008-3295
+            - definition [ref=e494]:
+              - generic [ref=e495]: 中国澳门：+86-21 3406-4888
+            - definition [ref=e496]:
+              - generic [ref=e497]: 中国台湾：+86-21 3406-4888
+            - definition [ref=e498]:
+              - generic [ref=e499]: 其他国家和地区：+86-21-3406-4888
+          - definition [ref=e501]:
+            - paragraph [ref=e503]: 扫码下载携程App
+      - generic [ref=e504]:
+        - paragraph [ref=e505]:
+          - link "Copyright©" [ref=e506] [cursor=pointer]:
+            - /url: http://pages.ctrip.com/public/copyright.htm
+          - text: 1999-2026,
+          - link "ctrip.com" [ref=e507] [cursor=pointer]:
+            - /url: http://www.ctrip.com/
+          - text: . All rights reserved. |
+          - link "ICP证：沪B2-20050130 |" [ref=e508] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/icp.pdf?t=20220325
+          - link "沪ICP备08023580号-3 |" [ref=e509] [cursor=pointer]:
+            - /url: http://beian.miit.gov.cn/
+          - link "网信算备310105117481904230015号" [ref=e510] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/wxsb/310105117481904230015.pdf
+        - paragraph [ref=e511]:
+          - link "沪公网备31010502002731号" [ref=e512] [cursor=pointer]:
+            - /url: http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010502002731
+            - text: 沪公网备31010502002731号
+          - text: 丨
+          - link "互联网药品信息服务资格证" [ref=e514] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/InternetDrugCertificate.pdf
+          - text: 丨
+          - link "（沪）网械平台备字[2022]第00001号" [ref=e515] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/yiliao.pdf?xx=11
+          - text: "| 沪网食备1050001号 |"
+          - link "旅游度假资质" [ref=e516] [cursor=pointer]:
+            - /url: http://m.ctrip.com/webapp/vacations/tour/supplier
+          - text: "|"
+          - link "平台信息" [ref=e517] [cursor=pointer]:
+            - /url: https://pages.c-ctrip.com/nfes/pchome/cert.html
+        - paragraph [ref=e518]:
+          - generic [ref=e519]: 违法和不良信息举报电话021-22500846丨全国旅游投诉热线12345丨
+          - link "上海市旅游网站落实诚信建设主体责任承诺书" [ref=e520] [cursor=pointer]:
+            - /url: http://pages.c-ctrip.com/commerce/promote/201611/other/zz/pc/index.html
+        - generic [ref=e521]:
+          - link "上海市监" [ref=e522] [cursor=pointer]:
+            - /url: http://scjgj.sh.gov.cn/
+          - link "网络社会征信网" [ref=e523] [cursor=pointer]:
+            - /url: http://www.zx110.org/
+          - link "信息举报中心" [ref=e524] [cursor=pointer]:
+            - /url: http://www.shjbzx.cn/
+          - link "可信网站" [ref=e525] [cursor=pointer]:
+            - /url: https://ss.knet.cn/verifyseal.dll?sn=e12061531010025926306977
+        - generic [ref=e526]:
+          - link "信用中国" [ref=e527] [cursor=pointer]:
+            - /url: http://www.creditchina.gov.cn/
+          - link "网上有害信息举报专区" [ref=e528] [cursor=pointer]:
+            - /url: https://www.12377.cn/
+          - link "消费维权联络点" [ref=e529] [cursor=pointer]:
+            - /url: https://im-synthesize.ctrip.com/complaints/rights/AppealCreate
+          - generic "适老化及无障碍标识" [ref=e530]

@@ -49,7 +49,7 @@ class Settings(BaseSettings):
 
     # LLM
     llm_api_key: Optional[str] = Field(default=None, description="LLM API key")
-    llm_model: str = Field(default="deepseek-chat", description="LLM model name")
+    llm_model: str = Field(default="deepseek-v4-flash", description="LLM model name")
     llm_base_url: str = Field(default="https://api.deepseek.com/v1", description="LLM base URL")
 
     # Context

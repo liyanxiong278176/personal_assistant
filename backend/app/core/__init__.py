@@ -17,7 +17,7 @@ from .container import DIContainer, CircularDependencyError, ServiceDescriptor
 from .errors import AgentError, DegradationLevel, DegradationStrategy
 from .llm import LLMClient, ToolCall, ToolResult, ToolCallResult
 from .tools import Tool, ToolInput, ToolMetadata, ToolRegistry, global_registry
-from .prompts import PromptLayer, PromptLayerDef, PromptBuilder, DEFAULT_SYSTEM_PROMPT
+from .prompts import load_memory_files, PromptService
 from .query_engine import QueryEngine, get_global_engine, set_global_engine
 from .context_mgmt import (
     ContextCompressor,
@@ -84,10 +84,8 @@ __all__ = [
     "ToolMetadata",
     "ToolRegistry",
     "global_registry",
-    "PromptLayer",
-    "PromptLayerDef",
-    "PromptBuilder",
-    "DEFAULT_SYSTEM_PROMPT",
+    "load_memory_files",
+    "PromptService",
     "QueryEngine",
     "get_global_engine",
     "set_global_engine",

@@ -23,7 +23,7 @@ from app.db.postgres import get_context_window
 
 # Configuration from environment
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-chat")
+MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-v4-flash")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "2000"))
 REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "30"))
 CONTEXT_MESSAGE_LIMIT = int(os.getenv("CONTEXT_MESSAGE_LIMIT", "20"))

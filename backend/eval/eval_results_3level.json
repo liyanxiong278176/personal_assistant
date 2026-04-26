@@ -1,0 +1,5170 @@
+{
+  "summary": {
+    "total": 1000,
+    "correct": 434,
+    "accuracy": 43.4,
+    "strategy_distribution": {
+      "LLMStrategy": 666,
+      "RuleStrategy": 323,
+      "CacheStrategy": 11
+    },
+    "llm_reduction_pct": 33.4,
+    "high_freq_accuracy": 59.2741935483871
+  },
+  "errors": [
+    {
+      "case_id": 3,
+      "query": "蜜月旅行买什么保险好？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.8,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 7,
+      "query": "請問在杜甫草堂一般會停留多久時間？團體解說時間？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 9,
+      "query": "龙华寺适合拍照吗",
+      "expected": "image",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 10,
+      "query": "武汉户部巷哪些小吃值得排队",
+      "expected": "food",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 14,
+      "query": "退休旅行买什么保险好？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.6,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 28,
+      "query": "带孩子去爬山，有安全又轻松的山推荐吗",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 29,
+      "query": "武汉粮道街人均20能吃饱吗",
+      "expected": "food",
+      "predicted": "budget",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 41,
+      "query": "暑假，杜甫草堂要排队吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.8,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 43,
+      "query": "退休夫妻去欧洲，跟团还是自由行更省心？",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 49,
+      "query": "从杭州东站到西湖打车大概多少钱？",
+      "expected": "transport",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 50,
+      "query": "极地海洋公园和国家海洋博物馆只能选一个，去哪个比较好？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 51,
+      "query": "厦门出差，鼓浪屿半天能玩完吗",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 54,
+      "query": "鼓浪屿港仔后沙滩适合傍晚去吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 68,
+      "query": "今天去北海公园需要预约吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 70,
+      "query": "天安门城楼预约不了呢？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 73,
+      "query": "带爸妈和娃去云南，昆明大理丽江怎么走不累",
+      "expected": "itinerary",
+      "predicted": "transport",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 87,
+      "query": "青岛出差，周末想去崂山，一天往返交通方便吗",
+      "expected": "itinerary",
+      "predicted": "transport",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 88,
+      "query": "泡西岭温泉有哪些注意事项",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 91,
+      "query": "成都到重庆高铁多少钱，学生有优惠吗",
+      "expected": "transport",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 99,
+      "query": "在西岭温泉泡多久比较合适",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 102,
+      "query": "乌普利斯齐赫洞穴村需要爬很久吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 105,
+      "query": "三亚冬天去暖和吗？住宿贵不贵？",
+      "expected": "query",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 107,
+      "query": "有没有适合老人拍照的风景好的地方？",
+      "expected": "image",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 109,
+      "query": "卡兹别克的圣三一教堂怎么上去方便",
+      "expected": "itinerary",
+      "predicted": "transport",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 114,
+      "query": "儿童票是什么要求？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 115,
+      "query": "求推荐上海免费又好拍的网红地",
+      "expected": "image",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 128,
+      "query": "亲子游去海边，哪里人少又安全",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 133,
+      "query": "蜜月去马尔代夫选哪个岛最浪漫？",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 134,
+      "query": "成都青旅床位一晚多少钱，有推荐吗",
+      "expected": "hotel",
+      "predicted": "budget",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 138,
+      "query": "新装修的会有味道吗？",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 139,
+      "query": "你好，支持微信支付吗？",
+      "expected": "chat",
+      "predicted": "budget",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 142,
+      "query": "想找一家有电梯、离景点近的酒店，价格别太贵。",
+      "expected": "hotel",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 144,
+      "query": "請問空調制熱給力嗎？天冷時房裡暖和嗎？",
+      "expected": "hotel",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 146,
+      "query": "带娃旅游好累，有没有轻松点的玩法",
+      "expected": "chat",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 161,
+      "query": "上海出差半天空闲，去外滩还是陆家嘴更顺路？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 162,
+      "query": "床好睡吗，赶路一天想要倒头就睡",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 163,
+      "query": "北京故宫老人有优惠票吗？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 166,
+      "query": "杭州西湖边上有便宜的青旅吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 168,
+      "query": "带全家去九寨沟，预算两万够不够",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 169,
+      "query": "大溪地波拉波拉岛水上屋一晚多少钱？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 170,
+      "query": "可以延时退房吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 173,
+      "query": "退休金不多，怎么规划省钱旅行？",
+      "expected": "budget",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 174,
+      "query": "酒店附近地铁站上下有手扶电梯吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 175,
+      "query": "黄山带老人小孩坐缆车能到山顶吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 176,
+      "query": "厦门鼓浪屿船票老人有优惠吗？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 178,
+      "query": "请问寒山寺可以坐船去山塘街吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 182,
+      "query": "离国家会展中心近吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 183,
+      "query": "从景区门口走到大石头那，有多远？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 187,
+      "query": "长沙五一广场附近性价比高的酒店有吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 189,
+      "query": "三亚蜜月酒店性价比高的有哪些？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 191,
+      "query": "买了2025年2月20号的套票，明天逛了白帝城和瞿塘峡。后天继续逛三峡之巅、可以吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 192,
+      "query": "如果不做缆车可以爬上去吗？要多久",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 193,
+      "query": "請問天冷時空調可以制熱嗎？房裡暖和嗎？",
+      "expected": "hotel",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 198,
+      "query": "已经预约这酒店，因为要凌晨带一个老人和两个孩子去红墙西排队看升旗，请问步行可以吗？多久？还是约红墙西",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 202,
+      "query": "12:30入园可以晚到晚上几点。",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 203,
+      "query": "请问从杭州怎么去乌镇，能否给个路线，谢谢",
+      "expected": "transport",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 204,
+      "query": "深圳出差，晚上能逛的夜市推荐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 205,
+      "query": "一家五口去西安，预算一万够不够？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 207,
+      "query": "成都到九寨沟自驾，路上有适合老人休息的服务区吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 208,
+      "query": "有没有洗衣机？床垫软不软",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 209,
+      "query": "退休旅行买什么保险好？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 211,
+      "query": "哈尔滨中央大街附近有便宜的冰雕看吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 214,
+      "query": "酒店床垫子是偏软还是偏硬？如果是偏软，酒店有补救措施吗？比如将床垫翻过来用，或者酒店预备了硬床垫",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 215,
+      "query": "伊斯坦布尔有没有性价比高的民宿？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 217,
+      "query": "新西兰南岛蜜月自驾预算大概多少？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 221,
+      "query": "请问一下大家，这里环境安静吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 224,
+      "query": "优速通是每个人都要买吗 儿童也要？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 226,
+      "query": "那个万人演唱会的票和门票有什么区别吗？",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 227,
+      "query": "有没有适合老人的跟团游，节奏慢不赶路？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 228,
+      "query": "停车方便吗，是地下还是地面停车",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 229,
+      "query": "深圳到广州自驾，带6岁娃中途休息站推荐",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 230,
+      "query": "斐济蜜月岛民晚餐体验值得吗？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 233,
+      "query": "杭州西湖附近适合老人小孩的餐厅有哪些",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 235,
+      "query": "希腊蜜月岛和圣托里尼哪个更浪漫",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 236,
+      "query": "少华山山上能买到吃的吗",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 238,
+      "query": "一个人去日本，怎么省钱吃饭？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 239,
+      "query": "冰岛蜜月极光季节几月最好？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 240,
+      "query": "去雍和宫需要提前预约门票吗？怎么预约？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 241,
+      "query": "成都出差，预算300以内，春熙路附近有什么性价比高的酒店？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 244,
+      "query": "蜜月去希腊跳岛游交通怎么衔接？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 245,
+      "query": "请问不坐环保车爬上山顶要多久",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 246,
+      "query": "卡雷奇历史街区适合步行游玩吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 247,
+      "query": "3个人可以住大床房吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 250,
+      "query": "你好 房间有吹风机吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 251,
+      "query": "成都东站去这个酒店到哪个地铁站下方便",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 253,
+      "query": "在西岭温泉拍照好出片吗",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 254,
+      "query": "买的门票是不是里面的项目都可以玩",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 256,
+      "query": "青岛啤酒节期间住宿会不会很贵？",
+      "expected": "budget",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 257,
+      "query": "酒店的床单枕头被套干净吗，会不会有什么奇怪的污渍啊，皮肤敏感的睡了会不会痒？",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 258,
+      "query": "带老人小孩去张家界坐索道安全吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 259,
+      "query": "重庆洪崖洞附近停车方便吗，带老人不想走太远",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 263,
+      "query": "青岛海边有没有推婴儿车好走的路段",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 264,
+      "query": "西安兵马俑和华山带老人小孩能一天玩完吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 266,
+      "query": "重庆解放碑附近最便宜的青旅",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 267,
+      "query": "可以提前入住吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 271,
+      "query": "翡翠湖什么时候去人少颜色好看",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 272,
+      "query": "千年瑶寨适合慢步游览吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 274,
+      "query": "长沙出差，五一广场附近性价比高的酒店",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 275,
+      "query": "双人票是两个成人吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 276,
+      "query": "我早上8:25的飞机，酒店几点送机啊？",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 278,
+      "query": "70岁以上可以坐潜艇吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 279,
+      "query": "巴统黑海海滨大道适合慢步游览吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 282,
+      "query": "青岛栈桥几点看日出最好",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 283,
+      "query": "有免费送机吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 284,
+      "query": "老年人坐游轮合适吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 287,
+      "query": "巴统黑海海滨大道适合全家吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 288,
+      "query": "想拍点风景照，哪里适合老人慢慢拍？",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 289,
+      "query": "成都出差，周五晚上到，周六一天能去都江堰和宽窄巷子吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 290,
+      "query": "两个人退休旅行一个月，预算两万够不够？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 291,
+      "query": "带娃去动物园，推车能进吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 293,
+      "query": "蜜月去马尔代夫选哪个岛最浪漫？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 294,
+      "query": "从加德满都到博卡拉，坐飞机还是巴士便宜？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 296,
+      "query": "大理洱海环湖骑行路线推荐",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 297,
+      "query": "标准间有独立卫浴没",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 298,
+      "query": "房间门可以反锁吗，有反锁链条吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 299,
+      "query": "重庆出差，解放碑到机场地铁多久",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 301,
+      "query": "赶早班机吃的上酒店的早饭吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 302,
+      "query": "深圳南山科技园到宝安机场打车多久？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 303,
+      "query": "瑞士蜜月，坐黄金列车沿途住哪里好？",
+      "expected": "itinerary",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 304,
+      "query": "第比利斯圣三一教堂参观有限制吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 306,
+      "query": "苏州园林哪个最平坦，适合轮椅推着走？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 308,
+      "query": "普吉岛到皮皮岛蜜月快艇怎么订",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 309,
+      "query": "巴黎和威尼斯蜜月，预算3万够不够？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 310,
+      "query": "2025年开业的，室内有装修味儿吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 312,
+      "query": "蜜月旅行预算5万去哪最浪漫？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 314,
+      "query": "带3岁娃去动物园，推车能进吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 315,
+      "query": "提前入园写的俩成人，那一家三口怎么办？还有一个人不能一起进吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 316,
+      "query": "蜜月去希腊要准备多少现金？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 317,
+      "query": "哥伦比亚波哥大背包客住哪个区安全？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 318,
+      "query": "广州长隆附近有没有适合孩子的酒店推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 319,
+      "query": "九寨沟第二天二次入园需不需要再次买票",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 320,
+      "query": "亲子酒店有没有儿童托管服务",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 322,
+      "query": "青岛啤酒节老年人能去吗？会不会太吵？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 324,
+      "query": "酒店周边有好玩的地方嘛",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 325,
+      "query": "斯里兰卡有什么小众的探险路线？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 326,
+      "query": "豪华双床房的浴室是透明的吗…？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 327,
+      "query": "带娃坐高铁，怎么选座位方便照顾孩子",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 330,
+      "query": "上海豫园有哪些值得一试的美食",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 331,
+      "query": "西安博物馆和陕西历史博物馆推荐哪个",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 334,
+      "query": "蜜月去马尔代夫，有没有一价全包的水屋推荐？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 335,
+      "query": "合肥出差，周末想去黄山，两天时间够不够",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 336,
+      "query": "洛阳水席哪家店本地人常去？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 339,
+      "query": "你好，酒店可以开公司发票吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 341,
+      "query": "夏威夷茂宜岛蜜月，租车方便吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 342,
+      "query": "只用证件可以入住吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 343,
+      "query": "西岭温泉的私密泡池体验感怎么样",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 344,
+      "query": "乌普利斯齐赫洞穴村适合小龄儿童参观吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 345,
+      "query": "桂林阳朔竹筏老人小孩能坐吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 346,
+      "query": "玻利维亚天空之镜雨季去还是旱季去？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 347,
+      "query": "熊猫馆人多不多呀，你们得逛园路线都是怎么样的",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 348,
+      "query": "早餐怎么样啊？地铁站近吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 349,
+      "query": "长沙五一广场附近有没有人均50的民宿",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 350,
+      "query": "从桂林阳朔到龙脊梯田怎么坐车？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 351,
+      "query": "从上海到南京坐高铁还是普通火车舒服？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 354,
+      "query": "有免费停车场吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 356,
+      "query": "房间提供拖鞋吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 357,
+      "query": "去顺德吃双皮奶，哪家店最老字号？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 358,
+      "query": "杭州亲子民宿有滑梯房吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 359,
+      "query": "请问机场去酒店班车上客点在哪里？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 361,
+      "query": "巴厘岛有没有适合背包客的冲浪营地",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 362,
+      "query": "希腊米克诺斯岛和圣托里尼哪个更浪漫？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 363,
+      "query": "带孩子去海边，哪里安全又好玩",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 364,
+      "query": "在酒店住宿打网约车方便吗",
+      "expected": "transport",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 366,
+      "query": "成都市区到熊猫基地有没有无障碍通道的交通",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 367,
+      "query": "深圳机场到南山科技园打车大概多少钱",
+      "expected": "transport",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 368,
+      "query": "苏州出差，拙政园和博物馆能一起逛吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 369,
+      "query": "在秘鲁怎么换当地货币最划算",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 370,
+      "query": "带娃去成都，有哪些不辣的儿童餐推荐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 373,
+      "query": "沪C自驾周五前往酒店，周日离开，是否限行，是否需要网上提前申请",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 374,
+      "query": "北京到桂林高铁要多久？有直达吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 376,
+      "query": "上海迪士尼儿童推车可以带进去吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 377,
+      "query": "北京西站附近有没有性价比高的酒店，离地铁近的",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 379,
+      "query": "打车方便吗？好找吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 381,
+      "query": "拍一张你们推荐的适合三代同游的景点照片",
+      "expected": "image",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 383,
+      "query": "年满70岁怎么购票？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 384,
+      "query": "郑州出差，二七广场附近早餐推荐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 385,
+      "query": "在蒙古草原露营需要带什么装备",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 386,
+      "query": "九寨沟-黄龙-镇江关直通车这一躺，到镇江关几点啊？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 387,
+      "query": "暑假带娃去云南，会不会太累",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 388,
+      "query": "故宫讲解3小时，是故宫和大帅府吗，导游带着边走边讲吗，不走回头路",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 389,
+      "query": "酒店有烤红薯吗？是免费的吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 390,
+      "query": "卫生怎么样？隔音好吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 391,
+      "query": "上海哪里适合看夜景",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 392,
+      "query": "情侣去巴黎住哪个区最安全又浪漫？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 396,
+      "query": "青岛啤酒节期间住宿会不会涨价",
+      "expected": "query",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 397,
+      "query": "熊猫谷和这儿哪个更好，或者更适合去看。",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 399,
+      "query": "学生党去青岛玩三天大概花多少钱",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 400,
+      "query": "青岛啤酒节期间住宿会不会很贵？",
+      "expected": "budget",
+      "predicted": "hotel",
+      "strategy": "CacheStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 401,
+      "query": "重庆洪崖洞晚上几点亮灯",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 402,
+      "query": "一月份去上海需要穿厚的羽绒服吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 403,
+      "query": "塞舌尔和毛里求斯哪个更适合蜜月？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 406,
+      "query": "离高铁站近吵不吵？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 407,
+      "query": "請問可以機場接送來回嗎？還是有限制次數，謝謝",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 409,
+      "query": "哈尔滨出差，中央大街到冰雪大世界怎么坐车",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 411,
+      "query": "退休旅行团有没有不赶时间的？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 412,
+      "query": "在网上购买了vip套票，去玩的时候还需要去人工处预约吗，我买了8点-12点，是任意时间都可以进去吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 414,
+      "query": "镇国寺和双林寺，都有官方的讲解导游可以请吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 415,
+      "query": "尼泊尔徒步需要办什么许可证？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 416,
+      "query": "乌普利斯齐赫洞穴村适合带孩子玩吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 418,
+      "query": "刀郎南京演唱会什么时候预售门票？",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 419,
+      "query": "苏州园区到上海虹桥高铁多久一班？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 421,
+      "query": "从成都怎么去乐山吃跷脚牛肉？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 422,
+      "query": "去杭州西湖推婴儿车方便吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 423,
+      "query": "从广州到珠海长隆怎么坐车最方便，有老人和婴儿",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 424,
+      "query": "广州长隆野生动物园有适合老人的休息区吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 425,
+      "query": "南京夫子庙附近哪家饭店有儿童餐和清淡菜",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 426,
+      "query": "有没有适合大学生穷游的冷门城市推荐",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 429,
+      "query": "巴厘岛适合情侣的悬崖酒店推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 430,
+      "query": "带5岁娃去海边，推荐几个安全沙滩",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 431,
+      "query": "房间电视机可以手机投屏吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 432,
+      "query": "吃饭方便吗",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 433,
+      "query": "塞舌尔和马尔代夫哪个更适合蜜月？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 435,
+      "query": "亲子游预算5000以内，推荐去哪里",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 436,
+      "query": "成都到重庆高铁学生票打折吗",
+      "expected": "transport",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 438,
+      "query": "身份证没带可以用电子身份证买票吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 439,
+      "query": "南京博物院需要预约吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 440,
+      "query": "成都到九寨沟的商务车直通车大概需要多长时间？回程是在哪里下车？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 442,
+      "query": "停车场有没有充电桩",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 443,
+      "query": "桂林阳朔啤酒鱼哪家最好吃",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 444,
+      "query": "长沙出差，五一广场附近有没有便宜的快捷酒店？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 445,
+      "query": "黄山有缆车吗，老人小孩能上去吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 447,
+      "query": "罗马适合情侣拍照的景点推荐",
+      "expected": "image",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 448,
+      "query": "印度斋浦尔到阿格拉怎么去便宜",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 450,
+      "query": "去长沙吃臭豆腐哪家不踩雷？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 454,
+      "query": "青岛海边民宿便宜的有推荐吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 455,
+      "query": "京都蜜月情侣和服体验怎么预约？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 456,
+      "query": "翡翠湖冬季适合游玩吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 457,
+      "query": "重庆洪崖洞拍照最佳机位在哪",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 458,
+      "query": "酒店可以停小车吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 459,
+      "query": "尼泊尔徒步需要办什么证件",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 461,
+      "query": "洛阳龙门石窟学生证半价吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 462,
+      "query": "双床房的两张床可以拼起来吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 464,
+      "query": "大帅府和沈阳故宫需要预约吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 465,
+      "query": "西岭温泉周边有推荐的拍照位置吗",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 468,
+      "query": "三亚亲子餐厅，有宝宝椅和儿童套餐的",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 469,
+      "query": "坐城际高铁过来，怎么到酒店",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 472,
+      "query": "我在outlets，有免费大巴回酒店吗？在什么位置。",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 473,
+      "query": "北海道冬天蜜月，推荐几个温泉酒店？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 474,
+      "query": "3岁宝宝去迪士尼，哪些项目能玩",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 475,
+      "query": "三个大人订了两间房快艇可以免费接送三个人吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 476,
+      "query": "京都适合情侣的民宿推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 477,
+      "query": "一个人去印度安全吗有什么要注意的",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 478,
+      "query": "西安回民街附近有没有人均100的民宿？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 480,
+      "query": "沈阳出差，中街步行街到故宫多远？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 483,
+      "query": "成都周边有没有适合老人慢慢逛的古镇？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 484,
+      "query": "杭州西湖边有没有便宜的老年公寓？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 485,
+      "query": "青岛海边民宿哪家适合一大家子住",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 486,
+      "query": "北京人民大会堂需要预约吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 487,
+      "query": "一家五口去成都，预算八千够不够",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 488,
+      "query": "三亚第一市场海鲜加工费一般多少？",
+      "expected": "budget",
+      "predicted": "food",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 489,
+      "query": "厦门鼓浪屿推婴儿车方便吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 491,
+      "query": "有没有适合大学生穷游的冷门城市推荐",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "CacheStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 492,
+      "query": "广州早茶哪家老字号好吃又不贵",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 493,
+      "query": "这个酒店新开业的，有味道吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 494,
+      "query": "卫生怎么样",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 495,
+      "query": "预约的时间比较靠后，能提前进馆吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 496,
+      "query": "北海道冬天蜜月温泉酒店推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 497,
+      "query": "发一张亲子酒店房间的照片",
+      "expected": "image",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 498,
+      "query": "迪士尼乐园有家庭卫生间和母婴室吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 499,
+      "query": "连续两晚是可以提早入住的吗？可以多早入住？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 501,
+      "query": "老人坐飞机需要健康证明吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 504,
+      "query": "可以提前入住吗？上午10点",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 505,
+      "query": "请问卫生环境怎么样？床品什么的干净吗？怕有小虫子…谢谢大家",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 506,
+      "query": "博物馆里面有可以暂时存放东西的地方吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 509,
+      "query": "老人去云南会不会高原反应？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 510,
+      "query": "蜜月去日本，东京到京都怎么坐车最方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 511,
+      "query": "丽江古城石板路推婴儿车好走吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 512,
+      "query": "迪士尼小镇有哪些必逛的特色景点？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 514,
+      "query": "徒步虎跳峡需要向导吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 515,
+      "query": "松鹤滑雪场适合新手吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 516,
+      "query": "明仕田园竹筏漂流值不值得坐",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 519,
+      "query": "孩子晕车怎么办，自驾游要注意什么",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 520,
+      "query": "请问需要购买观光车票吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 521,
+      "query": "厦门沙茶面哪家最好吃？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 523,
+      "query": "杭州到南京的高铁，老人小孩有没有优惠票？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 524,
+      "query": "杭州出差半天，西湖和灵隐寺能都去吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 526,
+      "query": "厕所以及洗澡的地方小不小",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 527,
+      "query": "求推荐重庆三天两夜穷游攻略，预算500够吗",
+      "expected": "itinerary",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 529,
+      "query": "机场能接吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 530,
+      "query": "武汉天河机场到光谷地铁怎么换乘",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 531,
+      "query": "带孩子去北京，哪家餐厅有儿童餐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 532,
+      "query": "北京故宫门票老人和小孩有优惠吗",
+      "expected": "budget",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 534,
+      "query": "带孩子去北京，哪些景点适合3岁宝宝玩",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 535,
+      "query": "隔音怎么样，临街吗？吵不吵",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 537,
+      "query": "从成都到九寨沟包车大概多少钱",
+      "expected": "transport",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 538,
+      "query": "杭州到乌镇怎么坐车最省钱",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 540,
+      "query": "重庆出差，晚上想坐两江游轮，哪里买票便宜",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 544,
+      "query": "老年人吃饭有什么清淡又营养的推荐？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 545,
+      "query": "请问购买了特展票之后，还需要预约上海博物馆大门票吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 547,
+      "query": "买不到票谁有年卡 帮帮忙有偿的",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 549,
+      "query": "北京牛街小吃哪家排队最值得？",
+      "expected": "food",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 550,
+      "query": "带70岁老人和3岁小孩去成都，哪些景点不累人？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 553,
+      "query": "去海边玩，老人要注意什么？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 554,
+      "query": "重庆有没有当地人常去的火锅店推荐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 555,
+      "query": "酒店床垫子是偏软还是偏硬？如果是偏软，酒店还有补救措施吗？比如将床垫翻过来用，或者酒店预备了硬床垫",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 557,
+      "query": "上海迪士尼最近人多不多啊",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 558,
+      "query": "西安兵马俑和华山适合带70岁老人去吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 559,
+      "query": "可以骑自行车进去嘛",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 560,
+      "query": "西格纳吉红酒小镇品酒体验贵吗",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 561,
+      "query": "三亚免税店附近有儿童游乐设施吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 565,
+      "query": "从成都到稻城亚丁坐大巴要多久",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 567,
+      "query": "有没有带电梯和轮椅通道的酒店推荐？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 568,
+      "query": "听说有电磁炉。那请问，有锅吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 569,
+      "query": "从上海虹桥站过去要怎么做地铁？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 571,
+      "query": "黑海海滨大道适合带小朋友推车散步吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 572,
+      "query": "乌普利斯齐赫洞穴村游玩多久合适",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 573,
+      "query": "在柬埔寨暹粒玩三天大概花多少钱",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 574,
+      "query": "从大理古城到双廊怎么坐车最方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 575,
+      "query": "请问上午去马蹄寺，下午去七彩丹霞来得及吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 576,
+      "query": "景区售票处可以寄放行李箱吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 581,
+      "query": "带全家去黄山，住山脚还是山顶方便？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 582,
+      "query": "买票了，没带身份证可以进去吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 583,
+      "query": "广州早茶哪家老字号性价比高？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 584,
+      "query": "想带孩子去上海迪士尼乐园，有什么好的攻略推荐，门票怎么买最划算？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 585,
+      "query": "发一张亲子酒店房间的照片看看",
+      "expected": "image",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 586,
+      "query": "武汉出差，中午两小时能去黄鹤楼打个卡吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 589,
+      "query": "广州长隆附近有没有亲子酒店推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 590,
+      "query": "京都情侣和服体验推荐",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 591,
+      "query": "老挝琅勃拉邦一天大概花多少钱？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 592,
+      "query": "求推荐重庆三天两夜穷游路线，预算500够吗",
+      "expected": "itinerary",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 593,
+      "query": "带娃去厦门，住曾厝垵还是中山路方便",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 594,
+      "query": "摩洛哥一个人旅行安全吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 596,
+      "query": "去潮汕吃牛肉火锅大概人均多少钱？",
+      "expected": "budget",
+      "predicted": "food",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 597,
+      "query": "带8岁孩子去西安，适合的景点有哪些",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 598,
+      "query": "离机场距离",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 599,
+      "query": "这个动物园真的可以带小孩子去吗，安全吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 600,
+      "query": "老公想蜜月去非洲，有浪漫路线吗？",
+      "expected": "chat",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 602,
+      "query": "14岁未成年人怎么买票呢？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 604,
+      "query": "格鲁吉亚第比利斯青旅推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 605,
+      "query": "土耳其烤肉和烤肉卷有什么区别？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 606,
+      "query": "西岭温泉周边有哪些适合慢游的景点",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 607,
+      "query": "请问买二球还是三球联票？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 608,
+      "query": "亲子游预算5000够不够两大一小去珠海",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 609,
+      "query": "威尼斯到佛罗伦萨怎么坐火车最方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 612,
+      "query": "灵山适合带孩子去玩吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 614,
+      "query": "暑假带孩子去长白山，穿什么衣服",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 615,
+      "query": "重庆洪崖洞晚上几点亮灯",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 616,
+      "query": "北京西站附近有什么半小时能逛的景点？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 617,
+      "query": "青岛啤酒博物馆值得去吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 618,
+      "query": "大理洱海环湖租车，七座车一天多少钱？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 619,
+      "query": "酒店周边好吃的多吗",
+      "expected": "hotel",
+      "predicted": "food",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 621,
+      "query": "推荐几个适合拍照又不用走太多路的地方",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 622,
+      "query": "昆明长水机场到市中心大巴多少钱？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 623,
+      "query": "长沙到凤凰古城怎么坐车便宜",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 624,
+      "query": "武汉出差，光谷到汉口站地铁要多久？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 625,
+      "query": "普通游船票能看见大佛吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 626,
+      "query": "蜜月旅行，带无人机去欧洲哪些国家需要申报？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 627,
+      "query": "电梯需要刷卡吗？好打车吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 628,
+      "query": "瑞士蜜月火车路线推荐",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 629,
+      "query": "退休旅行带什么药比较保险？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 630,
+      "query": "青岛海边哪家民宿有电梯和轮椅通道？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 631,
+      "query": "请问有可以寄放行李的地方吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 632,
+      "query": "是台湾那个德立庄吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 633,
+      "query": "成都青旅推荐，最好在春熙路附近",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 634,
+      "query": "带娃旅游太累了，求安慰",
+      "expected": "chat",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 635,
+      "query": "厦门鼓浪屿上有没有电梯的民宿推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 637,
+      "query": "香港茶餐厅推荐哪家性价比高",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 638,
+      "query": "大理洱海环湖包车多少钱，能坐六个人吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 639,
+      "query": "从长沙到张家界最便宜的交通方式",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 641,
+      "query": "从成都到青城山怎么坐车方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 642,
+      "query": "买票能开发票吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 645,
+      "query": "合肥出差，包公园值得去吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 646,
+      "query": "南京三天两夜穷游攻略有吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 647,
+      "query": "隔音如何？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 648,
+      "query": "西岭温泉周边的美食有推荐吗",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 649,
+      "query": "发一张亲子游的卡通地图",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 652,
+      "query": "大溪地蜜月水上屋哪家最私密？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 654,
+      "query": "酒店有没洗衣服的地方？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 656,
+      "query": "昆明到西双版纳坐高铁要多久？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 657,
+      "query": "圣托里尼看日落的最佳酒店是哪家？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 659,
+      "query": "普吉岛情侣必去的餐厅有哪些？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 662,
+      "query": "亲子餐厅上海哪家性价比高",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 664,
+      "query": "三亚海鲜市场哪家加工实惠，适合一大家子",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 667,
+      "query": "什么时候开业？暖气能调温度吗？卫生怎么样？",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 668,
+      "query": "海外的学生和老人能用优惠券吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 669,
+      "query": "从大理古城到双廊古镇怎么坐车最方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 670,
+      "query": "隔音怎么样？床舒服吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 671,
+      "query": "亲子酒店有婴儿床和浴盆吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 672,
+      "query": "丽江古城里有没有安静的客栈推荐？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 674,
+      "query": "杭州西湖边有没有能看景的平价民宿？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 675,
+      "query": "蜜月旅行带什么拍照装备最出片？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 676,
+      "query": "有没有轮椅友好的景点推荐？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 678,
+      "query": "酒店有餐厅吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 679,
+      "query": "天津出差，想抽空去天津之眼，排队时间长吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 680,
+      "query": "蜜月旅行去马尔代夫还是巴厘岛好",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 681,
+      "query": "酒店到景区的接驳车会很多人坐吗？需不需要排队？最早的接驳车是几点？",
+      "expected": "transport",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.8,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 682,
+      "query": "武汉户部巷和粮道街哪个更值得去？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 683,
+      "query": "我想问问景区观光车如何收费，谢谢。有没有推荐路线",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 684,
+      "query": "厦门鼓浪屿带婴儿车方便吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 686,
+      "query": "带6岁孩子去西安，交通方便吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 687,
+      "query": "杭州到苏州有没有慢一点的旅游专列？",
+      "expected": "transport",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 689,
+      "query": "望仙谷几点夜景开灯？景区几点闭园？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 690,
+      "query": "酒店有洗衣房和健身房吗？是免费的吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 691,
+      "query": "新西兰南岛蜜月，推荐几个星空观测点？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 692,
+      "query": "请问从天府机场t2去酒店方便吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 694,
+      "query": "长沙五一广场附近性价比高的酒店有哪些？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 696,
+      "query": "从上海到苏州一日游怎么坐车最省钱",
+      "expected": "transport",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 701,
+      "query": "从广州到深圳最便宜的交通方式",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 702,
+      "query": "两个人退休旅行，预算五千块能玩几天？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 703,
+      "query": "桂林阳朔西街住宿贵不贵？",
+      "expected": "budget",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 704,
+      "query": "斯里兰卡火车沿线有什么小众村庄",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 705,
+      "query": "镇江关站到九寨沟的直通车在哪里坐？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 706,
+      "query": "湖南图书馆怎么去",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 707,
+      "query": "马尔代夫蜜月，岛上晚餐一般人均多少钱？",
+      "expected": "food",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 708,
+      "query": "亲子游去日本，签证好办吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 709,
+      "query": "你好，请问酒店内有电梯嘛",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 710,
+      "query": "桂林阳朔有没有轮椅可以租的景点",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 711,
+      "query": "青岛出差，栈桥到崂山打车贵不贵？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 712,
+      "query": "南京南站附近有适合开会的咖啡馆吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 714,
+      "query": "昆明出差，翠湖公园附近有没有适合跑步的路线？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 715,
+      "query": "租赁电瓶车要多少钱？",
+      "expected": "transport",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 716,
+      "query": "黄山有缆车直达山顶吗？老人走不动咋办？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 718,
+      "query": "西格纳吉酒庄品酒如何选择合适品种",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 720,
+      "query": "从北京到泰山坐高铁还是夜车划算",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 721,
+      "query": "巴厘岛蜜月必去的网红餐厅",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 722,
+      "query": "嘉宾轩和君悦的区别是什么",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 723,
+      "query": "亲子游装备清单，3岁娃必备",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 725,
+      "query": "孩子晕车，适合去哪里亲子游",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 726,
+      "query": "没有身份证可以进去吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 727,
+      "query": "厦门鼓浪屿推婴儿车方便吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 728,
+      "query": "塞舌尔蜜月酒店性价比高的有哪些",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 729,
+      "query": "两张1.2米床可以拼一起的吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 730,
+      "query": "步行去故宫多久",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 732,
+      "query": "夏威夷蜜月适合去哪个岛",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 733,
+      "query": "请教一下打车、还有外卖方便吗？有人接单吗？比如想点个霸王茶姬的话…..谢谢！",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 734,
+      "query": "普吉岛蜜月私人泳池别墅多少钱一晚？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 735,
+      "query": "去黄山坐缆车方便吗？山上住宿贵不贵？",
+      "expected": "transport",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 736,
+      "query": "是地下室吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 737,
+      "query": "居住环境怎么样",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 740,
+      "query": "酒店管家服务包含哪些内容？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 741,
+      "query": "没带身份证可以进吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 742,
+      "query": "从河内坐火车到胡志明市方便吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 743,
+      "query": "杭州西湖附近有没有免费景点打卡",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 745,
+      "query": "有没有适合一个人吃的成都美食路线？",
+      "expected": "itinerary",
+      "predicted": "food",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 746,
+      "query": "三亚海鲜市场哪家加工店干净实惠？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 748,
+      "query": "杭州西湖边免费景点有哪些",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 749,
+      "query": "请问酒店附近可以放烟花吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 751,
+      "query": "请问住过的达人们，房间有异味和噪音吗？",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 754,
+      "query": "冰岛环岛自驾大概要多少预算",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 755,
+      "query": "三亚酒店儿童水上乐园哪个最好",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 756,
+      "query": "昆明出差，滇池和石林一天能去吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 758,
+      "query": "亲子游预算5000够不够去大理玩三天",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 759,
+      "query": "有没有适合拍照的网红书店推荐",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 760,
+      "query": "半天玩完了吧",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 761,
+      "query": "威尼斯到佛罗伦萨蜜月火车怎么订？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 762,
+      "query": "广州长隆和珠海长隆哪个更适合三代人一起玩",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 763,
+      "query": "昆明到西双版纳有没有夜间大巴？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 764,
+      "query": "退役军人能免费吗？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 765,
+      "query": "芙蓉镇和凤凰古城哪个好",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 766,
+      "query": "亲子酒店有没有儿童托管服务",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 769,
+      "query": "青岛出差，从火车站到栈桥走路多久？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 770,
+      "query": "从成都到九寨沟直通车几个小时到呀？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 772,
+      "query": "亲子游去云南，推荐几个适合孩子的景点",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 775,
+      "query": "灵隐寺飞来峰可以现场直接购票吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 776,
+      "query": "请问送机的班车多久一班",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 778,
+      "query": "桂林阳朔竹筏允许80岁老人坐吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 779,
+      "query": "隔音好吗，我见有不少评论说隔音一般",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 780,
+      "query": "从大理古城到双廊古镇怎么坐车",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 781,
+      "query": "请问这个酒店新装修，有味道吗？要带孩子去玩",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 782,
+      "query": "想和老伴去泡温泉，哪里环境好又安静？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 783,
+      "query": "适合八十岁老人去吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 784,
+      "query": "暑假亲子游哪里人少又安全",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 785,
+      "query": "有没有适合3岁娃的室内游乐场推荐",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 786,
+      "query": "酒店附近安全吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 792,
+      "query": "发一张你在西藏拍的照片看看",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 794,
+      "query": "西岭温泉的本地美食值得尝试吗",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 798,
+      "query": "请问有洗衣机以及干衣机吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 799,
+      "query": "摩洛哥沙漠团多少钱一个人",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 800,
+      "query": "哈尔滨冰雪大世界什么时候开放",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 801,
+      "query": "老年人跟团游和自由行哪个更划算？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 802,
+      "query": "发一张蜜月海景酒店的照片",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 805,
+      "query": "厦门出差，鼓浪屿轮渡最晚几点回来",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 806,
+      "query": "咨询一下，入住无锡苏宁银河国际酒店的自驾车泊车的位置？",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 807,
+      "query": "想住民宿，但怕楼梯多，有没有推荐？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 808,
+      "query": "去张家界有轮椅通道吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 809,
+      "query": "长沙五一广场附近最便宜的青旅多少钱一晚",
+      "expected": "hotel",
+      "predicted": "budget",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 810,
+      "query": "发一张你拍的喜马拉雅山徒步照片",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 811,
+      "query": "求推荐一个适合三代同堂的国内海岛游",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 814,
+      "query": "退休旅行想带狗，哪些景区允许宠物？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 815,
+      "query": "老年人去西藏要注意什么？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 816,
+      "query": "珠海长隆附近有没有适合孩子的民宿推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 817,
+      "query": "吴哥窟的观赏时间有推荐吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 818,
+      "query": "北京西站附近有没有半小时能到的景点？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 819,
+      "query": "预算3000块，去西安玩三天够不够？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 820,
+      "query": "凌晨2点起床看升国旗，好打车吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 821,
+      "query": "蜜月去瑞士坐黄金列车怎么选座？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 822,
+      "query": "酒店卫生吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 823,
+      "query": "带孩子去北京，哪里吃饭有儿童餐",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 826,
+      "query": "亲子游带什么药最实用",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 827,
+      "query": "亲子游怎么省钱，求攻略",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 829,
+      "query": "杭州到苏州坐什么车最方便？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 830,
+      "query": "在缅甸蒲甘看日出最好的位置在哪",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 832,
+      "query": "大理洱海环湖适合推轮椅吗",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 834,
+      "query": "成都周边哪里适合带三岁小孩和七十岁老人玩",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 835,
+      "query": "请问酒店有早餐吗？可以延迟退房吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 836,
+      "query": "请问南京遇难同胞纪念馆对面的柒舍酒店，大家觉得怎么样？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 837,
+      "query": "有行李寄存处吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 839,
+      "query": "请问窗户能打开的吗？能开窗通风的吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 840,
+      "query": "武汉户部巷和粮道街哪个更值得去",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 842,
+      "query": "这里适合老年人游了吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 843,
+      "query": "蜜月旅行预算三万够去欧洲吗？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 844,
+      "query": "有没有不用爬山、能坐车游览的景点推荐？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 845,
+      "query": "普吉岛蜜月，性价比高的海景餐厅有哪些？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 849,
+      "query": "成都周边哪里适合住一周，空气好又安静？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 850,
+      "query": "酒店班车接送，入园和出园可以在迪士尼小镇的那个门吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 851,
+      "query": "亲子游坐飞机，婴儿车能带上机吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 853,
+      "query": "北京到杭州有没有高铁商务座？腿能伸直吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 854,
+      "query": "酒店安静么",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 856,
+      "query": "翡翠湖夏季去要注意什么",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 857,
+      "query": "龙门石窟玩好出来后叫车方便吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 858,
+      "query": "从加德满都到博卡拉有夜班巴士吗？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 859,
+      "query": "西安回民街哪家羊肉泡馍最正宗？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 860,
+      "query": "斐济蜜月，有没有私人岛度假村推荐？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 861,
+      "query": "成都到乐山当天往返怎么坐车",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 862,
+      "query": "从成都到乐山坐高铁多久？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 863,
+      "query": "家庭房有冰箱吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 864,
+      "query": "請問最早可以幾點送去機場？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 865,
+      "query": "布拉格蜜月旅行一周花费多少",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 866,
+      "query": "广州天河出差，求推荐离地铁近的快捷酒店",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 867,
+      "query": "这个酒店晚上安静吗？ 睡眠比较差的人比较担心",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 868,
+      "query": "每个房型的电视都可以投屏吗",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 869,
+      "query": "翡翠湖拍照建议有哪些",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 870,
+      "query": "马尔代夫蜜月，水飞和内飞哪个体验更好？",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 871,
+      "query": "请问新装修的 房间有味道吗？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 873,
+      "query": "去潮汕吃牛肉火锅，预算大概多少？",
+      "expected": "budget",
+      "predicted": "food",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 875,
+      "query": "早歺不是自助的吗？固定早歺是什么概念？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 876,
+      "query": "熊猫周边都很贵吗？",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 879,
+      "query": "3岁宝宝去海边玩要注意什么安全",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 880,
+      "query": "陆家嘴有哪些必打卡的观景台或高楼可以俯瞰城市全景？",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 881,
+      "query": "广州长隆和珠海长隆哪个更适合5岁孩子",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 882,
+      "query": "崀山夫夷江竹筏漂流适合几岁孩子",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 883,
+      "query": "蜜月旅行想拍婚纱照，推荐目的地",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 886,
+      "query": "翡翠湖小火车体验如何",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 888,
+      "query": "斯里兰卡火车沿线最美的风景是哪段？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.9,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 890,
+      "query": "从上海去苏州吃蟹粉面，一天够吗？",
+      "expected": "itinerary",
+      "predicted": "budget",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 896,
+      "query": "有停車場嗎？",
+      "expected": "hotel",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.9,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 897,
+      "query": "广州早茶哪家老字号本地人常去？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 898,
+      "query": "上海迪士尼亲子游，两大一小预算大概多少",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 902,
+      "query": "1.我住的时候想把快递寄到酒店，再从酒店寄回去可以吗，\n2.能不能寄存行李",
+      "expected": "chat",
+      "predicted": "hotel",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 909,
+      "query": "想找能看日出的山顶露营地",
+      "expected": "hotel",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 911,
+      "query": "墨西哥城街头安全吗，一个人逛要注意什么",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 912,
+      "query": "好玩吗浙里",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 915,
+      "query": "亲子游拍照技巧，怎么抓拍孩子自然表情",
+      "expected": "image",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 916,
+      "query": "卫生间内是顶喷还是花洒",
+      "expected": "image",
+      "predicted": "hotel",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 920,
+      "query": "求推荐重庆三天两夜穷游路线，预算500够吗",
+      "expected": "itinerary",
+      "predicted": "budget",
+      "strategy": "CacheStrategy",
+      "confidence": 0.85,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 921,
+      "query": "天安门怎么预约？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 927,
+      "query": "大溪地水上屋一晚多少钱？",
+      "expected": "hotel",
+      "predicted": "budget",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 931,
+      "query": "成都春熙路附近便宜民宿推荐",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 932,
+      "query": "西岭温泉自驾去方便吗",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 933,
+      "query": "塞舌尔和毛里求斯哪个更适合蜜月？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 934,
+      "query": "酒店位置怎么样啊？",
+      "expected": "hotel",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 937,
+      "query": "上海亲子游一周大概花多少钱",
+      "expected": "budget",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 938,
+      "query": "一个人去墨西哥城安全吗？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "high_freq"
+    },
+    {
+      "case_id": 939,
+      "query": "厦门出差，鼓浪屿半天够不够玩？",
+      "expected": "query",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 940,
+      "query": "您好！如果打车的话，网约车能直接到贵店门口吗？还是需要定位到某个地点呢？我看着你们的地址，应该是胡…",
+      "expected": "transport",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 941,
+      "query": "青岛海鲜市场可以自己买去加工吗？",
+      "expected": "food",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 942,
+      "query": "翡翠湖小火车值得坐吗",
+      "expected": "itinerary",
+      "predicted": "chat",
+      "strategy": "LLMStrategy",
+      "confidence": 0.3,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 958,
+      "query": "带7岁孩子去博物馆，有互动体验的推荐",
+      "expected": "query",
+      "predicted": "itinerary",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 959,
+      "query": "迁安天元谷魔方玩国的黄帝胜迹飞翔影院值得打卡吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 965,
+      "query": "巴统黑海海滨大道适合长距离散步吗",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 974,
+      "query": "晚上能看到星空吗？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.9,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 980,
+      "query": "预约成功的讯息是在哪里的？为什么找不到？",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 981,
+      "query": "刀郎厦门演唱会何时预售门票",
+      "expected": "chat",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "low_freq"
+    },
+    {
+      "case_id": 982,
+      "query": "慕田峪长城景区里有吃饭的店吗？",
+      "expected": "food",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.95,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 983,
+      "query": "有停车场吗",
+      "expected": "hotel",
+      "predicted": "query",
+      "strategy": "LLMStrategy",
+      "confidence": 0.9,
+      "category": "mid_freq"
+    },
+    {
+      "case_id": 999,
+      "query": "去帅府要预订吗？开放时间是几点啊？",
+      "expected": "itinerary",
+      "predicted": "query",
+      "strategy": "RuleStrategy",
+      "confidence": 0.85,
+      "category": "mid_freq"
+    }
+  ],
+  "confusion_matrix": {
+    "image": {
+      "image": 1,
+      "query": 5,
+      "chat": 12,
+      "hotel": 3
+    },
+    "food": {
+      "food": 70,
+      "query": 3,
+      "budget": 2,
+      "chat": 38
+    },
+    "query": {
+      "chat": 98,
+      "query": 71,
+      "itinerary": 8,
+      "hotel": 2
+    },
+    "budget": {
+      "budget": 35,
+      "chat": 33,
+      "itinerary": 1,
+      "hotel": 3,
+      "food": 3,
+      "query": 1
+    },
+    "hotel": {
+      "hotel": 101,
+      "budget": 3,
+      "query": 5,
+      "chat": 116,
+      "food": 1,
+      "itinerary": 1
+    },
+    "itinerary": {
+      "query": 25,
+      "itinerary": 66,
+      "transport": 3,
+      "chat": 78,
+      "hotel": 1,
+      "budget": 4,
+      "food": 1
+    },
+    "transport": {
+      "transport": 62,
+      "budget": 5,
+      "chat": 86,
+      "itinerary": 3,
+      "hotel": 2,
+      "query": 2
+    },
+    "chat": {
+      "chat": 28,
+      "hotel": 6,
+      "budget": 1,
+      "itinerary": 3,
+      "query": 8
+    }
+  }
+}
