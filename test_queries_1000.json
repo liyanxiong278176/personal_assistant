@@ -1,0 +1,6242 @@
+[
+  {
+    "id": 1,
+    "query": "深圳旅游路线推荐，预算1000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.856977"
+  },
+  {
+    "id": 2,
+    "query": "长沙旅游路线推荐，预算10000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.856998"
+  },
+  {
+    "id": 3,
+    "query": "贵阳亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857002"
+  },
+  {
+    "id": 4,
+    "query": "五一期间我们朋友个人去开封旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857005"
+  },
+  {
+    "id": 5,
+    "query": "贵阳亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857008"
+  },
+  {
+    "id": 6,
+    "query": "带老人去北京旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857014"
+  },
+  {
+    "id": 7,
+    "query": "黄山亲子游行程安排，5天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857016"
+  },
+  {
+    "id": 8,
+    "query": "西安情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857019"
+  },
+  {
+    "id": 9,
+    "query": "贵阳情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857021"
+  },
+  {
+    "id": 10,
+    "query": "贵阳旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857023"
+  },
+  {
+    "id": 11,
+    "query": "昆明深度游，3天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857026"
+  },
+  {
+    "id": 12,
+    "query": "南京深度游，2天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857028"
+  },
+  {
+    "id": 13,
+    "query": "五一期间我们3个人去深圳旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857030"
+  },
+  {
+    "id": 14,
+    "query": "丽江旅游路线推荐，预算500元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857033"
+  },
+  {
+    "id": 15,
+    "query": "帮我规划拉萨6日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857035"
+  },
+  {
+    "id": 16,
+    "query": "帮我规划青岛4日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857037"
+  },
+  {
+    "id": 17,
+    "query": "带老人去大理旅游，7天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857039"
+  },
+  {
+    "id": 18,
+    "query": "三亚情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857041"
+  },
+  {
+    "id": 19,
+    "query": "春节大连自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857044"
+  },
+  {
+    "id": 20,
+    "query": "帮我规划南京5日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857046"
+  },
+  {
+    "id": 21,
+    "query": "带老人去昆明旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857048"
+  },
+  {
+    "id": 22,
+    "query": "帮我规划长沙5日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857050"
+  },
+  {
+    "id": 23,
+    "query": "武汉旅游路线推荐，预算500元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857052"
+  },
+  {
+    "id": 24,
+    "query": "带老人去九寨沟旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857059"
+  },
+  {
+    "id": 25,
+    "query": "五一期间我们朋友个人去青岛旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857061"
+  },
+  {
+    "id": 26,
+    "query": "泰山旅游路线推荐，预算10000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857064"
+  },
+  {
+    "id": 27,
+    "query": "五一期间我们3个人去泰山旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857068"
+  },
+  {
+    "id": 28,
+    "query": "三亚深度游，7天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857071"
+  },
+  {
+    "id": 29,
+    "query": "敦煌情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857073"
+  },
+  {
+    "id": 30,
+    "query": "五一期间我们1个人去成都旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857076"
+  },
+  {
+    "id": 31,
+    "query": "五一期间我们5个人去大连旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857078"
+  },
+  {
+    "id": 32,
+    "query": "大理亲子游行程安排，5天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857081"
+  },
+  {
+    "id": 33,
+    "query": "成都情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857083"
+  },
+  {
+    "id": 34,
+    "query": "春节贵阳自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857085"
+  },
+  {
+    "id": 35,
+    "query": "带老人去开封旅游，6天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857087"
+  },
+  {
+    "id": 36,
+    "query": "武汉情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857089"
+  },
+  {
+    "id": 37,
+    "query": "上海深度游，6天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857091"
+  },
+  {
+    "id": 38,
+    "query": "张家界情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857093"
+  },
+  {
+    "id": 39,
+    "query": "敦煌深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857096"
+  },
+  {
+    "id": 40,
+    "query": "帮我规划天津7日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857098"
+  },
+  {
+    "id": 41,
+    "query": "深圳深度游，7天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857100"
+  },
+  {
+    "id": 42,
+    "query": "青岛旅游路线推荐，预算10000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857103"
+  },
+  {
+    "id": 43,
+    "query": "杭州情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857105"
+  },
+  {
+    "id": 44,
+    "query": "天津情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857107"
+  },
+  {
+    "id": 45,
+    "query": "帮我规划黄山6日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857109"
+  },
+  {
+    "id": 46,
+    "query": "春节北京自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857111"
+  },
+  {
+    "id": 47,
+    "query": "泰山旅游路线推荐，预算15000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857113"
+  },
+  {
+    "id": 48,
+    "query": "带老人去北京旅游，7天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857115"
+  },
+  {
+    "id": 49,
+    "query": "天津深度游，10天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857117"
+  },
+  {
+    "id": 50,
+    "query": "贵阳情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857119"
+  },
+  {
+    "id": 51,
+    "query": "拉萨情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857121"
+  },
+  {
+    "id": 52,
+    "query": "五一期间我们5个人去三亚旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857124"
+  },
+  {
+    "id": 53,
+    "query": "帮我规划深圳7日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857126"
+  },
+  {
+    "id": 54,
+    "query": "五一期间我们2个人去苏州旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857128"
+  },
+  {
+    "id": 55,
+    "query": "带老人去大连旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857130"
+  },
+  {
+    "id": 56,
+    "query": "武汉亲子游行程安排，5天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857132"
+  },
+  {
+    "id": 57,
+    "query": "带老人去福州旅游，2天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857134"
+  },
+  {
+    "id": 58,
+    "query": "重庆旅游路线推荐，预算5000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857138"
+  },
+  {
+    "id": 59,
+    "query": "泰山旅游路线推荐，预算5000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857140"
+  },
+  {
+    "id": 60,
+    "query": "春节泰山自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857143"
+  },
+  {
+    "id": 61,
+    "query": "帮我规划北京3日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857145"
+  },
+  {
+    "id": 62,
+    "query": "三亚旅游路线推荐，预算3000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857148"
+  },
+  {
+    "id": 63,
+    "query": "桂林情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857150"
+  },
+  {
+    "id": 64,
+    "query": "长沙情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857152"
+  },
+  {
+    "id": 65,
+    "query": "南京旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857154"
+  },
+  {
+    "id": 66,
+    "query": "帮我规划洛阳1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857157"
+  },
+  {
+    "id": 67,
+    "query": "桂林旅游路线推荐，预算3000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857159"
+  },
+  {
+    "id": 68,
+    "query": "南京深度游，8天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857161"
+  },
+  {
+    "id": 69,
+    "query": "春节张家界自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857163"
+  },
+  {
+    "id": 70,
+    "query": "春节大连自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857165"
+  },
+  {
+    "id": 71,
+    "query": "帮我规划长沙2日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857168"
+  },
+  {
+    "id": 72,
+    "query": "春节福州自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857170"
+  },
+  {
+    "id": 73,
+    "query": "春节北京自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857173"
+  },
+  {
+    "id": 74,
+    "query": "青岛深度游，15天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857175"
+  },
+  {
+    "id": 75,
+    "query": "五一期间我们4个人去泰山旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857177"
+  },
+  {
+    "id": 76,
+    "query": "帮我规划洛阳10日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857179"
+  },
+  {
+    "id": 77,
+    "query": "五一期间我们3个人去贵阳旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857181"
+  },
+  {
+    "id": 78,
+    "query": "昆明旅游路线推荐，预算3000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857184"
+  },
+  {
+    "id": 79,
+    "query": "泰山情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857186"
+  },
+  {
+    "id": 80,
+    "query": "带老人去重庆旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857188"
+  },
+  {
+    "id": 81,
+    "query": "带老人去上海旅游，8天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857190"
+  },
+  {
+    "id": 82,
+    "query": "武汉情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857192"
+  },
+  {
+    "id": 83,
+    "query": "五一期间我们情侣个人去大理旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857194"
+  },
+  {
+    "id": 84,
+    "query": "春节张家界自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857196"
+  },
+  {
+    "id": 85,
+    "query": "五一期间我们1个人去贵阳旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857198"
+  },
+  {
+    "id": 86,
+    "query": "带老人去张家界旅游，8天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857200"
+  },
+  {
+    "id": 87,
+    "query": "五一期间我们一家三口个人去大连旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857203"
+  },
+  {
+    "id": 88,
+    "query": "三亚亲子游行程安排，3天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857205"
+  },
+  {
+    "id": 89,
+    "query": "春节泰山自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857207"
+  },
+  {
+    "id": 90,
+    "query": "帮我规划贵阳2日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857210"
+  },
+  {
+    "id": 91,
+    "query": "春节福州自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857212"
+  },
+  {
+    "id": 92,
+    "query": "帮我规划武汉1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857214"
+  },
+  {
+    "id": 93,
+    "query": "张家界深度游，10天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857216"
+  },
+  {
+    "id": 94,
+    "query": "广州亲子游行程安排，4天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857219"
+  },
+  {
+    "id": 95,
+    "query": "西安情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857221"
+  },
+  {
+    "id": 96,
+    "query": "帮我规划桂林5日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857223"
+  },
+  {
+    "id": 97,
+    "query": "开封旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857225"
+  },
+  {
+    "id": 98,
+    "query": "大理深度游，2天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857227"
+  },
+  {
+    "id": 99,
+    "query": "福州情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857229"
+  },
+  {
+    "id": 100,
+    "query": "帮我规划福州3日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857231"
+  },
+  {
+    "id": 101,
+    "query": "拉萨亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857233"
+  },
+  {
+    "id": 102,
+    "query": "桂林深度游，7天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857235"
+  },
+  {
+    "id": 103,
+    "query": "春节昆明自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857237"
+  },
+  {
+    "id": 104,
+    "query": "五一期间我们5个人去南昌旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857239"
+  },
+  {
+    "id": 105,
+    "query": "桂林深度游，6天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857241"
+  },
+  {
+    "id": 106,
+    "query": "五一期间我们情侣个人去昆明旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857243"
+  },
+  {
+    "id": 107,
+    "query": "丽江亲子游行程安排，2天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857246"
+  },
+  {
+    "id": 108,
+    "query": "带老人去青岛旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857248"
+  },
+  {
+    "id": 109,
+    "query": "长沙旅游路线推荐，预算15000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857250"
+  },
+  {
+    "id": 110,
+    "query": "大连旅游路线推荐，预算5000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857252"
+  },
+  {
+    "id": 111,
+    "query": "帮我规划黄山1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857256"
+  },
+  {
+    "id": 112,
+    "query": "北京亲子游行程安排，10天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857258"
+  },
+  {
+    "id": 113,
+    "query": "帮我规划重庆1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857260"
+  },
+  {
+    "id": 114,
+    "query": "长沙旅游路线推荐，预算3000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857262"
+  },
+  {
+    "id": 115,
+    "query": "南京情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857264"
+  },
+  {
+    "id": 116,
+    "query": "武汉深度游，15天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857266"
+  },
+  {
+    "id": 117,
+    "query": "带老人去天津旅游，6天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857269"
+  },
+  {
+    "id": 118,
+    "query": "广州深度游，1天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857271"
+  },
+  {
+    "id": 119,
+    "query": "贵阳亲子游行程安排，8天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857273"
+  },
+  {
+    "id": 120,
+    "query": "青岛亲子游行程安排，8天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857275"
+  },
+  {
+    "id": 121,
+    "query": "福州深度游，8天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857277"
+  },
+  {
+    "id": 122,
+    "query": "青岛旅游路线推荐，预算500元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857280"
+  },
+  {
+    "id": 123,
+    "query": "带老人去大连旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857283"
+  },
+  {
+    "id": 124,
+    "query": "南昌旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857285"
+  },
+  {
+    "id": 125,
+    "query": "春节武汉自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857287"
+  },
+  {
+    "id": 126,
+    "query": "带老人去大连旅游，7天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857289"
+  },
+  {
+    "id": 127,
+    "query": "苏州深度游，2天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857291"
+  },
+  {
+    "id": 128,
+    "query": "福州深度游，2天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857293"
+  },
+  {
+    "id": 129,
+    "query": "青岛深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857295"
+  },
+  {
+    "id": 130,
+    "query": "带老人去武汉旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857299"
+  },
+  {
+    "id": 131,
+    "query": "帮我规划三亚15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857301"
+  },
+  {
+    "id": 132,
+    "query": "带老人去贵阳旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857303"
+  },
+  {
+    "id": 133,
+    "query": "丽江旅游路线推荐，预算10000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857306"
+  },
+  {
+    "id": 134,
+    "query": "重庆亲子游行程安排，4天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857308"
+  },
+  {
+    "id": 135,
+    "query": "帮我规划九寨沟8日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857310"
+  },
+  {
+    "id": 136,
+    "query": "深圳亲子游行程安排，6天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857312"
+  },
+  {
+    "id": 137,
+    "query": "春节南京自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857314"
+  },
+  {
+    "id": 138,
+    "query": "泰山情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857316"
+  },
+  {
+    "id": 139,
+    "query": "五一期间我们情侣个人去南京旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857318"
+  },
+  {
+    "id": 140,
+    "query": "九寨沟情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857320"
+  },
+  {
+    "id": 141,
+    "query": "重庆亲子游行程安排，7天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857322"
+  },
+  {
+    "id": 142,
+    "query": "敦煌亲子游行程安排，6天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857324"
+  },
+  {
+    "id": 143,
+    "query": "黄山深度游，10天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857326"
+  },
+  {
+    "id": 144,
+    "query": "帮我规划三亚7日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857328"
+  },
+  {
+    "id": 145,
+    "query": "帮我规划武汉15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857330"
+  },
+  {
+    "id": 146,
+    "query": "帮我规划成都15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857332"
+  },
+  {
+    "id": 147,
+    "query": "带老人去重庆旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857334"
+  },
+  {
+    "id": 148,
+    "query": "帮我规划天津7日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857336"
+  },
+  {
+    "id": 149,
+    "query": "上海亲子游行程安排，5天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857339"
+  },
+  {
+    "id": 150,
+    "query": "拉萨深度游，5天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857341"
+  },
+  {
+    "id": 151,
+    "query": "五一期间我们6个人去九寨沟旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857344"
+  },
+  {
+    "id": 152,
+    "query": "帮我规划武汉3日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857346"
+  },
+  {
+    "id": 153,
+    "query": "贵阳情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857348"
+  },
+  {
+    "id": 154,
+    "query": "昆明情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857351"
+  },
+  {
+    "id": 155,
+    "query": "帮我规划福州4日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857353"
+  },
+  {
+    "id": 156,
+    "query": "春节重庆自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857355"
+  },
+  {
+    "id": 157,
+    "query": "春节张家界自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857357"
+  },
+  {
+    "id": 158,
+    "query": "福州亲子游行程安排，15天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857359"
+  },
+  {
+    "id": 159,
+    "query": "杭州情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857361"
+  },
+  {
+    "id": 160,
+    "query": "带老人去敦煌旅游，2天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857364"
+  },
+  {
+    "id": 161,
+    "query": "北京亲子游行程安排，2天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857366"
+  },
+  {
+    "id": 162,
+    "query": "五一期间我们朋友个人去大理旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857368"
+  },
+  {
+    "id": 163,
+    "query": "五一期间我们6个人去敦煌旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857370"
+  },
+  {
+    "id": 164,
+    "query": "五一期间我们1个人去开封旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857372"
+  },
+  {
+    "id": 165,
+    "query": "拉萨情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857374"
+  },
+  {
+    "id": 166,
+    "query": "帮我规划大连2日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857376"
+  },
+  {
+    "id": 167,
+    "query": "帮我规划洛阳5日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857378"
+  },
+  {
+    "id": 168,
+    "query": "苏州深度游，8天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857380"
+  },
+  {
+    "id": 169,
+    "query": "泰山亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857383"
+  },
+  {
+    "id": 170,
+    "query": "大理情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857385"
+  },
+  {
+    "id": 171,
+    "query": "五一期间我们情侣个人去苏州旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857454"
+  },
+  {
+    "id": 172,
+    "query": "帮我规划南昌5日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857458"
+  },
+  {
+    "id": 173,
+    "query": "黄山亲子游行程安排，6天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857461"
+  },
+  {
+    "id": 174,
+    "query": "桂林亲子游行程安排，8天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857464"
+  },
+  {
+    "id": 175,
+    "query": "黄山情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857468"
+  },
+  {
+    "id": 176,
+    "query": "五一期间我们2个人去武汉旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857472"
+  },
+  {
+    "id": 177,
+    "query": "五一期间我们6个人去福州旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857475"
+  },
+  {
+    "id": 178,
+    "query": "帮我规划天津6日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857477"
+  },
+  {
+    "id": 179,
+    "query": "帮我规划广州1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857479"
+  },
+  {
+    "id": 180,
+    "query": "春节拉萨自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857482"
+  },
+  {
+    "id": 181,
+    "query": "福州深度游，3天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857484"
+  },
+  {
+    "id": 182,
+    "query": "带老人去张家界旅游，5天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857487"
+  },
+  {
+    "id": 183,
+    "query": "帮我规划长沙2日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857489"
+  },
+  {
+    "id": 184,
+    "query": "拉萨深度游，7天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857492"
+  },
+  {
+    "id": 185,
+    "query": "洛阳情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857501"
+  },
+  {
+    "id": 186,
+    "query": "北京情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857504"
+  },
+  {
+    "id": 187,
+    "query": "帮我规划武汉1日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857507"
+  },
+  {
+    "id": 188,
+    "query": "带老人去黄山旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857509"
+  },
+  {
+    "id": 189,
+    "query": "春节昆明自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857512"
+  },
+  {
+    "id": 190,
+    "query": "黄山深度游，6天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857514"
+  },
+  {
+    "id": 191,
+    "query": "上海亲子游行程安排，15天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857516"
+  },
+  {
+    "id": 192,
+    "query": "天津亲子游行程安排，10天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857519"
+  },
+  {
+    "id": 193,
+    "query": "广州旅游路线推荐，预算5000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857521"
+  },
+  {
+    "id": 194,
+    "query": "长沙旅游路线推荐，预算1000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857523"
+  },
+  {
+    "id": 195,
+    "query": "五一期间我们4个人去九寨沟旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857526"
+  },
+  {
+    "id": 196,
+    "query": "上海亲子游行程安排，7天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857528"
+  },
+  {
+    "id": 197,
+    "query": "带老人去杭州旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857530"
+  },
+  {
+    "id": 198,
+    "query": "贵阳亲子游行程安排，4天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857532"
+  },
+  {
+    "id": 199,
+    "query": "带老人去苏州旅游，4天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857534"
+  },
+  {
+    "id": 200,
+    "query": "深圳深度游，3天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857538"
+  },
+  {
+    "id": 201,
+    "query": "帮我规划桂林10日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857541"
+  },
+  {
+    "id": 202,
+    "query": "带老人去苏州旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857544"
+  },
+  {
+    "id": 203,
+    "query": "泰山亲子游行程安排，7天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857546"
+  },
+  {
+    "id": 204,
+    "query": "五一期间我们1个人去九寨沟旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857549"
+  },
+  {
+    "id": 205,
+    "query": "带老人去重庆旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857551"
+  },
+  {
+    "id": 206,
+    "query": "春节苏州自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857553"
+  },
+  {
+    "id": 207,
+    "query": "敦煌亲子游行程安排，4天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857555"
+  },
+  {
+    "id": 208,
+    "query": "春节洛阳自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857557"
+  },
+  {
+    "id": 209,
+    "query": "重庆情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857558"
+  },
+  {
+    "id": 210,
+    "query": "帮我规划南京7日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857561"
+  },
+  {
+    "id": 211,
+    "query": "青岛深度游，15天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857563"
+  },
+  {
+    "id": 212,
+    "query": "带老人去厦门旅游，7天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857565"
+  },
+  {
+    "id": 213,
+    "query": "拉萨亲子游行程安排，5天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857567"
+  },
+  {
+    "id": 214,
+    "query": "大理深度游，15天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857569"
+  },
+  {
+    "id": 215,
+    "query": "丽江深度游，3天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857571"
+  },
+  {
+    "id": 216,
+    "query": "天津深度游，6天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857573"
+  },
+  {
+    "id": 217,
+    "query": "昆明深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857576"
+  },
+  {
+    "id": 218,
+    "query": "带老人去泰山旅游，5天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857578"
+  },
+  {
+    "id": 219,
+    "query": "黄山深度游，5天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857580"
+  },
+  {
+    "id": 220,
+    "query": "长沙情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857582"
+  },
+  {
+    "id": 221,
+    "query": "帮我规划南昌15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857584"
+  },
+  {
+    "id": 222,
+    "query": "长沙深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857586"
+  },
+  {
+    "id": 223,
+    "query": "长沙亲子游行程安排，10天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857588"
+  },
+  {
+    "id": 224,
+    "query": "帮我规划桂林15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857590"
+  },
+  {
+    "id": 225,
+    "query": "成都深度游，10天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857592"
+  },
+  {
+    "id": 226,
+    "query": "带老人去广州旅游，15天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857594"
+  },
+  {
+    "id": 227,
+    "query": "春节昆明自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857596"
+  },
+  {
+    "id": 228,
+    "query": "帮我规划重庆10日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857599"
+  },
+  {
+    "id": 229,
+    "query": "春节桂林自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857601"
+  },
+  {
+    "id": 230,
+    "query": "五一期间我们情侣个人去丽江旅游，帮我规划行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857604"
+  },
+  {
+    "id": 231,
+    "query": "昆明情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857607"
+  },
+  {
+    "id": 232,
+    "query": "九寨沟亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857609"
+  },
+  {
+    "id": 233,
+    "query": "春节三亚自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857611"
+  },
+  {
+    "id": 234,
+    "query": "北京旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857614"
+  },
+  {
+    "id": 235,
+    "query": "张家界情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857616"
+  },
+  {
+    "id": 236,
+    "query": "广州亲子游行程安排，8天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857618"
+  },
+  {
+    "id": 237,
+    "query": "青岛亲子游行程安排，4天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857620"
+  },
+  {
+    "id": 238,
+    "query": "带老人去九寨沟旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857622"
+  },
+  {
+    "id": 239,
+    "query": "西安旅游路线推荐，预算2000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857624"
+  },
+  {
+    "id": 240,
+    "query": "带老人去黄山旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857626"
+  },
+  {
+    "id": 241,
+    "query": "黄山深度游，10天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857628"
+  },
+  {
+    "id": 242,
+    "query": "春节重庆自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857630"
+  },
+  {
+    "id": 243,
+    "query": "广州情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857632"
+  },
+  {
+    "id": 244,
+    "query": "厦门旅游路线推荐，预算15000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857634"
+  },
+  {
+    "id": 245,
+    "query": "丽江情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857636"
+  },
+  {
+    "id": 246,
+    "query": "苏州亲子游行程安排，6天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857639"
+  },
+  {
+    "id": 247,
+    "query": "北京情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857640"
+  },
+  {
+    "id": 248,
+    "query": "洛阳亲子游行程安排，3天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857643"
+  },
+  {
+    "id": 249,
+    "query": "帮我规划大理6日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857646"
+  },
+  {
+    "id": 250,
+    "query": "带老人去贵阳旅游，3天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857648"
+  },
+  {
+    "id": 251,
+    "query": "九寨沟亲子游行程安排，2天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857650"
+  },
+  {
+    "id": 252,
+    "query": "帮我规划南昌3日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857652"
+  },
+  {
+    "id": 253,
+    "query": "福州情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857654"
+  },
+  {
+    "id": 254,
+    "query": "丽江旅游路线推荐，预算15000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857656"
+  },
+  {
+    "id": 255,
+    "query": "泰山亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857658"
+  },
+  {
+    "id": 256,
+    "query": "三亚亲子游行程安排，1天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857660"
+  },
+  {
+    "id": 257,
+    "query": "武汉深度游，7天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857662"
+  },
+  {
+    "id": 258,
+    "query": "贵阳情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857666"
+  },
+  {
+    "id": 259,
+    "query": "洛阳亲子游行程安排，8天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857668"
+  },
+  {
+    "id": 260,
+    "query": "西安深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857670"
+  },
+  {
+    "id": 261,
+    "query": "带老人去福州旅游，4天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857672"
+  },
+  {
+    "id": 262,
+    "query": "武汉情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857674"
+  },
+  {
+    "id": 263,
+    "query": "张家界深度游，1天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857676"
+  },
+  {
+    "id": 264,
+    "query": "拉萨情侣游，浪漫景点推荐",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857678"
+  },
+  {
+    "id": 265,
+    "query": "帮我规划三亚8日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857680"
+  },
+  {
+    "id": 266,
+    "query": "带老人去丽江旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857682"
+  },
+  {
+    "id": 267,
+    "query": "贵阳深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857685"
+  },
+  {
+    "id": 268,
+    "query": "大连深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857687"
+  },
+  {
+    "id": 269,
+    "query": "帮我规划深圳10日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857689"
+  },
+  {
+    "id": 270,
+    "query": "春节厦门自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857691"
+  },
+  {
+    "id": 271,
+    "query": "重庆深度游，4天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857693"
+  },
+  {
+    "id": 272,
+    "query": "敦煌深度游，3天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857695"
+  },
+  {
+    "id": 273,
+    "query": "贵阳深度游，2天详细规划",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857697"
+  },
+  {
+    "id": 274,
+    "query": "厦门旅游路线推荐，预算3000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857699"
+  },
+  {
+    "id": 275,
+    "query": "带老人去深圳旅游，1天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857701"
+  },
+  {
+    "id": 276,
+    "query": "春节深圳自驾游攻略",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857705"
+  },
+  {
+    "id": 277,
+    "query": "大连旅游路线推荐，预算10000元",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857707"
+  },
+  {
+    "id": 278,
+    "query": "泰山亲子游行程安排，10天",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857709"
+  },
+  {
+    "id": 279,
+    "query": "帮我规划深圳15日游",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857711"
+  },
+  {
+    "id": 280,
+    "query": "带老人去敦煌旅游，7天轻松行程",
+    "expected_intent": "itinerary",
+    "timestamp": "2026-04-26T17:14:37.857713"
+  },
+  {
+    "id": 281,
+    "query": "广州交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857718"
+  },
+  {
+    "id": 282,
+    "query": "华山评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857720"
+  },
+  {
+    "id": 283,
+    "query": "武汉交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857723"
+  },
+  {
+    "id": 284,
+    "query": "成都天安门门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857725"
+  },
+  {
+    "id": 285,
+    "query": "张家界住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857727"
+  },
+  {
+    "id": 286,
+    "query": "迪士尼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857729"
+  },
+  {
+    "id": 287,
+    "query": "黄鹤楼附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857731"
+  },
+  {
+    "id": 288,
+    "query": "玉龙雪山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857733"
+  },
+  {
+    "id": 289,
+    "query": "福州住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857735"
+  },
+  {
+    "id": 290,
+    "query": "兵马俑开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857737"
+  },
+  {
+    "id": 291,
+    "query": "南京最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857739"
+  },
+  {
+    "id": 292,
+    "query": "西湖附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857741"
+  },
+  {
+    "id": 293,
+    "query": "三亚黄鹤楼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857743"
+  },
+  {
+    "id": 294,
+    "query": "布达拉宫开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857745"
+  },
+  {
+    "id": 295,
+    "query": "上海住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857747"
+  },
+  {
+    "id": 296,
+    "query": "深圳黄鹤楼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857749"
+  },
+  {
+    "id": 297,
+    "query": "苏州住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857751"
+  },
+  {
+    "id": 298,
+    "query": "外滩开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857753"
+  },
+  {
+    "id": 299,
+    "query": "西安交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857755"
+  },
+  {
+    "id": 300,
+    "query": "苏州迪士尼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857757"
+  },
+  {
+    "id": 301,
+    "query": "南昌住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857759"
+  },
+  {
+    "id": 302,
+    "query": "青岛有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857762"
+  },
+  {
+    "id": 303,
+    "query": "重庆有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857764"
+  },
+  {
+    "id": 304,
+    "query": "华山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857766"
+  },
+  {
+    "id": 305,
+    "query": "北京漓江门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857768"
+  },
+  {
+    "id": 306,
+    "query": "莫高窟附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857770"
+  },
+  {
+    "id": 307,
+    "query": "天安门开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857772"
+  },
+  {
+    "id": 308,
+    "query": "青岛布达拉宫门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857774"
+  },
+  {
+    "id": 309,
+    "query": "长沙漓江门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857776"
+  },
+  {
+    "id": 310,
+    "query": "故宫附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857778"
+  },
+  {
+    "id": 311,
+    "query": "成都住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857780"
+  },
+  {
+    "id": 312,
+    "query": "天津有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857783"
+  },
+  {
+    "id": 313,
+    "query": "北京有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857785"
+  },
+  {
+    "id": 314,
+    "query": "西安最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857787"
+  },
+  {
+    "id": 315,
+    "query": "苏州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857789"
+  },
+  {
+    "id": 316,
+    "query": "北京住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857791"
+  },
+  {
+    "id": 317,
+    "query": "青岛交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857793"
+  },
+  {
+    "id": 318,
+    "query": "天门山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857795"
+  },
+  {
+    "id": 319,
+    "query": "迪士尼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857797"
+  },
+  {
+    "id": 320,
+    "query": "洛阳住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857799"
+  },
+  {
+    "id": 321,
+    "query": "东方明珠开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857801"
+  },
+  {
+    "id": 322,
+    "query": "天门山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857803"
+  },
+  {
+    "id": 323,
+    "query": "深圳交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857805"
+  },
+  {
+    "id": 324,
+    "query": "广州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857806"
+  },
+  {
+    "id": 325,
+    "query": "东方明珠附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857808"
+  },
+  {
+    "id": 326,
+    "query": "大雁塔开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857810"
+  },
+  {
+    "id": 327,
+    "query": "厦门东方明珠门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857812"
+  },
+  {
+    "id": 328,
+    "query": "西安交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857815"
+  },
+  {
+    "id": 329,
+    "query": "兵马俑评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857817"
+  },
+  {
+    "id": 330,
+    "query": "夫子庙附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857819"
+  },
+  {
+    "id": 331,
+    "query": "颐和园附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857821"
+  },
+  {
+    "id": 332,
+    "query": "龙门石窟开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857823"
+  },
+  {
+    "id": 333,
+    "query": "贵阳住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857825"
+  },
+  {
+    "id": 334,
+    "query": "大雁塔评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857827"
+  },
+  {
+    "id": 335,
+    "query": "长沙有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857828"
+  },
+  {
+    "id": 336,
+    "query": "大理交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857830"
+  },
+  {
+    "id": 337,
+    "query": "漓江评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857832"
+  },
+  {
+    "id": 338,
+    "query": "厦门天涯海角门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857835"
+  },
+  {
+    "id": 339,
+    "query": "敦煌有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857837"
+  },
+  {
+    "id": 340,
+    "query": "重庆拙政园门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857839"
+  },
+  {
+    "id": 341,
+    "query": "平遥古城开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857841"
+  },
+  {
+    "id": 342,
+    "query": "张家界住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857842"
+  },
+  {
+    "id": 343,
+    "query": "玉龙雪山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857844"
+  },
+  {
+    "id": 344,
+    "query": "上海天门山门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857847"
+  },
+  {
+    "id": 345,
+    "query": "长城评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857850"
+  },
+  {
+    "id": 346,
+    "query": "长沙交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857851"
+  },
+  {
+    "id": 347,
+    "query": "黄鹤楼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857853"
+  },
+  {
+    "id": 348,
+    "query": "东方明珠开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857855"
+  },
+  {
+    "id": 349,
+    "query": "泰山洱海门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857857"
+  },
+  {
+    "id": 350,
+    "query": "福州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857859"
+  },
+  {
+    "id": 351,
+    "query": "开封最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857861"
+  },
+  {
+    "id": 352,
+    "query": "黄鹤楼附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857863"
+  },
+  {
+    "id": 353,
+    "query": "贵阳住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857865"
+  },
+  {
+    "id": 354,
+    "query": "苏州有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857868"
+  },
+  {
+    "id": 355,
+    "query": "厦门交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857870"
+  },
+  {
+    "id": 356,
+    "query": "开封住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857872"
+  },
+  {
+    "id": 357,
+    "query": "青岛有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857874"
+  },
+  {
+    "id": 358,
+    "query": "龙门石窟开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857876"
+  },
+  {
+    "id": 359,
+    "query": "贵阳西湖门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857878"
+  },
+  {
+    "id": 360,
+    "query": "重庆天涯海角门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857880"
+  },
+  {
+    "id": 361,
+    "query": "北京有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857882"
+  },
+  {
+    "id": 362,
+    "query": "杭州玉龙雪山门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857884"
+  },
+  {
+    "id": 363,
+    "query": "夫子庙附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857886"
+  },
+  {
+    "id": 364,
+    "query": "外滩开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857888"
+  },
+  {
+    "id": 365,
+    "query": "黄鹤楼评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857890"
+  },
+  {
+    "id": 366,
+    "query": "重庆天安门门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857892"
+  },
+  {
+    "id": 367,
+    "query": "重庆交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857894"
+  },
+  {
+    "id": 368,
+    "query": "洛阳住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857896"
+  },
+  {
+    "id": 369,
+    "query": "黄鹤楼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857897"
+  },
+  {
+    "id": 370,
+    "query": "三亚交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857899"
+  },
+  {
+    "id": 371,
+    "query": "福州有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857901"
+  },
+  {
+    "id": 372,
+    "query": "长城附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857903"
+  },
+  {
+    "id": 373,
+    "query": "故宫评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857905"
+  },
+  {
+    "id": 374,
+    "query": "华山评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857907"
+  },
+  {
+    "id": 375,
+    "query": "泰山交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857909"
+  },
+  {
+    "id": 376,
+    "query": "深圳龙门石窟门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857912"
+  },
+  {
+    "id": 377,
+    "query": "天涯海角开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857914"
+  },
+  {
+    "id": 378,
+    "query": "夫子庙评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857916"
+  },
+  {
+    "id": 379,
+    "query": "开封黄鹤楼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857918"
+  },
+  {
+    "id": 380,
+    "query": "天津最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857921"
+  },
+  {
+    "id": 381,
+    "query": "西安最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857923"
+  },
+  {
+    "id": 382,
+    "query": "故宫评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857926"
+  },
+  {
+    "id": 383,
+    "query": "拙政园开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857928"
+  },
+  {
+    "id": 384,
+    "query": "成都有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857930"
+  },
+  {
+    "id": 385,
+    "query": "兵马俑开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857932"
+  },
+  {
+    "id": 386,
+    "query": "天涯海角开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857934"
+  },
+  {
+    "id": 387,
+    "query": "迪士尼评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857936"
+  },
+  {
+    "id": 388,
+    "query": "洱海评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857937"
+  },
+  {
+    "id": 389,
+    "query": "大连宽窄巷子门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857939"
+  },
+  {
+    "id": 390,
+    "query": "福州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857941"
+  },
+  {
+    "id": 391,
+    "query": "华山评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857943"
+  },
+  {
+    "id": 392,
+    "query": "莫高窟附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857945"
+  },
+  {
+    "id": 393,
+    "query": "天涯海角开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857947"
+  },
+  {
+    "id": 394,
+    "query": "重庆住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857949"
+  },
+  {
+    "id": 395,
+    "query": "深圳东方明珠门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857951"
+  },
+  {
+    "id": 396,
+    "query": "西安住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857953"
+  },
+  {
+    "id": 397,
+    "query": "上海住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857955"
+  },
+  {
+    "id": 398,
+    "query": "青岛故宫门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857957"
+  },
+  {
+    "id": 399,
+    "query": "敦煌住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857959"
+  },
+  {
+    "id": 400,
+    "query": "天津最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857961"
+  },
+  {
+    "id": 401,
+    "query": "颐和园开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857963"
+  },
+  {
+    "id": 402,
+    "query": "广州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857965"
+  },
+  {
+    "id": 403,
+    "query": "杭州天安门门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857967"
+  },
+  {
+    "id": 404,
+    "query": "龙门石窟评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857969"
+  },
+  {
+    "id": 405,
+    "query": "大雁塔附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857972"
+  },
+  {
+    "id": 406,
+    "query": "黄山住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857974"
+  },
+  {
+    "id": 407,
+    "query": "上海漓江门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857976"
+  },
+  {
+    "id": 408,
+    "query": "宽窄巷子开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857979"
+  },
+  {
+    "id": 409,
+    "query": "故宫开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857981"
+  },
+  {
+    "id": 410,
+    "query": "清明上河园开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857983"
+  },
+  {
+    "id": 411,
+    "query": "东方明珠评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857985"
+  },
+  {
+    "id": 412,
+    "query": "黄山住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857987"
+  },
+  {
+    "id": 413,
+    "query": "上海有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857989"
+  },
+  {
+    "id": 414,
+    "query": "九寨沟有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857991"
+  },
+  {
+    "id": 415,
+    "query": "漓江附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857993"
+  },
+  {
+    "id": 416,
+    "query": "桂林交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857995"
+  },
+  {
+    "id": 417,
+    "query": "布达拉宫附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857997"
+  },
+  {
+    "id": 418,
+    "query": "迪士尼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.857999"
+  },
+  {
+    "id": 419,
+    "query": "宽窄巷子附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858000"
+  },
+  {
+    "id": 420,
+    "query": "拙政园附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858002"
+  },
+  {
+    "id": 421,
+    "query": "张家界大雁塔门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858005"
+  },
+  {
+    "id": 422,
+    "query": "迪士尼附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858007"
+  },
+  {
+    "id": 423,
+    "query": "洛阳住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858009"
+  },
+  {
+    "id": 424,
+    "query": "上海玉龙雪山门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858011"
+  },
+  {
+    "id": 425,
+    "query": "大连交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858013"
+  },
+  {
+    "id": 426,
+    "query": "大理住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858015"
+  },
+  {
+    "id": 427,
+    "query": "上海长城门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858017"
+  },
+  {
+    "id": 428,
+    "query": "开封迪士尼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858019"
+  },
+  {
+    "id": 429,
+    "query": "大雁塔附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858021"
+  },
+  {
+    "id": 430,
+    "query": "拙政园附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858023"
+  },
+  {
+    "id": 431,
+    "query": "南京最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858026"
+  },
+  {
+    "id": 432,
+    "query": "洱海评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858027"
+  },
+  {
+    "id": 433,
+    "query": "南昌最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858029"
+  },
+  {
+    "id": 434,
+    "query": "泰山最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858031"
+  },
+  {
+    "id": 435,
+    "query": "夫子庙开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858033"
+  },
+  {
+    "id": 436,
+    "query": "洛阳有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858035"
+  },
+  {
+    "id": 437,
+    "query": "龙门石窟开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858037"
+  },
+  {
+    "id": 438,
+    "query": "莫高窟附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858039"
+  },
+  {
+    "id": 439,
+    "query": "拙政园附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858042"
+  },
+  {
+    "id": 440,
+    "query": "故宫附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858044"
+  },
+  {
+    "id": 441,
+    "query": "昆明住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858045"
+  },
+  {
+    "id": 442,
+    "query": "宽窄巷子评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858047"
+  },
+  {
+    "id": 443,
+    "query": "西安玉龙雪山门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858050"
+  },
+  {
+    "id": 444,
+    "query": "鼓浪屿评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858051"
+  },
+  {
+    "id": 445,
+    "query": "重庆住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858053"
+  },
+  {
+    "id": 446,
+    "query": "洱海评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858055"
+  },
+  {
+    "id": 447,
+    "query": "迪士尼评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858057"
+  },
+  {
+    "id": 448,
+    "query": "天涯海角开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858059"
+  },
+  {
+    "id": 449,
+    "query": "大连漓江门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858061"
+  },
+  {
+    "id": 450,
+    "query": "故宫开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858063"
+  },
+  {
+    "id": 451,
+    "query": "丽江交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858064"
+  },
+  {
+    "id": 452,
+    "query": "武汉最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858066"
+  },
+  {
+    "id": 453,
+    "query": "厦门有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858068"
+  },
+  {
+    "id": 454,
+    "query": "兵马俑评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858070"
+  },
+  {
+    "id": 455,
+    "query": "迪士尼附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858072"
+  },
+  {
+    "id": 456,
+    "query": "九寨沟交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858074"
+  },
+  {
+    "id": 457,
+    "query": "贵阳交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858077"
+  },
+  {
+    "id": 458,
+    "query": "重庆最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858079"
+  },
+  {
+    "id": 459,
+    "query": "长沙有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858081"
+  },
+  {
+    "id": 460,
+    "query": "龙门石窟开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858083"
+  },
+  {
+    "id": 461,
+    "query": "颐和园附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858085"
+  },
+  {
+    "id": 462,
+    "query": "龙门石窟附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858087"
+  },
+  {
+    "id": 463,
+    "query": "颐和园评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858089"
+  },
+  {
+    "id": 464,
+    "query": "拉萨东方明珠门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858091"
+  },
+  {
+    "id": 465,
+    "query": "莫高窟附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858093"
+  },
+  {
+    "id": 466,
+    "query": "泰山住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858095"
+  },
+  {
+    "id": 467,
+    "query": "洱海评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858097"
+  },
+  {
+    "id": 468,
+    "query": "苏州有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858099"
+  },
+  {
+    "id": 469,
+    "query": "成都最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858101"
+  },
+  {
+    "id": 470,
+    "query": "昆明住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858103"
+  },
+  {
+    "id": 471,
+    "query": "天安门开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858105"
+  },
+  {
+    "id": 472,
+    "query": "上海有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858107"
+  },
+  {
+    "id": 473,
+    "query": "迪士尼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858110"
+  },
+  {
+    "id": 474,
+    "query": "苏州有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858111"
+  },
+  {
+    "id": 475,
+    "query": "贵阳最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858113"
+  },
+  {
+    "id": 476,
+    "query": "丽江平遥古城门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858115"
+  },
+  {
+    "id": 477,
+    "query": "丽江有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858117"
+  },
+  {
+    "id": 478,
+    "query": "南京宽窄巷子门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858119"
+  },
+  {
+    "id": 479,
+    "query": "洱海评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858121"
+  },
+  {
+    "id": 480,
+    "query": "敦煌有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858123"
+  },
+  {
+    "id": 481,
+    "query": "天涯海角开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858125"
+  },
+  {
+    "id": 482,
+    "query": "九寨沟交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858127"
+  },
+  {
+    "id": 483,
+    "query": "洛阳最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858130"
+  },
+  {
+    "id": 484,
+    "query": "灵隐寺开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858132"
+  },
+  {
+    "id": 485,
+    "query": "北京天涯海角门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858135"
+  },
+  {
+    "id": 486,
+    "query": "东方明珠评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858136"
+  },
+  {
+    "id": 487,
+    "query": "九寨沟最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858139"
+  },
+  {
+    "id": 488,
+    "query": "桂林住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858141"
+  },
+  {
+    "id": 489,
+    "query": "黄鹤楼附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858142"
+  },
+  {
+    "id": 490,
+    "query": "天安门开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858144"
+  },
+  {
+    "id": 491,
+    "query": "宽窄巷子评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858146"
+  },
+  {
+    "id": 492,
+    "query": "天门山评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858148"
+  },
+  {
+    "id": 493,
+    "query": "兵马俑评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858150"
+  },
+  {
+    "id": 494,
+    "query": "西安有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858152"
+  },
+  {
+    "id": 495,
+    "query": "重庆交通怎么去",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858154"
+  },
+  {
+    "id": 496,
+    "query": "泰山有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858156"
+  },
+  {
+    "id": 497,
+    "query": "三亚黄鹤楼门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858158"
+  },
+  {
+    "id": 498,
+    "query": "拙政园开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858160"
+  },
+  {
+    "id": 499,
+    "query": "鼓浪屿附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858162"
+  },
+  {
+    "id": 500,
+    "query": "杭州有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858163"
+  },
+  {
+    "id": 501,
+    "query": "漓江评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858165"
+  },
+  {
+    "id": 502,
+    "query": "天门山附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858167"
+  },
+  {
+    "id": 503,
+    "query": "福州平遥古城门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858170"
+  },
+  {
+    "id": 504,
+    "query": "桂林最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858172"
+  },
+  {
+    "id": 505,
+    "query": "深圳天安门门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858174"
+  },
+  {
+    "id": 506,
+    "query": "厦门颐和园门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858176"
+  },
+  {
+    "id": 507,
+    "query": "天涯海角附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858178"
+  },
+  {
+    "id": 508,
+    "query": "天涯海角附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858180"
+  },
+  {
+    "id": 509,
+    "query": "北京有什么好玩的景点",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858183"
+  },
+  {
+    "id": 510,
+    "query": "开封灵隐寺门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858186"
+  },
+  {
+    "id": 511,
+    "query": "苏州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858188"
+  },
+  {
+    "id": 512,
+    "query": "漓江评价怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858190"
+  },
+  {
+    "id": 513,
+    "query": "宽窄巷子开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858192"
+  },
+  {
+    "id": 514,
+    "query": "广州最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858194"
+  },
+  {
+    "id": 515,
+    "query": "迪士尼开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858195"
+  },
+  {
+    "id": 516,
+    "query": "上海住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858197"
+  },
+  {
+    "id": 517,
+    "query": "南昌最近天气怎么样",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858199"
+  },
+  {
+    "id": 518,
+    "query": "玉龙雪山附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858201"
+  },
+  {
+    "id": 519,
+    "query": "上海住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858203"
+  },
+  {
+    "id": 520,
+    "query": "玉龙雪山开放时间",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858205"
+  },
+  {
+    "id": 521,
+    "query": "南京住宿推荐",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858207"
+  },
+  {
+    "id": 522,
+    "query": "西安龙门石窟门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858209"
+  },
+  {
+    "id": 523,
+    "query": "重庆莫高窟门票价格",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858211"
+  },
+  {
+    "id": 524,
+    "query": "漓江附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858213"
+  },
+  {
+    "id": 525,
+    "query": "大雁塔附近有什么好吃的",
+    "expected_intent": "query",
+    "timestamp": "2026-04-26T17:14:37.858215"
+  },
+  {
+    "id": 526,
+    "query": "青岛商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858217"
+  },
+  {
+    "id": 527,
+    "query": "天津安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858219"
+  },
+  {
+    "id": 528,
+    "query": "丽江经济型酒店，5000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858221"
+  },
+  {
+    "id": 529,
+    "query": "西安民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858223"
+  },
+  {
+    "id": 530,
+    "query": "福州经济型酒店，2000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858226"
+  },
+  {
+    "id": 531,
+    "query": "苏州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858227"
+  },
+  {
+    "id": 532,
+    "query": "洛阳商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858229"
+  },
+  {
+    "id": 533,
+    "query": "福州温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858231"
+  },
+  {
+    "id": 534,
+    "query": "泰山经济型酒店，1000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858233"
+  },
+  {
+    "id": 535,
+    "query": "成都温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858236"
+  },
+  {
+    "id": 536,
+    "query": "桂林经济型酒店，3000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858238"
+  },
+  {
+    "id": 537,
+    "query": "贵阳经济型酒店，2000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858240"
+  },
+  {
+    "id": 538,
+    "query": "杭州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858243"
+  },
+  {
+    "id": 539,
+    "query": "昆明亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858246"
+  },
+  {
+    "id": 540,
+    "query": "泰山网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858248"
+  },
+  {
+    "id": 541,
+    "query": "西安商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858250"
+  },
+  {
+    "id": 542,
+    "query": "昆明网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858252"
+  },
+  {
+    "id": 543,
+    "query": "贵阳亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858254"
+  },
+  {
+    "id": 544,
+    "query": "天津经济型酒店，8000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858256"
+  },
+  {
+    "id": 545,
+    "query": "西安温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858258"
+  },
+  {
+    "id": 546,
+    "query": "南京民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858260"
+  },
+  {
+    "id": 547,
+    "query": "敦煌舒适型酒店，靠近平遥古城",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858262"
+  },
+  {
+    "id": 548,
+    "query": "贵阳舒适型酒店，靠近拙政园",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858264"
+  },
+  {
+    "id": 549,
+    "query": "南昌民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858266"
+  },
+  {
+    "id": 550,
+    "query": "武汉经济型酒店，1000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858268"
+  },
+  {
+    "id": 551,
+    "query": "开封经济型酒店，3000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858270"
+  },
+  {
+    "id": 552,
+    "query": "桂林舒适型酒店，靠近洱海",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858272"
+  },
+  {
+    "id": 553,
+    "query": "杭州经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858275"
+  },
+  {
+    "id": 554,
+    "query": "昆明安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858277"
+  },
+  {
+    "id": 555,
+    "query": "重庆亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858279"
+  },
+  {
+    "id": 556,
+    "query": "厦门舒适型酒店，靠近平遥古城",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858281"
+  },
+  {
+    "id": 557,
+    "query": "拉萨网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858283"
+  },
+  {
+    "id": 558,
+    "query": "三亚舒适型酒店，靠近西湖",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858285"
+  },
+  {
+    "id": 559,
+    "query": "深圳商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858286"
+  },
+  {
+    "id": 560,
+    "query": "洛阳舒适型酒店，靠近黄鹤楼",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858289"
+  },
+  {
+    "id": 561,
+    "query": "苏州亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858290"
+  },
+  {
+    "id": 562,
+    "query": "大理商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858292"
+  },
+  {
+    "id": 563,
+    "query": "南京商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858294"
+  },
+  {
+    "id": 564,
+    "query": "黄山网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858296"
+  },
+  {
+    "id": 565,
+    "query": "杭州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858298"
+  },
+  {
+    "id": 566,
+    "query": "天津网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858301"
+  },
+  {
+    "id": 567,
+    "query": "武汉安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858303"
+  },
+  {
+    "id": 568,
+    "query": "昆明商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858305"
+  },
+  {
+    "id": 569,
+    "query": "天津亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858307"
+  },
+  {
+    "id": 570,
+    "query": "重庆亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858309"
+  },
+  {
+    "id": 571,
+    "query": "厦门亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858311"
+  },
+  {
+    "id": 572,
+    "query": "张家界舒适型酒店，靠近龙门石窟",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858313"
+  },
+  {
+    "id": 573,
+    "query": "大连商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858315"
+  },
+  {
+    "id": 574,
+    "query": "厦门舒适型酒店，靠近东方明珠",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858317"
+  },
+  {
+    "id": 575,
+    "query": "泰山温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858319"
+  },
+  {
+    "id": 576,
+    "query": "黄山商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858321"
+  },
+  {
+    "id": 577,
+    "query": "重庆温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858323"
+  },
+  {
+    "id": 578,
+    "query": "深圳舒适型酒店，靠近洱海",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858325"
+  },
+  {
+    "id": 579,
+    "query": "杭州亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858326"
+  },
+  {
+    "id": 580,
+    "query": "泰山亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858328"
+  },
+  {
+    "id": 581,
+    "query": "苏州舒适型酒店，靠近平遥古城",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858331"
+  },
+  {
+    "id": 582,
+    "query": "青岛经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858333"
+  },
+  {
+    "id": 583,
+    "query": "青岛经济型酒店，8000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858336"
+  },
+  {
+    "id": 584,
+    "query": "开封网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858338"
+  },
+  {
+    "id": 585,
+    "query": "南昌网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858339"
+  },
+  {
+    "id": 586,
+    "query": "天津安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858341"
+  },
+  {
+    "id": 587,
+    "query": "敦煌安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858343"
+  },
+  {
+    "id": 588,
+    "query": "青岛民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858345"
+  },
+  {
+    "id": 589,
+    "query": "泰山安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858347"
+  },
+  {
+    "id": 590,
+    "query": "福州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858349"
+  },
+  {
+    "id": 591,
+    "query": "张家界商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858351"
+  },
+  {
+    "id": 592,
+    "query": "三亚舒适型酒店，靠近夫子庙",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858353"
+  },
+  {
+    "id": 593,
+    "query": "长沙民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858355"
+  },
+  {
+    "id": 594,
+    "query": "大理民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858359"
+  },
+  {
+    "id": 595,
+    "query": "南昌网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858361"
+  },
+  {
+    "id": 596,
+    "query": "苏州温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858363"
+  },
+  {
+    "id": 597,
+    "query": "丽江经济型酒店，1000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858365"
+  },
+  {
+    "id": 598,
+    "query": "大连网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858369"
+  },
+  {
+    "id": 599,
+    "query": "泰山民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858371"
+  },
+  {
+    "id": 600,
+    "query": "长沙民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858373"
+  },
+  {
+    "id": 601,
+    "query": "昆明经济型酒店，2000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858375"
+  },
+  {
+    "id": 602,
+    "query": "大连安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858377"
+  },
+  {
+    "id": 603,
+    "query": "武汉亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858379"
+  },
+  {
+    "id": 604,
+    "query": "重庆温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858381"
+  },
+  {
+    "id": 605,
+    "query": "上海安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858383"
+  },
+  {
+    "id": 606,
+    "query": "洛阳舒适型酒店，靠近故宫",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858385"
+  },
+  {
+    "id": 607,
+    "query": "武汉经济型酒店，500元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858387"
+  },
+  {
+    "id": 608,
+    "query": "敦煌舒适型酒店，靠近西湖",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858389"
+  },
+  {
+    "id": 609,
+    "query": "丽江经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858391"
+  },
+  {
+    "id": 610,
+    "query": "敦煌舒适型酒店，靠近漓江",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858393"
+  },
+  {
+    "id": 611,
+    "query": "厦门温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858395"
+  },
+  {
+    "id": 612,
+    "query": "天津安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858397"
+  },
+  {
+    "id": 613,
+    "query": "武汉安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858399"
+  },
+  {
+    "id": 614,
+    "query": "武汉经济型酒店，500元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858401"
+  },
+  {
+    "id": 615,
+    "query": "丽江商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858403"
+  },
+  {
+    "id": 616,
+    "query": "洛阳网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858405"
+  },
+  {
+    "id": 617,
+    "query": "拉萨亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858407"
+  },
+  {
+    "id": 618,
+    "query": "重庆网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858409"
+  },
+  {
+    "id": 619,
+    "query": "桂林民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858411"
+  },
+  {
+    "id": 620,
+    "query": "深圳商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858413"
+  },
+  {
+    "id": 621,
+    "query": "大连亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858415"
+  },
+  {
+    "id": 622,
+    "query": "大连商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858417"
+  },
+  {
+    "id": 623,
+    "query": "杭州舒适型酒店，靠近平遥古城",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858419"
+  },
+  {
+    "id": 624,
+    "query": "九寨沟民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858421"
+  },
+  {
+    "id": 625,
+    "query": "开封安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858423"
+  },
+  {
+    "id": 626,
+    "query": "天津亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858425"
+  },
+  {
+    "id": 627,
+    "query": "福州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858428"
+  },
+  {
+    "id": 628,
+    "query": "泰山网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858429"
+  },
+  {
+    "id": 629,
+    "query": "三亚舒适型酒店，靠近外滩",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858431"
+  },
+  {
+    "id": 630,
+    "query": "南昌经济型酒店，3000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858434"
+  },
+  {
+    "id": 631,
+    "query": "厦门亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858436"
+  },
+  {
+    "id": 632,
+    "query": "大理安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858438"
+  },
+  {
+    "id": 633,
+    "query": "开封经济型酒店，3000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858440"
+  },
+  {
+    "id": 634,
+    "query": "丽江商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858442"
+  },
+  {
+    "id": 635,
+    "query": "杭州舒适型酒店，靠近宽窄巷子",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858444"
+  },
+  {
+    "id": 636,
+    "query": "贵阳亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858446"
+  },
+  {
+    "id": 637,
+    "query": "长沙民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858448"
+  },
+  {
+    "id": 638,
+    "query": "青岛温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858451"
+  },
+  {
+    "id": 639,
+    "query": "九寨沟温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858453"
+  },
+  {
+    "id": 640,
+    "query": "北京舒适型酒店，靠近布达拉宫",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858455"
+  },
+  {
+    "id": 641,
+    "query": "长沙网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858457"
+  },
+  {
+    "id": 642,
+    "query": "北京民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858459"
+  },
+  {
+    "id": 643,
+    "query": "福州商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858461"
+  },
+  {
+    "id": 644,
+    "query": "厦门安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858463"
+  },
+  {
+    "id": 645,
+    "query": "泰山舒适型酒店，靠近东方明珠",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858465"
+  },
+  {
+    "id": 646,
+    "query": "西安温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858467"
+  },
+  {
+    "id": 647,
+    "query": "贵阳经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858469"
+  },
+  {
+    "id": 648,
+    "query": "大理亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858471"
+  },
+  {
+    "id": 649,
+    "query": "厦门舒适型酒店，靠近天安门",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858473"
+  },
+  {
+    "id": 650,
+    "query": "黄山民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858475"
+  },
+  {
+    "id": 651,
+    "query": "重庆亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858477"
+  },
+  {
+    "id": 652,
+    "query": "广州舒适型酒店，靠近迪士尼",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858479"
+  },
+  {
+    "id": 653,
+    "query": "南京温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858481"
+  },
+  {
+    "id": 654,
+    "query": "三亚网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858483"
+  },
+  {
+    "id": 655,
+    "query": "广州舒适型酒店，靠近莫高窟",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858485"
+  },
+  {
+    "id": 656,
+    "query": "重庆经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858487"
+  },
+  {
+    "id": 657,
+    "query": "洛阳网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858489"
+  },
+  {
+    "id": 658,
+    "query": "拉萨舒适型酒店，靠近灵隐寺",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858491"
+  },
+  {
+    "id": 659,
+    "query": "黄山民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858494"
+  },
+  {
+    "id": 660,
+    "query": "武汉安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858496"
+  },
+  {
+    "id": 661,
+    "query": "南昌亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858498"
+  },
+  {
+    "id": 662,
+    "query": "南昌民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858501"
+  },
+  {
+    "id": 663,
+    "query": "武汉网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858503"
+  },
+  {
+    "id": 664,
+    "query": "广州民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858505"
+  },
+  {
+    "id": 665,
+    "query": "厦门亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858507"
+  },
+  {
+    "id": 666,
+    "query": "桂林温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858509"
+  },
+  {
+    "id": 667,
+    "query": "天津舒适型酒店，靠近天涯海角",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858511"
+  },
+  {
+    "id": 668,
+    "query": "武汉网红酒店打卡",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858513"
+  },
+  {
+    "id": 669,
+    "query": "长沙商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858515"
+  },
+  {
+    "id": 670,
+    "query": "敦煌民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858516"
+  },
+  {
+    "id": 671,
+    "query": "杭州安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858519"
+  },
+  {
+    "id": 672,
+    "query": "昆明亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858521"
+  },
+  {
+    "id": 673,
+    "query": "天津舒适型酒店，靠近灵隐寺",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858523"
+  },
+  {
+    "id": 674,
+    "query": "成都商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858526"
+  },
+  {
+    "id": 675,
+    "query": "长沙亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858527"
+  },
+  {
+    "id": 676,
+    "query": "厦门安静酒店推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858529"
+  },
+  {
+    "id": 677,
+    "query": "杭州舒适型酒店，靠近玉龙雪山",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858531"
+  },
+  {
+    "id": 678,
+    "query": "三亚商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858533"
+  },
+  {
+    "id": 679,
+    "query": "开封舒适型酒店，靠近颐和园",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858535"
+  },
+  {
+    "id": 680,
+    "query": "上海亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858537"
+  },
+  {
+    "id": 681,
+    "query": "桂林商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858539"
+  },
+  {
+    "id": 682,
+    "query": "福州经济型酒店，15000元预算",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858541"
+  },
+  {
+    "id": 683,
+    "query": "大连商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858543"
+  },
+  {
+    "id": 684,
+    "query": "南京温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858545"
+  },
+  {
+    "id": 685,
+    "query": "泰山舒适型酒店，靠近故宫",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858547"
+  },
+  {
+    "id": 686,
+    "query": "丽江商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858549"
+  },
+  {
+    "id": 687,
+    "query": "黄山温泉酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858552"
+  },
+  {
+    "id": 688,
+    "query": "昆明商务酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858554"
+  },
+  {
+    "id": 689,
+    "query": "开封亲子酒店",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858556"
+  },
+  {
+    "id": 690,
+    "query": "厦门民宿推荐",
+    "expected_intent": "hotel",
+    "timestamp": "2026-04-26T17:14:37.858558"
+  },
+  {
+    "id": 691,
+    "query": "南昌素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858560"
+  },
+  {
+    "id": 692,
+    "query": "福州特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858562"
+  },
+  {
+    "id": 693,
+    "query": "西安素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858565"
+  },
+  {
+    "id": 694,
+    "query": "南京餐厅推荐，8000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858567"
+  },
+  {
+    "id": 695,
+    "query": "敦煌特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858569"
+  },
+  {
+    "id": 696,
+    "query": "厦门本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858571"
+  },
+  {
+    "id": 697,
+    "query": "九寨沟特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858573"
+  },
+  {
+    "id": 698,
+    "query": "苏州网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858575"
+  },
+  {
+    "id": 699,
+    "query": "洛阳特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858577"
+  },
+  {
+    "id": 700,
+    "query": "三亚餐厅推荐，5000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858579"
+  },
+  {
+    "id": 701,
+    "query": "贵阳美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858581"
+  },
+  {
+    "id": 702,
+    "query": "厦门早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858583"
+  },
+  {
+    "id": 703,
+    "query": "丽江早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858585"
+  },
+  {
+    "id": 704,
+    "query": "青岛美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858587"
+  },
+  {
+    "id": 705,
+    "query": "杭州美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858588"
+  },
+  {
+    "id": 706,
+    "query": "敦煌早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858590"
+  },
+  {
+    "id": 707,
+    "query": "青岛本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858592"
+  },
+  {
+    "id": 708,
+    "query": "上海美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858594"
+  },
+  {
+    "id": 709,
+    "query": "青岛餐厅推荐，5000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858596"
+  },
+  {
+    "id": 710,
+    "query": "泰山特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858598"
+  },
+  {
+    "id": 711,
+    "query": "南昌美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858600"
+  },
+  {
+    "id": 712,
+    "query": "成都夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858602"
+  },
+  {
+    "id": 713,
+    "query": "天津早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858604"
+  },
+  {
+    "id": 714,
+    "query": "南京早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858606"
+  },
+  {
+    "id": 715,
+    "query": "三亚美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858609"
+  },
+  {
+    "id": 716,
+    "query": "黄山美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858611"
+  },
+  {
+    "id": 717,
+    "query": "杭州网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858613"
+  },
+  {
+    "id": 718,
+    "query": "洛阳夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858615"
+  },
+  {
+    "id": 719,
+    "query": "西安餐厅推荐，2000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858617"
+  },
+  {
+    "id": 720,
+    "query": "大理早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858619"
+  },
+  {
+    "id": 721,
+    "query": "南京特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858621"
+  },
+  {
+    "id": 722,
+    "query": "拉萨特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858623"
+  },
+  {
+    "id": 723,
+    "query": "三亚夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858625"
+  },
+  {
+    "id": 724,
+    "query": "南京本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858627"
+  },
+  {
+    "id": 725,
+    "query": "上海特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858629"
+  },
+  {
+    "id": 726,
+    "query": "杭州夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858631"
+  },
+  {
+    "id": 727,
+    "query": "大连早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858633"
+  },
+  {
+    "id": 728,
+    "query": "重庆本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858635"
+  },
+  {
+    "id": 729,
+    "query": "泰山美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858637"
+  },
+  {
+    "id": 730,
+    "query": "青岛餐厅推荐，5000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858639"
+  },
+  {
+    "id": 731,
+    "query": "南昌网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858641"
+  },
+  {
+    "id": 732,
+    "query": "张家界素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858643"
+  },
+  {
+    "id": 733,
+    "query": "黄山美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858645"
+  },
+  {
+    "id": 734,
+    "query": "昆明特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858647"
+  },
+  {
+    "id": 735,
+    "query": "苏州夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858649"
+  },
+  {
+    "id": 736,
+    "query": "天津美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858651"
+  },
+  {
+    "id": 737,
+    "query": "西安餐厅推荐，8000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858653"
+  },
+  {
+    "id": 738,
+    "query": "西安早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858654"
+  },
+  {
+    "id": 739,
+    "query": "苏州特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858656"
+  },
+  {
+    "id": 740,
+    "query": "长沙餐厅推荐，15000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858658"
+  },
+  {
+    "id": 741,
+    "query": "苏州美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858660"
+  },
+  {
+    "id": 742,
+    "query": "三亚本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858663"
+  },
+  {
+    "id": 743,
+    "query": "敦煌早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858665"
+  },
+  {
+    "id": 744,
+    "query": "拉萨特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858667"
+  },
+  {
+    "id": 745,
+    "query": "杭州早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858669"
+  },
+  {
+    "id": 746,
+    "query": "三亚餐厅推荐，3000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858671"
+  },
+  {
+    "id": 747,
+    "query": "天津夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858672"
+  },
+  {
+    "id": 748,
+    "query": "丽江夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858674"
+  },
+  {
+    "id": 749,
+    "query": "大理夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858676"
+  },
+  {
+    "id": 750,
+    "query": "敦煌素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858678"
+  },
+  {
+    "id": 751,
+    "query": "广州餐厅推荐，8000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858680"
+  },
+  {
+    "id": 752,
+    "query": "西安夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858682"
+  },
+  {
+    "id": 753,
+    "query": "贵阳美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858684"
+  },
+  {
+    "id": 754,
+    "query": "福州本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858686"
+  },
+  {
+    "id": 755,
+    "query": "泰山素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858688"
+  },
+  {
+    "id": 756,
+    "query": "福州餐厅推荐，1000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858690"
+  },
+  {
+    "id": 757,
+    "query": "天津美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858693"
+  },
+  {
+    "id": 758,
+    "query": "福州本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858695"
+  },
+  {
+    "id": 759,
+    "query": "福州特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858697"
+  },
+  {
+    "id": 760,
+    "query": "三亚早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858699"
+  },
+  {
+    "id": 761,
+    "query": "昆明素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858701"
+  },
+  {
+    "id": 762,
+    "query": "贵阳本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858703"
+  },
+  {
+    "id": 763,
+    "query": "青岛美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858705"
+  },
+  {
+    "id": 764,
+    "query": "福州特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858707"
+  },
+  {
+    "id": 765,
+    "query": "张家界特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858709"
+  },
+  {
+    "id": 766,
+    "query": "武汉美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858712"
+  },
+  {
+    "id": 767,
+    "query": "贵阳美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858714"
+  },
+  {
+    "id": 768,
+    "query": "武汉早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858716"
+  },
+  {
+    "id": 769,
+    "query": "桂林本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858719"
+  },
+  {
+    "id": 770,
+    "query": "大连早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858721"
+  },
+  {
+    "id": 771,
+    "query": "重庆夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858723"
+  },
+  {
+    "id": 772,
+    "query": "深圳美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858725"
+  },
+  {
+    "id": 773,
+    "query": "南京素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858727"
+  },
+  {
+    "id": 774,
+    "query": "洛阳夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858729"
+  },
+  {
+    "id": 775,
+    "query": "长沙本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858731"
+  },
+  {
+    "id": 776,
+    "query": "南京美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858733"
+  },
+  {
+    "id": 777,
+    "query": "天津网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858734"
+  },
+  {
+    "id": 778,
+    "query": "成都夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858737"
+  },
+  {
+    "id": 779,
+    "query": "三亚餐厅推荐，10000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858739"
+  },
+  {
+    "id": 780,
+    "query": "昆明特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858741"
+  },
+  {
+    "id": 781,
+    "query": "开封特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858743"
+  },
+  {
+    "id": 782,
+    "query": "苏州本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858745"
+  },
+  {
+    "id": 783,
+    "query": "长沙美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858747"
+  },
+  {
+    "id": 784,
+    "query": "张家界美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858749"
+  },
+  {
+    "id": 785,
+    "query": "福州素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858750"
+  },
+  {
+    "id": 786,
+    "query": "上海本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858753"
+  },
+  {
+    "id": 787,
+    "query": "昆明餐厅推荐，8000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858755"
+  },
+  {
+    "id": 788,
+    "query": "苏州本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858757"
+  },
+  {
+    "id": 789,
+    "query": "贵阳素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858760"
+  },
+  {
+    "id": 790,
+    "query": "北京素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858762"
+  },
+  {
+    "id": 791,
+    "query": "敦煌餐厅推荐，10000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858765"
+  },
+  {
+    "id": 792,
+    "query": "黄山夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858767"
+  },
+  {
+    "id": 793,
+    "query": "张家界素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858769"
+  },
+  {
+    "id": 794,
+    "query": "泰山美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858771"
+  },
+  {
+    "id": 795,
+    "query": "上海餐厅推荐，5000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858773"
+  },
+  {
+    "id": 796,
+    "query": "大连餐厅推荐，2000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858775"
+  },
+  {
+    "id": 797,
+    "query": "天津素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858781"
+  },
+  {
+    "id": 798,
+    "query": "九寨沟早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858783"
+  },
+  {
+    "id": 799,
+    "query": "大连夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858785"
+  },
+  {
+    "id": 800,
+    "query": "武汉美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858787"
+  },
+  {
+    "id": 801,
+    "query": "拉萨特色小吃",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858788"
+  },
+  {
+    "id": 802,
+    "query": "洛阳餐厅推荐，15000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858790"
+  },
+  {
+    "id": 803,
+    "query": "泰山夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858792"
+  },
+  {
+    "id": 804,
+    "query": "丽江本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858794"
+  },
+  {
+    "id": 805,
+    "query": "泰山餐厅推荐，8000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858796"
+  },
+  {
+    "id": 806,
+    "query": "长沙本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858798"
+  },
+  {
+    "id": 807,
+    "query": "福州网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858800"
+  },
+  {
+    "id": 808,
+    "query": "长沙本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858802"
+  },
+  {
+    "id": 809,
+    "query": "九寨沟本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858804"
+  },
+  {
+    "id": 810,
+    "query": "丽江素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858806"
+  },
+  {
+    "id": 811,
+    "query": "福州美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858808"
+  },
+  {
+    "id": 812,
+    "query": "贵阳早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858810"
+  },
+  {
+    "id": 813,
+    "query": "深圳网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858812"
+  },
+  {
+    "id": 814,
+    "query": "深圳素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858814"
+  },
+  {
+    "id": 815,
+    "query": "敦煌本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858815"
+  },
+  {
+    "id": 816,
+    "query": "黄山夜宵美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858817"
+  },
+  {
+    "id": 817,
+    "query": "杭州网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858819"
+  },
+  {
+    "id": 818,
+    "query": "天津本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858821"
+  },
+  {
+    "id": 819,
+    "query": "大理餐厅推荐，3000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858823"
+  },
+  {
+    "id": 820,
+    "query": "北京美食推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858826"
+  },
+  {
+    "id": 821,
+    "query": "深圳网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858828"
+  },
+  {
+    "id": 822,
+    "query": "敦煌网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858830"
+  },
+  {
+    "id": 823,
+    "query": "南京餐厅推荐，2000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858832"
+  },
+  {
+    "id": 824,
+    "query": "黄山素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858834"
+  },
+  {
+    "id": 825,
+    "query": "上海本地人推荐餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858837"
+  },
+  {
+    "id": 826,
+    "query": "广州早餐推荐",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858839"
+  },
+  {
+    "id": 827,
+    "query": "广州网红美食",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858841"
+  },
+  {
+    "id": 828,
+    "query": "重庆素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858843"
+  },
+  {
+    "id": 829,
+    "query": "北京餐厅推荐，2000元人均",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858845"
+  },
+  {
+    "id": 830,
+    "query": "黄山素食餐厅",
+    "expected_intent": "food",
+    "timestamp": "2026-04-26T17:14:37.858847"
+  },
+  {
+    "id": 831,
+    "query": "三亚高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858849"
+  },
+  {
+    "id": 832,
+    "query": "南京公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858851"
+  },
+  {
+    "id": 833,
+    "query": "武汉租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858853"
+  },
+  {
+    "id": 834,
+    "query": "黄山到华山怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858855"
+  },
+  {
+    "id": 835,
+    "query": "长沙交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858857"
+  },
+  {
+    "id": 836,
+    "query": "拉萨公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858859"
+  },
+  {
+    "id": 837,
+    "query": "北京怎么去泰山",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858861"
+  },
+  {
+    "id": 838,
+    "query": "丽江租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858863"
+  },
+  {
+    "id": 839,
+    "query": "南京地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858865"
+  },
+  {
+    "id": 840,
+    "query": "三亚到宽窄巷子怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858867"
+  },
+  {
+    "id": 841,
+    "query": "深圳机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858869"
+  },
+  {
+    "id": 842,
+    "query": "福州交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858871"
+  },
+  {
+    "id": 843,
+    "query": "天津机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858873"
+  },
+  {
+    "id": 844,
+    "query": "北京怎么去桂林",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858875"
+  },
+  {
+    "id": 845,
+    "query": "洛阳机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858877"
+  },
+  {
+    "id": 846,
+    "query": "张家界高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858879"
+  },
+  {
+    "id": 847,
+    "query": "厦门到洱海怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858881"
+  },
+  {
+    "id": 848,
+    "query": "南京交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858883"
+  },
+  {
+    "id": 849,
+    "query": "开封交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858884"
+  },
+  {
+    "id": 850,
+    "query": "敦煌地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858887"
+  },
+  {
+    "id": 851,
+    "query": "天津地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858889"
+  },
+  {
+    "id": 852,
+    "query": "天津机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858894"
+  },
+  {
+    "id": 853,
+    "query": "北京怎么去三亚",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858896"
+  },
+  {
+    "id": 854,
+    "query": "杭州到灵隐寺怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858898"
+  },
+  {
+    "id": 855,
+    "query": "昆明公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858900"
+  },
+  {
+    "id": 856,
+    "query": "贵阳机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858902"
+  },
+  {
+    "id": 857,
+    "query": "敦煌机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858903"
+  },
+  {
+    "id": 858,
+    "query": "大理公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858905"
+  },
+  {
+    "id": 859,
+    "query": "天津地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858907"
+  },
+  {
+    "id": 860,
+    "query": "北京怎么去重庆",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858909"
+  },
+  {
+    "id": 861,
+    "query": "张家界公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858911"
+  },
+  {
+    "id": 862,
+    "query": "北京怎么去桂林",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858915"
+  },
+  {
+    "id": 863,
+    "query": "桂林地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858917"
+  },
+  {
+    "id": 864,
+    "query": "北京怎么去苏州",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858919"
+  },
+  {
+    "id": 865,
+    "query": "北京怎么去天津",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858921"
+  },
+  {
+    "id": 866,
+    "query": "北京租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858923"
+  },
+  {
+    "id": 867,
+    "query": "黄山租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858925"
+  },
+  {
+    "id": 868,
+    "query": "深圳交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858927"
+  },
+  {
+    "id": 869,
+    "query": "长沙地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858928"
+  },
+  {
+    "id": 870,
+    "query": "深圳交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858931"
+  },
+  {
+    "id": 871,
+    "query": "张家界交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858933"
+  },
+  {
+    "id": 872,
+    "query": "长沙机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858935"
+  },
+  {
+    "id": 873,
+    "query": "昆明交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858937"
+  },
+  {
+    "id": 874,
+    "query": "九寨沟高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858939"
+  },
+  {
+    "id": 875,
+    "query": "北京怎么去北京",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858940"
+  },
+  {
+    "id": 876,
+    "query": "青岛地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858943"
+  },
+  {
+    "id": 877,
+    "query": "上海租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858946"
+  },
+  {
+    "id": 878,
+    "query": "大连交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858947"
+  },
+  {
+    "id": 879,
+    "query": "桂林高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858949"
+  },
+  {
+    "id": 880,
+    "query": "长沙到灵隐寺怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858951"
+  },
+  {
+    "id": 881,
+    "query": "南昌交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858953"
+  },
+  {
+    "id": 882,
+    "query": "北京怎么去成都",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858955"
+  },
+  {
+    "id": 883,
+    "query": "北京怎么去桂林",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858957"
+  },
+  {
+    "id": 884,
+    "query": "北京怎么去厦门",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858960"
+  },
+  {
+    "id": 885,
+    "query": "泰山租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858962"
+  },
+  {
+    "id": 886,
+    "query": "拉萨到平遥古城怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858964"
+  },
+  {
+    "id": 887,
+    "query": "厦门到玉龙雪山怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858966"
+  },
+  {
+    "id": 888,
+    "query": "敦煌到天门山怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858968"
+  },
+  {
+    "id": 889,
+    "query": "三亚地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858970"
+  },
+  {
+    "id": 890,
+    "query": "武汉高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858972"
+  },
+  {
+    "id": 891,
+    "query": "成都公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858974"
+  },
+  {
+    "id": 892,
+    "query": "杭州高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858977"
+  },
+  {
+    "id": 893,
+    "query": "丽江到宽窄巷子怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858979"
+  },
+  {
+    "id": 894,
+    "query": "北京地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858981"
+  },
+  {
+    "id": 895,
+    "query": "九寨沟公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858983"
+  },
+  {
+    "id": 896,
+    "query": "昆明公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858985"
+  },
+  {
+    "id": 897,
+    "query": "丽江到天涯海角怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858987"
+  },
+  {
+    "id": 898,
+    "query": "南昌地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858989"
+  },
+  {
+    "id": 899,
+    "query": "黄山机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858991"
+  },
+  {
+    "id": 900,
+    "query": "三亚公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858994"
+  },
+  {
+    "id": 901,
+    "query": "三亚公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858997"
+  },
+  {
+    "id": 902,
+    "query": "黄山机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.858999"
+  },
+  {
+    "id": 903,
+    "query": "苏州地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859001"
+  },
+  {
+    "id": 904,
+    "query": "北京怎么去黄山",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859003"
+  },
+  {
+    "id": 905,
+    "query": "北京怎么去青岛",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859005"
+  },
+  {
+    "id": 906,
+    "query": "大连交通攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859007"
+  },
+  {
+    "id": 907,
+    "query": "西安公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859009"
+  },
+  {
+    "id": 908,
+    "query": "敦煌公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859011"
+  },
+  {
+    "id": 909,
+    "query": "北京怎么去九寨沟",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859013"
+  },
+  {
+    "id": 910,
+    "query": "张家界高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859015"
+  },
+  {
+    "id": 911,
+    "query": "北京公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859016"
+  },
+  {
+    "id": 912,
+    "query": "黄山机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859018"
+  },
+  {
+    "id": 913,
+    "query": "九寨沟到莫高窟怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859020"
+  },
+  {
+    "id": 914,
+    "query": "广州高铁站��置",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859022"
+  },
+  {
+    "id": 915,
+    "query": "武汉公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859024"
+  },
+  {
+    "id": 916,
+    "query": "洛阳租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859027"
+  },
+  {
+    "id": 917,
+    "query": "成都到颐和园怎么走",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859029"
+  },
+  {
+    "id": 918,
+    "query": "青岛租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859031"
+  },
+  {
+    "id": 919,
+    "query": "青岛租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859033"
+  },
+  {
+    "id": 920,
+    "query": "福州公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859035"
+  },
+  {
+    "id": 921,
+    "query": "武汉公交线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859037"
+  },
+  {
+    "id": 922,
+    "query": "西安机场到市区",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859039"
+  },
+  {
+    "id": 923,
+    "query": "长沙租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859041"
+  },
+  {
+    "id": 924,
+    "query": "天津地铁线路",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859042"
+  },
+  {
+    "id": 925,
+    "query": "青岛租车攻略",
+    "expected_intent": "transport",
+    "timestamp": "2026-04-26T17:14:37.859044"
+  },
+  {
+    "id": 926,
+    "query": "上海自驾游成本",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859046"
+  },
+  {
+    "id": 927,
+    "query": "南昌旅游预算1000元够不够",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859049"
+  },
+  {
+    "id": 928,
+    "query": "泰山亲子游花费",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859052"
+  },
+  {
+    "id": 929,
+    "query": "深圳豪华游预算",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859054"
+  },
+  {
+    "id": 930,
+    "query": "三亚自驾游成本",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859056"
+  },
+  {
+    "id": 931,
+    "query": "大连穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859058"
+  },
+  {
+    "id": 932,
+    "query": "黄山旅游省钱攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859060"
+  },
+  {
+    "id": 933,
+    "query": "深圳旅游省钱攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859062"
+  },
+  {
+    "id": 934,
+    "query": "福州自驾游成本",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859064"
+  },
+  {
+    "id": 935,
+    "query": "五一拉萨预算规划",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859066"
+  },
+  {
+    "id": 936,
+    "query": "广州亲子游花费",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859068"
+  },
+  {
+    "id": 937,
+    "query": "南京穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859069"
+  },
+  {
+    "id": 938,
+    "query": "五一泰山预算规划",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859072"
+  },
+  {
+    "id": 939,
+    "query": "苏州自驾游成本",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859074"
+  },
+  {
+    "id": 940,
+    "query": "五一北京预算规划",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859075"
+  },
+  {
+    "id": 941,
+    "query": "西安旅游预算3000元够不够",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859078"
+  },
+  {
+    "id": 942,
+    "query": "福州旅游省钱攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859080"
+  },
+  {
+    "id": 943,
+    "query": "桂林豪华游预算",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859082"
+  },
+  {
+    "id": 944,
+    "query": "九寨沟2天花费预估",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859084"
+  },
+  {
+    "id": 945,
+    "query": "北京穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859086"
+  },
+  {
+    "id": 946,
+    "query": "西安4天花费预估",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859088"
+  },
+  {
+    "id": 947,
+    "query": "南京15天花费预估",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859090"
+  },
+  {
+    "id": 948,
+    "query": "大理穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859093"
+  },
+  {
+    "id": 949,
+    "query": "南昌豪华游预算",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859095"
+  },
+  {
+    "id": 950,
+    "query": "大理旅游预算3000元够不够",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859097"
+  },
+  {
+    "id": 951,
+    "query": "丽江旅游预算10000元够不够",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859099"
+  },
+  {
+    "id": 952,
+    "query": "重庆8天花费预估",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859101"
+  },
+  {
+    "id": 953,
+    "query": "青岛自驾游成本",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859103"
+  },
+  {
+    "id": 954,
+    "query": "五一武汉预算规划",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859106"
+  },
+  {
+    "id": 955,
+    "query": "贵阳穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859108"
+  },
+  {
+    "id": 956,
+    "query": "西安亲子游花费",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859110"
+  },
+  {
+    "id": 957,
+    "query": "武汉豪华游预算",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859112"
+  },
+  {
+    "id": 958,
+    "query": "丽江豪华游预算",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859114"
+  },
+  {
+    "id": 959,
+    "query": "开封旅游预算1000元够不够",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859116"
+  },
+  {
+    "id": 960,
+    "query": "九寨沟穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859118"
+  },
+  {
+    "id": 961,
+    "query": "厦门穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859120"
+  },
+  {
+    "id": 962,
+    "query": "三亚穷游攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859122"
+  },
+  {
+    "id": 963,
+    "query": "黄山旅游省钱攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859125"
+  },
+  {
+    "id": 964,
+    "query": "五一上海预算规划",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859127"
+  },
+  {
+    "id": 965,
+    "query": "青岛旅游省钱攻略",
+    "expected_intent": "budget",
+    "timestamp": "2026-04-26T17:14:37.859129"
+  },
+  {
+    "id": 966,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859132"
+  },
+  {
+    "id": 967,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859133"
+  },
+  {
+    "id": 968,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859135"
+  },
+  {
+    "id": 969,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859137"
+  },
+  {
+    "id": 970,
+    "query": "再见",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859139"
+  },
+  {
+    "id": 971,
+    "query": "明白了",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859141"
+  },
+  {
+    "id": 972,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859143"
+  },
+  {
+    "id": 973,
+    "query": "再见",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859145"
+  },
+  {
+    "id": 974,
+    "query": "再见",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859152"
+  },
+  {
+    "id": 975,
+    "query": "你好",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859155"
+  },
+  {
+    "id": 976,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859156"
+  },
+  {
+    "id": 977,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859158"
+  },
+  {
+    "id": 978,
+    "query": "在吗",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859160"
+  },
+  {
+    "id": 979,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859163"
+  },
+  {
+    "id": 980,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859165"
+  },
+  {
+    "id": 981,
+    "query": "再见",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859166"
+  },
+  {
+    "id": 982,
+    "query": "辛苦了",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859168"
+  },
+  {
+    "id": 983,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859170"
+  },
+  {
+    "id": 984,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859172"
+  },
+  {
+    "id": 985,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859174"
+  },
+  {
+    "id": 986,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859175"
+  },
+  {
+    "id": 987,
+    "query": "明白了",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859177"
+  },
+  {
+    "id": 988,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859179"
+  },
+  {
+    "id": 989,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859181"
+  },
+  {
+    "id": 990,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859183"
+  },
+  {
+    "id": 991,
+    "query": "好的",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859184"
+  },
+  {
+    "id": 992,
+    "query": "在吗",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859186"
+  },
+  {
+    "id": 993,
+    "query": "明白了",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859188"
+  },
+  {
+    "id": 994,
+    "query": "真棒",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859190"
+  },
+  {
+    "id": 995,
+    "query": "谢谢",
+    "expected_intent": "chat",
+    "timestamp": "2026-04-26T17:14:37.859192"
+  },
+  {
+    "id": 996,
+    "query": "这个景点在哪里",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859194"
+  },
+  {
+    "id": 997,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859196"
+  },
+  {
+    "id": 998,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859198"
+  },
+  {
+    "id": 999,
+    "query": "帮我分析这张照片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859200"
+  },
+  {
+    "id": 1000,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859202"
+  },
+  {
+    "id": 1001,
+    "query": "这张照片在哪里拍的",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859203"
+  },
+  {
+    "id": 1002,
+    "query": "帮我识别这张图片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859205"
+  },
+  {
+    "id": 1003,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859207"
+  },
+  {
+    "id": 1004,
+    "query": "帮我分析这张照片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859209"
+  },
+  {
+    "id": 1005,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859211"
+  },
+  {
+    "id": 1006,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859212"
+  },
+  {
+    "id": 1007,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859214"
+  },
+  {
+    "id": 1008,
+    "query": "帮我识别这张图片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859216"
+  },
+  {
+    "id": 1009,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859218"
+  },
+  {
+    "id": 1010,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859220"
+  },
+  {
+    "id": 1011,
+    "query": "帮我分析这张照片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859223"
+  },
+  {
+    "id": 1012,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859225"
+  },
+  {
+    "id": 1013,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859226"
+  },
+  {
+    "id": 1014,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859228"
+  },
+  {
+    "id": 1015,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859230"
+  },
+  {
+    "id": 1016,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859232"
+  },
+  {
+    "id": 1017,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859234"
+  },
+  {
+    "id": 1018,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859235"
+  },
+  {
+    "id": 1019,
+    "query": "这个景点在哪里",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859237"
+  },
+  {
+    "id": 1020,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859240"
+  },
+  {
+    "id": 1021,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859242"
+  },
+  {
+    "id": 1022,
+    "query": "帮我识别这张图片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859244"
+  },
+  {
+    "id": 1023,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859246"
+  },
+  {
+    "id": 1024,
+    "query": "这个景点在哪里",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859247"
+  },
+  {
+    "id": 1025,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859249"
+  },
+  {
+    "id": 1026,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859251"
+  },
+  {
+    "id": 1027,
+    "query": "这张照片在哪里拍的",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859252"
+  },
+  {
+    "id": 1028,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859255"
+  },
+  {
+    "id": 1029,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859257"
+  },
+  {
+    "id": 1030,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859259"
+  },
+  {
+    "id": 1031,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859260"
+  },
+  {
+    "id": 1032,
+    "query": "这个景点在哪里",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859262"
+  },
+  {
+    "id": 1033,
+    "query": "这张图片是什么",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859264"
+  },
+  {
+    "id": 1034,
+    "query": "这是哪个景点",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859265"
+  },
+  {
+    "id": 1035,
+    "query": "图片识别",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859267"
+  },
+  {
+    "id": 1036,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859269"
+  },
+  {
+    "id": 1037,
+    "query": "这张照片在哪里拍的",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859271"
+  },
+  {
+    "id": 1038,
+    "query": "帮我分析这张照片",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859273"
+  },
+  {
+    "id": 1039,
+    "query": "这张照片在哪里拍的",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859274"
+  },
+  {
+    "id": 1040,
+    "query": "识别这个二维码",
+    "expected_intent": "image",
+    "timestamp": "2026-04-26T17:14:37.859276"
+  }
+]

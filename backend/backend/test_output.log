@@ -1,0 +1,14 @@
+D:\python3.13\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.3.0)/charset_normalizer (3.4.6) doesn't match a supported version!
+  warnings.warn(
+============================= test session starts =============================
+platform win32 -- Python 3.13.11, pytest-8.3.4, pluggy-1.6.0 -- D:\python3.13\python.exe
+cachedir: .pytest_cache
+rootdir: D:\agent_learning\travel_assistant\backend
+configfile: pytest.ini
+plugins: anyio-4.13.0, langsmith-0.7.22, asyncio-0.24.0
+asyncio: mode=Mode.AUTO, default_loop_scope=function
+collecting ... ERROR: file or directory not found: tests/
+
+collected 0 items
+
+============================ no tests ran in 0.12s ============================
