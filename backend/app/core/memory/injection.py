@@ -213,44 +213,98 @@ class MemoryInjector:
         user_input: str,
         max_memories: int = 3,
         include_empty: bool = False,
+        use_xml_format: bool = True,  # New: XML format toggle
+        sanitizer=None,  # New: external sanitizer instance
     ) -> str:
-        """Build memory context string for LLM injection.
-
-        Creates a formatted string containing relevant memories that
-        can be injected into the LLM context for personalized responses.
+        """Build memory context string for LLM injection - supports XML marking and data/instruction separation
 
         Args:
             user_input: User's input text
             max_memories: Maximum number of memories to include
             include_empty: If True, include empty context message when no memories found
+            use_xml_format: Use XML format marking (Defense Layer 1+4)
+            sanitizer: Optional InjectionGuardEnhanced instance for sanitization
 
         Returns:
-            Formatted memory context string
+            Formatted memory context string with XML tags if enabled
 
         Examples:
-            >>> injector.build_memory_context("我想去北京旅游")
-            '用户偏好记忆：\\n- 用户喜欢北京的自然景观\\n- 用户预算充足'
+            >>> injector.build_memory_context("我想去北京旅游", use_xml_format=True)
+            '<data><memory><item trust="extracted">用户喜欢北京的自然景观</item></memory></data>'
         """
-        memories = self.get_relevant_memories(user_input, max_memories)
+        memory_items = self._get_memory_items_with_trust(user_input, max_memories)
 
-        if not memories:
-            if include_empty:
-                return "用户偏好记忆：暂无相关记忆"
+        if not memory_items and not include_empty:
             return ""
 
-        # Build formatted context
-        context_lines = ["用户偏好记忆："]
-        for i, memory in enumerate(memories, 1):
-            context_lines.append(f"  {i}. {memory}")
+        if not memory_items and include_empty:
+            if use_xml_format:
+                return "<data>\n  <memory>暂无相关记忆</memory>\n</data>"
+            return "用户偏好记忆：暂无相关记忆"
 
-        context = "\n".join(context_lines)
+        if use_xml_format:
+            # === XML format output (Defense Layer 1+4) ===
+            lines = ["<data>", "  <memory>"]
+            for i, item in enumerate(memory_items, 1):
+                # Defense Layer 2: apply sanitizer
+                if sanitizer:
+                    safe_content, events = sanitizer.sanitize_memory_content(
+                        item.content, item.trust_level.value
+                    )
+                    if events:
+                        logger.debug(
+                            f"[MemoryInjector] Sanitized memory {i} | "
+                            f"events={len(events)} | trust={item.trust_level.value}"
+                        )
+                else:
+                    safe_content = item.content
 
-        logger.debug(
-            f"[MemoryInjector] Built context with {len(memories)} memories for input: "
-            f"'{user_input[:50]}...'"
-        )
+                lines.append(f'    <item id="{i}" trust="{item.trust_level.value}">')
+                lines.append(f"      {safe_content}")
+                lines.append(f"    </item>")
 
-        return context
+            lines.append("  </memory>")
+            lines.append("</data>")
+            return "\n".join(lines)
+        else:
+            # === Traditional text format (backward compatibility) ===
+            lines = ["用户偏好记忆："]
+            for i, item in enumerate(memory_items, 1):
+                safe_content = sanitizer.sanitize_memory_content(
+                    item.content, item.trust_level.value
+                )[0] if sanitizer else item.content
+                lines.append(f"  {i}. {safe_content}")
+            return "\n".join(lines)
+
+    def _get_memory_items_with_trust(
+        self,
+        user_input: str,
+        max_memories: int = 3,
+    ) -> List[MemoryItem]:
+        """Get memory items with trust level - New helper method
+
+        Args:
+            user_input: User's input text
+            max_memories: Maximum number of memories to return
+
+        Returns:
+            List of MemoryItem objects with trust_level field
+        """
+        keywords = self.extract_keywords(user_input)
+        if not keywords:
+            return []
+
+        all_memories = self._hierarchy.get_semantic(limit=100)
+        scored = []
+        for memory in all_memories:
+            if memory.importance < 0.3:
+                continue
+            score = self._calculate_relevance_score(memory, keywords)
+            if score > 0:
+                scored.append((score, memory))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [m for _, m in scored[:max_memories]]
 
     def _calculate_relevance_score(self, memory: MemoryItem, keywords: List[str]) -> float:
         """Calculate relevance score for a memory based on keywords.

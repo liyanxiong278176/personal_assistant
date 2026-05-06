@@ -218,7 +218,7 @@ class HybridRetriever:
             raise
 
     def _to_memory_item(self, result: dict, score: float) -> MemoryItem:
-        """Convert search result to MemoryItem."""
+        """Convert search result to MemoryItem - auto-infer trust_level"""
         metadata = result.get("metadata", {})
 
         memory_type_str = metadata.get("memory_type", "preference")
@@ -227,10 +227,19 @@ class HybridRetriever:
         except ValueError:
             memory_type = MemoryType.PREFERENCE
 
+        # Auto-infer trust_level (backward compatible: defaults to extracted if no field)
+        trust_level_str = metadata.get("trust_level", "extracted")
+        try:
+            from app.core.memory.hierarchy import MemoryTrustLevel
+            trust_level = MemoryTrustLevel(trust_level_str)
+        except ValueError:
+            trust_level = MemoryTrustLevel.EXTRACTED
+
         return MemoryItem(
             content=result.get("content", ""),
             level=MemoryLevel.SEMANTIC,
             memory_type=memory_type,
             importance=score,
+            trust_level=trust_level,  # New field
             metadata=metadata,
         )

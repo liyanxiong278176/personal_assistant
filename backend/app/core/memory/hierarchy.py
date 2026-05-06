@@ -43,6 +43,17 @@ class MemoryType(str, Enum):
     STATE = "state"  # Conversation state
 
 
+class MemoryTrustLevel(Enum):
+    """Memory trust levels for defense layer 4.
+
+    Used to determine security sanitization intensity.
+    """
+
+    SYSTEM = "system"  # System-generated, high confidence
+    EXTRACTED = "extracted"  # Extracted from conversation, validated
+    IMPORTED = "imported"  # User-provided, potential risk
+
+
 @dataclass
 class MemoryItem:
     """A single memory item in the hierarchy.
@@ -56,6 +67,7 @@ class MemoryItem:
         importance: Importance score (0.0 to 1.0)
         created_at: When the memory was created
         item_id: Unique identifier for the memory
+        trust_level: Trust level for security sanitization (SYSTEM, EXTRACTED, IMPORTED)
     """
 
     content: str
@@ -66,6 +78,7 @@ class MemoryItem:
     importance: float = 0.5
     created_at: datetime = field(default_factory=datetime.utcnow)
     item_id: str = field(default_factory=lambda: str(uuid4()))
+    trust_level: MemoryTrustLevel = MemoryTrustLevel.EXTRACTED  # Default for backward compatibility
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
@@ -78,11 +91,20 @@ class MemoryItem:
             "confidence": self.confidence,
             "importance": self.importance,
             "created_at": self.created_at.isoformat(),
+            "trust_level": self.trust_level.value,  # Add trust_level serialization
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "MemoryItem":
         """Create MemoryItem from dictionary."""
+        # Parse trust_level with backward compatibility
+        trust_level = MemoryTrustLevel.EXTRACTED  # Default for backward compatibility
+        if "trust_level" in data:
+            try:
+                trust_level = MemoryTrustLevel(data["trust_level"])
+            except ValueError:
+                pass  # Use default if invalid value
+
         return cls(
             content=data["content"],
             level=MemoryLevel(data["level"]),
@@ -91,6 +113,7 @@ class MemoryItem:
             confidence=data.get("confidence", 0.5),
             importance=data.get("importance", 0.5),
             item_id=data.get("id", str(uuid4())),
+            trust_level=trust_level,
         )
 
 

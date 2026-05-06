@@ -624,6 +624,88 @@ class InjectionGuardEnhanced:
             "review_rate": self._stats["sensitive_review"] / total if total > 0 else 0,
         }
 
+    # =================================================================
+    # Memory-specific sanitization methods (Defense Layer 2)
+    # =================================================================
+
+    def sanitize_memory_content(
+        self,
+        memory_content: str,
+        trust_level: str = "extracted"
+    ) -> Tuple[str, List[Dict[str, Any]]:
+        """Memory content sanitization - Defense Layer 2
+
+        Different from sanitize_input():
+        1. Does NOT execute DENY (memory is context, not user input)
+        2. Escapes high-risk content instead of blocking
+        3. Records but allows LLM to see memory content
+
+        Args:
+            memory_content: Raw memory content
+            trust_level: Trust level (system/extracted/imported)
+
+        Returns:
+            (sanitized_content, event_list)
+        """
+        events = []
+        result = memory_content
+
+        # 1. Special token escaping (all trust levels)
+        result, escaped = self.escape_special_tokens(result)
+        if escaped:
+            events.append({
+                "type": "tokens_escaped",
+                "original_length": len(memory_content),
+            })
+
+        # 2. Structured injection escaping (all levels)
+        case_sensitive_match = self._case_sensitive_regex.search(result)
+        if case_sensitive_match:
+            escaped_token = self._escape_token_for_memory(case_sensitive_match.group())
+            result = result.replace(case_sensitive_match.group(), escaped_token)
+            events.append({
+                "type": "injection_escaped",
+                "pattern": case_sensitive_match.group(),
+                "replacement": escaped_token,
+            })
+
+        # 3. Text injection escaping (extracted/imported levels)
+        if trust_level in ["extracted", "imported"]:
+            case_insensitive_match = self._case_insensitive_regex.search(result)
+            if case_insensitive_match:
+                escaped_pattern = self._escape_pattern_for_memory(
+                    case_insensitive_match.group()
+                )
+                result = result.replace(case_insensitive_match.group(), escaped_pattern)
+                events.append({
+                    "type": "text_injection_escaped",
+                    "pattern": case_insensitive_match.group(),
+                    "replacement": escaped_pattern,
+                })
+
+        # 4. Illegal content masking (imported level extra handling)
+        if trust_level == "imported":
+            illegal_match = self._illegal_regex.search(result)
+            if illegal_match:
+                result = result.replace(
+                    illegal_match.group(),
+                    f"[内容已屏蔽-{illegal_match.group()}]"
+                )
+                events.append({
+                    "type": "illegal_content_masked",
+                    "keyword": illegal_match.group(),
+                })
+
+        return result, events
+
+    def _escape_token_for_memory(self, token: str) -> str:
+        """Escape special token for memory context"""
+        return f"「{token}」(技术符号，已转义)"
+
+    def _escape_pattern_for_memory(self, pattern: str) -> str:
+        """Escape text injection pattern for memory"""
+        return f"「{pattern[:20]}...(已转义)」"
+
 
 __all__ = [
     "InjectionGuardEnhanced",

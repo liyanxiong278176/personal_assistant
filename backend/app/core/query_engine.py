@@ -1063,19 +1063,40 @@ class QueryEngine:
                 )
 
                 if retrieved_memories:
-                    # 构建记忆上下文
-                    memory_lines = ["用户偏好记忆："]
-                    for i, memory in enumerate(retrieved_memories, 1):
-                        memory_lines.append(f"  {i}. {memory.content}")
+                    # === Defense Layer 2: Memory content sanitization ===
+                    memory_items_with_trust = retrieved_memories  # HybridRetriever returns MemoryItem with trust_level
 
-                    memory_context = "\n".join(memory_lines)
+                    # === Defense Layer 1+4: XML format output ===
+                    if hasattr(memory_items_with_trust[0], 'trust_level'):
+                        lines = ["<data>", "  <memory>"]
+                        for i, item in enumerate(memory_items_with_trust, 1):
+                            # Double protection: HybridRetriever layer + QueryEngine layer
+                            safe_content, events = self._security_guard.sanitize_memory_content(
+                                item.content, item.trust_level.value
+                            )
+                            if events:
+                                logger.info(
+                                    f"[CONTEXT:SECURITY] Memory sanitized | id={item.item_id} | "
+                                    f"trust={item.trust_level.value} | events={len(events)}"
+                                )
+                            lines.append(f'    <item id="{i}" trust="{item.trust_level.value}">{safe_content}</item>')
+                        lines.append("  </memory>")
+                        lines.append("</data>")
+                        memory_context = "\n".join(lines)
+                    else:
+                        # Fallback: Traditional format (backward compatibility)
+                        memory_lines = ["用户偏好记忆："]
+                        for i, memory in enumerate(retrieved_memories, 1):
+                            memory_lines.append(f"  {i}. {memory.content}")
+                        memory_context = "\n".join(memory_lines)
+
                     parts.append(f"## 相关记忆\n{memory_context}")
                     context_parts.append(f"## 相关记忆\n{memory_context}")
 
                     logger.info(
-                        f"[CONTEXT] ✅ HybridRetriever 混合评分检索 | "
-                        f"召回={len(retrieved_memories)}条 | "
-                        f"输入='{user_input[:30]}...'"
+                        f"[CONTEXT] ✅ HybridRetriever mixed scoring | "
+                        f"retrieved={len(retrieved_memories)} | "
+                        f"input='{user_input[:30]}...'"
                     )
                 else:
                     logger.debug(f"[CONTEXT] ℹ️ 未检索到相关记忆 | 输入='{user_input[:30]}...'")

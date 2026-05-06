@@ -12,66 +12,21 @@
 
 > **智能规划 + 个性化推荐**：Agent自动调用多源API为用户生成最优旅行方案，并记住用户偏好持续优化推荐。
 
-## 核心特性
-
-### 业务能力
-
-| 特性 | 描述 | 状态 |
-|------|------|------|
-| **智能行程规划** | 根据目的地、时间、预算自动生成每日行程 | ✅ |
-| **多Agent并行** | 复杂查询自动派生子Agent并行处理 | ✅ |
-| **模型路由** | 根据复杂度自动选择deepseek-chat/deepseek-reasoner | ✅ |
-| **流式对话** | WebSocket 实时流式输出，逐字显示响应 | ✅ |
-| **槽位提取** | 支持多目的地、组合简称（北上广深）、中文数字 | ✅ |
-
-### 核心引擎
-
-| 特性 | 描述 | 状态 |
-|------|------|------|
-| **分层记忆** | 工作记忆、情景记忆、语义记忆三层架构 | ✅ |
-| **意图分类** | 三层分类器：缓存 → 关键词 → LLM | ✅ |
-| **上下文管理** | Token 估算、压缩、清理、重新注入 | ✅ |
-| **工具循环** | LLM可基于工具结果继续调用，支持多轮迭代 | ✅ |
-| **偏好提取** | 自动提取并保存用户偏好 | ✅ |
-| **执行计划** | Planner生成执行计划，Executor处理降级 | ✅ |
-
-### 生产级能力
-
-| 特性 | 描述 | 状态 |
-|------|------|------|
-| **熔断保护** | 子Agent独立熔断器，故障不雪崩 | ✅ |
-| **Token预算** | 会话级Token追踪，超限自动压缩 | ✅ |
-| **会话快照** | 长会话状态恢复，中断无缝衔接 | ✅ |
-| **灰度发布** | 一致性哈希灰度放量，快速回滚 | ✅ |
-| **全链路追踪** | TraceID + Span追踪，每步耗时可见 | ✅ |
-| **安全审计** | 注入检测 + LLM辅助判断 + 审计日志 | ✅ |
-| **错误恢复** | 重试循环、降级响应，3层服务降级 | ✅ |
-| **指标收集** | Prometheus指标暴露，异常率/延迟可监控 | ✅ |
-| **双层缓存** | L1精确匹配 + L2语义相似缓存，命中率100% | ✅ |
-| **量化验证** | 意图分类75%、LLM调用减少40-60%、缓存误命中0% | ✅ |
 
 ---
 
-## 测试覆盖 (Testing Agent Systems Skill)
+## 架构图详细
 
-基于四层十类测试体系，完成全量验证：
+点击查看各模块架构图：
 
-| 测试层级 | 测试集 | 通过率 | 说明 |
-|---------|-------|--------|------|
-| **L1 单模块** | IntentRouter、CacheStrategy、MemoryManager等 | 92.5% | 567/613单元测试 |
-| **L1 专项聚焦** | Phase 1-9关键验证 | **100%** | 67/67全部通过 |
-| **L1 缓存专项** | 双层缓存L1/L2 | **100%** | 30/30通过 |
-| **L2 模块集成** | 缓存-意图、意图-工具、工具-LLM | ✅ | Pipeline连通 |
-| **L3 E2E** | 用户输入→意图→工具→记忆→输出 | ✅ | 13场景全通过 |
-| **L4 压力测试** | 50轮对话、50KB结果、高频请求 | ✅ | 无崩溃/OOM |
+| 模块 | 架构图 |
+|------|--------|
+| **上下文管理** | [📊 architecture_context_management_cn.png](architecture_context_management_cn.png) |
+| **意图分类** | [📊 architecture_intent_classifier_cn.png](architecture_intent_classifier_cn.png) |
+| **记忆管理** | [📊 architecture_memory_management_cn.png](architecture_memory_management_cn.png) |
+| **提示词管道** | [📊 architecture_prompt_pipeline_cn.png](architecture_prompt_pipeline_cn.png) |
 
-**核心指标实测值**：
-- 意图分类准确率: **75.0%** (关键词规则基线)
-- LLM调用减少: **40-60%** (L1缓存效果)
-- 缓存命中率: **100%** (L2语义缓存测试)
-- 缓存误命中率: **0%** (防误命中专项测试)
-
-完整测试报告: [TEST_REPORT_FINAL.md](backend/tests/core/TEST_REPORT_FINAL.md)
+---
 
 ---
 
@@ -508,6 +463,8 @@
 
 ---
 
+
+
 ## 灰度发布与回滚
 
 ```
@@ -716,110 +673,6 @@ npm run dev
 
 完整 API 文档: http://localhost:8000/docs
 
-### WebSocket 端点
-
-**连接地址**: `ws://localhost:8000/ws/chat`
-
-### REST API
-
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/api/agent/chat` | POST | Agent Core 聊天 |
-| `/api/agent/status` | GET | Agent Core 状态 |
-| `/ws/chat` | WebSocket | 流式聊天端点 |
-| `/metrics` | GET | Prometheus 指标 |
-
----
-
-## 运行测试
-
-```bash
-cd backend
-
-# 所有核心测试
-pytest tests/core/ -v --capture=no
-
-# 意图识别专项
-pytest tests/core/intent/ -v
-
-# 缓存系统专项 (L1/L2双层缓存)
-pytest tests/core/intent/test_semantic_cache.py tests/core/intent/test_cache_strategy.py -v
-
-# Phase 1-9 聚焦测试
-PYTHONPATH=. python tests/core/test_agent_focused.py
-
-# 查看综合测试报告
-cat tests/core/TEST_REPORT_FINAL.md
-```
-
-**最新测试结果** (2026-04-15):
-- 710+ 测试用例，93.5% 通过率
-- Phase 1-9 专项: 67/67 全部通过
-- 双层缓存: 30/30 全部通过
-
----
-
-## 开发路线图
-
-### 已完成
-
-- [x] Phase 0-5: Agent Core 基础架构
-- [x] Orchestrator: ModelRouter + Planner + Executor
-- [x] 多Agent系统 + 熔断保护
-- [x] 偏好提取 + 指标收集
-- [x] 流式输出优化
-- [x] **生产级增强 (P0/P1修复)**:
-  - [x] 灰度放量 + 回滚机制
-  - [x] 全链路追踪 (TraceID)
-  - [x] Token预算管理
-  - [x] 子Agent熔断集成
-  - [x] 安全增强 + 审计日志
-  - [x] 会话快照 + 状态恢复
-
-### 进行中
-
-- [ ] **MCP 工具集成** (2026-04-06)
-  - [ ] Phase 0: 环境准备
-  - [ ] Phase 1: MCP 核心模块 (exceptions, schema, router, registry, cache, client)
-  - [ ] Phase 2: Amap MCP Server (FastMCP)
-  - [ ] Phase 3: QueryEngine 集成
-  - [ ] Phase 4: 测试与清理
-- [ ] 前端地图可视化
-- [ ] 图片识别与生成
-
-### 待完善 (P2级)
-
-- [ ] 数据库幂等性约束 (DDL迁移)
-- [ ] 审计日志持久化 (Redis→PG)
-- [ ] 快照持久化 (Redis后端)
-- [ ] Prometheus Alert规则
-
----
-
-## 面试核心亮点
-
-### 1. 多Agent + 熔断保护
-> "我设计了一个基于复杂度评分的多Agent系统，当复杂度≥5时自动派生ROUTE/HOTEL/WEATHER/BUDGET四个子Agent并行执行。每个Agent都有独立的CircuitBreaker，连续失败5次自动熔断60秒，防止故障雪崩。熔断期间返回降级响应，保证服务可用性。"
-
-### 2. 生产级可观测性
-> "我基于ContextVar实现了全链路追踪，每个请求生成唯一TraceID，通过Span嵌套追踪每个Step的耗时。配合Prometheus指标暴露，实现了：请求计数器、延迟直方图、工具/Agent执行指标、熔断器状态、并发会话数。异常率超标和耗时超阈值时会触发告警。"
-
-### 3. 三层安全防护 + 审计
-> "我实现了三层安全防护：1) 正则基础检测注入模式和PII 2) LLM辅助二次判断高风险消息 3) SecurityAuditor全链路审计日志。审计日志支持多维度查询和合规报告导出，可追溯所有安全事件。"
-
-### 4. 灰度发布与快速回滚
-> "我设计了灰度发布体系：CanaryController使用一致性哈希确保同一用户始终访问同一版本，支持动态调整灰度比例。RollbackManager支持版本快照创建和一键回滚，配合兼容性检查防止数据损坏。"
-
-### 5. Token预算保护
-> "我实现了TokenBudgetManager，在LLM调用前检查会话预算：80%发出警告、95%强制压缩上下文。防止单用户Token消耗超限导致的API成本超支。配合会话快照实现长会话的状态恢复。"
-
-### 6. Agent系统测试体系 ✨ NEW
-> "我基于四层十类测试体系设计了完整的Agent测试方案：L1单模块(单元测试)、L2模块集成(接口测试)、L3 E2E(黑盒场景测试)、L4压力测试(极端场景)。核心验证包括：意图分类准确率75%、LLM调用减少40-60%、双层缓存命中率100%、缓存误命中率0%。所有67项专项测试全部通过，测试报告可作为简历量化指标的证据支撑。"
-
-### 7. MCP 标准化工具调用 (计划中)
-> "我正在迁移工具调用系统到 MCP (Model Context Protocol) 标准，使用 FastMCP 构建 Server。架构支持 stdio（核心工具）和 SSE（第三方工具）两种传输模式，全局共享 Server 连接但 Session 状态隔离，配合健康检查和 Schema 缓存优化性能。"
-
----
 
 ## 许可证
 
