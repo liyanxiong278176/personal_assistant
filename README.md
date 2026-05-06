@@ -19,12 +19,12 @@
 
 点击查看各模块架构图：
 
-| 模块 | 架构图 |
-|------|--------|
-| **上下文管理** | [📊 architecture_context_management_cn.png](architecture_context_management_cn.png) |
-| **意图分类** | [📊 architecture_intent_classifier_cn.png](architecture_intent_classifier_cn.png) |
-| **记忆管理** | [📊 architecture_memory_management_cn.png](architecture_memory_management_cn.png) |
-| **提示词管道** | [📊 architecture_prompt_pipeline_cn.png](architecture_prompt_pipeline_cn.png) |
+| 模块 | 架构图                                                                               |
+|------|-----------------------------------------------------------------------------------|
+| **上下文管理** | [📊 architecture_context_management_cn.png](上下文管理.png)                            |
+| **意图分类** | [📊 architecture_intent_classifier_cn.png](意图分类.png)                              |
+| **记忆管理** | [📊 architecture_memory_management_cn.png](记忆管理.png) |
+| **提示词管道** | [📊 architecture_prompt_pipeline_cn.png](提示词模板管道.png)     |
 
 ---
 
