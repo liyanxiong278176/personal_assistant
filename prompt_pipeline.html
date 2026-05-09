@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示词管道系统架构</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1200px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 20px;
+        }
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        .step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s;
+        }
+        .step:hover {
+            transform: translateY(-5px);
+        }
+        .step-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .step-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .step-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        .arrow {
+            font-size: 40px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .details-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .detail-box {
+            background: white;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .detail-title {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .detail-content {
+            color: #555;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        .example {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🎯 提示词管道系统架构</div>
+
+        <div class="flow-container">
+            <div class="step">
+                <div class="step-number">第1步</div>
+                <div class="step-title">意图识别</div>
+                <div class="step-desc">识别用户意图类型<br>提取关键槽位信息</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step">
+                <div class="step-number">第2步</div>
+                <div class="step-title">模板加载</div>
+                <div class="step-desc">加载对应的<br>Markdown模板文件</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="step">
+                <div class="step-number">第3步</div>
+                <div class="step-title">模板渲染</div>
+                <div class="step-desc">替换变量标签<br>生成完整提示词</div>
+            </div>
+        </div>
+
+        <div class="details-section">
+            <div class="detail-box">
+                <div class="detail-title">📋 意图识别 & 槽位提取</div>
+                <div class="detail-content">
+                    • 识别8种核心意图：itinerary(行程)、query(查询)、weather(天气)等<br>
+                    • 提取关键槽位：目的地、时间、预算、人数等<br>
+                    • 示例："我想去杭州3天，预算2000元" → intent:itinerary, slots:{destination:杭州, days:3, budget:2000}
+                </div>
+            </div>
+
+            <div class="detail-box">
+                <div class="detail-title">📄 Markdown模板系统</div>
+                <div class="detail-content">
+                    • 每个意图对应独立的Markdown模板文件<br>
+                    • 模板包含：角色定位、行为规则、Few-shot示例、输出格式要求<br>
+                    • 渲染后生成约800字符的base_prompt
+                </div>
+                <div class="example">
+                    模板示例: "你是一个专业的旅游助手，擅长规划{destination}的{days}天行程，预算{budget}元..."
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>意图分类器架构</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1400px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            border-bottom: 4px solid #11998e;
+            padding-bottom: 20px;
+        }
+        .three-layer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .layer {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.4);
+        }
+        .layer-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .layer-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .layer-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .arrow-down {
+            text-align: center;
+            font-size: 30px;
+            color: #11998e;
+            margin: 10px 0;
+        }
+        .strategy-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        .strategy-box {
+            background: white;
+            border-left: 5px solid #11998e;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .strategy-title {
+            color: #11998e;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .strategy-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+        .confidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .confidence-table th {
+            background: #11998e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        .confidence-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .confidence-table tr:hover {
+            background: #f5f5f5;
+        }
+        .keywords-box {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .cache-box {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🎯 意图分类器架构</div>
+
+        <div class="three-layer">
+            <div class="layer">
+                <div class="layer-number">第1层</div>
+                <div class="layer-name">缓存层</div>
+                <div class="layer-desc">
+                    • 语义相似度计算<br>
+                    • 余弦相似度≥0.8命中<br>
+                    • FIFO淘汰策略<br>
+                    • 最多500条记录
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-number">第2层</div>
+                <div class="layer-name">关键词层</div>
+                <div class="layer-desc">
+                    • 正则匹配+权重评分<br>
+                    • 强/中/弱关键词<br>
+                    • 排除关键词惩罚<br>
+                    • YAML配置热更新
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-number">第3层</div>
+                <div class="layer-name">LLM层</div>
+                <div class="layer-desc">
+                    • 结构化分类prompt<br>
+                    • 返回JSON格式<br>
+                    • 最多3次重试<br>
+                    • 最终降级chat
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down">↓ 逐层降级，直到返回结果 ↓</div>
+
+        <div class="strategy-section">
+            <div class="strategy-box">
+                <div class="strategy-title">💾 缓存层策略</div>
+                <div class="strategy-content">
+                    • 用户向量相似度计算（生成用户向量用于记忆检索）<br>
+                    • 余弦相似度≥0.8算命中<br>
+                    • FIFO淘汰策略，最多500条记录<br>
+                    • 命中即返回结果，写入缓存
+                </div>
+                <div class="cache-box">
+                    <strong>前置过滤规则：</strong><br>
+                    包含图片 / 被标记为复杂 / 消息>50字符 / 包含多个复杂词 → 直接进入LLM层
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">🔑 关键词权重策略</div>
+                <div class="strategy-content">
+                    • 强关键词：权重 0.5-0.7（如"天气"、"价格"）<br>
+                    • 中关键词：权重 0.3-0.4（如"查询"、"多少钱"）<br>
+                    • 弱关键词：权重 0.2-0.3（如"怎么样"、"如何"）<br>
+                    • 正则模式：额外+0.25分<br>
+                    • 排除关键词：负分惩罚（如query意图排除"想去"、"旅游"）
+                </div>
+                <div class="keywords-box">
+                    配置示例（YAML）：<br>
+                    intents:<br>
+                      &nbsp;&nbsp;weather:<br>
+                      &nbsp;&nbsp;&nbsp;&nbsp;keywords_strong: [天气, 温度, 下雨]<br>
+                      &nbsp;&nbsp;&nbsp;&nbsp;keywords_exclude: [想去, 旅游, 行程]
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">📊 置信度决策表</div>
+                <table class="confidence-table">
+                    <tr>
+                        <th>置信度</th>
+                        <th>处理方式</th>
+                        <th>走向</th>
+                    </tr>
+                    <tr>
+                        <td>≥ 0.8</td>
+                        <td>高置信度，接受</td>
+                        <td>触发语义校验 → 返回+缓存</td>
+                    </tr>
+                    <tr>
+                        <td>0.5~0.8</td>
+                        <td>中置信度</td>
+                        <td>可触发澄清对话 → 返回+缓存</td>
+                    </tr>
+                    <tr>
+                        <td>< 0.5</td>
+                        <td>低置信度</td>
+                        <td>不返回，记录best，继续下一策略</td>
+                    </tr>
+                    <tr>
+                        <td>< 0.1</td>
+                        <td>无效</td>
+                        <td>返回chat，置信度0.1</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">🤖 LLM降级机制</div>
+                <div class="strategy-content">
+                    • 结构化分类prompt（~150 tokens）<br>
+                    • 列出8种意图类型及详细说明<br>
+                    • 要求返回JSON：{intent, confidence, reasoning}<br>
+                    • 最多3次重试，每次超时30s<br>
+                    • 最终降级：chat意图，置信度0.3
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

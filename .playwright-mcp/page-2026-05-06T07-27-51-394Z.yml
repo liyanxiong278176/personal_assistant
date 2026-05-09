@@ -1,0 +1,71 @@
+- generic [ref=e2]:
+  - generic [ref=e3]: 🎯 意图分类器架构
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 第1层
+      - generic [ref=e7]: 精确匹配缓存
+      - generic [ref=e8]:
+        - text: • MD5哈希精确匹配
+        - text: • LRU淘汰策略
+        - text: • 最多1000条记录
+        - text: • 命中即返回结果
+    - generic [ref=e9]:
+      - generic [ref=e10]: 第2层
+      - generic [ref=e11]: 语义相似度缓存
+      - generic [ref=e12]:
+        - text: • 用户向量相似度计算
+        - text: • 余弦相似度≥0.8命中
+        - text: • FIFO淘汰策略
+        - text: • 最多500条记录
+    - generic [ref=e13]:
+      - generic [ref=e14]: 第3层
+      - generic [ref=e15]: 关键词+LLM降级
+      - generic [ref=e16]:
+        - text: • 正则匹配+权重评分
+        - text: • 排除关键词惩罚
+        - text: • LLM语义校验
+        - text: • 最终降级为chat
+  - generic [ref=e17]: ↓ 逐层降级，直到返回结果 ↓
+  - generic [ref=e18]:
+    - generic [ref=e19]:
+      - generic [ref=e20]: 🔑 关键词权重策略
+      - generic [ref=e21]:
+        - text: • 强关键词：权重 0.5-0.7（如"天气"、"价格"）
+        - text: • 中关键词：权重 0.3-0.4（如"查询"、"多少钱"）
+        - text: • 弱关键词：权重 0.2-0.3（如"怎么样"、"如何"）
+        - text: • 正则模式：额外+0.25分
+        - text: • 排除关键词：负分惩罚（如query意图排除"想去"、"旅游"）
+      - generic [ref=e22]:
+        - text: 配置示例（YAML）：
+        - text: "intents:"
+        - text: "weather:"
+        - text: "keywords_strong: [天气, 温度, 下雨]"
+        - text: "keywords_exclude: [想去, 旅游, 行程]"
+    - generic [ref=e23]:
+      - generic [ref=e24]: 📊 置信度决策表
+      - table [ref=e25]:
+        - rowgroup [ref=e26]:
+          - row "置信度 处理方式 走向" [ref=e27]:
+            - columnheader "置信度" [ref=e28]
+            - columnheader "处理方式" [ref=e29]
+            - columnheader "走向" [ref=e30]
+          - row "≥ 0.8 高置信度，接受 触发语义校验 → 返回+缓存" [ref=e31]:
+            - cell "≥ 0.8" [ref=e32]
+            - cell "高置信度，接受" [ref=e33]
+            - cell "触发语义校验 → 返回+缓存" [ref=e34]
+          - row "0.5~0.8 中置信度 可触发澄清对话 → 返回+缓存" [ref=e35]:
+            - cell "0.5~0.8" [ref=e36]
+            - cell "中置信度" [ref=e37]
+            - cell "可触发澄清对话 → 返回+缓存" [ref=e38]
+          - row "< 0.5 低置信度 不返回，记录best，继续下一策略" [ref=e39]:
+            - cell "< 0.5" [ref=e40]
+            - cell "低置信度" [ref=e41]
+            - cell "不返回，记录best，继续下一策略" [ref=e42]
+    - generic [ref=e43]:
+      - generic [ref=e44]: 🤖 LLM降级机制
+      - generic [ref=e45]:
+        - text: • 结构化分类prompt（~150 tokens）
+        - text: • 列出8种意图类型及详细说明
+        - text: "• 要求返回JSON：{intent, confidence, reasoning}"
+        - text: • 最多3次重试，每次超时30s
+        - text: • 最终降级：chat意图，置信度0.3

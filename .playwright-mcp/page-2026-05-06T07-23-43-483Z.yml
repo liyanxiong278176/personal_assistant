@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - generic [ref=e3]: 🎯 提示词管道系统架构
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 第1步
+      - generic [ref=e7]: 意图识别
+      - generic [ref=e8]:
+        - text: 识别用户意图类型
+        - text: 提取关键槽位信息
+    - generic [ref=e9]: →
+    - generic [ref=e10]:
+      - generic [ref=e11]: 第2步
+      - generic [ref=e12]: 模板加载
+      - generic [ref=e13]:
+        - text: 加载对应的
+        - text: Markdown模板文件
+    - generic [ref=e14]: →
+    - generic [ref=e15]:
+      - generic [ref=e16]: 第3步
+      - generic [ref=e17]: 模板渲染
+      - generic [ref=e18]:
+        - text: 替换变量标签
+        - text: 生成完整提示词
+    - generic [ref=e19]: →
+    - generic [ref=e20]:
+      - generic [ref=e21]: 第4步
+      - generic [ref=e22]: 缓存管理
+      - generic [ref=e23]:
+        - text: 两层缓存机制
+        - text: 提升响应速度
+  - generic [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]: 📋 意图识别 & 槽位提取
+      - generic [ref=e27]:
+        - text: • 识别8种核心意图：itinerary(行程)、query(查询)、weather(天气)等
+        - text: • 提取关键槽位：目的地、时间、预算、人数等
+        - text: "• 示例：\"我想去杭州3天，预算2000元\" → intent:itinerary, slots:{destination:杭州, days:3, budget:2000}"
+    - generic [ref=e28]:
+      - generic [ref=e29]: 📄 Markdown模板系统
+      - generic [ref=e30]:
+        - text: • 每个意图对应独立的Markdown模板文件
+        - text: • 模板包含：角色定位、行为规则、Few-shot示例、输出格式要求
+        - text: • 渲染后生成约800字符的base_prompt
+      - generic [ref=e31]: "模板示例: \"你是一个专业的旅游助手，擅长规划{destination}的{days}天行程，预算{budget}元...\""
+    - generic [ref=e32]:
+      - generic [ref=e33]: ⚡ 两层缓存机制
+      - generic [ref=e34]:
+        - text: • L1-精确匹配：MD5哈希+LRU淘汰，最多1000条
+        - text: • L2-语义相似：余弦相似度≥0.8，FIFO淘汰，最多500条
+        - text: • 向量复用：用户向量在记忆检索时继续使用

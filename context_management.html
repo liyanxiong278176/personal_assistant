@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上下文管理系统架构</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1400px;
+        }
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            border-bottom: 4px solid #fa709a;
+            padding-bottom: 20px;
+        }
+        .three-phase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .phase {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(250, 112, 154, 0.4);
+        }
+        .phase-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .phase-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .phase-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .arrow-down {
+            text-align: center;
+            font-size: 30px;
+            color: #fa709a;
+            margin: 10px 0;
+        }
+        .strategy-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        .strategy-box {
+            background: white;
+            border-left: 5px solid #fa709a;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .strategy-title {
+            color: #fa709a;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .strategy-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+        .checkpoint {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #155724;
+        }
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #856404;
+        }
+        .warning {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🛡️ 上下文管理系统架构</div>
+
+        <div class="three-phase">
+            <div class="phase">
+                <div class="phase-number">阶段1</div>
+                <div class="phase-name">推理前</div>
+                <div class="phase-desc">
+                    • 前置清理<br>
+                    • TTL检查<br>
+                    • 软修剪<br>
+                    • 上下文占用>30%
+                </div>
+            </div>
+            <div class="phase">
+                <div class="phase-number">阶段2</div>
+                <div class="phase-name">推理时</div>
+                <div class="phase-desc">
+                    • 工具执行守卫<br>
+                    • 单条工具>50%拒绝<br>
+                    • 预算预留25%<br>
+                    • 替换最旧工具结果
+                </div>
+            </div>
+            <div class="phase">
+                <div class="phase-number">阶段3</div>
+                <div class="phase-name">推理后</div>
+                <div class="phase-desc">
+                    • 后置压缩<br>
+                    • 窗口占比>75%触发<br>
+                    • LLM摘要生成<br>
+                    • 流式兜底
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-down">↓ 用户消息 → LLM推理 → 响应输出 ↓</div>
+
+        <div class="strategy-section">
+            <div class="strategy-box">
+                <div class="strategy-title">🧹 前置清理（推理前）</div>
+                <div class="strategy-content">
+                    • 保护范围：倒数第3条助手消息之后的所有工具结果<br>
+                    • TTL检查：清理时长超过TTL的工具消息<br>
+                    • 软修剪：单条工具>4000字符，保留首尾各1500字符<br>
+                    • 替换指示：中间部分用"...trimmed..."指示<br>
+                    • 保护策略：user/system消息不受清理<br>
+                    • 比例控制：上下文占用>30%时执行软修剪<br>
+                    • 超限处理：占用>50%，工具消息替换为占位符
+                </div>
+                <div class="checkpoint">
+                    ✓ 清理对象：仅工具结果<br>
+                    ✓ 保护消息：user/system<br>
+                    ✓ 软修剪：保留首尾+指示符
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">🛡️ 工具执行守卫（推理时）</div>
+                <div class="strategy-content">
+                    • 单条限制：工具结果占比>50%，拒绝添加<br>
+                    • 预算预留：总预算预留25%给LLM回答内容<br>
+                    • 防止压缩：避免添加后立即触发后置压缩<br>
+                    • 替换策略：最旧工具结果→摘要→占位符<br>
+                    • 拒绝机制：超预算时拒绝添加新工具结果
+                </div>
+                <div class="warning">
+                    ⚠️ 防止工具结果挤占LLM回答空间<br>
+                    ⚠️ 单条工具不得超过50%窗口
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">🗜️ 后置压缩（推理后）</div>
+                <div class="strategy-content">
+                    • 触发条件：窗口占比>75%<br>
+                    • 消息分离：确保系统消息不被压缩<br>
+                    • 压缩对象：仅压缩对话历史<br>
+                    • 多块分块：基础分块40%，最小15%，最近20%不压缩<br>
+                    • LLM摘要：每块消息用LLM生成摘要<br>
+                    • 降级策略：3次失败后降级为计数摘要<br>
+                    • 规则重注：检查并重新注入规则消息
+                </div>
+                <div class="alert">
+                    📋 系统消息受保护，仅压缩历史对话
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">🌊 流式兜底（输出中）</div>
+                <div class="strategy-content">
+                    • 80%警告：提前告知用户回复较长，已精简展示<br>
+                    • 100%截断：返回已生成内容，避免空白页<br>
+                    • 用户提示：告知用户已到达最大轮数限制<br>
+                    • 用户体验：始终有返回结果，不显示空白
+                </div>
+                <div class="checkpoint">
+                    ✓ 80%窗口：友好提示<br>
+                    ✓ 100%窗口：返回内容非空白<br>
+                    ✓ 用户体验：始终有返回结果
+                </div>
+            </div>
+
+            <div class="strategy-box">
+                <div class="strategy-title">📊 上下文窗口管理</div>
+                <div class="strategy-content">
+                    • 最大窗口：128K tokens（DeepSeek模型）<br>
+                    • 安全阈值：75%时触发压缩，确保25%缓冲<br>
+                    • 消息优先级：system > user > assistant > tool<br>
+                    • 时间优先级：最近消息 > 历史消息<br>
+                    • Token估算：实时监控上下文占用比例
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
