@@ -154,8 +154,8 @@ class MemoryHierarchy:
 
     def __init__(
         self,
-        working_max_size: int = 20,
-        working_max_tokens: int = 4000,
+        working_max_size: int = 200,
+        working_max_tokens: int = 128000,
         conversation_id: Optional[UUID] = None,
         user_id: Optional[str] = None,
         compact_mode: bool = False,
@@ -176,10 +176,10 @@ class MemoryHierarchy:
             conflict_resolver: Optional conflict resolver for semantic memory (v2.3)
         """
         if compact_mode:
-            if working_max_size == 20:
-                working_max_size = 6
-            if working_max_tokens == 4000:
-                working_max_tokens = 2000
+            if working_max_size == 200:
+                working_max_size = 50
+            if working_max_tokens == 128000:
+                working_max_tokens = 32000
 
         self._working: deque[WorkingMemoryEntry] = deque(maxlen=working_max_size)
         self._working_max_tokens = working_max_tokens

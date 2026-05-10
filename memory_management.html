@@ -153,11 +153,11 @@
         <div class="three-memory">
             <div class="memory">
                 <div class="memory-name">📝 工作记忆</div>
-                <div class="memory-capacity">容量：20条消息</div>
+                <div class="memory-capacity">容量：200条消息 / 128000 tokens</div>
                 <div class="memory-desc">
-                    • 内存队列<br>
-                    • 上下文窗口部分<br>
-                    • 最新的对话内容
+                    • 内存队列（DeepSeek API上限）<br>
+                    • FIFO裁剪作为最后防线<br>
+                    • 配合上下文管理智能压缩
                 </div>
             </div>
             <div class="memory">
