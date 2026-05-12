@@ -153,9 +153,9 @@
         <div class="three-memory">
             <div class="memory">
                 <div class="memory-name">📝 工作记忆</div>
-                <div class="memory-capacity">容量：200条消息 / 128000 tokens</div>
+                <div class="memory-capacity">容量：最近3-5轮对话</div>
                 <div class="memory-desc">
-                    • 内存队列（DeepSeek API上限）<br>
+                    • 内存队列<br>
                     • FIFO裁剪作为最后防线<br>
                     • 配合上下文管理智能压缩
                 </div>
@@ -250,7 +250,7 @@
                     <tr>
                         <td>时间衰减</td>
                         <td>强度按指数衰减</td>
-                        <td>公式：强度=初始×e^(-年龄/半衰期)</td>
+                        <td>公式：强度=初始×e^(-时间/半衰期)</td>
                     </tr>
                     <tr>
                         <td>记忆删除</td>
